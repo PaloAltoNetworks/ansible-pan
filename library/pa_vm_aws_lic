@@ -1,0 +1,72 @@
+#!/usr/bin/python
+import sys
+
+try:
+    import pan.xapi
+except ImportError:
+    print "failed=True msg='pan-python required for this module'"
+    sys.exit(1)
+
+def get_serial(xapi, module):
+    xapi.op(cmd="show system info", cmd_xml=True)
+    r = xapi.element_root
+    serial = r.find('.//serial')
+    if serial is None:
+        module.fail_json(msg="No <serial> tag in show system info")
+
+    serial = serial.text
+
+    return serial
+
+def apply_authcode(xapi, module, auth_code):
+    try:
+        xapi.op(cmd='request license fetch auth-code "%s"'%auth_code, cmd_xml=True)
+    except pan.xapi.PanXapiError:
+        if hasattr(xapi, 'xml_document'):
+            if 'Successfully' in xapi.xml_document:
+                return
+
+        if 'Invalid Auth Code' in xapi.xml_document:
+            module.fail_json(msg="Invalid Auth Code")
+
+        raise
+
+    return
+
+def main():
+    argument_spec = dict(
+            ip_address=dict(default=None),
+            password=dict(default=None),
+            auth_code=dict(default=None),
+            username=dict(default='admin'),
+            force=dict(type='bool', default=False)
+        )
+    module = AnsibleModule(argument_spec=argument_spec)
+
+    ip_address = module.params["ip_address"]
+    if not ip_address:
+        module.fail_json(msg="ip_address should be specified")
+    password = module.params["password"]
+    if not password:
+        module.fail_json(msg="password is required")
+    auth_code = module.params["auth_code"]
+    if not auth_code:
+        module.fail_json(msg="auth_code is required")
+    force = module.params['force']
+    username = module.params['username']
+
+    xapi = pan.xapi.PanXapi(hostname=ip_address, api_username=username, api_password=password)
+
+    if not force:
+        serialnumber = get_serial(xapi, module)
+        if serialnumber != 'unknown':
+            return module.exit_json(changed=False, serialnumber=serialnumber)
+
+    apply_authcode(xapi, module, auth_code)
+
+    module.exit_json(changed=True, msg="okey dokey")
+
+from ansible.module_utils.basic import *
+from ansible.module_utils.ec2 import *
+
+main()

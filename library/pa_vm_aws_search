@@ -1,0 +1,43 @@
+#!/usr/bin/python
+
+import sys
+
+try:
+    import boto
+    import boto.ec2
+except ImportError:
+    print "failed=True msg='boto required for this module'"
+    sys.exit(1)
+
+def main():
+    argument_spec = ec2_argument_spec()
+    argument_spec.update(dict(
+                release=dict(default=None),
+                first=dict(type='bool', default=True)
+        )
+    )
+    module = AnsibleModule(argument_spec=argument_spec)
+
+    pavmrelease = module.params["release"]
+    if not pavmrelease:
+        module.fail_json(msg="version should be a valid PAN-OS release")
+    pavmaminame = "PA-VM-AWS-"+pavmrelease
+
+    ec2 = ec2_connect(module)
+
+    images = ec2.get_all_images(owners=['aws-marketplace'], filters=dict(name=pavmaminame+"*"))
+    images = [i.id for i in images]
+
+    if not module.params['first']:
+        module.exit_json(changed=True, imageids=images)
+
+    if len(images) == 0:
+        module.fail_json(msg="no AMI found for this PAN-OS release")
+
+    module.exit_json(changed=True, imageid=images[0])
+
+
+from ansible.module_utils.basic import *
+from ansible.module_utils.ec2 import *
+
+main()
