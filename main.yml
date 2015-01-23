@@ -31,6 +31,8 @@
   - name: write private key to file
     copy: content="{{pavmawskey.key.private_key}}" dest="{{key_filename}}" mode=0600 force=yes
     when: pavmawskey.changed == True
+  - name: check key exists
+    stat: path="{{key_filename}}"
   - name: create security group
     ec2_group:
       name: "{{sgname}}"
