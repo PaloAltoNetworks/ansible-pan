@@ -8,7 +8,6 @@ except ImportError:
     print "failed=True msg='pan-python required for this module'"
     sys.exit(1)
 
-"<request><url-filtering><download><paloaltonetworks><region></region></paloaltonetworks></download></url-filtering></request>"
 PAN_DB_REGIONS = [
     "APAC",
     "Europe",
