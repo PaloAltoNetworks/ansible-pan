@@ -1,0 +1,100 @@
+- name: setup pa-vm-aws instance
+  hosts: 127.0.0.1
+  connection: local
+
+  tasks:
+  - name: retrieve PA-VM-AWS AMI ID
+    pa_vm_aws_search: region="{{region}}" release="6.1.0"
+    register: pavmawsamiid
+  - name: print AMI IDs
+    debug: msg="AMI IDs {{ pavmawsamiid }}"
+  - name: create key pair
+    ec2_key: name="{{key_name}}" state=present region="{{region}}"
+    register: pavmawskey
+  - name: write private key to file
+    copy: content="{{pavmawskey.key.private_key}}" dest="{{key_filename}}" mode=0600 force=yes
+    when: pavmawskey.changed == True
+  - name: check key exists
+    stat: path="{{key_filename}}"
+  - name: create security group
+    ec2_group:
+      name: "{{sgname}}"
+      vpc_id: "{{vpc_id}}"
+      region: "{{region}}"
+      description: "{{sgdescription}}"
+      state: present
+      rules:
+        - proto: tcp
+          from_port: 22
+          to_port: 22
+          cidr_ip: 0.0.0.0/0
+        - proto: tcp
+          from_port: 443
+          to_port: 443
+          cidr_ip: 0.0.0.0/0
+    register: pavmawssg
+  - name: launch PA-VM-AWS instance
+    ec2:
+      key_name: "{{key_name}}"
+      region: "{{region}}"
+      instance_type: "{{instance_type}}"
+      image: "{{pavmawsamiid.imageid}}"
+      vpc_subnet_id: "{{vpc_subnet_id}}"
+      assign_public_ip: yes
+      wait: yes
+      ebs_optimized: yes
+      private_ip: "{{private_ip}}"
+      group_id: "{{pavmawssg.group_id}}"
+    register: pavmawsec2
+  - name: print instance info
+    debug: 
+      msg: "new pa-vm-aws instance ip address: {{pavmawsec2.instances[0].public_ip}}"
+  - name: wait for SSH (timeout 10min)
+    wait_for: port=22 host="{{pavmawsec2.instances[0].public_ip}}" search_regex=SSH timeout=600
+  - name: set admin password
+    pa_vm_aws_admpwd: ip_address="{{pavmawsec2.instances[0].public_ip}}" key_filename="{{key_filename}}" password="{{admin_password}}"
+    register: result
+    until: not result|failed
+    retries: 5
+    delay: 30
+  - name: set dns and panorama
+    pa_vm_aws_mgtconfig:
+      ip_address: "{{pavmawsec2.instances[0].public_ip}}"
+      password: "{{admin_password}}"
+      dns_server_primary: "{{dns_server_primary}}"
+      dns_server_secondary: "{{dns_server_secondary}}"
+      panorama_primary: "{{panorama_primary}}"
+      panorama_secondary: "{{panorama_secondary}}"
+  - name: push license
+    pa_vm_aws_lic: ip_address="{{pavmawsec2.instances[0].public_ip}}" password="{{admin_password}}" auth_code="{{auth_code}}"
+  - name: wait for reboot starting (1 minute)
+    pause: seconds=60
+  - name: waiting for reboot
+    pa_vm_aws_check: 
+      ip_address: "{{pavmawsec2.instances[0].public_ip}}" 
+      password: "{{admin_password}}"
+    register: result
+    until: not result|failed
+    retries: 10
+    delay: 30
+  - name: update content
+    pa_vm_aws_content: 
+      ip_address: "{{pavmawsec2.instances[0].public_ip}}" 
+      password: "{{admin_password}}"
+      content_update: yes
+  - name: update anti-virus
+    pa_vm_aws_content: 
+      ip_address: "{{pavmawsec2.instances[0].public_ip}}" 
+      password: "{{admin_password}}"
+      anti_virus_update: yes
+  - name: update pan-db
+    pa_vm_aws_content: 
+      ip_address: "{{pavmawsec2.instances[0].public_ip}}" 
+      password: "{{admin_password}}"
+      url_download_region: europe
+  - name: update wildfire
+    pa_vm_aws_content: 
+      ip_address: "{{pavmawsec2.instances[0].public_ip}}" 
+      password: "{{admin_password}}"
+      wildfire_update: yes
+
