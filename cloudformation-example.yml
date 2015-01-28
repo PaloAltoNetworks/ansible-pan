@@ -1,0 +1,78 @@
+- name: setup pa-vm-aws instance
+  hosts: 127.0.0.1
+  connection: local
+
+  vars:
+    region: eu-west-1
+    key_name: pa-vm-aws
+    key_filename: /home/luigi/pa-vm-aws.pem
+    instance_type: c3.xlarge
+    vpc_cidr: 10.0.0.0/16
+    private_subnet_cidr: 10.0.254.0/24
+    public_subnet_cidr: 10.0.0.0/24
+    admin_password: KWJMzczCzzm6c97j
+    auth_code: I1379976
+    dns_server_primary: 8.8.8.8
+    dns_server_secondary: 8.8.4.4
+    panorama_primary: 172.16.31.1.4
+    panorama_secondary: 172.16.31.1.6
+    stack_name: pa-vm-aws-test
+    cloudformation_template: files/cloudformation-example.template
+
+  tasks:
+  - name: create key pair
+    ec2_key: name="{{key_name}}" state=present region="{{region}}"
+    register: pavmawskey
+  - name: write private key to file
+    copy: content="{{pavmawskey.key.private_key}}" dest="{{key_filename}}" mode=0600 force=yes
+    when: pavmawskey.changed == True
+  - name: launch ansible cloudformation example
+    cloudformation:
+      stack_name: "{{stack_name}}"
+      state: "present"
+      disable_rollback: true
+      template: "{{cloudformation_template}}"
+      template_parameters:
+        KeyName: "{{key_name}}"
+        PAVMAWSInstanceType: "{{instance_type}}"
+        VPCCidr: "{{vpc_cidr}}"
+        PrivateSubnetCidr: "{{private_subnet_cidr}}"
+        PublicSubnetCidr: "{{public_subnet_cidr}}"
+    register: stack
+  - name: print stack results
+    debug: msg="result {{stack.stack_outputs}}"
+  - name: wait for SSH (timeout 10min)
+    wait_for: port=22 host="{{stack.stack_outputs.PAVMAWSEIPMgmt}}" search_regex=SSH timeout=600
+  - name: set admin password
+    pa_vm_aws_admpwd: ip_address="{{stack.stack_outputs.PAVMAWSEIPMgmt}}" key_filename="{{key_filename}}" password="{{admin_password}}"
+    register: result
+    until: not result|failed
+    retries: 5
+    delay: 30
+    ignore_errors: yes
+  - name: set dns and panorama
+    pa_vm_aws_mgtconfig:
+      ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}"
+      password: "{{admin_password}}"
+      dns_server_primary: "{{dns_server_primary}}"
+      dns_server_secondary: "{{dns_server_secondary}}"
+      panorama_primary: "{{panorama_primary}}"
+      panorama_secondary: "{{panorama_secondary}}"
+  - name: push license
+    pa_vm_aws_lic: ip_address="{{stack.stack_outputs.PAVMAWSEIPMgmt}}" password="{{admin_password}}" auth_code="{{auth_code}}"
+  - name: upgrade content
+    pa_vm_aws_content: 
+      ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}" 
+      password: "{{admin_password}}"
+      content_update: yes
+  - name: upgrade anti-virus
+    pa_vm_aws_content: 
+      ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}" 
+      password: "{{admin_password}}"
+      anti_virus_update: yes
+  - name: upgrade dynamic updates
+    pa_vm_aws_content: 
+      ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}"
+      password: "{{admin_password}}"
+      wildfire_update: yes
+
