@@ -1,0 +1,62 @@
+#!/usr/bin/python
+import sys
+import time
+
+try:
+    import pan.xapi
+except ImportError:
+    print "failed=True msg='pan-python required for this module'"
+    sys.exit(1)
+
+def check_jobs(jobs, module):
+    job_check = False
+    for j in jobs:
+        status = j.find('.//status')
+        if status is None:
+            return False
+        if status.text != 'FIN':
+            return False
+        job_check = True
+    return job_check
+
+def main():
+    argument_spec = dict(
+            ip_address=dict(default=None),
+            password=dict(default=None),
+            username=dict(default='admin'),
+            timeout=dict(default=0,type='int'),
+            interval=dict(default=0, type='int')
+        )
+    module = AnsibleModule(argument_spec=argument_spec)
+
+    ip_address = module.params["ip_address"]
+    if not ip_address:
+        module.fail_json(msg="ip_address should be specified")
+    password = module.params["password"]
+    if not password:
+        module.fail_json(msg="password is required")
+    username = module.params['username']
+    timeout = module.params['timeout']
+    interval = module.params['interval']
+
+    xapi = pan.xapi.PanXapi(hostname=ip_address, api_username=username, api_password=password, timeout=60)
+
+    now = time.time()
+    while time.time() <= now+timeout:
+        try:
+            xapi.op(cmd="show jobs all", cmd_xml=True)
+        except:
+            pass
+        else:
+            jobs = xapi.element_root.findall('.//job')
+            if check_jobs(jobs, module):
+                module.exit_json(changed=True, msg="okey dokey")
+
+        time.sleep(interval)
+
+    module.fail_json(msg="Timeout")    
+
+from ansible.module_utils.basic import *
+from ansible.module_utils.ec2 import *
+
+main()
