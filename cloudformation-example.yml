@@ -47,9 +47,8 @@
     pa_vm_aws_admpwd: ip_address="{{stack.stack_outputs.PAVMAWSEIPMgmt}}" key_filename="{{key_filename}}" password="{{admin_password}}"
     register: result
     until: not result|failed
-    retries: 5
+    retries: 10
     delay: 30
-    ignore_errors: yes
   - name: set dns and panorama
     pa_vm_aws_mgtconfig:
       ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}"
@@ -58,21 +57,54 @@
       dns_server_secondary: "{{dns_server_secondary}}"
       panorama_primary: "{{panorama_primary}}"
       panorama_secondary: "{{panorama_secondary}}"
+  - name: configure ethernet1/1
+    pa_vm_aws_dhcpif:
+      password: "{{admin_password}}"
+      ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}"
+      if_name: "ethernet1/1"
+      zone_name: "public"
+      create_default_route: "yes"
+  - name: configure ethernet1/2
+    pa_vm_aws_dhcpif:
+      password: "{{admin_password}}"
+      ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}"
+      if_name: "ethernet1/2"
+      zone_name: "private"
+      create_default_route: "no"
   - name: push license
     pa_vm_aws_lic: ip_address="{{stack.stack_outputs.PAVMAWSEIPMgmt}}" password="{{admin_password}}" auth_code="{{auth_code}}"
+  - name: wait for reboot starting (1 minute)
+    pause: seconds=60
+  - name: waiting for reboot
+    pa_vm_aws_check: 
+      ip_address: "{{pavmawsec2.instances[0].public_ip}}" 
+      password: "{{admin_password}}"
+    register: result
+    until: not result|failed
+    retries: 10
+    delay: 30
   - name: upgrade content
     pa_vm_aws_content: 
       ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}" 
       password: "{{admin_password}}"
       content_update: yes
+    ignore_errors: yes
   - name: upgrade anti-virus
     pa_vm_aws_content: 
       ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}" 
       password: "{{admin_password}}"
       anti_virus_update: yes
-  - name: upgrade dynamic updates
+    ignore_errors: yes
+  - name: upgrade pan-db
+    pa_vm_aws_content: 
+      ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}" 
+      password: "{{admin_password}}"
+      url_download_region: europe
+    ignore_errors: yes
+  - name: upgrade wildfire
     pa_vm_aws_content: 
       ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}"
       password: "{{admin_password}}"
       wildfire_update: yes
+    ignore_errors: yes
 

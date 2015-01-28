@@ -1,0 +1,79 @@
+#!/usr/bin/python
+import sys
+
+try:
+    import pan.xapi
+except ImportError:
+    print "failed=True msg='pan-python required for this module'"
+    sys.exit(1)
+
+_NAT_XPATH = "/config/devices/entry[@name='localhost.localdomain']/vsys/entry[@name='vsys1']/rulebase/nat/rules/entry[@name='%s']"
+
+def add_snat_rule(xapi, if_name, zone_name, create_default_route):
+    if_xml = ['<entry name="%s">',
+            '<layer3>',
+            '<dhcp-client>',
+            '<create-default-route>%s</create-default-route>',
+            '</dhcp-client>'
+            '</layer3>'
+            '</entry>']
+    cdr = 'yes'
+    if not create_default_route:
+        cdr = 'no'
+    if_xml = (''.join(if_xml))%(if_name, cdr)
+    xapi.edit(xpath=_IF_XPATH%if_name, element=if_xml)
+
+    xapi.set(xpath=_ZONE_XPATH+"[@name='%s']/network/layer3"%zone_name, element='<member>%s</member>'%if_name)
+    xapi.set(xpath=_VR_XPATH+"[@name='default']/interface", element='<member>%s</member>'%if_name)
+
+    return True
+
+def main():
+    argument_spec = dict(
+            ip_address=dict(default=None),
+            password=dict(default=None),
+            username=dict(default='admin'),
+            rule_name=dict(default=None),
+            bidirectional=dict(type='bool', default=False),
+            snat_type=dict(default='static-ip'),
+            translated_address=dict(default=None),
+            from=dict(default=None),
+            to=dict(default=None),
+            source=dict(default=None),
+            destination=dict(default=None),
+            service=dict(default="any")
+        )
+    module = AnsibleModule(argument_spec=argument_spec)
+
+    ip_address = module.params["ip_address"]
+    if not ip_address:
+        module.fail_json(msg="ip_address should be specified")
+    password = module.params["password"]
+    if not password:
+        module.fail_json(msg="password is required")
+    username = module.params['username']
+
+    xapi = pan.xapi.PanXapi(hostname=ip_address, api_username=username, api_password=password)
+
+    if_name = module.params['if_name']
+    if not if_name:
+        module.fail_json(msg="if_name required")
+    zone_name = module.params['zone_name']
+    if not zone_name:
+        module.fail_json(msg="zone_name required")
+    create_default_route = module.params['create_default_route']
+
+    ifexists = if_exists(xapi, if_name)
+    if ifexists:
+        module.exit_json(changed=False, msg="if exists, not changed")
+
+    changed = add_dhcp_if(xapi, if_name, zone_name, create_default_route)
+    if changed:
+        xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
+
+    module.exit_json(changed=changed, msg="okey dokey")
+
+from ansible.module_utils.basic import *
+from ansible.module_utils.ec2 import *
+
+main()

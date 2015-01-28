@@ -99,22 +99,23 @@
       ip_address: "{{pavmawsec2.instances[0].public_ip}}" 
       password: "{{admin_password}}"
       content_update: yes
+    ignore_errors: yes
   - name: update anti-virus
     pa_vm_aws_content: 
       ip_address: "{{pavmawsec2.instances[0].public_ip}}" 
       password: "{{admin_password}}"
       anti_virus_update: yes
-      ignore_errors: yes
+    ignore_errors: yes
   - name: update pan-db
     pa_vm_aws_content: 
       ip_address: "{{pavmawsec2.instances[0].public_ip}}" 
       password: "{{admin_password}}"
       url_download_region: europe
-      ignore_errors: yes
+    ignore_errors: yes
   - name: update wildfire
     pa_vm_aws_content: 
       ip_address: "{{pavmawsec2.instances[0].public_ip}}" 
       password: "{{admin_password}}"
       wildfire_update: yes
-      ignore_errors: yes
+    ignore_errors: yes
 
