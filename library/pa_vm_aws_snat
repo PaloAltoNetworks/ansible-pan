@@ -9,22 +9,31 @@ except ImportError:
 
 _NAT_XPATH = "/config/devices/entry[@name='localhost.localdomain']/vsys/entry[@name='vsys1']/rulebase/nat/rules/entry[@name='%s']"
 
-def add_snat_rule(xapi, if_name, zone_name, create_default_route):
-    if_xml = ['<entry name="%s">',
-            '<layer3>',
-            '<dhcp-client>',
-            '<create-default-route>%s</create-default-route>',
-            '</dhcp-client>'
-            '</layer3>'
-            '</entry>']
-    cdr = 'yes'
-    if not create_default_route:
-        cdr = 'no'
-    if_xml = (''.join(if_xml))%(if_name, cdr)
-    xapi.edit(xpath=_IF_XPATH%if_name, element=if_xml)
-
-    xapi.set(xpath=_ZONE_XPATH+"[@name='%s']/network/layer3"%zone_name, element='<member>%s</member>'%if_name)
-    xapi.set(xpath=_VR_XPATH+"[@name='default']/interface", element='<member>%s</member>'%if_name)
+def add_snat_static_ip(xapi, rule_name, from_zone, to_zone, source, destination, service, bidirectional, translated_address):
+    values = { "from_zone": from_zone,
+               "to_zone": to_zone,
+               "source": source,
+               "destination": destination,
+               "service": service,
+               "translated_address": translated_address }
+    if bidirectional:
+        values['bidirectional'] = 'yes'
+    else:
+        values['bidirectional'] = 'no'
+    exml = ["<source-translation>",
+            "<static-ip>",
+            "<bi-directional>%(bidirectional)s</bi-directional>",
+            "<translated-address>%(translated_address)s</translated-address>",
+            "</static-ip>",
+            "</source-translation>",
+            "<to><member>%(to_zone)s</member></to>",
+            "<from><member>%(from_zone)s</member></from>",
+            "<source><member>%(source)s</member></source>",
+            "<destination><member>%(destination)s</member></destination>",
+            "<service>%(service)s</service>",
+            "<nat-type>ipv4</nat-type>"]
+    exml = ''.join(exml)%values
+    xapi.set(xpath=_NAT_XPATH%rule_name, element=exml)
 
     return True
 
@@ -37,10 +46,10 @@ def main():
             bidirectional=dict(type='bool', default=False),
             snat_type=dict(default='static-ip'),
             translated_address=dict(default=None),
-            from=dict(default=None),
-            to=dict(default=None),
-            source=dict(default=None),
-            destination=dict(default=None),
+            from_zone=dict(default=None),
+            to_zone=dict(default=None),
+            source=dict(default="any"),
+            destination=dict(default="any"),
             service=dict(default="any")
         )
     module = AnsibleModule(argument_spec=argument_spec)
@@ -55,19 +64,28 @@ def main():
 
     xapi = pan.xapi.PanXapi(hostname=ip_address, api_username=username, api_password=password)
 
-    if_name = module.params['if_name']
-    if not if_name:
-        module.fail_json(msg="if_name required")
-    zone_name = module.params['zone_name']
-    if not zone_name:
-        module.fail_json(msg="zone_name required")
-    create_default_route = module.params['create_default_route']
+    rule_name = module.params['rule_name']
+    if not rule_name:
+        module.fail_json(msg='rule_name is required')
+    bidirectional = module.params['bidirectional']
+    snat_type = module.params['snat_type']
+    translated_address = module.params['translated_address']
+    from_zone = module.params['from_zone']
+    if from_zone is None:
+        module.fail_json(msg='from_zone is required')
+    to_zone = module.params['to_zone']
+    if to_zone is None:
+        module.fail_json(msg='to_zone is required')
+    source = module.params['source']
+    destination = module.params['destination']
+    service = module.params['service']
 
-    ifexists = if_exists(xapi, if_name)
-    if ifexists:
-        module.exit_json(changed=False, msg="if exists, not changed")
+    changed = False
+    if snat_type == 'static-ip':
+        changed = add_snat_static_ip(xapi, rule_name, from_zone, to_zone, source, destination, service, bidirectional, translated_address)
+    else:
+        module.fail_json(msg="unsupported snat type "+snat_type)
 
-    changed = add_dhcp_if(xapi, if_name, zone_name, create_default_route)
     if changed:
         xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
 

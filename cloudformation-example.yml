@@ -4,8 +4,6 @@
 
   vars:
     region: eu-west-1
-    key_name: pa-vm-aws
-    key_filename: /home/luigi/pa-vm-aws.pem
     instance_type: c3.xlarge
     vpc_cidr: 10.0.0.0/16
     private_subnet_cidr: 10.0.254.0/24
@@ -71,6 +69,19 @@
       if_name: "ethernet1/2"
       zone_name: "private"
       create_default_route: "no"
+  - name: set snat
+    pa_vm_aws_snat:
+      ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}"
+      password: "{{admin_password}}"
+      rule_name: "snat"
+      bidirectional: "true"
+      snat_type: "static-ip"
+      translated_address: "{{stack.stack_outputs.PAVMAWSPublicIP}}"
+      from_zone: "private"
+      to_zone: "public"
+      source: "{{stack.stack_outputs.SeverIP}}"
+      destination: "any"
+      service: "any"
   - name: push license
     pa_vm_aws_lic: ip_address="{{stack.stack_outputs.PAVMAWSEIPMgmt}}" password="{{admin_password}}" auth_code="{{auth_code}}"
   - name: wait for reboot starting (1 minute)
