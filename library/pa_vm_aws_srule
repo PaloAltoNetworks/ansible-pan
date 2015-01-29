@@ -1,0 +1,133 @@
+#!/usr/bin/python
+import sys
+
+try:
+    import pan.xapi
+except ImportError:
+    print "failed=True msg='pan-python required for this module'"
+    sys.exit(1)
+
+_SRULE_XPATH = "/config/devices/entry[@name='localhost.localdomain']/vsys/entry[@name='vsys1']/rulebase/security/rules/entry[@name='%s']"
+
+def add_security_rule(xapi, **kwargs):
+    # exml = ['<entry name="permit-server"%s">'%kwargs['rule_name']]
+    exml = []
+
+    exml.append('<to>')
+    for t in kwargs['to_zone']:
+        exml.append('<member>%s</member>'%t)
+    exml.append('</to>')
+
+    exml.append('<from>')
+    for t in kwargs['from_zone']:
+        exml.append('<member>%s</member>'%t)
+    exml.append('</from>')
+    
+    exml.append('<source>')
+    for t in kwargs['source']:
+        exml.append('<member>%s</member>'%t)
+    exml.append('</source>')
+    
+    exml.append('<destination>')
+    for t in kwargs['destination']:
+        exml.append('<member>%s</member>'%t)
+    exml.append('</destination>')
+
+    exml.append('<source-user>')
+    for t in kwargs['source_user']:
+        exml.append('<member>%s</member>'%t)
+    exml.append('</source-user>')
+
+    exml.append('<category>')
+    for t in kwargs['category']:
+        exml.append('<member>%s</member>'%t)
+    exml.append('</category>')
+
+    exml.append('<application>')
+    for t in kwargs['application']:
+        exml.append('<member>%s</member>'%t)
+    exml.append('</application>')
+
+    exml.append('<service>')
+    for t in kwargs['service']:
+        exml.append('<member>%s</member>'%t)
+    exml.append('</service>')
+
+    exml.append('<hip-profiles>')
+    for t in kwargs['hip_profiles']:
+        exml.append('<member>%s</member>'%t)
+    exml.append('</hip-profiles>')
+
+    exml.append('<action>%s</action>'%kwargs['action'])
+
+    # exml.append('</entry>')
+
+    exml = ''.join(exml)
+    xapi.set(xpath=_SRULE_XPATH%kwargs['rule_name'], element=exml)
+
+    return True
+
+def main():
+    argument_spec = dict(
+            ip_address=dict(default=None),
+            password=dict(default=None),
+            username=dict(default='admin'),
+            rule_name=dict(default=None),
+            from_zone=dict(default=['any']),
+            to_zone=dict(default=['any']),
+            source=dict(default=["any"]),
+            source_user=dict(default=['any']),
+            destination=dict(default=["any"]),
+            category=dict(default=['any']),
+            application=dict(default=['any']),
+            service=dict(default=['application-default']),
+            hip_profiles=dict(default=['any']),
+            action=dict(default='allow')
+        )
+    module = AnsibleModule(argument_spec=argument_spec)
+
+    ip_address = module.params["ip_address"]
+    if not ip_address:
+        module.fail_json(msg="ip_address should be specified")
+    password = module.params["password"]
+    if not password:
+        module.fail_json(msg="password is required")
+    username = module.params['username']
+
+    xapi = pan.xapi.PanXapi(hostname=ip_address, api_username=username, api_password=password)
+
+    rule_name = module.params['rule_name']
+    if not rule_name:
+        module.fail_json(msg='rule_name is required')
+    from_zone = module.params['from_zone']
+    to_zone = module.params['to_zone']
+    source = module.params['source']
+    source_user = module.params['source_user']
+    destination = module.params['destination']
+    category = module.params['category']
+    application = module.params['application']
+    service = module.params['service']
+    hip_profiles = module.params['hip_profiles']
+    action = module.params['action']
+
+    changed = add_security_rule(xapi, 
+                                rule_name=rule_name,
+                                from_zone=from_zone,
+                                to_zone=to_zone,
+                                source=source,
+                                source_user=source_user,
+                                destination=destination,
+                                category=category,
+                                application=application,
+                                service=service,
+                                hip_profiles=hip_profiles,
+                                action=action)
+    if changed:
+        xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
+
+    module.exit_json(changed=changed, msg="okey dokey")
+
+from ansible.module_utils.basic import *
+from ansible.module_utils.ec2 import *
+
+main()

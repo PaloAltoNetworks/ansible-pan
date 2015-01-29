@@ -4,18 +4,20 @@
 
   vars:
     region: eu-west-1
-    instance_type: c3.xlarge
+    instance_type: c4.xlarge
     vpc_cidr: 10.0.0.0/16
     private_subnet_cidr: 10.0.254.0/24
     public_subnet_cidr: 10.0.0.0/24
-    admin_password: KWJMzczCzzm6c97j
-    auth_code: I1379976
     dns_server_primary: 8.8.8.8
     dns_server_secondary: 8.8.4.4
     panorama_primary: 172.16.31.1.4
     panorama_secondary: 172.16.31.1.6
     stack_name: pa-vm-aws-test
     cloudformation_template: files/cloudformation-example.template
+    # admin_password: badpasswordbad 
+    # key_name: pa-vm-aws-kilgore
+    # key_filename: /home/kilgore/pa-vm-aws-kilgore.pem
+    # auth_code: IBADCODE
 
   tasks:
   - name: create key pair
@@ -24,7 +26,7 @@
   - name: write private key to file
     copy: content="{{pavmawskey.key.private_key}}" dest="{{key_filename}}" mode=0600 force=yes
     when: pavmawskey.changed == True
-  - name: launch ansible cloudformation example
+  - name: create cloudformation stack
     cloudformation:
       stack_name: "{{stack_name}}"
       state: "present"
@@ -37,8 +39,6 @@
         PrivateSubnetCidr: "{{private_subnet_cidr}}"
         PublicSubnetCidr: "{{public_subnet_cidr}}"
     register: stack
-  - name: print stack results
-    debug: msg="result {{stack.stack_outputs}}"
   - name: wait for SSH (timeout 10min)
     wait_for: port=22 host="{{stack.stack_outputs.PAVMAWSEIPMgmt}}" search_regex=SSH timeout=600
   - name: set admin password
@@ -69,7 +69,7 @@
       if_name: "ethernet1/2"
       zone_name: "private"
       create_default_route: "no"
-  - name: set snat
+  - name: create bidirectional source nat rule for server
     pa_vm_aws_snat:
       ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}"
       password: "{{admin_password}}"
@@ -79,16 +79,31 @@
       translated_address: "{{stack.stack_outputs.PAVMAWSPublicIP}}"
       from_zone: "private"
       to_zone: "public"
-      source: "{{stack.stack_outputs.SeverIP}}"
+      source: "{{stack.stack_outputs.ServerIP}}"
       destination: "any"
       service: "any"
-  - name: push license
+  - name: create security rule for server
+    pa_vm_aws_srule:
+      ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}"
+      password: "{{admin_password}}"
+      rule_name: "server permit"
+      from_zone: ["public"]
+      to_zone: ["private"]
+      source: ["any"]
+      source_user: ["any"]
+      destination: ["{{stack.stack_outputs.PAVMAWSPublicIP}}"]
+      category: ["any"]
+      application: ["ssh"]
+      service: ["application-default"]
+      hip_profiles: ["any"]
+      action: "allow"
+  - name: fetch license
     pa_vm_aws_lic: ip_address="{{stack.stack_outputs.PAVMAWSEIPMgmt}}" password="{{admin_password}}" auth_code="{{auth_code}}"
   - name: wait for reboot starting (1 minute)
     pause: seconds=60
   - name: waiting for reboot
     pa_vm_aws_check: 
-      ip_address: "{{pavmawsec2.instances[0].public_ip}}" 
+      ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}" 
       password: "{{admin_password}}"
     register: result
     until: not result|failed
@@ -118,4 +133,6 @@
       password: "{{admin_password}}"
       wildfire_update: yes
     ignore_errors: yes
+  - name: print stack results
+    debug: msg="result {{stack.stack_outputs}}"
 
