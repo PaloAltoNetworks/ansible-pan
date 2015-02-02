@@ -1,0 +1,88 @@
+#!/usr/bin/python
+import sys
+
+try:
+    import pan.xapi
+except ImportError:
+    print "failed=True msg='pan-python required for this module'"
+    sys.exit(1)
+
+_PG_XPATH = "/config/devices/entry[@name='localhost.localdomain']/vsys/entry[@name='vsys1']/profile-group/entry[@name='%s']"
+
+def pg_exists(xapi, pg_name):
+    xapi.get(_PG_XPATH%pg_name)
+    e = xapi.element_root.find('.//entry')
+    if e is None:
+        return False
+    return True
+
+def add_pg(xapi, pg_name, data_filtering, file_blocking, spyware, url_filtering, virus, vulnerability):
+    if pg_exists(xapi, pg_name):
+        return False
+
+    exml = []
+
+    if data_filtering is not None:
+        exml.append('<data-filtering><member>%s</member></data-filtering>'%data_filtering)
+    if file_blocking is not None:
+        exml.append('<file-blocking><member>%s</member></file-blocking>'%file_blocking)
+    if spyware is not None:
+        exml.append('<spyware><member>%s</member></spyware>'%spyware)
+    if url_filtering is not None:
+        exml.append('<url-filtering><member>%s</member></url-filtering>'%url_filtering)
+    if virus is not None:
+        exml.append('<virus><member>%s</member></virus>'%virus)
+    if vulnerability is not None:
+        exml.append('<vulnerability><member>%s</member></vulnerability>'%vulnerability)
+
+    exml = ''.join(exml)
+    xapi.set(xpath=_PG_XPATH%pg_name, element=exml)
+
+    return True
+
+def main():
+    argument_spec = dict(
+            ip_address=dict(default=None),
+            password=dict(default=None),
+            username=dict(default='admin'),
+            pg_name=dict(default=None),
+            data_filtering=dict(default=None),
+            file_blocking=dict(default=None),
+            spyware=dict(default=None),
+            url_filtering=dict(default=None),
+            virus=dict(default=None),
+            vulnerability=dict(default=None)
+        )
+    module = AnsibleModule(argument_spec=argument_spec)
+
+    ip_address = module.params["ip_address"]
+    if not ip_address:
+        module.fail_json(msg="ip_address should be specified")
+    password = module.params["password"]
+    if not password:
+        module.fail_json(msg="password is required")
+    username = module.params['username']
+
+    xapi = pan.xapi.PanXapi(hostname=ip_address, api_username=username, api_password=password)
+
+    pg_name = module.params['pg_name']
+    if not pg_name:
+        module.fail_json(msg='pg_name is required')
+    data_filtering = module.params['data_filtering']
+    file_blocking = module.params['file_blocking']
+    spyware = module.params['spyware']
+    url_filtering = module.params['url_filtering']
+    virus = module.params['virus']
+    vulnerability = module.params['vulnerability']
+
+    changed = add_pg(xapi, pg_name, data_filtering, file_blocking, spyware, url_filtering, virus, vulnerability)
+
+    if changed:
+        xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
+
+    module.exit_json(changed=changed, msg="okey dokey")
+
+from ansible.module_utils.basic import *
+from ansible.module_utils.ec2 import *
+
+main()
