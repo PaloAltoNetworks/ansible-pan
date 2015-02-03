@@ -16,11 +16,10 @@
 
 DOCUMENTATION = '''
 ---
-module: panos_check
-short_description: check if PAN-OS device is ready for configuration
+module: panos_pg
+short_description: restart a device
 description:
-    - Check if PAN-OS device is ready for being configured (no pending jobs)
-    - The check could be done once or multiple times until the device is ready
+    - Restart a device
 author: Palo Alto Networks - lmori
 version_added: "0.1"
 requirements:
@@ -35,45 +34,22 @@ options:
         description:
             - password for authentication
         required: true
-        default: null
+        default: null   
     username:
         description:
             - username for authentication
         required: false
         default: "admin"
-    timeout:
-        description:
-            - timeout of API calls
-        required: false
-        default: 0
-    interval:
-        description:
-            - time waited between checks
-        required: false
-        default: 0
 '''
 
 EXAMPLES = '''
-# single check on 192.168.1.1 with credentials admin/admin
-- name: check if ready
-  panos_check: 
-    ip_address: "192.168.1.1" 
+- panos_restart:
+    ip_address: "192.168.1.1"
+    username: "admin"
     password: "admin"
-
-# check for 10 times, every 30 seconds, if device 192.168.1.1
-# is ready, using credentials admin/admin
-- name: wait for reboot
-  panos_check: 
-    ip_address: "192.168.1.1" 
-    password: "admin"
-  register: result
-  until: not result|failed
-  retries: 10
-  delay: 30
 '''
 
 import sys
-import time
 
 try:
     import pan.xapi
@@ -81,24 +57,11 @@ except ImportError:
     print "failed=True msg='pan-python required for this module'"
     sys.exit(1)
 
-def check_jobs(jobs, module):
-    job_check = False
-    for j in jobs:
-        status = j.find('.//status')
-        if status is None:
-            return False
-        if status.text != 'FIN':
-            return False
-        job_check = True
-    return job_check
-
 def main():
     argument_spec = dict(
             ip_address=dict(default=None),
             password=dict(default=None),
-            username=dict(default='admin'),
-            timeout=dict(default=0,type='int'),
-            interval=dict(default=0, type='int')
+            username=dict(default='admin')
         )
     module = AnsibleModule(argument_spec=argument_spec)
 
@@ -109,25 +72,18 @@ def main():
     if not password:
         module.fail_json(msg="password is required")
     username = module.params['username']
-    timeout = module.params['timeout']
-    interval = module.params['interval']
 
-    xapi = pan.xapi.PanXapi(hostname=ip_address, api_username=username, api_password=password, timeout=60)
+    xapi = pan.xapi.PanXapi(hostname=ip_address, api_username=username, api_password=password)
 
-    now = time.time()
-    while time.time() <= now+timeout:
-        try:
-            xapi.op(cmd="show jobs all", cmd_xml=True)
-        except:
-            pass
-        else:
-            jobs = xapi.element_root.findall('.//job')
-            if check_jobs(jobs, module):
-                module.exit_json(changed=True, msg="okey dokey")
+    try:
+        xapi.op(cmd="<request><restart><system></system></restart></request>")
+    except pan.xapi.PanXapiError, msg:
+        if 'succeeded' in str(msg):
+            module.exit_json(changed=True, msg=str(msg))
 
-        time.sleep(interval)
+        raise
 
-    module.fail_json(msg="Timeout")    
+    module.exit_json(changed=True, msg="okey dokey")
 
 from ansible.module_utils.basic import *
 from ansible.module_utils.ec2 import *

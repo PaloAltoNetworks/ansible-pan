@@ -1,4 +1,109 @@
 #!/usr/bin/python
+
+# Copyright (c) 2014, Palo Alto Networks <techbizdev@paloaltonetworks.com>
+# 
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+DOCUMENTATION = '''
+---
+module: panos_snat
+short_description: create a source nat rule
+description:
+    - Create a source nat rule
+    - Note: only static SNAT rules are supported
+author: Palo Alto Networks - lmori
+version_added: "0.1"
+requirements:
+    - pan-python
+options:
+    ip_address:
+        description:
+            - IP address (or hostname) of PAN-OS device
+        required: true
+        default: null
+    password:
+        description:
+            - password for authentication
+        required: true
+        default: null   
+    username:
+        description:
+            - username for authentication
+        required: false
+        default: "admin"
+    rule_name:
+        description:
+            - name of the SNAT rule
+        required: true
+        default: null
+    from_zone:
+        description:
+            - source zone
+        required: true
+        default: null
+    to_zone:
+        description:
+            - destination zone
+        required: true
+        default: null
+    source:
+        description:
+            - source address
+        required: false
+        default: "any"
+    destination:
+        description:
+            - destination address
+        required: false
+        default: "any"
+    service:
+        description:
+            - service
+        required: false
+        default: "any"
+    snat_type:
+        description:
+            - type of SNAT
+        required: true
+        default: null
+    translated_address:
+        description:
+            - translated address
+        required: false
+        default: null
+    bidirectional:
+        description:
+            - whether the SNAT should be bidirectional
+        required: false
+        default: false
+'''
+
+EXAMPLES = '''
+- name: create bidirectional source nat rule
+  panos_snat:
+    ip_address: "192.168.1.1"
+    password: "admin"
+    rule_name: "static bidir snat"
+    bidirectional: "true"
+    snat_type: "static-ip"
+    translated_address: "1.1.1.1"
+    from_zone: "private"
+    to_zone: "public"
+    source: "10.1.1.1"
+    destination: "any"
+    service: "any"
+'''
+
 import sys
 
 try:

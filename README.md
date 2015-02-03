@@ -1,38 +1,76 @@
-Role Name
-=========
+Ansible Modules for Palo Alto Networks NGFW
+===========================================
 
-A brief description of the role goes here.
+A collection of Ansible modules to automate configuration and operational tasks on Palo Alto Networks NGFWs
 
-Requirements
-------------
+Overview of modules
+-------------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+- panos_admpwd - set admin password via SSH
+- panos_check - check if device is ready
+- panos_content - upgrade dynamic updates
+- panos_cstapphost - create a custom application for a website
+- panos_dhcpif - configure a DP interface in DHCP Client mode
+- panos_lic - apply an authcode
+- panos_mgtconfig - set management settings
+- panos_pg - create a security profile group
+- panos_restart - restart a device
+- panos_search - search AWS Matketplace for PA-VM-AWS images
+- panos_snat - create a source nat rule
+- panos_srule - create a security rule
 
-Role Variables
+Installation
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+We are working to add the modules to the Ansible Galaxy, in the meantime just clone this repo and add the library folder to the Ansible library paths using the ANSIBLE_LIBRARY environment variable or an ansible.cfg file.
+
+Documentation
+-------------
+
+Each module is documented using Ansible best practices, the documentation is in the module source code.
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+- panos_admpwd requires paramiko
+- panos_search depends on ec2 module
+- all the other modules requires pan-python
 
-Example Playbook
-----------------
+Example Playbooks
+-----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+### standalone-example.yml
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+This playbook creates an instance of VM-Series for AWS in the AWS EC2 cloud.
+
+	export AWS_ACCESS_KEY_ID=<AWS ACCESS KEY>
+	export AWS_SECRET_ACCESS_KEY=<AWS SECRET ACCESS KEY>
+	export AWS_REGION=eu-west-1
+
+	ansible-playbook -vvvv ansible-pa-vm-aws/standalone-example.yml --extra-vars 'key_name=ansible-test key_filename=/tmp/ansible-test.pem auth_code=IBADCODE admin_password=BADPASSWORD'
+
+### cloudformation-example.yml
+
+This playbook creates a protected server infrastructure in the AWS cloud using Cloudformation:
+
+- a VPC
+- 2 subnets (Public and Private)
+- a server instance on the Private subnet
+- a PA-VM-AWS instance to protect the server
+
+	export AWS_ACCESS_KEY_ID=<AWS ACCESS KEY>
+	export AWS_SECRET_ACCESS_KEY=<AWS SECRET ACCESS KEY>
+	export AWS_REGION=eu-west-1
+
+	ansible-playbook -vvvv ansible-pa-vm-aws/cloudformation-example.yml --extra-vars 'key_name=ansible-test key_filename=/tmp/ansible-test.pem auth_code=IBADCODE admin_password=BADPASSWORD'
 
 License
 -------
 
-BSD
+ISC
 
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Palo Alto Networks
+

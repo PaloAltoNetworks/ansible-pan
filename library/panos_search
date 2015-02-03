@@ -1,5 +1,51 @@
 #!/usr/bin/python
 
+# Copyright (c) 2014, Palo Alto Networks <techbizdev@paloaltonetworks.com>
+# 
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+DOCUMENTATION = '''
+---
+module: panos_search
+short_description: search AMI of PA-VM-AWS
+description:
+    - Search and return AMI ID of PA-VM-AWS instance in a specific region.
+    - All the standard EC2 module paramaters are supported.
+author: Palo Alto Networks - lmori
+version_added: "0.1"
+requirements:
+    - pan-python
+options:
+    release:
+        description:
+            - release of PAN-OS
+        required: true
+        default: null
+    first:
+        description:
+            - whether return only the first AMI found
+        required: false
+        default: true
+'''
+
+EXAMPLES = '''
+- name: retrieve PA-VM-AWS AMI ID
+  panos_search: 
+    region: "eu-west-1" 
+    release: "6.1.0"
+  register: pavmawsamiid
+'''
+
 import sys
 
 try:
@@ -20,7 +66,7 @@ def main():
 
     pavmrelease = module.params["release"]
     if not pavmrelease:
-        module.fail_json(msg="version should be a valid PAN-OS release")
+        module.fail_json(msg="release should be a valid PAN-OS release")
     pavmaminame = "PA-VM-AWS-"+pavmrelease
 
     ec2 = ec2_connect(module)

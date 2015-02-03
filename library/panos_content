@@ -38,8 +38,8 @@ options:
     username:
         description:
             - username for authentication
-        required: true
-        default: null
+        required: false
+        default: "admin"
     content_update:
         description:
             - whether content (Apps or Apps+Threats) should be updated
@@ -66,7 +66,7 @@ options:
 EXAMPLES = '''
 # upgrade content to the lastest release
 - name: upgrade content
-  pa_vm_aws_content: 
+  panos_content: 
     ip_address: "192.168.1.1" 
     password: "admin"
     content_update: yes
@@ -74,7 +74,7 @@ EXAMPLES = '''
 # upgrade anti-virus and wildfire signatures to the
 # latest releases
 - name: upgrade anti-virus
-  pa_vm_aws_content: 
+  panos_content: 
     ip_address: "192.168.1.1" 
     password: "admin"
     anti_virus_update: yes
@@ -82,7 +82,7 @@ EXAMPLES = '''
 
 # download PAN-DB seed for Europe region
 - name: upgrade pan-db
-  pa_vm_aws_content: 
+  panos_content: 
     ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}" 
     password: "{{admin_password}}"
     url_download_region: europe

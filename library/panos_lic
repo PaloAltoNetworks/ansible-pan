@@ -1,4 +1,67 @@
 #!/usr/bin/python
+
+# Copyright (c) 2014, Palo Alto Networks <techbizdev@paloaltonetworks.com>
+# 
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+DOCUMENTATION = '''
+---
+module: panos_lic
+short_description: apply and authcode to a device/instance
+description:
+    - Apply an authcode to a device.
+    - The authcode should have been previously registered on the Palo Alto Networks support portal.
+    - The device should have Internet access.
+author: Palo Alto Networks - lmori
+version_added: "0.1"
+requirements:
+    - pan-python
+options:
+    ip_address:
+        description:
+            - IP address (or hostname) of PAN-OS device
+        required: true
+        default: null
+    password:
+        description:
+            - password for authentication
+        required: true
+        default: null   
+    username:
+        description:
+            - username for authentication
+        required: false
+        default: "admin"
+    auth_code:
+        description:
+            - authcode to be applied
+        required: true
+        default: null
+    force:
+        description:
+            - whether to apply authcode even if device is already licensed
+        required: false
+        default: false
+'''
+
+EXAMPLES = '''
+  - name: fetch license
+    panos_lic: 
+        ip_address: "192.168.1.1"
+        password: "admin"
+        auth_code: "IBADCODE"
+'''
+
 import sys
 
 try:

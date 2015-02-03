@@ -1,4 +1,4 @@
-- name: setup pa-vm-aws instance
+- name: setup protected server stack
   hosts: 127.0.0.1
   connection: local
 
@@ -42,13 +42,13 @@
   - name: wait for SSH (timeout 10min)
     wait_for: port=22 host="{{stack.stack_outputs.PAVMAWSEIPMgmt}}" search_regex=SSH timeout=600
   - name: set admin password
-    pa_vm_aws_admpwd: ip_address="{{stack.stack_outputs.PAVMAWSEIPMgmt}}" key_filename="{{key_filename}}" password="{{admin_password}}"
+    panos_admpwd: ip_address="{{stack.stack_outputs.PAVMAWSEIPMgmt}}" key_filename="{{key_filename}}" password="{{admin_password}}"
     register: result
     until: not result|failed
     retries: 10
     delay: 30
   - name: set dns and panorama
-    pa_vm_aws_mgtconfig:
+    panos_mgtconfig:
       ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}"
       password: "{{admin_password}}"
       dns_server_primary: "{{dns_server_primary}}"
@@ -56,21 +56,21 @@
       panorama_primary: "{{panorama_primary}}"
       panorama_secondary: "{{panorama_secondary}}"
   - name: configure ethernet1/1
-    pa_vm_aws_dhcpif:
+    panos_dhcpif:
       password: "{{admin_password}}"
       ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}"
       if_name: "ethernet1/1"
       zone_name: "public"
       create_default_route: "yes"
   - name: configure ethernet1/2
-    pa_vm_aws_dhcpif:
+    panos_dhcpif:
       password: "{{admin_password}}"
       ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}"
       if_name: "ethernet1/2"
       zone_name: "private"
       create_default_route: "no"
   - name: create bidirectional source nat rule for server
-    pa_vm_aws_snat:
+    panos_snat:
       ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}"
       password: "{{admin_password}}"
       rule_name: "snat"
@@ -82,8 +82,17 @@
       source: "{{stack.stack_outputs.ServerIP}}"
       destination: "any"
       service: "any"
+  - name: create defult security profile group
+    pa_vm_aws_pg:
+      ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}"
+      password: "{{admin_password}}"
+      username: "admin"
+      pg_name: "pg-default"
+      virus: "default"
+      spyware: "default"
+      vulnerability: "default"
   - name: create security rule for server
-    pa_vm_aws_srule:
+    panos_srule:
       ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}"
       password: "{{admin_password}}"
       rule_name: "server permit"
@@ -96,13 +105,35 @@
       application: ["ssh"]
       service: ["application-default"]
       hip_profiles: ["any"]
+      group_profile: "pg-default"
       action: "allow"
+  - name: create rule for server egress traffic
+      ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}"
+      password: "{{admin_password}}"
+      rule_name: "server egress"
+      from_zone: ["private"]
+      to_zone: ["public"]
+      source: ["{{stack.stack_outputs.ServerIP}}"]
+      source_user: ["any"]
+      destination: ["any"]
+      category: ["any"]
+      application: ["any"]
+      service: ["application-default"]
+      hip_profiles: ["any"]
+      group_profile: "pg-default"
+      action: "allow"      
+  - name: create deny all rule
+      ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}"
+      password: "{{admin_password}}"
+      rule_name: "deny all"
+      action: "deny"
+      rule_type: "interzone"
   - name: fetch license
-    pa_vm_aws_lic: ip_address="{{stack.stack_outputs.PAVMAWSEIPMgmt}}" password="{{admin_password}}" auth_code="{{auth_code}}"
+    panos_lic: ip_address="{{stack.stack_outputs.PAVMAWSEIPMgmt}}" password="{{admin_password}}" auth_code="{{auth_code}}"
   - name: wait for reboot starting (1 minute)
     pause: seconds=60
   - name: waiting for reboot
-    pa_vm_aws_check: 
+    panos_check: 
       ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}" 
       password: "{{admin_password}}"
     register: result
@@ -110,25 +141,25 @@
     retries: 10
     delay: 30
   - name: upgrade content
-    pa_vm_aws_content: 
+    panos_content: 
       ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}" 
       password: "{{admin_password}}"
       content_update: yes
     ignore_errors: yes
   - name: upgrade anti-virus
-    pa_vm_aws_content: 
+    panos_content: 
       ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}" 
       password: "{{admin_password}}"
       anti_virus_update: yes
     ignore_errors: yes
   - name: upgrade pan-db
-    pa_vm_aws_content: 
+    panos_content: 
       ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}" 
       password: "{{admin_password}}"
       url_download_region: europe
     ignore_errors: yes
   - name: upgrade wildfire
-    pa_vm_aws_content: 
+    panos_content: 
       ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}"
       password: "{{admin_password}}"
       wildfire_update: yes
