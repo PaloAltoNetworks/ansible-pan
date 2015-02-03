@@ -83,7 +83,7 @@
       destination: "any"
       service: "any"
   - name: create defult security profile group
-    pa_vm_aws_pg:
+    panos_pg:
       ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}"
       password: "{{admin_password}}"
       username: "admin"
@@ -108,6 +108,7 @@
       group_profile: "pg-default"
       action: "allow"
   - name: create rule for server egress traffic
+    panos_srule:
       ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}"
       password: "{{admin_password}}"
       rule_name: "server egress"
@@ -123,6 +124,7 @@
       group_profile: "pg-default"
       action: "allow"      
   - name: create deny all rule
+    panos_srule:
       ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}"
       password: "{{admin_password}}"
       rule_name: "deny all"
