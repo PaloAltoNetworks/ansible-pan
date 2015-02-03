@@ -1,4 +1,77 @@
 #!/usr/bin/python
+
+# Copyright (c) 2014, Palo Alto Networks <techbizdev@paloaltonetworks.com>
+# 
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+DOCUMENTATION = '''
+---
+module: panos_check
+short_description: check if PAN-OS device is ready for configuration
+description:
+    - Check if PAN-OS device is ready for being configured (no pending jobs)
+    - The check could be done once or multiple times until the device is ready
+author: Palo Alto Networks - lmori
+version_added: "0.1"
+requirements:
+    - pan-python
+options:
+    ip_address:
+        description:
+            - IP address (or hostname) of PAN-OS device
+        required: true
+        default: null
+    password:
+        description:
+            - password for authentication
+        required: true
+        default: null
+    username:
+        description:
+            - username for authentication
+        required: true
+        default: null
+    timeout:
+        description:
+            - timeout of API calls
+        required: false
+        default: 0
+    interval:
+        description:
+            - time waited between checks
+        required: false
+        default: 0
+'''
+
+EXAMPLES = '''
+# single check on 192.168.1.1 with credentials admin/admin
+- name: check if ready
+  pa_vm_aws_check: 
+    ip_address: "192.168.1.1" 
+    password: "admin"
+
+# check for 10 times, every 30 seconds, if device 192.168.1.1
+# is ready, using credentials admin/admin
+- name: wait for reboot
+  pa_vm_aws_check: 
+    ip_address: "192.168.1.1" 
+    password: "admin"
+  register: result
+  until: not result|failed
+  retries: 10
+  delay: 30
+'''
+
 import sys
 import time
 
