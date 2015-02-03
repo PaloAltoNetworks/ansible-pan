@@ -1,5 +1,5 @@
-Ansible Modules for Palo Alto Networks NGFW
-===========================================
+About
+=====
 
 A collection of Ansible modules to automate configuration and operational tasks on Palo Alto Networks NGFWs
 
