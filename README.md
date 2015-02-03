@@ -47,7 +47,7 @@ This playbook creates an instance of VM-Series for AWS in the AWS EC2 cloud.
 	export AWS_SECRET_ACCESS_KEY=<AWS SECRET ACCESS KEY>
 	export AWS_REGION=eu-west-1
 
-	ansible-playbook -vvvv ansible-pa-vm-aws/standalone-example.yml --extra-vars 'key_name=ansible-test key_filename=/tmp/ansible-test.pem auth_code=IBADCODE admin_password=BADPASSWORD'
+	ansible-playbook -vvvv ansible-pan/standalone-example.yml --extra-vars 'key_name=ansible-test key_filename=/tmp/ansible-test.pem auth_code=IBADCODE admin_password=BADPASSWORD'
 
 ### cloudformation-example.yml
 
@@ -58,11 +58,12 @@ This playbook creates a protected server infrastructure in the AWS cloud using C
 - a server instance on the Private subnet
 - a PA-VM-AWS instance to protect the server
 
+
 	export AWS_ACCESS_KEY_ID=<AWS ACCESS KEY>
 	export AWS_SECRET_ACCESS_KEY=<AWS SECRET ACCESS KEY>
 	export AWS_REGION=eu-west-1
 
-	ansible-playbook -vvvv ansible-pa-vm-aws/cloudformation-example.yml --extra-vars 'key_name=ansible-test key_filename=/tmp/ansible-test.pem auth_code=IBADCODE admin_password=BADPASSWORD'
+	ansible-playbook -vvvv ansible-pan/cloudformation-example.yml --extra-vars 'key_name=ansible-test key_filename=/tmp/ansible-test.pem auth_code=IBADCODE admin_password=BADPASSWORD'
 
 License
 -------
