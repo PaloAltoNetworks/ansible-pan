@@ -58,6 +58,7 @@ This playbook creates a protected server infrastructure in the AWS cloud using C
 - a server instance on the Private subnet
 - a PA-VM-AWS instance to protect the server
 
+How to launch it:
 
 	export AWS_ACCESS_KEY_ID=<AWS ACCESS KEY>
 	export AWS_SECRET_ACCESS_KEY=<AWS SECRET ACCESS KEY>
