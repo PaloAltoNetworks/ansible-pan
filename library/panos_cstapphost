@@ -50,6 +50,11 @@ options:
             - regex to match against the Host header
         required: true
         default: null
+    convert_hostname:
+        description:
+            - wheter convert string given as regex in a real regex
+        required: false
+        default: false
 '''
 
 EXAMPLES = '''
@@ -122,13 +127,18 @@ def add_custom_app(xapi, app_name, host_regex):
 
     return True
 
+def convert_to_regex(hname):
+    # just subst '.' with '\.'
+    return hname.replace('.', '\.')
+
 def main():
     argument_spec = dict(
             ip_address=dict(default=None),
             password=dict(default=None),
             username=dict(default='admin'),
             app_name=dict(default=None),
-            host_regex=dict(default=None)
+            host_regex=dict(default=None),
+            convert_hostname=dict(type='bool', default=False)
         )
     module = AnsibleModule(argument_spec=argument_spec)
 
@@ -148,6 +158,9 @@ def main():
     host_regex = module.params['host_regex']
     if not host_regex:
         module.fail_json(msg='host_regex is required')
+    convert_hostname = module.params['convert_hostname']
+    if convert_hostname:
+        host_regex = convert_to_regex(host_regex)
 
     changed = add_custom_app(xapi, app_name, host_regex)
 
