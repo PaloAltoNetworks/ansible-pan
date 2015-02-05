@@ -7,9 +7,11 @@ Overview of modules
 -------------------
 
 - panos_admpwd - set admin password via SSH
+- panos_awsmonitor - create AWS VM monitor
 - panos_check - check if device is ready
 - panos_content - upgrade dynamic updates
 - panos_cstapphost - create a custom application for a website
+- panos_dag - create dynamic address groups
 - panos_dhcpif - configure a DP interface in DHCP Client mode
 - panos_lic - apply an authcode
 - panos_mgtconfig - set management settings
@@ -18,6 +20,7 @@ Overview of modules
 - panos_search - search AWS Matketplace for PA-VM-AWS images
 - panos_snat - create a source nat rule
 - panos_srule - create a security rule
+- panos_sshkey - manage public SSH keys
 
 Installation
 --------------
