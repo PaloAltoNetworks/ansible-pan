@@ -114,8 +114,8 @@ def main():
 
     xapi = pan.xapi.PanXapi(hostname=ip_address, api_username=username, api_password=password, timeout=60)
 
-    now = time.time()
-    while time.time() <= now+timeout:
+    checkpnt = time.time()+timeout
+    while True:
         try:
             xapi.op(cmd="show jobs all", cmd_xml=True)
         except:
@@ -124,6 +124,9 @@ def main():
             jobs = xapi.element_root.findall('.//job')
             if check_jobs(jobs, module):
                 module.exit_json(changed=True, msg="okey dokey")
+
+        if time.time() > checkpnt:
+            break
 
         time.sleep(interval)
 
