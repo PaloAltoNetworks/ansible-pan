@@ -16,10 +16,10 @@
 
 DOCUMENTATION = '''
 ---
-module: panos_awsmonitor
-short_description: create an AWS monitor object
+module: panos_dag
+short_description: create a dynamic address group
 description:
-    - Create an AWS monitor object
+    - Create a dynamic address group
 author: Palo Alto Networks - lmori
 version_added: "0.1"
 requirements:
@@ -40,43 +40,25 @@ options:
             - username for authentication
         required: false
         default: "admin"
-    monitor_name:
+    dag_name:
         description:
-            - name of the vm information source
+            - name of the dynamic address group
         required: true
         default: null
-    vpc_id:
+    dag_filter:
         description:
-            - ID of the VPC to monitor
-        required: true
-        default: null
-    source:
-        description:
-            - EC2 endpoint to monitor (ec2.<region>.amazonaws.com)
-        required: true
-        default: null
-    access_key:
-        description:
-            - access key to use
-        required: true
-        default: null
-    secret_access_key:
-        description:
-            - secret access key to use
+            - dynamic filter user by the dynamic address group
         required: true
         default: null
 '''
 
 EXAMPLES = '''
-- name: test
-  panos_awsmonitor:
+- name: dag
+  panos_dag:
     ip_address: "192.168.1.1"
     password: "admin"
-    monitor_name: "awsmonitor"
-    vpc_id: "vpc-12345678"
-    source: "ec2.eu-west-1.amazonaws.com"
-    access_key: "BADACCESSKEY"
-    secret_access_key: "BADSECRETACCESSKEY"
+    dag_name: "dag-1"
+    dag_filter: "'aws-tag.aws:cloudformation:logical-id.ServerInstance' and 'instanceState.running'"
 '''
 
 import sys
@@ -87,32 +69,28 @@ except ImportError:
     print "failed=True msg='pan-python required for this module'"
     sys.exit(1)
 
-_VMMONITOR_XPATH = "/config/devices/entry[@name='localhost.localdomain']/vsys/entry[@name='vsys1']/vm-info-source/entry[@name='%s']"
+_ADDRGROUP_XPATH = "/config/devices/entry[@name='localhost.localdomain']/vsys/entry[@name='vsys1']/address-group/entry[@name='%s']"
 
-def vmmonitor_exists(xapi, monitor_name):
-    xapi.get(_VMMONITOR_XPATH%monitor_name)
+def addressgroup_exists(xapi, group_name):
+    xapi.get(_ADDRGROUP_XPATH%group_name)
     e = xapi.element_root.find('.//entry')
     if e is None:
         return False
     return True
 
-def add_awsmonitor(xapi, monitor_name, vpc_id, source, access_key, secret_access_key):
-    if vmmonitor_exists(xapi, monitor_name):
+def add_dag(xapi, dag_name, dag_filter):
+    if addressgroup_exists(xapi, dag_name):
         return False
 
     # setup the non encrypted part of the monitor
     exml = []
 
-    exml.append('<AWS-VPC>')
-    exml.append('<vpc-id>%s</vpc-id>'%vpc_id)
-    exml.append('<source>%s</source>'%source)
-    exml.append('<access-key-id>%s</access-key-id>'%access_key)
-    exml.append('<secret-access-key>%s</secret-access-key>'%secret_access_key)
-    exml.append('<disabled>no</disabled>')
-    exml.append('</AWS-VPC>')
+    exml.append('<dynamic>')
+    exml.append('<filter>%s</filter>'%dag_filter)
+    exml.append('</dynamic>')
 
     exml = ''.join(exml)
-    xapi.set(xpath=_VMMONITOR_XPATH%monitor_name, element=exml)
+    xapi.set(xpath=_ADDRGROUP_XPATH%dag_name, element=exml)
 
     return True
 
@@ -121,11 +99,8 @@ def main():
             ip_address=dict(default=None),
             password=dict(default=None),
             username=dict(default='admin'),
-            monitor_name=dict(default=None),
-            vpc_id=dict(default=None),
-            source=dict(default=None),
-            access_key=dict(default=None),
-            secret_access_key=dict(default=None)
+            dag_name=dict(default=None),
+            dag_filter=dict(default=None)
         )
     module = AnsibleModule(argument_spec=argument_spec)
 
@@ -139,23 +114,14 @@ def main():
 
     xapi = pan.xapi.PanXapi(hostname=ip_address, api_username=username, api_password=password)
 
-    monitor_name = module.params['monitor_name']
-    if not monitor_name:
-        module.fail_json(msg="monitor_name is required")
-    vpc_id = module.params['vpc_id']
-    if not vpc_id:
-        module.fail_json(msg="vpc_id is required")
-    source = module.params['source']
-    if not source:
-        module.fail_json(msg="source is required")
-    access_key = module.params['access_key']
-    if not access_key:
-        module.fail_json(msg="access_key is required")
-    secret_access_key = module.params['secret_access_key']
-    if not secret_access_key:
-        module.fail_json(msg="secret_access_key is required")
+    dag_name = module.params['dag_name']
+    if not dag_name:
+        module.fail_json(msg="dag_name is required")
+    dag_filter = module.params['dag_filter']
+    if not dag_filter:
+        module.fail_json(msg="dag_filter is required")
 
-    changed = add_awsmonitor(xapi, monitor_name, vpc_id, source, access_key, secret_access_key)
+    changed = add_dag(xapi, dag_name, dag_filter)
 
     if changed:
         xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
