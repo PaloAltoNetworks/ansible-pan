@@ -17,10 +17,9 @@
 DOCUMENTATION = '''
 ---
 module: panos_dhcpif
-short_description: configure a DP network interface for DHCP 
+short_description: configure a tunnel interface
 description:
-    - Configure a DP network interface for DHCP
-    - Useful for configuring new AWS instances
+    - Configure a tunnel interface
 author: Palo Alto Networks - lmori
 version_added: "0.1"
 requirements:
@@ -41,9 +40,9 @@ options:
             - username for authentication
         required: false
         default: "admin"
-    if_name:
+    tunnel_unit:
         description:
-            - name of the interface to configure
+            - unit number of the tunnel interface
         required: true
         default: null
     zone_name:
@@ -52,22 +51,9 @@ options:
             - if the zone does not exist it is created
         required: true
         default: null
-    create_default_route:
-        description:
-            - whether add default route with router learned via DHCP
-        required: false
-        default: false
 '''
 
 EXAMPLES = '''
-# enable DHCP client on ethernet1/1 in zone public
-- name: configure ethernet1/1
-  panos_dhcpif:
-    password: "admin"
-    ip_address: "192.168.1.1"
-    if_name: "ethernet1/1"
-    zone_name: "public"
-    create_default_route: "yes"
 '''
 
 import sys
@@ -78,36 +64,28 @@ except ImportError:
     print "failed=True msg='pan-python required for this module'"
     sys.exit(1)
 
-_IF_XPATH = "/config/devices/entry[@name='localhost.localdomain']/network/interface/ethernet/entry[@name='%s']"
+_IF_XPATH = "/config/devices/entry[@name='localhost.localdomain']/network/interface/tunnel/units/entry[@name='tunnel.%s']"
 
 _ZONE_XPATH = "/config/devices/entry[@name='localhost.localdomain']/vsys/entry/zone/entry"
 _ZONE_XPATH_QUERY = _ZONE_XPATH+"[network/layer3/member/text()='%s']"
 _ZONE_XPATH_IF = _ZONE_XPATH+"[@name='%s']/network/layer3/member[text()='%s']"
 _VR_XPATH = "/config/devices/entry[@name='localhost.localdomain']/network/virtual-router/entry"
 
-def add_dhcp_if(xapi, if_name, zone_name, create_default_route):
-    if_xml = ['<entry name="%s">',
-            '<layer3>',
-            '<dhcp-client>',
-            '<create-default-route>%s</create-default-route>',
-            '</dhcp-client>'
-            '</layer3>'
-            '</entry>']
-    cdr = 'yes'
-    if not create_default_route:
-        cdr = 'no'
-    if_xml = (''.join(if_xml))%(if_name, cdr)
-    xapi.edit(xpath=_IF_XPATH%if_name, element=if_xml)
+def add_dhcp_if(xapi, tunnel_unit, zone_name):
+    tif_xml = ['<entry name="%s"></entry>']
 
-    xapi.set(xpath=_ZONE_XPATH+"[@name='%s']/network/layer3"%zone_name, element='<member>%s</member>'%if_name)
-    xapi.set(xpath=_VR_XPATH+"[@name='default']/interface", element='<member>%s</member>'%if_name)
+    tif_xml = (''.join(tif_xml))%(tunnel_unit)
+    xapi.edit(xpath=_IF_XPATH%tunnel_unit, element=if_xml)
+
+    xapi.set(xpath=_ZONE_XPATH+"[@name='%s']/network/layer3"%zone_name, element='<member>tunnel.%s</member>'%tunnel_unit)
+    xapi.set(xpath=_VR_XPATH+"[@name='default']/interface", element='<member>tunnel.%s</member>'%tunnel_unit)
 
     return True
 
-def if_exists(xapi, if_name):
-    xpath = _IF_XPATH%if_name
+def if_exists(xapi, tunnel_unit):
+    xpath = _IF_XPATH%tunnel_unit
     xapi.get(xpath=xpath)
-    network = xapi.element_root.find('.//layer3')
+    network = xapi.element_root.find('.//entry')
     return (network is not None)   
 
 def main():
@@ -115,9 +93,8 @@ def main():
             ip_address=dict(default=None),
             password=dict(default=None),
             username=dict(default='admin'),
-            if_name=dict(default=None),
+            tunnel_unit=dict(default=None),
             zone_name=dict(default=None),
-            create_default_route=dict(type='bool', default=False)
         )
     module = AnsibleModule(argument_spec=argument_spec)
 
@@ -131,19 +108,18 @@ def main():
 
     xapi = pan.xapi.PanXapi(hostname=ip_address, api_username=username, api_password=password)
 
-    if_name = module.params['if_name']
-    if not if_name:
-        module.fail_json(msg="if_name required")
+    tunnel_unit = module.params['tunnel_unit']
+    if not tunnel_unit:
+        module.fail_json(msg="tunnel_unit required")
     zone_name = module.params['zone_name']
     if not zone_name:
         module.fail_json(msg="zone_name required")
-    create_default_route = module.params['create_default_route']
 
-    ifexists = if_exists(xapi, if_name)
+    ifexists = if_exists(xapi, tunnel_unit)
     if ifexists:
-        module.exit_json(changed=False, msg="if exists, not changed")
+        module.exit_json(changed=False, msg="tunnel unit exists, not changed")
 
-    changed = add_dhcp_if(xapi, if_name, zone_name, create_default_route)
+    changed = add_tunnel_if(xapi, if_name, zone_name)
     if changed:
         xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
 
