@@ -21,6 +21,7 @@ Overview of modules
 - panos_snat - create a source nat rule
 - panos_srule - create a security rule
 - panos_sshkey - manage public SSH keys
+- panos_tunnelif - create a tunnel if
 
 Installation
 --------------
