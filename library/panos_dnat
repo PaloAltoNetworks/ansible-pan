@@ -71,47 +71,20 @@ options:
             - service
         required: false
         default: "any"
-    snat_type:
-        description:
-            - type of SNAT
-        required: true
-        default: null
     translated_address:
         description:
             - translated address
         required: false
         default: null
-    interface_address_if:
+    translated_port:
         description:
-            - interface for dynamic-ip-and-port interface address NAT rules
+            - translated port
         required: false
         default: null
-    interface_address_ip:
-        description:
-            - IP address for dynamic-ip-and-port interface address NAT rules
-        required: false
-        default: null
-    bidirectional:
-        description:
-            - whether the SNAT should be bidirectional
-        required: false
-        default: false
 '''
 
 EXAMPLES = '''
-- name: create bidirectional source nat rule
-  panos_snat:
-    ip_address: "192.168.1.1"
-    password: "admin"
-    rule_name: "static bidir snat"
-    bidirectional: "true"
-    snat_type: "static-ip"
-    translated_address: "1.1.1.1"
-    from_zone: "private"
-    to_zone: "public"
-    source: "10.1.1.1"
-    destination: "any"
-    service: "any"
+
 '''
 
 import sys
@@ -131,69 +104,19 @@ def nat_rule_exists(xapi, rule_name):
         return False
     return True
 
-def add_snat_static_ip(xapi, module, rule_name, from_zone, to_zone, source, destination, service, bidirectional, translated_address):
-    if translated_address is None:
-        module.fail_json(msg="translated_address not specified")
+def add_dnat(xapi, module, rule_name, from_zone, to_zone, source, destination, service, translated_address=None, translated_port=None):
+    if translated_address is None and translated_port is None:
+        module.fail_json(msg="at least one of translated_address and translated_port should be specified")
 
     if nat_rule_exists(xapi, rule_name):
         return False
 
-    exml = ["<source-translation>",
-            "<static-ip>"]
-    exml.append('<bi-directional>%s</bi-directional>'%('yes' if bidirectional else 'no'))
-    exml.append('<translated-address>%s</translated-address>'%translated_address)
-    exml.append('</static-ip>')
-    exml.append('</source-translation>')
-
-    exml.append("<to><member>%s</member></to>"%to_zone)
-
-    exml.append("<from>")
-    exml = exml+["<member>%s</member>"%e for e in from_zone]
-    exml.append("</from>")
-
-    exml.append("<source>")
-    exml = exml+["<member>%s</member>"%e for e in source]
-    exml.append("</source>")
-
-    exml.append("<destination>")
-    exml = exml+["<member>%s</member>"%e for e in source]
-    exml.append("</destination>")
-
-    exml.append("<service>%s</service>"%service)
-
-    exml.append("<nat-type>ipv4</nat-type>")
-
-    exml = ''.join(exml)
-
-    xapi.set(xpath=_NAT_XPATH%rule_name, element=exml)
-
-    return True
-
-def add_snat_dipp(xapi, module, rule_name, from_zone, to_zone, source, destination, service, translated_address=None, interface_address_ip=None, interface_address_if=None):
-    if translated_address is not None and interface_address_if is not None:
-        module.fail_json(msg="only one of interface_address_if and translated_address should be specified")
-
-    if nat_rule_exists(xapi, rule_name):
-        return False
-
-    exml = ["<source-translation>",
-            "<dynamic-ip-and-port>"]
-    if interface_address_if is not None:
-        exml = exml+[
-            "<interface-address>",
-            "<interface>%s</interface>"%interface_address_if]
-        if interface_address_ip is not None:
-            exml.append("<ip>%s</ip>"%interface_address_ip)
-        exml.append("</interface-address>")
-    elif translated_address is not None:
-        exml.append("<translated-address>")
-        for t in translated_address:
-            exml.append("<member>%s</member>"%t)
-        exml.append("</translated-address>")
-    else:
-        module.fail_json(msg="no interface_address_if or translated_address specified")
-    exml.append('</dynamic-ip-and-port>')
-    exml.append('</source-translation>')
+    exml = ["<destination-translation>"]
+    if translated_address is not None:
+        exml.append("<translated-address>%s</translated-address>"%translated_address)
+    if translated_port is not None:
+        exml.append("<translated-port>%s</translated-port>"%translated_port)
+    exml.append('</destination-translation>')
 
     exml.append("<to><member>%s</member></to>"%to_zone)
 
@@ -225,11 +148,8 @@ def main():
             password=dict(default=None),
             username=dict(default='admin'),
             rule_name=dict(default=None),
-            bidirectional=dict(type='bool', default=False),
-            snat_type=dict(default='static-ip', choices=['static-ip', 'dynamic-ip-and-port']),
             translated_address=dict(default=None),
-            interface_address_if=dict(default=None),
-            interface_address_ip=dict(default=None),
+            translated_port=dict(default=None),
             from_zone=dict(default=None),
             to_zone=dict(default=None),
             source=dict(default="any"),
@@ -251,11 +171,8 @@ def main():
     rule_name = module.params['rule_name']
     if not rule_name:
         module.fail_json(msg='rule_name is required')
-    bidirectional = module.params['bidirectional']
-    snat_type = module.params['snat_type']
     translated_address = module.params['translated_address']
-    interface_address_if = module.params['interface_address_if']
-    interface_address_ip = module.params['interface_address_ip']
+    translated_port = module.params['translated_port']
     from_zone = module.params['from_zone']
     if from_zone is None:
         module.fail_json(msg='from_zone is required')
@@ -273,28 +190,15 @@ def main():
     service = module.params['service']
 
     changed = False
-    if snat_type == 'static-ip':
-        changed = add_snat_static_ip(xapi, module,
-                                     rule_name, 
-                                     from_zone, 
-                                     to_zone, 
-                                     source, 
-                                     destination, 
-                                     service, 
-                                     bidirectional, 
-                                     translated_address)
-    elif snat_type == 'dynamic-ip-and-port':
-        changed = add_snat_dipp(xapi, module,
-                                rule_name, 
-                                from_zone, 
-                                to_zone, source, 
-                                destination, 
-                                service, 
-                                translated_address, 
-                                interface_address_ip, 
-                                interface_address_if)
-    else:
-        module.fail_json(msg="unsupported snat type "+snat_type)
+    changed = add_dnat(xapi, module, 
+                       rule_name, 
+                       from_zone, 
+                       to_zone, 
+                       source, 
+                       destination, 
+                       service, 
+                       translated_address,
+                       translated_port)
 
     if changed:
         xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
