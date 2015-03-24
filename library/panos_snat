@@ -156,7 +156,7 @@ def add_snat_static_ip(xapi, module, rule_name, from_zone, to_zone, source, dest
     exml.append("</source>")
 
     exml.append("<destination>")
-    exml = exml+["<member>%s</member>"%e for e in source]
+    exml = exml+["<member>%s</member>"%e for e in destination]
     exml.append("</destination>")
 
     exml.append("<service>%s</service>"%service)
@@ -206,7 +206,7 @@ def add_snat_dipp(xapi, module, rule_name, from_zone, to_zone, source, destinati
     exml.append("</source>")
 
     exml.append("<destination>")
-    exml = exml+["<member>%s</member>"%e for e in source]
+    exml = exml+["<member>%s</member>"%e for e in destination]
     exml.append("</destination>")
 
     exml.append("<service>%s</service>"%service)
@@ -287,7 +287,8 @@ def main():
         changed = add_snat_dipp(xapi, module,
                                 rule_name, 
                                 from_zone, 
-                                to_zone, source, 
+                                to_zone, 
+                                source, 
                                 destination, 
                                 service, 
                                 translated_address, 

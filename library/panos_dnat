@@ -129,7 +129,7 @@ def add_dnat(xapi, module, rule_name, from_zone, to_zone, source, destination, s
     exml.append("</source>")
 
     exml.append("<destination>")
-    exml = exml+["<member>%s</member>"%e for e in source]
+    exml = exml+["<member>%s</member>"%e for e in destination]
     exml.append("</destination>")
 
     exml.append("<service>%s</service>"%service)
