@@ -1,0 +1,150 @@
+#!/usr/bin/python
+
+# Copyright (c) 2014, Palo Alto Networks <techbizdev@paloaltonetworks.com>
+# 
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+DOCUMENTATION = '''
+---
+module: panos_import
+short_description: import PAN-OS images
+description:
+    - Import software image on PAN-OS device
+author: Palo Alto Networks - lmori
+version_added: "0.1"
+requirements:
+    - pan-python
+    - requests
+    - requests_toolbelt
+options:
+    ip_address:
+        description:
+            - IP address (or hostname) of PAN-OS device
+        required: true
+        default: null
+    password:
+        description:
+            - password for authentication
+        required: true
+        default: null   
+    username:
+        description:
+            - username for authentication
+        required: false
+        default: "admin"
+    category:
+        description:
+            - category of file
+        required: false
+        default: software
+    file:
+        description:
+            - file to import
+        required: true
+        default: null
+'''
+
+EXAMPLES = '''
+# import software image PanOS_vm-6.1.1 on 192.168.1.1
+- name: import software image into PAN-OS
+  panos_import:
+    ip_address: 192.168.1.1
+    username: admin
+    password: admin
+    file: /tmp/PanOS_vm-6.1.1
+    category: software
+'''
+
+import sys
+import time
+import os.path
+import xml.etree
+
+try:
+    import pan.xapi
+except ImportError:
+    print "failed=True msg='pan-python required for this module'"
+    sys.exit(1)
+
+try:
+    import requests
+except ImportError:
+    print "failed=True msg='requests required for this module'"
+    sys.exit(1)
+
+try:
+    import requests_toolbelt
+except ImportError:
+    print "failed=True msg='requests_toolbelt required for this module'"
+    sys.exit(1)
+
+def import_file(xapi, module, ip_address, file_, category):
+    xapi.keygen()
+
+    params = {
+        'type': 'import',
+        'category': category,
+        'key': xapi.api_key
+    }
+
+    filename = os.path.basename(file_)
+
+    mef = requests_toolbelt.MultipartEncoder(fields={ 'file': (filename, open(file_, 'rb'), 'application/octet-stream') })
+
+    r = requests.post('https://'+ip_address+'/api/', 
+        verify=False, 
+        params=params,
+        headers={'Content-Type': mef.content_type},
+        data=mef)
+
+    # if something goes wrong just raise an exception
+    r.raise_for_status()
+
+    resp = xml.etree.ElementTree.fromstring(r.content)
+    if resp.attrib['status'] == 'error':
+        module.fail_json(msg=r.content)
+
+    return True, filename
+
+def main():
+    argument_spec = dict(
+            ip_address=dict(default=None),
+            password=dict(default=None),
+            username=dict(default='admin'),
+            category=dict(default='software'),
+            file=dict(default=None)
+        )
+    module = AnsibleModule(argument_spec=argument_spec)
+
+    ip_address = module.params["ip_address"]
+    if not ip_address:
+        module.fail_json(msg="ip_address should be specified")
+    password = module.params["password"]
+    if not password:
+        module.fail_json(msg="password is required")
+    username = module.params['username']
+
+    xapi = pan.xapi.PanXapi(hostname=ip_address, api_username=username, api_password=password)
+
+    file_ = module.params['file']
+    if file_ is None:
+        module.fail_json(msg="file is required")
+    category = module.params['category']
+
+    changed, filename = import_file(xapi, module, ip_address, file_, category)
+
+    module.exit_json(changed=changed, filename=filename, msg="okey dokey")
+
+from ansible.module_utils.basic import *
+
+main()

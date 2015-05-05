@@ -14,6 +14,7 @@ Overview of modules
 - panos_dag - create dynamic address groups
 - panos_dhcpif - configure a DP interface in DHCP Client mode
 - panos_dnat - create a destination nat rule
+- panos_import - import files
 - panos_lic - apply an authcode
 - panos_mgtconfig - set management settings
 - panos_pg - create a security profile group
@@ -23,6 +24,7 @@ Overview of modules
 - panos_snat - create a source nat rule
 - panos_srule - create a security rule
 - panos_sshkey - manage public SSH keys
+- panos_swinstall - install software images
 - panos_tunnelif - create a tunnel if
 
 Installation

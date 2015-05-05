@@ -228,6 +228,5 @@ def main():
     module.exit_json(changed=changed, msg="okey dokey")
 
 from ansible.module_utils.basic import *
-from ansible.module_utils.ec2 import *
 
 main()
