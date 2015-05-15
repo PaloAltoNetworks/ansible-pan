@@ -129,7 +129,7 @@ def nat_rule_exists(xapi, rule_name):
     return True
 
 def dnat_xml(m, dnat_address, dnat_port):
-    if translated_address is None and translated_port is None:
+    if dnat_address is None and dnat_port is None:
         return None
 
     exml = ["<destination-translation>"]
@@ -177,12 +177,6 @@ def snat_xml(m, snat_type, snat_address, snat_interface, snat_interface_address,
     return ''.join(exml)
 
 def add_nat(xapi, module, rule_name, from_zone, to_zone, source, destination, service, dnatxml=None, snatxml=None):
-    if translated_address is None and translated_port is None:
-        module.fail_json(msg="at least one of translated_address and translated_port should be specified")
-
-    if nat_rule_exists(xapi, rule_name):
-        return False
-
     exml = []
     if dnatxml:
         exml.append(dnatxml)
@@ -247,8 +241,6 @@ def main():
     rule_name = module.params['rule_name']
     if not rule_name:
         module.fail_json(msg='rule_name is required')
-    translated_address = module.params['translated_address']
-    translated_port = module.params['translated_port']
     from_zone = module.params['from_zone']
     if from_zone is None:
         module.fail_json(msg='from_zone is required')
@@ -268,7 +260,7 @@ def main():
     dnat_address = module.params['dnat_address']
     dnat_port = module.params['dnat_port']
 
-    if not nat_rule_exists(xapi, rule_name):
+    if nat_rule_exists(xapi, rule_name):
         module.exit_json(changed=False, msg="rule exists")
 
     changed = add_nat(xapi, module, 
