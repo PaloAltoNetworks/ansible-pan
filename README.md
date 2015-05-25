@@ -17,6 +17,7 @@ Overview of modules
 - panos_import - import files
 - panos_lic - apply an authcode
 - panos_mgtconfig - set management settings
+- panos_nat - create a nat rule
 - panos_pg - create a security profile group
 - panos_restart - restart a device
 - panos_search - search AWS Matketplace for PA-VM-AWS images
