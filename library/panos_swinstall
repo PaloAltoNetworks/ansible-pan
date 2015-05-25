@@ -94,7 +94,7 @@ def check_job(xapi, jobnum, timeout=240):
             return None
     raise JobException("Timeout in job %s"%jobnum)
 
-def install_software(xapi, module, version, file_):
+def install_software(xapi, module, version, file_, job_timeout):
     # check something updates
     if version is not None:
         cmd = '<request><system><software><install><version>%s</version></install></software></system></request>'%version
@@ -108,7 +108,7 @@ def install_software(xapi, module, version, file_):
     if job is None:
         module.fail_json(msg="no job from install software image %s"%something)
     job = job.text
-    jobresult = check_job(xapi, job)
+    jobresult = check_job(xapi, job, timeout=job_timeout)
 
     return True
 
@@ -118,7 +118,8 @@ def main():
             password=dict(default=None),
             username=dict(default='admin'),
             version=dict(default=None),
-            file=dict(default=None)
+            file=dict(default=None),
+            job_timeout=dict(type='int', default=240)
         )
     module = AnsibleModule(argument_spec=argument_spec)
 
@@ -132,12 +133,13 @@ def main():
 
     xapi = pan.xapi.PanXapi(hostname=ip_address, api_username=username, api_password=password)
 
+    job_timeout = module.params['job_timeout']
     file_ = module.params['file']
     version = module.params['version']
     if version is None and file_ is None:
         module.fail_json(msg="one of version or file should be specified")
 
-    changed = install_software(xapi, module, version, file_)
+    changed = install_software(xapi, module, version, file_, job_timeout)
 
     module.exit_json(changed=changed, msg="okey dokey")
 
