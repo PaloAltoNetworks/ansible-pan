@@ -57,6 +57,11 @@ options:
         required: true
         default: null
         choices: [ present, absent ]
+    commit:
+        description:
+            - commit if changed
+        required: false
+        default: true
 '''
 
 EXAMPLES = '''
@@ -105,7 +110,8 @@ def main():
             username=dict(default='admin'),
             admin_username=dict(default=None, required=True),
             public_key=dict(default=None),
-            state=dict(choices=['present','absent'], required=True, default=None)
+            state=dict(choices=['present','absent'], required=True, default=None),
+            commit=dict(type='bool', default=True)
         )
     module = AnsibleModule(argument_spec=argument_spec)
 
@@ -122,6 +128,7 @@ def main():
     panos_user = module.params['admin_username']
     public_key = module.params['public_key']
     state = module.params['state']
+    commit = module.params['commit']
 
     changed = False
 
@@ -140,7 +147,7 @@ def main():
             set_publickey(xapi, panos_user, pkey, public_key)
             changed = True
 
-    if changed:
+    if changed and commit:
         xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
 
     module.exit_json(changed=changed, msg="okey dokey")
