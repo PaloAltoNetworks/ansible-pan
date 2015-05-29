@@ -65,6 +65,11 @@ options:
             - secret access key to use
         required: true
         default: null
+    commit:
+        description:
+            - commit if changed
+        required: false
+        default: true
 '''
 
 EXAMPLES = '''
@@ -125,7 +130,8 @@ def main():
             vpc_id=dict(default=None),
             source=dict(default=None),
             access_key=dict(default=None),
-            secret_access_key=dict(default=None)
+            secret_access_key=dict(default=None),
+            commit=dict(type='bool', default=True)
         )
     module = AnsibleModule(argument_spec=argument_spec)
 
@@ -154,10 +160,11 @@ def main():
     secret_access_key = module.params['secret_access_key']
     if not secret_access_key:
         module.fail_json(msg="secret_access_key is required")
+    commit = module.params['commit']
 
     changed = add_awsmonitor(xapi, monitor_name, vpc_id, source, access_key, secret_access_key)
 
-    if changed:
+    if changed and commit:
         xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
 
     module.exit_json(changed=changed, msg="okey dokey")

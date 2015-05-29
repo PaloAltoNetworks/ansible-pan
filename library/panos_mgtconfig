@@ -60,6 +60,11 @@ options:
             - address of secondary Panorama server
         required: false
         default: null
+    commit:
+        description:
+            - commit if changed
+        required: false
+        default: true
 '''
 
 EXAMPLES = '''
@@ -134,7 +139,8 @@ def main():
             dns_server_primary=dict(default=None),
             dns_server_secondary=dict(default=None),
             panorama_primary=dict(default=None),
-            panorama_secondary=dict(default=None)
+            panorama_secondary=dict(default=None),
+            commit=dict(type='bool', default=True)
         )
     module = AnsibleModule(argument_spec=argument_spec)
 
@@ -152,6 +158,7 @@ def main():
     dns_server_secondary = module.params['dns_server_secondary']
     panorama_primary = module.params['panorama_primary']
     panorama_secondary = module.params['panorama_secondary']
+    commit = module.params['commit']
 
     changed = False
     if dns_server_primary is not None:
@@ -163,7 +170,7 @@ def main():
     if panorama_secondary is not None:
         changed |= set_panorama_server(xapi, panorama_secondary, primary=False)
 
-    if changed:
+    if changed and commit:
         xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
 
     module.exit_json(changed=changed, msg="okey dokey")

@@ -55,6 +55,11 @@ options:
             - wheter convert string given as regex in a real regex
         required: false
         default: false
+    commit:
+        description:
+            - commit if changed
+        required: false
+        default: true
 '''
 
 EXAMPLES = '''
@@ -138,7 +143,8 @@ def main():
             username=dict(default='admin'),
             app_name=dict(default=None),
             host_regex=dict(default=None),
-            convert_hostname=dict(type='bool', default=False)
+            convert_hostname=dict(type='bool', default=False),
+            commit=dict(type='bool', default=True)
         )
     module = AnsibleModule(argument_spec=argument_spec)
 
@@ -161,10 +167,11 @@ def main():
     convert_hostname = module.params['convert_hostname']
     if convert_hostname:
         host_regex = convert_to_regex(host_regex)
+    commit = module.params['commit']
 
     changed = add_custom_app(xapi, app_name, host_regex)
 
-    if changed:
+    if changed and commit:
         xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
 
     module.exit_json(changed=changed, msg="okey dokey")

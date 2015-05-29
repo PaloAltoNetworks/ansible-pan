@@ -75,6 +75,11 @@ options:
             - name of the vulnerability profile
         required: false
         default: null
+    commit:
+        description:
+            - commit if changed
+        required: false
+        default: true
 '''
 
 EXAMPLES = '''
@@ -141,7 +146,8 @@ def main():
             spyware=dict(default=None),
             url_filtering=dict(default=None),
             virus=dict(default=None),
-            vulnerability=dict(default=None)
+            vulnerability=dict(default=None),
+            commit=dict(type='bool', default=True)
         )
     module = AnsibleModule(argument_spec=argument_spec)
 
@@ -164,10 +170,11 @@ def main():
     url_filtering = module.params['url_filtering']
     virus = module.params['virus']
     vulnerability = module.params['vulnerability']
+    commit = module.params['commit']
 
     changed = add_pg(xapi, pg_name, data_filtering, file_blocking, spyware, url_filtering, virus, vulnerability)
 
-    if changed:
+    if changed and commit:
         xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
 
     module.exit_json(changed=changed, msg="okey dokey")

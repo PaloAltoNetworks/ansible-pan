@@ -105,6 +105,11 @@ options:
             - dnat translated port
         required: false
         default: null
+    commit:
+        description:
+            - commit if changed
+        required: false
+        default: true
 '''
 
 EXAMPLES = '''
@@ -224,7 +229,8 @@ def main():
             snat_interface_address=dict(default=None),
             snat_bidirectional=dict(default=False),
             dnat_address=dict(default=None),
-            dnat_port=dict(default=None)
+            dnat_port=dict(default=None),
+            commit=dict(type='bool', default=True)
         )
     module = AnsibleModule(argument_spec=argument_spec)
 
@@ -259,6 +265,7 @@ def main():
 
     dnat_address = module.params['dnat_address']
     dnat_port = module.params['dnat_port']
+    commit = module.params['commit']
 
     if nat_rule_exists(xapi, rule_name):
         module.exit_json(changed=False, msg="rule exists")
@@ -273,7 +280,7 @@ def main():
                        dnatxml=dnat_xml(module, dnat_address, dnat_port),
                        snatxml=snat_xml(module, snat_type, snat_address, snat_interface, snat_interface_address, snat_bidirectional))
 
-    if changed:
+    if changed and commit:
         xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
 
     module.exit_json(changed=changed, msg="okey dokey")

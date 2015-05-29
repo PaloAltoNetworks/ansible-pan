@@ -96,6 +96,11 @@ options:
             - whether the SNAT should be bidirectional
         required: false
         default: false
+    commit:
+        description:
+            - commit if changed
+        required: false
+        default: true
 '''
 
 EXAMPLES = '''
@@ -234,7 +239,8 @@ def main():
             to_zone=dict(default=None),
             source=dict(default="any"),
             destination=dict(default="any"),
-            service=dict(default="any")
+            service=dict(default="any"),
+            commit=dict(type='bool', default=True)
         )
     module = AnsibleModule(argument_spec=argument_spec)
 
@@ -271,6 +277,7 @@ def main():
     if type(destination) == str:
         destination = [destination]
     service = module.params['service']
+    commit = module.params['commit']
 
     changed = False
     if snat_type == 'static-ip':
@@ -297,7 +304,7 @@ def main():
     else:
         module.fail_json(msg="unsupported snat type "+snat_type)
 
-    if changed:
+    if changed and commit:
         xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
 
     module.exit_json(changed=changed, msg="okey dokey")

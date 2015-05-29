@@ -51,6 +51,11 @@ options:
             - if the zone does not exist it is created
         required: true
         default: null
+    commit:
+        description:
+            - commit if changed
+        required: false
+        default: true
 '''
 
 EXAMPLES = '''
@@ -103,6 +108,7 @@ def main():
             username=dict(default='admin'),
             tunnel_unit=dict(default=None),
             zone_name=dict(default=None),
+            commit=dict(type='bool', default=True)
         )
     module = AnsibleModule(argument_spec=argument_spec)
 
@@ -123,12 +129,14 @@ def main():
     if not zone_name:
         module.fail_json(msg="zone_name required")
 
+    commit = module.params['commit']
+
     ifexists = if_exists(xapi, tunnel_unit)
     if ifexists:
         module.exit_json(changed=False, msg="tunnel unit exists, not changed")
 
     changed = add_tunnel_if(xapi, tunnel_unit, zone_name)
-    if changed:
+    if changed and commit:
         xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
 
     module.exit_json(changed=changed, msg="okey dokey")

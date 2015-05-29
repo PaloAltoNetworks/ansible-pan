@@ -16,10 +16,10 @@
 
 DOCUMENTATION = '''
 ---
-module: panos_restart
-short_description: restart a device
+module: panos_commit
+short_description: commit config
 description:
-    - Restart a device
+    - Commit config on a device
 author: Palo Alto Networks - lmori
 version_added: "0.1"
 requirements:
@@ -40,6 +40,21 @@ options:
             - username for authentication
         required: false
         default: "admin"
+    interval:
+        description:
+            - interval for checking commit job
+        required: false
+        default: 0.5
+    timeout:
+        description:
+            - timeout for commit job
+        required: false
+        default: none
+    sync:
+        description:
+            - if commit should be synchronous
+        required: false
+        default: true
 '''
 
 EXAMPLES = '''
@@ -61,7 +76,10 @@ def main():
     argument_spec = dict(
             ip_address=dict(default=None),
             password=dict(default=None),
-            username=dict(default='admin')
+            username=dict(default='admin'),
+            interval=dict(default=0.5),
+            timeout=dict(default=None),
+            sync=dict(type='bool', default=True)
         )
     module = AnsibleModule(argument_spec=argument_spec)
 
@@ -73,15 +91,13 @@ def main():
         module.fail_json(msg="password is required")
     username = module.params['username']
 
+    interval = module.params['interval']
+    timeout = module.params['timeout']
+    sync = module.params['sync']
+
     xapi = pan.xapi.PanXapi(hostname=ip_address, api_username=username, api_password=password)
 
-    try:
-        xapi.op(cmd="<request><restart><system></system></restart></request>")
-    except pan.xapi.PanXapiError, msg:
-        if 'succeeded' in str(msg):
-            module.exit_json(changed=True, msg=str(msg))
-
-        raise
+    xapi.commit(cmd="<commit></commit>", sync=sync, interval=interval, timeout=timeout)
 
     module.exit_json(changed=True, msg="okey dokey")
 

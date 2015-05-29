@@ -105,6 +105,11 @@ options:
             - action
         required: false
         default: "allow"
+    commit:
+        description:
+            - commit if changed
+        required: false
+        default: true
 '''
 
 EXAMPLES = '''
@@ -248,7 +253,8 @@ def main():
             log_start=dict(type='bool', default=False),
             log_end=dict(type='bool', default=True),
             rule_type=dict(default='universal'),
-            action=dict(default='allow')
+            action=dict(default='allow'),
+            commit=dict(type='bool', default=True)
         )
     module = AnsibleModule(argument_spec=argument_spec)
 
@@ -279,6 +285,7 @@ def main():
     log_start = module.params['log_start']
     log_end = module.params['log_end']
     rule_type = module.params['rule_type']
+    commit = modules.params['commit']
 
     changed = add_security_rule(xapi, 
                                 rule_name=rule_name,
@@ -296,7 +303,7 @@ def main():
                                 log_end=log_end,
                                 rule_type=rule_type,
                                 action=action)
-    if changed:
+    if changed and commit:
         xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
 
     module.exit_json(changed=changed, msg="okey dokey")

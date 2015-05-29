@@ -61,6 +61,11 @@ options:
             - source port
         required: false
         default: null
+    commit:
+        description:
+            - commit if changed
+        required: false
+        default: true
 '''
 
 EXAMPLES = '''
@@ -110,7 +115,8 @@ def main():
             service_name=dict(default=None),
             protocol=dict(default=None, choices=['tcp', 'udp']),
             port=dict(default=None),
-            source_port=dict(default=None)
+            source_port=dict(default=None),
+            commit=dict(type='bool', default=True)
         )
     module = AnsibleModule(argument_spec=argument_spec)
 
@@ -134,6 +140,7 @@ def main():
     if not port:
         module.fail_json(msg="port is required")
     source_port = module.params['source_port']
+    commit = module.params['commit']
 
     changed = False
     changed = add_service(xapi, module, 
@@ -142,7 +149,7 @@ def main():
                           port,
                           source_port)
 
-    if changed:
+    if changed and commit:
         xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
 
     module.exit_json(changed=changed, msg="okey dokey")

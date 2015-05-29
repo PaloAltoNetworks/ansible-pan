@@ -50,6 +50,11 @@ options:
             - dynamic filter user by the dynamic address group
         required: true
         default: null
+    commit:
+        description:
+            - commit if changed
+        required: false
+        default: true
 '''
 
 EXAMPLES = '''
@@ -100,7 +105,8 @@ def main():
             password=dict(default=None),
             username=dict(default='admin'),
             dag_name=dict(default=None),
-            dag_filter=dict(default=None)
+            dag_filter=dict(default=None),
+            commit=dict(type='bool', default=True)
         )
     module = AnsibleModule(argument_spec=argument_spec)
 
@@ -120,10 +126,11 @@ def main():
     dag_filter = module.params['dag_filter']
     if not dag_filter:
         module.fail_json(msg="dag_filter is required")
+    commit = module.params['commit']
 
     changed = add_dag(xapi, dag_name, dag_filter)
 
-    if changed:
+    if changed and commit:
         xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
 
     module.exit_json(changed=changed, msg="okey dokey")

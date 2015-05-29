@@ -57,6 +57,11 @@ options:
             - whether add default route with router learned via DHCP
         required: false
         default: false
+    commit:
+        description:
+            - commit if changed
+        required: false
+        default: true
 '''
 
 EXAMPLES = '''
@@ -117,7 +122,8 @@ def main():
             username=dict(default='admin'),
             if_name=dict(default=None),
             zone_name=dict(default=None),
-            create_default_route=dict(type='bool', default=False)
+            create_default_route=dict(type='bool', default=False),
+            commit=dict(type='bool', default=True)
         )
     module = AnsibleModule(argument_spec=argument_spec)
 
@@ -138,13 +144,14 @@ def main():
     if not zone_name:
         module.fail_json(msg="zone_name required")
     create_default_route = module.params['create_default_route']
+    commit = module.params['commit']
 
     ifexists = if_exists(xapi, if_name)
     if ifexists:
         module.exit_json(changed=False, msg="if exists, not changed")
 
     changed = add_dhcp_if(xapi, if_name, zone_name, create_default_route)
-    if changed:
+    if changed and commit:
         xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
 
     module.exit_json(changed=changed, msg="okey dokey")
