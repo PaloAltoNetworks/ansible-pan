@@ -51,6 +51,11 @@ options:
             - file to install
         required: false
         default: null
+    job_timeout:
+        description:
+            - timeout for download and install jobs in seconds
+        required: false
+        default: 240
 '''
 
 EXAMPLES = '''
