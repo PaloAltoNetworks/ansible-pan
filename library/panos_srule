@@ -285,7 +285,7 @@ def main():
     log_start = module.params['log_start']
     log_end = module.params['log_end']
     rule_type = module.params['rule_type']
-    commit = modules.params['commit']
+    commit = module.params['commit']
 
     changed = add_security_rule(xapi, 
                                 rule_name=rule_name,
