@@ -100,7 +100,7 @@ options:
             - type of security rule (6.1+)
         required: false
         default: "universal"
-    vulnerability_profile_name:
+    vulnprofile_name:
         description:
             - name of the vulnerability profile
         required: false
@@ -232,11 +232,11 @@ def add_security_rule(xapi, **kwargs):
 
     exml.append('<action>%s</action>'%kwargs['action'])
 
-    if kwargs['vulnerability_profile_name'] is not None:
+    if kwargs['vulnprofile_name'] is not None:
         exml.append('<profile-setting>')
         exml.append('<profiles>')
         exml.append('<vulnerability>')
-        exml.append('<member>%s</member>'%kwargs['vulnerability_profile_name'])
+        exml.append('<member>%s</member>'%kwargs['vulnprofile_name'])
         exml.append('</vulnerability>')
         exml.append('</profiles>')
         exml.append('</profile-setting>')
@@ -264,7 +264,7 @@ def main():
             service=dict(default=['application-default']),
             hip_profiles=dict(default=['any']),
             group_profile=dict(),
-            vulnerability_profile_name=dict(),
+            vulnprofile_name=dict(),
             log_start=dict(type='bool', default=False),
             log_end=dict(type='bool', default=True),
             rule_type=dict(default='universal'),
@@ -297,7 +297,7 @@ def main():
     hip_profiles = module.params['hip_profiles']
     action = module.params['action']
     group_profile = module.params['group_profile']
-    vulnerability_profile_name = module.params['vulnerability_profile_name']
+    vulnprofile_name = module.params['vulnprofile_name']
     log_start = module.params['log_start']
     log_end = module.params['log_end']
     rule_type = module.params['rule_type']
@@ -318,7 +318,7 @@ def main():
                                 log_start=log_start,
                                 log_end=log_end,
                                 rule_type=rule_type,
-                                vulnerability_profile_name=vulnerability_profile_name,
+                                vulnprofile_name=vulnprofile_name,
                                 action=action)
     if changed and commit:
         xapi.commit(cmd="<commit></commit>", sync=True, interval=1)

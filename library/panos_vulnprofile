@@ -63,7 +63,7 @@ EXAMPLES = '''
 panos_vulnerability_profile:
   ip_address: "10.0.0.43"
   password: "admin"
-  vulnerability_profile_name: "SampleVRule"
+  vulnprofile_name: "SampleVRule"
   description: "some description"
   rule_tuples: [{'rule_name': 'simple-client-critical', 'threat_name': 'any', 'vendor_id': 'any', 'cve': '1.1.1.1', 'host_type': 'client', 'severity': 'critical', 'action': 'default', 'capture': 'disable'}, {'rule_name': 'simple-client-high', 'threat_name': 'any', 'cve': 'any', 'vendor_id': '1.1.1.1', 'host_type': 'client', 'severity': 'high', 'action': 'default', 'capture': 'disable'}]
   exception_ids: ["35931","35933"]
@@ -85,15 +85,15 @@ def debug(msg):
       "DEBUG" : msg
    })
 
-def vulnerability_profile_exists(xapi, vulnerability_profile_name):
-    xapi.get(_SERVICE_XPATH%vulnerability_profile_name)
+def vulnerability_profile_exists(xapi, vulnprofile_name):
+    xapi.get(_SERVICE_XPATH%vulnprofile_name)
     e = xapi.element_root.find('.//entry')
     if e is None:
         return False
     return True
 
 def add_vulnerability_profile(xapi, **kwargs):
-    if vulnerability_profile_exists(xapi, kwargs['vulnerability_profile_name']):
+    if vulnerability_profile_exists(xapi, kwargs['vulnprofile_name']):
         return False
 
     exml = []
@@ -139,7 +139,7 @@ def add_vulnerability_profile(xapi, **kwargs):
 
 # FOR DEBUGGING
 #    print "element='%s'"%exml
-    xapi.set(xpath=_SERVICE_XPATH%kwargs['vulnerability_profile_name'], element=exml)
+    xapi.set(xpath=_SERVICE_XPATH%kwargs['vulnprofile_name'], element=exml)
 
     return True
 
@@ -148,7 +148,7 @@ def main():
             ip_address=dict(default=None),
             password=dict(default=None),
             username=dict(default='admin'),
-            vulnerability_profile_name=dict(default=None),
+            vulnprofile_name=dict(default=None),
             description=dict(default=None),
             rule_tuples=dict(default=None),
             exception_ids=dict(default=None),
@@ -166,9 +166,9 @@ def main():
 
     xapi = pan.xapi.PanXapi(hostname=ip_address, api_username=username, api_password=password)
 
-    vulnerability_profile_name = module.params["vulnerability_profile_name"]
-    if not vulnerability_profile_name:
-        module.fail_json(msg="vulnerability_profile_name must be specified")
+    vulnprofile_name = module.params["vulnprofile_name"]
+    if not vulnprofile_name:
+        module.fail_json(msg="vulnprofile_name must be specified")
 
     description = module.params["description"]
     rule_tuples=module.params["rule_tuples"]
@@ -181,7 +181,7 @@ def main():
 
     changed = False
     changed = add_vulnerability_profile(xapi, 
-                                        vulnerability_profile_name=vulnerability_profile_name, 
+                                        vulnprofile_name=vulnprofile_name, 
                                         description=description,
                                         rule_tuples=rule_tuples,
                                         exception_ids=exception_ids)
