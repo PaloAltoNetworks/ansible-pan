@@ -16,10 +16,10 @@
 
 DOCUMENTATION = '''
 ---
-module: panos_commit
-short_description: commit config
+module: panos_loadcfg
+short_description: load configuration on PAN-OS device
 description:
-    - Commit config on a device
+    - Load configuration on PAN-OS device
 author: Palo Alto Networks - lmori
 version_added: "0.1"
 requirements:
@@ -40,31 +40,25 @@ options:
             - username for authentication
         required: false
         default: "admin"
-    interval:
+    file:
         description:
-            - interval for checking commit job
+            - configuration file to load
         required: false
-        default: 0.5
-    timeout:
+        default: null
+    commit:
         description:
-            - timeout for commit job
-        required: false
-        default: none
-    sync:
-        description:
-            - if commit should be synchronous
+            - commit if changed
         required: false
         default: true
 '''
 
 EXAMPLES = '''
-- panos_restart:
-    ip_address: "192.168.1.1"
-    username: "admin"
-    password: "admin"
 '''
 
 import sys
+import time
+import os.path
+import xml.etree
 
 try:
     import pan.xapi
@@ -72,14 +66,21 @@ except ImportError:
     print "failed=True msg='pan-python required for this module'"
     sys.exit(1)
 
+def load_cfgfile(xapi, module, ip_address, file_):
+    # load configuration file
+    cmd = '<load><config><from>%s</from></config></load>'%file_
+
+    xapi.op(cmd=cmd)
+
+    return True
+
 def main():
     argument_spec = dict(
             ip_address=dict(default=None),
             password=dict(default=None),
             username=dict(default='admin'),
-            interval=dict(default=0.5),
-            timeout=dict(default=None),
-            sync=dict(type='bool', default=True)
+            file=dict(default=None),
+            commit=dict(type='bool', default=True)
         )
     module = AnsibleModule(argument_spec=argument_spec)
 
@@ -91,17 +92,19 @@ def main():
         module.fail_json(msg="password is required")
     username = module.params['username']
 
-    interval = module.params['interval']
-    timeout = module.params['timeout']
-    sync = module.params['sync']
-
     xapi = pan.xapi.PanXapi(hostname=ip_address, api_username=username, api_password=password)
 
-    xapi.commit(cmd="<commit></commit>", sync=sync, interval=interval, timeout=timeout)
+    file_ = module.params['file']
+    if file_ is None:
+        module.fail_json(msg="file is required")
+    commit = module.params['commit']
 
-    module.exit_json(changed=True, msg="okey dokey")
+    changed = load_cfgfile(xapi, module, ip_address, file_)
+    if changed and commit:
+        xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
+
+    module.exit_json(changed=changed, msg="okey dokey")
 
 from ansible.module_utils.basic import *
-from ansible.module_utils.ec2 import *
 
 main()

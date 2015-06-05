@@ -17,9 +17,9 @@
 DOCUMENTATION = '''
 ---
 module: panos_import
-short_description: import PAN-OS images
+short_description: import file on PAN-OS devices
 description:
-    - Import software image on PAN-OS device
+    - Import file on PAN-OS device
 author: Palo Alto Networks - lmori
 version_added: "0.1"
 requirements:
@@ -50,7 +50,12 @@ options:
     file:
         description:
             - file to import
-        required: true
+        required: false
+        default: null
+    url:
+        description:
+            - url to file to import
+        required: false
         default: null
 '''
 
@@ -69,6 +74,9 @@ import sys
 import time
 import os.path
 import xml.etree
+import tempfile
+import shutil
+import os
 
 try:
     import pan.xapi
@@ -116,13 +124,25 @@ def import_file(xapi, module, ip_address, file_, category):
 
     return True, filename
 
+def download_file(url):
+    r = requests.get(url, stream=True)
+    fo = tempfile.NamedTemporaryFile(prefix='ai', delete=False)
+    shutil.copyfileobj(r.raw, fo)
+    fo.close()
+
+    return fo.name
+
+def delete_file(path):
+    os.remove(path)
+
 def main():
     argument_spec = dict(
             ip_address=dict(default=None),
             password=dict(default=None),
             username=dict(default='admin'),
             category=dict(default='software'),
-            file=dict(default=None)
+            file=dict(default=None),
+            url=dict(default=None)
         )
     module = AnsibleModule(argument_spec=argument_spec)
 
@@ -137,11 +157,20 @@ def main():
     xapi = pan.xapi.PanXapi(hostname=ip_address, api_username=username, api_password=password)
 
     file_ = module.params['file']
-    if file_ is None:
-        module.fail_json(msg="file is required")
+    url = module.params['url']
+    if file_ is None and url is None:
+        module.fail_json(msg="file or url is required")
+    if file_ is not None and url is not None:
+        module.fail_json(msg="only of file or url could be specified")
     category = module.params['category']
 
+    if url is not None:
+        file_ = download_file(url)
+
     changed, filename = import_file(xapi, module, ip_address, file_, category)
+
+    if url is not None:
+        delete_file(file_)
 
     module.exit_json(changed=changed, filename=filename, msg="okey dokey")
 
