@@ -16,11 +16,11 @@
 
 DOCUMENTATION = '''
 ---
-module: panos_snat
+module: panos_srule
 short_description: create a security rule
 description:
     - Create a security rule
-author: Palo Alto Networks - lmori
+author: Palo Alto Networks
 version_added: "0.1"
 requirements:
     - pan-python
@@ -296,8 +296,12 @@ def main():
     service = module.params['service']
     hip_profiles = module.params['hip_profiles']
     action = module.params['action']
+    
     group_profile = module.params['group_profile']
     vulnprofile_name = module.params['vulnprofile_name']
+    if group_profile is not None and vulnprofile_name is not None:
+        module.fail_json(msg="only one of group_profile and vulnprofile_name should be specified")
+
     log_start = module.params['log_start']
     log_end = module.params['log_end']
     rule_type = module.params['rule_type']
