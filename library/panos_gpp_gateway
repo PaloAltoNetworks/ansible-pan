@@ -1,0 +1,233 @@
+#!/usr/bin/python
+
+# Copyright (c) 2014, Palo Alto Networks <techbizdev@paloaltonetworks.com>
+# 
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+DOCUMENTATION = '''
+---
+module: panos_gpp_gateway
+short_description: configure a GlobalProtect Portal gateway list
+description:
+    - Configure a GlobalProtect Portal gateway list
+author: Palo Alto Networks - lmori
+version_added: "0.1"
+requirements:
+    - pan-python
+options:
+    ip_address:
+        description:
+            - IP address (or hostname) of PAN-OS device
+        required: true
+        default: null
+    password:
+        description:
+            - password for authentication
+        required: true
+        default: null   
+    username:
+        description:
+            - username for authentication
+        required: false
+        default: "admin"
+    portal_name:
+        description:
+            - name of the GlobalProtect portal
+        required: true
+        default: null
+    config_name:
+        description:
+            - name of the client config
+        required: true
+        default: null
+    gateway_address:
+        description:
+            - name address of the gateway
+        required: true
+        default: null
+    type:
+        description:
+            - internal or external gateway
+        required: false
+        choices: [ "internal", "external" ]
+        default: external
+    state:
+        description:
+            - state of the gateway
+        required: false
+        default: "present"
+        choices: [ "absent", "present" ]
+        default: present
+    manual:
+        description:
+            - manual gateway
+        required: false
+        default: true
+    description:
+        description:
+            - description of the gateway
+        required: false
+    commit:
+        description:
+            - commit if changed
+        required: false
+        default: true
+'''
+
+EXAMPLES = '''
+
+'''
+
+import sys
+
+try:
+    import pan.xapi
+except ImportError:
+    print "failed=True msg='pan-python required for this module'"
+    sys.exit(1)
+
+_GW_PATH = "/config/devices/entry[@name='localhost.localdomain']/vsys/entry[@name='vsys1']/global-protect/global-protect-portal/entry[@name='%s']/client-config/configs/entry[@name='%s']/gateways/%s/list/entry[@name='%s']"
+
+def get_gpp_gateway(xapi, module, portal_name, config_name, type_, gateway_address):
+    xapi.get(_GW_PATH%(portal_name, config_name, type_, gateway_address))
+    e = xapi.element_root.find('.//entry')
+    return e
+
+def delete_gpp_gateway(xapi, module, portal_name, config_name, type_, gateway_address):
+    xapi.delete(xpath=_GW_PATH%(portal_name, config_name, type_, gateway_address))
+    return True
+
+def modify_gpp_gateway(cgw, xapi, module, portal_name, config_name, type_, gateway_address, manual, description):
+    result = False
+
+    if manual is not None:
+        cmanual = cgw.find('manual')
+        if cmanual is None:
+            raise Exception('No manual value tag')
+        if not cmanual.text in ['yes', 'no']:
+            raise Exception('Invalid manual value: %s'%cmanual.text)
+    
+        if bool(cmanual == 'yes') ^ bool(manual):
+            xapi.edit(xpath=(_GW_PATH+"/manual")%(portal_name, config_name, type_, gateway_address),
+                    element="<manual>%s</manual>"%('yes' if manual else 'no'))
+            result = True
+
+    if description is not None:
+        cdescription = cgw.find('description')
+        if cdescription is not None and \
+            cdescription.text is not None and \
+            cdescription.text == description:
+            return result
+        xapi.edit(xpath=(_GW_PATH+"/description")%(portal_name, config_name, type_, gateway_address),
+                    element="<description>%s</description>"%description)
+        result = True
+
+    return result
+
+def create_gpp_gateway(xapi, module, portal_name, config_name, type_, gateway_address, manual, description, exists):
+    entry = []
+    # entry.append("<entry name='%s'>"%gateway_address)
+    entry.append("<manual>%s</manual>"%('yes' if manual else 'no'))
+    entry.append("<priority>1</priority>")
+    if description:
+        entry.append("<description>%s</description>"%description)
+    # entry.append("<entry/>")
+
+    if exists:
+        xapi.set(xpath=_GW_PATH%(portal_name, config_name, type_, gateway_address),
+                element=''.join(entry))
+    else:
+        xapi.set(xpath=_GW_PATH%(portal_name, config_name, type_, gateway_address),
+                element=''.join(entry))
+    return True
+
+def check_gpp_gateway(xapi, module, portal_name, config_name, gateway_address, type_, state, manual, description):
+    cgw = get_gpp_gateway(xapi, module, 
+                        portal_name, 
+                        config_name, 
+                        type_, 
+                        gateway_address)
+
+    if state == 'absent':
+        # we don't want the gw and the gw does not exists. Fair enough
+        if cgw is None:
+            return False
+
+        return delete_gpp_gateway(xapi, module, portal_name, config_name, type_, gateway_address)
+
+    # state 'present'
+    if cgw is not None:
+        # we want the gw and the gw exists. Check if matches our desiderata
+        return modify_gpp_gateway(cgw, xapi, module, portal_name, config_name, type_, gateway_address, manual, description)
+
+    return create_gpp_gateway(xapi, module, portal_name, config_name, type_, gateway_address, manual, description, cgw != None)
+
+def main():
+    argument_spec = dict(
+            ip_address=dict(default=None),
+            password=dict(default=None),
+            username=dict(default='admin'),
+            portal_name=dict(default=None),
+            config_name=dict(default=None),
+            gateway_address=dict(default=None),
+            type=dict(default="external", choices=['internal', 'external']),
+            state=dict(default="present", choices=['absent', 'present']),
+            manual=dict(type='bool', default=None),
+            description=dict(default=None),
+            commit=dict(type='bool', default=True)
+        )
+    module = AnsibleModule(argument_spec=argument_spec)
+
+    ip_address = module.params["ip_address"]
+    if not ip_address:
+        module.fail_json(msg="ip_address should be specified")
+    password = module.params["password"]
+    if not password:
+        module.fail_json(msg="password is required")
+    username = module.params['username']
+
+    xapi = pan.xapi.PanXapi(hostname=ip_address, api_username=username, api_password=password)
+
+    portal_name = module.params['portal_name']
+    if portal_name is None:
+        module.fail_json(msg='portal_name is required')
+    config_name = module.params['config_name']
+    if config_name is None:
+        module.fail_json(msg='config_name is required')
+    gateway_address = module.params['gateway_address']
+    if gateway_address is None:
+        module.fail_json(msg='gateway_address is required')
+    type_ = module.params['type']
+    state = module.params['state']
+    manual = module.params['manual']
+    description = module.params['description']
+    commit = module.params['commit']
+
+    changed = False
+    changed = check_gpp_gateway(xapi, module, 
+                                portal_name,
+                                config_name,
+                                gateway_address,
+                                type_,
+                                state,
+                                manual,
+                                description)
+
+    if changed and commit:
+        xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
+
+    module.exit_json(changed=changed, msg="okey dokey")
+
+from ansible.module_utils.basic import *
+
+main()
