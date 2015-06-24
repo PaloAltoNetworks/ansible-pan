@@ -16,11 +16,10 @@
 
 DOCUMENTATION = '''
 ---
-module: panos_snat
-short_description: create a source nat rule
+module: panos_service
+short_description: create a service object
 description:
-    - Create a source nat rule
-    - Note: only static SNAT rules are supported
+    - Create a service object
 author: Palo Alto Networks - lmori
 version_added: "0.1"
 requirements:
