@@ -48,37 +48,66 @@ Dependencies
 
 - panos_admpwd requires paramiko
 - panos_search depends on ec2 module
+- panos_import requires requests and requests_toolbelt modules
 - all the other modules requires pan-python
 
-Example Playbooks
------------------
+Example Playbook
+----------------
 
-### standalone-example.yml
+This is an example playbook for import and load a config on a list of hosts:
 
-This playbook creates an instance of VM-Series for AWS in the AWS EC2 cloud.
-
-	export AWS_ACCESS_KEY_ID=<AWS ACCESS KEY>
-	export AWS_SECRET_ACCESS_KEY=<AWS SECRET ACCESS KEY>
-	export AWS_REGION=eu-west-1
-
-	ansible-playbook -vvvv ansible-pan/standalone-example.yml --extra-vars 'key_name=ansible-test key_filename=/tmp/ansible-test.pem auth_code=IBADCODE admin_password=BADPASSWORD'
-
-### cloudformation-example.yml
-
-This playbook creates a protected server infrastructure in the AWS cloud using Cloudformation:
-
-- a VPC
-- 2 subnets (Public and Private)
-- a server instance on the Private subnet
-- a PA-VM-AWS instance to protect the server
-
-How to launch it:
-
-	export AWS_ACCESS_KEY_ID=<AWS ACCESS KEY>
-	export AWS_SECRET_ACCESS_KEY=<AWS SECRET ACCESS KEY>
-	export AWS_REGION=eu-west-1
-
-	ansible-playbook -vvvv ansible-pan/cloudformation-example.yml --extra-vars 'key_name=ansible-test key_filename=/tmp/ansible-test.pem auth_code=IBADCODE admin_password=BADPASSWORD'
+    ---
+    - name: import config
+      hosts: gp-portals
+      connection: local
+      gather_facts: False
+      vars:
+        cfg_file: gp-portal-empty.xml
+    
+      tasks:
+      - name: wait for SSH (timeout 10min)
+        wait_for: port=22 host="{{inventory_hostname}}" search_regex=SSH timeout=600
+      - name: checking if device ready
+        panos_check: 
+          ip_address: "{{inventory_hostname}}" 
+          password: "{{password}}"
+        register: result
+        until: not result|failed
+        retries: 10
+        delay: 10
+      - name: import configuration
+        panos_import:
+          ip_address: "{{inventory_hostname}}" 
+          password: "{{password}}"
+          file: "{{cfg_file}}"
+          category: "configuration"
+        register: result
+      - name: load configuration
+        panos_loadcfg:
+          ip_address: "{{inventory_hostname}}" 
+          password: "{{password}}"
+          file: "{{result.filename}}"
+          commit: False       
+      - name: set admin password
+        panos_admin:
+          ip_address: "{{inventory_hostname}}"
+          password: "{{password}}"
+          admin_username: admin
+          admin_password: "{{password}}"
+          commit: False
+      - name: commit
+        panos_commit:
+          ip_address: "{{inventory_hostname}}"
+          password: "{{password}}"
+          sync: False
+      - name: waiting for commit
+        panos_check: 
+          ip_address: "{{inventory_hostname}}" 
+          password: "{{password}}"
+        register: result
+        until: not result|failed
+        retries: 10
+        delay: 10
 
 License
 -------
