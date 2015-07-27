@@ -1,7 +1,7 @@
 ---
 galaxy_info:
-  author: Luigi Mori
-  description: Automation of Palo Alto Networks PAN-OS devices
+  author: Palo Alto Networks
+  description: Automation of Palo Alto Networks PAN-OS NGFWs
   company: Palo Alto Networks
   # Some suggested licenses:
   # - BSD (default)
