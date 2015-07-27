@@ -113,7 +113,22 @@ options:
 '''
 
 EXAMPLES = '''
-
+# Create a source and destination nat rule
+  - name: create nat SSH221 rule for 10.0.1.101
+    panos_nat:
+      ip_address: "192.168.1.1"
+      password: "admin"
+      rule_name: "Web SSH"
+      from_zone: ["external"]
+      to_zone: "external"
+      source: ["any"]
+      destination: ["10.0.0.100"]
+      service: "service-tcp-221"
+      snat_type: "dynamic-ip-and-port"
+      snat_interface: "ethernet1/2"
+      dnat_address: "10.0.1.101"
+      dnat_port: "22"
+      commit: False
 '''
 
 import sys

@@ -68,7 +68,14 @@ options:
 '''
 
 EXAMPLES = '''
-
+# Creates service for port 22
+  - name: create SSH service
+    panos_service:
+      ip_address: "192.168.1.1"
+      password: "admin"
+      service_name: "service-tcp-22"
+      protocol: "tcp"
+      port: "22"
 '''
 
 import sys

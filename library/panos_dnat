@@ -16,11 +16,11 @@
 
 DOCUMENTATION = '''
 ---
-module: panos_snat
-short_description: create a source nat rule
+module: panos_dnat
+short_description: create a destination nat rule
 description:
-    - Create a source nat rule
-    - Note: only static SNAT rules are supported
+    - Create a destination nat rule
+    - Superseded, use panos_nat module
 author: Palo Alto Networks - lmori
 version_added: "0.1"
 requirements:
@@ -89,7 +89,18 @@ options:
 '''
 
 EXAMPLES = '''
-
+# Create a destination nat rule dnat-ssh on 192.168.1.1
+  - name: create destination nat rule for server
+    panos_dnat:
+      ip_address: "192.168.1.1"
+      password: "admin"
+      rule_name: "dnat-ssh"
+      from_zone: "external"
+      to_zone: "external"
+      source: "any"
+      destination: "{{PAVMAWSPublicIP}}"
+      service: "service-tcp-22"
+      translated_address: "{{ServerIP}}"
 '''
 
 import sys

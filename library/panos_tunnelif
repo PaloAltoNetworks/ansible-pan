@@ -16,7 +16,7 @@
 
 DOCUMENTATION = '''
 ---
-module: panos_dhcpif
+module: panos_tunnelif
 short_description: configure a tunnel interface
 description:
     - Configure a tunnel interface

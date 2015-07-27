@@ -21,6 +21,7 @@ short_description: create a source nat rule
 description:
     - Create a source nat rule
     - Note: only static SNAT rules are supported
+    - Superseded, use panos_nat module
 author: Palo Alto Networks - lmori
 version_added: "0.1"
 requirements:

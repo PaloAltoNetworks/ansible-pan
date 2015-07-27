@@ -53,6 +53,19 @@ options:
 '''
 
 EXAMPLES = '''
+# Import and load config file from URL
+  - name: import configuration
+    panos_import:
+      ip_address: "192.168.1.1" 
+      password: "admin"
+      url: "{{ConfigURL}}"
+      category: "configuration"
+    register: result
+  - name: load configuration
+    panos_loadcfg:
+      ip_address: "192.168.1.1" 
+      password: "{{password}}"
+      file: "{{result.filename}}"
 '''
 
 import sys

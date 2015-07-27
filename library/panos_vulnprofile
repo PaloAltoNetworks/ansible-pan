@@ -20,7 +20,7 @@ module: panos_vulnprofile
 short_description: create vulnerability profile
 description:
     - Create custom vulnerability profile
-author: Palo Alto Networks
+author: Palo Alto Networks - ibojer
 version_added: "0.1"
 requirements:
     - pan-python

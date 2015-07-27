@@ -85,7 +85,31 @@ options:
 '''
 
 EXAMPLES = '''
+# Adds gateway to portal config on 192.168.1.1
+  - name: add gateway to portal
+    panos_gpp_gateway:
+      username: "admin"
+      ip_address: "192.168.1.1"
+      password: "admin"
+      portal_name: "GP-Portal"
+      config_name: "GPClientConfig"
+      type: "external"
+      gateway_address: "{{elastic_ip0}}"
+      description: "{{device_name}}"
+      manual: true
+      state: "present"
 
+# Removes gateway from portal config
+  - name: delete gateway from portal
+    panos_gpp_gateway:
+      username: "admin"
+      ip_address: "192.168.1.1"
+      password: "admin"
+      portal_name: "GP-Portal"
+      config_name: "GPClientConfig"
+      type: "external"
+      gateway_address: "{{elastic_ip0}}"
+      state: "absent"
 '''
 
 import sys
