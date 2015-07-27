@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # Copyright (c) 2014, Palo Alto Networks <techbizdev@paloaltonetworks.com>
 # 
@@ -330,6 +330,5 @@ def main():
     module.exit_json(changed=changed, msg="okey dokey")
 
 from ansible.module_utils.basic import *
-from ansible.module_utils.ec2 import *
 
 main()
