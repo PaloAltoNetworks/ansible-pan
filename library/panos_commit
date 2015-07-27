@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 # Copyright (c) 2014, Palo Alto Networks <techbizdev@paloaltonetworks.com>
-# 
+#
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
 # copyright notice and this permission notice appear in all copies.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
 # WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
 # MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
@@ -34,7 +34,7 @@ options:
         description:
             - password for authentication
         required: true
-        default: null   
+        default: null
     username:
         description:
             - username for authentication
@@ -73,15 +73,16 @@ except ImportError:
     print "failed=True msg='pan-python required for this module'"
     sys.exit(1)
 
+
 def main():
     argument_spec = dict(
-            ip_address=dict(default=None),
-            password=dict(default=None),
-            username=dict(default='admin'),
-            interval=dict(default=0.5),
-            timeout=dict(default=None),
-            sync=dict(type='bool', default=True)
-        )
+        ip_address=dict(default=None),
+        password=dict(default=None),
+        username=dict(default='admin'),
+        interval=dict(default=0.5),
+        timeout=dict(default=None),
+        sync=dict(type='bool', default=True)
+    )
     module = AnsibleModule(argument_spec=argument_spec)
 
     ip_address = module.params["ip_address"]
@@ -96,12 +97,21 @@ def main():
     timeout = module.params['timeout']
     sync = module.params['sync']
 
-    xapi = pan.xapi.PanXapi(hostname=ip_address, api_username=username, api_password=password)
+    xapi = pan.xapi.PanXapi(
+        hostname=ip_address,
+        api_username=username,
+        api_password=password
+    )
 
-    xapi.commit(cmd="<commit></commit>", sync=sync, interval=interval, timeout=timeout)
+    xapi.commit(
+        cmd="<commit></commit>",
+        sync=sync,
+        interval=interval,
+        timeout=timeout
+    )
 
     module.exit_json(changed=True, msg="okey dokey")
 
-from ansible.module_utils.basic import *
+from ansible.module_utils.basic import *  # noqa
 
 main()

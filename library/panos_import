@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 # Copyright (c) 2014, Palo Alto Networks <techbizdev@paloaltonetworks.com>
-# 
+#
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
 # copyright notice and this permission notice appear in all copies.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
 # WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
 # MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
@@ -36,7 +36,7 @@ options:
         description:
             - password for authentication
         required: true
-        default: null   
+        default: null
     username:
         description:
             - username for authentication
@@ -71,7 +71,6 @@ EXAMPLES = '''
 '''
 
 import sys
-import time
 import os.path
 import xml.etree
 import tempfile
@@ -96,6 +95,7 @@ except ImportError:
     print "failed=True msg='requests_toolbelt required for this module'"
     sys.exit(1)
 
+
 def import_file(xapi, module, ip_address, file_, category):
     xapi.keygen()
 
@@ -107,13 +107,19 @@ def import_file(xapi, module, ip_address, file_, category):
 
     filename = os.path.basename(file_)
 
-    mef = requests_toolbelt.MultipartEncoder(fields={ 'file': (filename, open(file_, 'rb'), 'application/octet-stream') })
+    mef = requests_toolbelt.MultipartEncoder(
+        fields={
+            'file': (filename, open(file_, 'rb'), 'application/octet-stream')
+        }
+    )
 
-    r = requests.post('https://'+ip_address+'/api/', 
-        verify=False, 
+    r = requests.post(
+        'https://'+ip_address+'/api/',
+        verify=False,
         params=params,
         headers={'Content-Type': mef.content_type},
-        data=mef)
+        data=mef
+    )
 
     # if something goes wrong just raise an exception
     r.raise_for_status()
@@ -124,6 +130,7 @@ def import_file(xapi, module, ip_address, file_, category):
 
     return True, filename
 
+
 def download_file(url):
     r = requests.get(url, stream=True)
     fo = tempfile.NamedTemporaryFile(prefix='ai', delete=False)
@@ -132,18 +139,20 @@ def download_file(url):
 
     return fo.name
 
+
 def delete_file(path):
     os.remove(path)
 
+
 def main():
     argument_spec = dict(
-            ip_address=dict(default=None),
-            password=dict(default=None),
-            username=dict(default='admin'),
-            category=dict(default='software'),
-            file=dict(default=None),
-            url=dict(default=None)
-        )
+        ip_address=dict(default=None),
+        password=dict(default=None),
+        username=dict(default='admin'),
+        category=dict(default='software'),
+        file=dict(default=None),
+        url=dict(default=None)
+    )
     module = AnsibleModule(argument_spec=argument_spec)
 
     ip_address = module.params["ip_address"]
@@ -154,7 +163,11 @@ def main():
         module.fail_json(msg="password is required")
     username = module.params['username']
 
-    xapi = pan.xapi.PanXapi(hostname=ip_address, api_username=username, api_password=password)
+    xapi = pan.xapi.PanXapi(
+        hostname=ip_address,
+        api_username=username,
+        api_password=password
+    )
 
     file_ = module.params['file']
     url = module.params['url']
@@ -174,6 +187,6 @@ def main():
 
     module.exit_json(changed=changed, filename=filename, msg="okey dokey")
 
-from ansible.module_utils.basic import *
+from ansible.module_utils.basic import *  # noqa
 
 main()

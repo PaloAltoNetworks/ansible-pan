@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 # Copyright (c) 2014, Palo Alto Networks <techbizdev@paloaltonetworks.com>
-# 
+#
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
 # copyright notice and this permission notice appear in all copies.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
 # WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
 # MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
@@ -34,7 +34,7 @@ options:
         description:
             - password for authentication
         required: true
-        default: null   
+        default: null
     username:
         description:
             - username for authentication
@@ -71,24 +71,24 @@ options:
 EXAMPLES = '''
 # upgrade content to the lastest release
 - name: upgrade content
-  panos_content: 
-    ip_address: "192.168.1.1" 
+  panos_content:
+    ip_address: "192.168.1.1"
     password: "admin"
     content_update: yes
 
 # upgrade anti-virus and wildfire signatures to the
 # latest releases
 - name: upgrade anti-virus
-  panos_content: 
-    ip_address: "192.168.1.1" 
+  panos_content:
+    ip_address: "192.168.1.1"
     password: "admin"
     anti_virus_update: yes
     wildfire_update: yes
 
 # download PAN-DB seed for Europe region
 - name: upgrade pan-db
-  panos_content: 
-    ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}" 
+  panos_content:
+    ip_address: "{{stack.stack_outputs.PAVMAWSEIPMgmt}}"
     password: "{{admin_password}}"
     url_download_region: europe
 '''
@@ -111,36 +111,52 @@ PAN_DB_REGIONS = [
     "Russia"
 ]
 
+
 class JobException(Exception):
     pass
+
 
 def check_job(xapi, jobnum, timeout=240):
     now = time.time()
     while time.time() < now+timeout:
-        xapi.op(cmd='<show><jobs><id>%s</id></jobs></show>'%jobnum)
+        xapi.op(cmd='<show><jobs><id>%s</id></jobs></show>' % jobnum)
         status = xapi.element_root.find('.//status')
-        if status == None:
-            raise JobException("Invalid job %s: no status information %s"%(jobnum, xapi.xml_document))
+        if status is None:
+            raise JobException("Invalid job %s: no status information %s" %
+                               (jobnum, xapi.xml_document))
         if status.text == 'FIN':
             result = xapi.element_root.find('.//job/result')
-            if result == None:
-                raise JobException("Invalid FIN job %s: no result %s"%(jobnum, xapi.xml_document))
+            if result is None:
+                raise JobException("Invalid FIN job %s: no result %s" %
+                                   (jobnum, xapi.xml_document))
             if result.text != 'OK':
-                raise JobException("Job %s failed: %s"%(jobnum, xapi.xml_document))
+                raise JobException("Job %s failed: %s" %
+                                   (jobnum, xapi.xml_document))
             nextjob = xapi.element_root.find('.//nextjob')
             if nextjob is not None:
                 return nextjob.text
             return None
-    raise JobException("Timeout in job %s"%jobnum)
+
+    raise JobException("Timeout in job %s" % jobnum)
+
 
 def upgrade_something(xapi, module, something, job_timeout):
     # check something updates
-    xapi.op(cmd="<request><%(something)s><upgrade><check></check></upgrade></%(something)s></request>"%dict(something=something))
+    xapi.op(cmd="<request><%(something)s><upgrade>"
+                "<check></check>"
+                "</upgrade></%(something)s></request>" %
+                dict(something=something))
 
     entries = xapi.element_root.findall('.//content-updates/entry')
     cus = []
     for e in entries:
-        cus.append((e.find('version').text, e.find('current').text, e.find('downloaded').text))
+        cus.append(
+            (
+                e.find('version').text,
+                e.find('current').text,
+                e.find('downloaded').text
+            )
+        )
     if len(cus) == 0:
         module.fail_json(msg="no content-updates after check")
     cus = sorted(cus, key=lambda x: x[0], reverse=True)
@@ -152,33 +168,46 @@ def upgrade_something(xapi, module, something, job_timeout):
 
     if not latestcus[2] == 'yes':
         # let's download it
-        xapi.op(cmd="<request><%(something)s><upgrade><download><latest></latest></download></upgrade></%(something)s></request>"%dict(something=something))
+        xapi.op(cmd="<request><%(something)s><upgrade>"
+                    "<download><latest></latest></download>"
+                    "</upgrade></%(something)s></request>" %
+                    dict(something=something))
         job = xapi.element_root.find('.//job')
         if job is None:
-            module.fail_json(msg="no job from download latest %s request"%something)
+            module.fail_json(msg="no job from download latest %s request" %
+                             something)
         job = job.text
         check_job(xapi, job, job_timeout)
 
-    xapi.op(cmd="<request><%(something)s><upgrade><install><version>latest</version></install></upgrade></%(something)s></request>"%dict(something=something))
+    xapi.op(cmd="<request><%(something)s><upgrade>"
+                "<install><version>latest</version></install>"
+                "</upgrade></%(something)s></request>" %
+                dict(something=something))
     job = xapi.element_root.find('.//job')
     if job is None:
-        module.fail_json(msg="no hob from install latest %s request"%something)
+        module.fail_json(msg="no hob from install latest %s request" %
+                         something)
     job = job.text
     jobresult = check_job(xapi, job, job_timeout)
     if jobresult is None:
-        module.fail_json(msg="no nextjob from install latest %s job"%something)
+        module.fail_json(msg="no nextjob from install latest %s job" %
+                         something)
     check_job(xapi, jobresult, job_timeout)
 
     return True
 
+
 def upgrade_content(xapi, module, job_timeout):
     return upgrade_something(xapi, module, 'content', job_timeout)
+
 
 def upgrade_anti_virus(xapi, module, job_timeout):
     return upgrade_something(xapi, module, 'anti-virus', job_timeout)
 
+
 def upgrade_wildfire(xapi, module, job_timeout):
     return upgrade_something(xapi, module, 'wildfire', job_timeout)
+
 
 def download_url_region(xapi, module, region, job_timeout):
     pan_db_region = None
@@ -187,23 +216,27 @@ def download_url_region(xapi, module, region, job_timeout):
             pan_db_region = r
             break
     if pan_db_region is None:
-        module.fail_json(msg="Invalid PAN-DB region %s"%region)
+        module.fail_json(msg="Invalid PAN-DB region %s" % region)
 
-    xapi.op(cmd="<request><url-filtering><download><paloaltonetworks><region>%s</region></paloaltonetworks></download></url-filtering></request>"%pan_db_region)
+    xapi.op(cmd="<request><url-filtering><download>"
+                "<paloaltonetworks><region>%s</region></paloaltonetworks>"
+                "</download></url-filtering></request>" %
+                pan_db_region)
 
     return True
 
+
 def main():
     argument_spec = dict(
-            ip_address=dict(default=None),
-            password=dict(default=None),
-            username=dict(default='admin'),
-            url_download_region=dict(default=None),
-            content_update=dict(type='bool', default=False),
-            anti_virus_update=dict(type='bool', default=False),
-            wildfire_update=dict(type='bool', default=False),
-            job_timeout=dict(type='int', default=240)
-        )
+        ip_address=dict(default=None),
+        password=dict(default=None),
+        username=dict(default='admin'),
+        url_download_region=dict(default=None),
+        content_update=dict(type='bool', default=False),
+        anti_virus_update=dict(type='bool', default=False),
+        wildfire_update=dict(type='bool', default=False),
+        job_timeout=dict(type='int', default=240)
+    )
     module = AnsibleModule(argument_spec=argument_spec)
 
     ip_address = module.params["ip_address"]
@@ -216,7 +249,11 @@ def main():
 
     job_timeout = module.params['job_timeout']
 
-    xapi = pan.xapi.PanXapi(hostname=ip_address, api_username=username, api_password=password)
+    xapi = pan.xapi.PanXapi(
+        hostname=ip_address,
+        api_username=username,
+        api_password=password
+    )
 
     changed = False
 
@@ -231,10 +268,11 @@ def main():
         changed |= upgrade_wildfire(xapi, module, job_timeout)
     url_download_region = module.params["url_download_region"]
     if url_download_region:
-        changed |= download_url_region(xapi, module, url_download_region, job_timeout)
+        changed |= download_url_region(xapi, module,
+                                       url_download_region, job_timeout)
 
     module.exit_json(changed=changed, msg="okey dokey")
 
-from ansible.module_utils.basic import *
+from ansible.module_utils.basic import *  # noqa
 
 main()

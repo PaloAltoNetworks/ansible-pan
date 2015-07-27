@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 # Copyright (c) 2014, Palo Alto Networks <techbizdev@paloaltonetworks.com>
-# 
+#
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
 # copyright notice and this permission notice appear in all copies.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
 # WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
 # MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
@@ -34,7 +34,7 @@ options:
         description:
             - password for authentication
         required: true
-        default: null   
+        default: null
     username:
         description:
             - username for authentication
@@ -78,19 +78,24 @@ except ImportError:
     print "failed=True msg='pan-python required for this module'"
     sys.exit(1)
 
-_SERVICE_XPATH = "/config/devices/entry[@name='localhost.localdomain']/vsys/entry[@name='vsys1']/profiles/vulnerability/entry[@name='%s']"
+_SERVICE_XPATH = "/config/devices/entry[@name='localhost.localdomain']" +\
+                 "/vsys/entry[@name='vsys1']" +\
+                 "/profiles/vulnerability/entry[@name='%s']"
+
 
 def debug(msg):
-   print json.dumps({
-      "DEBUG" : msg
-   })
+    print json.dumps({
+        "DEBUG": msg
+    })
+
 
 def vulnerability_profile_exists(xapi, vulnprofile_name):
-    xapi.get(_SERVICE_XPATH%vulnprofile_name)
+    xapi.get(_SERVICE_XPATH % vulnprofile_name)
     e = xapi.element_root.find('.//entry')
     if e is None:
         return False
     return True
+
 
 def add_vulnerability_profile(xapi, **kwargs):
     if vulnerability_profile_exists(xapi, kwargs['vulnprofile_name']):
@@ -109,54 +114,69 @@ def add_vulnerability_profile(xapi, **kwargs):
             capture = "disable"
             category = "any"
 
-            if 'cve' in item: cve = item['cve']
-            if 'vendor_id' in item: vendor_id = item['vendor_id']
-            if 'threat_name' in item: threat_name = item['threat_name']
-            if 'host_type' in item: host_type = item['host_type']
-            if 'action' in item: action = item['action']
-            if 'capture' in item: capture = item['capture']
-            if 'category' in item: category = item['category']
+            if 'cve' in item:
+                cve = item['cve']
+            if 'vendor_id' in item:
+                vendor_id = item['vendor_id']
+            if 'threat_name' in item:
+                threat_name = item['threat_name']
+            if 'host_type' in item:
+                host_type = item['host_type']
+            if 'action' in item:
+                action = item['action']
+            if 'capture' in item:
+                capture = item['capture']
+            if 'category' in item:
+                category = item['category']
 
-            exml.append('<entry name=\"%s\">'%item['rule_name'])
-            exml.append('<cve><member>%s</member></cve>'%cve)
-            exml.append('<vendor-id><member>%s</member></vendor-id>'%vendor_id)
-            exml.append('<severity><member>%s</member></severity>'%item['severity'])
-            exml.append('<threat-name>%s</threat-name>'%threat_name)
-            exml.append('<host>%s</host>'%host_type)
-            exml.append('<category>%s</category>'%category)
-            exml.append('<packet-capture>%s</packet-capture>'%capture)
-            exml.append('<action><%s/></action>'%action)
+            exml.append('<entry name=\"%s\">' % item['rule_name'])
+            exml.append('<cve><member>%s</member></cve>' % cve)
+            exml.append('<vendor-id><member>%s</member></vendor-id>' %
+                        vendor_id)
+            exml.append('<severity><member>%s</member></severity>' %
+                        item['severity'])
+            exml.append('<threat-name>%s</threat-name>' %
+                        threat_name)
+            exml.append('<host>%s</host>' % host_type)
+            exml.append('<category>%s</category>' % category)
+            exml.append('<packet-capture>%s</packet-capture>' %
+                        capture)
+            exml.append('<action><%s/></action>' %
+                        action)
             exml.append('</entry>')
         exml.append('</rules>')
 
     if kwargs['exception_ids'] is not None:
         exml.append('<threat-exception>')
         for t in kwargs['exception_ids']:
-            exml.append('<entry name=\"%s\"><action><reset-client/></action></entry>'%t)
+            exml.append('<entry name=\"%s\">'
+                        '<action><reset-client/></action>'
+                        '</entry>' % t)
         exml.append('</threat-exception>')
 
     if kwargs['description'] is not None:
-	exml.append('<description>%s</description>'%kwargs['description'])
+        exml.append('<description>%s</description>' % kwargs['description'])
 
     exml = ''.join(exml)
 
 # FOR DEBUGGING
 #    print "element='%s'"%exml
-    xapi.set(xpath=_SERVICE_XPATH%kwargs['vulnprofile_name'], element=exml)
+    xapi.set(xpath=_SERVICE_XPATH % kwargs['vulnprofile_name'], element=exml)
 
     return True
 
+
 def main():
     argument_spec = dict(
-            ip_address=dict(default=None),
-            password=dict(default=None),
-            username=dict(default='admin'),
-            vulnprofile_name=dict(default=None),
-            description=dict(default=None),
-            rule_tuples=dict(default=None),
-            exception_ids=dict(default=None),
-            commit=dict(type='bool', default=True)
-        )
+        ip_address=dict(default=None),
+        password=dict(default=None),
+        username=dict(default='admin'),
+        vulnprofile_name=dict(default=None),
+        description=dict(default=None),
+        rule_tuples=dict(default=None),
+        exception_ids=dict(default=None),
+        commit=dict(type='bool', default=True)
+    )
     module = AnsibleModule(argument_spec=argument_spec)
 
     ip_address = module.params["ip_address"]
@@ -167,15 +187,19 @@ def main():
         module.fail_json(msg="password is required")
     username = module.params['username']
 
-    xapi = pan.xapi.PanXapi(hostname=ip_address, api_username=username, api_password=password)
+    xapi = pan.xapi.PanXapi(
+        hostname=ip_address,
+        api_username=username,
+        api_password=password
+    )
 
     vulnprofile_name = module.params["vulnprofile_name"]
     if not vulnprofile_name:
         module.fail_json(msg="vulnprofile_name must be specified")
 
     description = module.params["description"]
-    rule_tuples=module.params["rule_tuples"]
-    exception_ids=module.params["exception_ids"]
+    rule_tuples = module.params["rule_tuples"]
+    exception_ids = module.params["exception_ids"]
 
     if not rule_tuples and not exception_ids:
         module.fail_json(msg="You cannot have both exception and rules empty")
@@ -183,8 +207,8 @@ def main():
     commit = module.params['commit']
 
     changed = False
-    changed = add_vulnerability_profile(xapi, 
-                                        vulnprofile_name=vulnprofile_name, 
+    changed = add_vulnerability_profile(xapi,
+                                        vulnprofile_name=vulnprofile_name,
                                         description=description,
                                         rule_tuples=rule_tuples,
                                         exception_ids=exception_ids)
@@ -194,6 +218,6 @@ def main():
 
     module.exit_json(changed=changed, msg="okey dokey")
 
-from ansible.module_utils.basic import *
+from ansible.module_utils.basic import *  # noqa
 
 main()

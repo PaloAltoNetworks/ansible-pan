@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 # Copyright (c) 2014, Palo Alto Networks <techbizdev@paloaltonetworks.com>
-# 
+#
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
 # copyright notice and this permission notice appear in all copies.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
 # WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
 # MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
@@ -56,15 +56,15 @@ options:
 EXAMPLES = '''
 # single check on 192.168.1.1 with credentials admin/admin
 - name: check if ready
-  panos_check: 
-    ip_address: "192.168.1.1" 
+  panos_check:
+    ip_address: "192.168.1.1"
     password: "admin"
 
 # check for 10 times, every 30 seconds, if device 192.168.1.1
 # is ready, using credentials admin/admin
 - name: wait for reboot
-  panos_check: 
-    ip_address: "192.168.1.1" 
+  panos_check:
+    ip_address: "192.168.1.1"
     password: "admin"
   register: result
   until: not result|failed
@@ -81,6 +81,7 @@ except ImportError:
     print "failed=True msg='pan-python required for this module'"
     sys.exit(1)
 
+
 def check_jobs(jobs, module):
     job_check = False
     for j in jobs:
@@ -92,14 +93,15 @@ def check_jobs(jobs, module):
         job_check = True
     return job_check
 
+
 def main():
     argument_spec = dict(
-            ip_address=dict(default=None),
-            password=dict(default=None),
-            username=dict(default='admin'),
-            timeout=dict(default=0,type='int'),
-            interval=dict(default=0, type='int')
-        )
+        ip_address=dict(default=None),
+        password=dict(default=None),
+        username=dict(default='admin'),
+        timeout=dict(default=0, type='int'),
+        interval=dict(default=0, type='int')
+    )
     module = AnsibleModule(argument_spec=argument_spec)
 
     ip_address = module.params["ip_address"]
@@ -112,7 +114,12 @@ def main():
     timeout = module.params['timeout']
     interval = module.params['interval']
 
-    xapi = pan.xapi.PanXapi(hostname=ip_address, api_username=username, api_password=password, timeout=60)
+    xapi = pan.xapi.PanXapi(
+        hostname=ip_address,
+        api_username=username,
+        api_password=password,
+        timeout=60
+    )
 
     checkpnt = time.time()+timeout
     while True:
@@ -130,8 +137,8 @@ def main():
 
         time.sleep(interval)
 
-    module.fail_json(msg="Timeout")    
+    module.fail_json(msg="Timeout")
 
-from ansible.module_utils.basic import *
+from ansible.module_utils.basic import *   # noqa
 
 main()

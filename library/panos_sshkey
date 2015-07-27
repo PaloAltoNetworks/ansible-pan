@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 # Copyright (c) 2014, Palo Alto Networks <techbizdev@paloaltonetworks.com>
-# 
+#
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
 # copyright notice and this permission notice appear in all copies.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
 # WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
 # MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
@@ -34,7 +34,7 @@ options:
         description:
             - password for authentication
         required: true
-        default: null   
+        default: null
     username:
         description:
             - username for authentication
@@ -85,34 +85,39 @@ except ImportError:
 _ADMINPROFILE_XPATH = "/config/mgt-config/users/entry[@name='%s']"
 _PKEY_XPATH = _ADMINPROFILE_XPATH+"/public-key"
 
+
 def get_publickey(xapi, user):
-    xapi.get(xpath=_PKEY_XPATH%user)
+    xapi.get(xpath=_PKEY_XPATH % user)
     pkey = xapi.element_root.find('.//public-key')
     if pkey is None:
         return None
     return base64.b64decode(pkey.text)
 
+
 def delete_publickey(xapi, user):
-    xapi.delete(xpath=_PKEY_XPATH%user)
+    xapi.delete(xpath=_PKEY_XPATH % user)
+
 
 def set_publickey(xapi, user, cpkey, pkey):
     b64pkey = base64.b64encode(pkey)
-    e = "<public-key>%s</public-key>"%b64pkey
-    if cpkey == None:
-        xapi.set(xpath=_ADMINPROFILE_XPATH%user, element=e)
+    e = "<public-key>%s</public-key>" % b64pkey
+    if cpkey is None:
+        xapi.set(xpath=_ADMINPROFILE_XPATH % user, element=e)
     else:
-        xapi.edit(xpath=_PKEY_XPATH%user, element=e)
+        xapi.edit(xpath=_PKEY_XPATH % user, element=e)
+
 
 def main():
     argument_spec = dict(
-            ip_address=dict(default=None),
-            password=dict(default=None),
-            username=dict(default='admin'),
-            admin_username=dict(default=None, required=True),
-            public_key=dict(default=None),
-            state=dict(choices=['present','absent'], required=True, default=None),
-            commit=dict(type='bool', default=True)
-        )
+        ip_address=dict(default=None),
+        password=dict(default=None),
+        username=dict(default='admin'),
+        admin_username=dict(default=None, required=True),
+        public_key=dict(default=None),
+        state=dict(choices=['present', 'absent'], required=True,
+                   default=None),
+        commit=dict(type='bool', default=True)
+    )
     module = AnsibleModule(argument_spec=argument_spec)
 
     ip_address = module.params["ip_address"]
@@ -123,7 +128,11 @@ def main():
         module.fail_json(msg="password is required")
     username = module.params['username']
 
-    xapi = pan.xapi.PanXapi(hostname=ip_address, api_username=username, api_password=password)
+    xapi = pan.xapi.PanXapi(
+        hostname=ip_address,
+        api_username=username,
+        api_password=password
+    )
 
     panos_user = module.params['admin_username']
     public_key = module.params['public_key']
@@ -135,7 +144,7 @@ def main():
     pkey = get_publickey(xapi, panos_user)
 
     if state == 'absent':
-        if pkey != None:
+        if pkey is not None:
             delete_publickey(xapi, panos_user)
             changed = True
     else:
@@ -152,6 +161,6 @@ def main():
 
     module.exit_json(changed=changed, msg="okey dokey")
 
-from ansible.module_utils.basic import *
+from ansible.module_utils.basic import *  # noqa
 
 main()

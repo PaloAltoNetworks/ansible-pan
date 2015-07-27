@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 # Copyright (c) 2014, Palo Alto Networks <techbizdev@paloaltonetworks.com>
-# 
+#
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
 # copyright notice and this permission notice appear in all copies.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
 # WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
 # MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
@@ -34,7 +34,7 @@ options:
         description:
             - password for authentication
         required: true
-        default: null   
+        default: null
     username:
         description:
             - username for authentication
@@ -84,14 +84,17 @@ except ImportError:
 
 _ADMIN_XPATH = "/config/mgt-config/users/entry[@name='%s']"
 
+
 def admin_exists(xapi, admin_username):
-    xapi.get(_ADMIN_XPATH%admin_username)
+    xapi.get(_ADMIN_XPATH % admin_username)
     e = xapi.element_root.find('.//entry')
     return e
 
+
 def admin_set(xapi, module, admin_username, admin_password, role):
     if admin_password is not None:
-        xapi.op(cmd='request password-hash password "%s"'%admin_password, cmd_xml=True)
+        xapi.op(cmd='request password-hash password "%s"' % admin_password,
+                cmd_xml=True)
         r = xapi.element_root
         phash = r.find('.//phash').text
     if role is not None:
@@ -109,11 +112,18 @@ def admin_set(xapi, module, admin_username, admin_password, role):
             if rb is not None:
                 if rb[0].tag != role:
                     changed = True
-                    xapi.delete(xpath=_ADMIN_XPATH%admin_username+'/permissions/role-based/%s'%rb[0].tag)
-                    xapi.set(xpath=_ADMIN_XPATH%admin_username+'/permissions/role-based', element='<%s>%s</%s>'%(role, rbval, role))
+                    xpath = _ADMIN_XPATH % admin_username
+                    xpath += '/permissions/role-based/%s' % rb[0].tag
+                    xapi.delete(xpath=xpath)
+
+                    xpath = _ADMIN_XPATH % admin_username
+                    xpath += '/permissions/role-based'
+                    xapi.set(xpath=xpath,
+                             element='<%s>%s</%s>' % (role, rbval, role))
 
         if admin_password is not None:
-            xapi.edit(xpath=_ADMIN_XPATH%admin_username+'/phash', element='<phash>%s</phash>'%phash) # 
+            xapi.edit(xpath=_ADMIN_XPATH % admin_username+'/phash',
+                      element='<phash>%s</phash>' % phash)
             changed = True
 
         return changed
@@ -121,26 +131,28 @@ def admin_set(xapi, module, admin_username, admin_password, role):
     # setup the non encrypted part of the monitor
     exml = []
 
-    exml.append('<phash>%s</phash>'%phash)
-    exml.append('<permissions><role-based><%s>%s</%s></role-based></permissions>'%(role, rbval, role))
+    exml.append('<phash>%s</phash>' % phash)
+    exml.append('<permissions><role-based><%s>%s</%s>'
+                '</role-based></permissions>' % (role, rbval, role))
 
     exml = ''.join(exml)
     # module.fail_json(msg=exml)
 
-    xapi.set(xpath=_ADMIN_XPATH%admin_username, element=exml)
+    xapi.set(xpath=_ADMIN_XPATH % admin_username, element=exml)
 
     return True
 
+
 def main():
     argument_spec = dict(
-            ip_address=dict(default=None),
-            password=dict(default=None),
-            username=dict(default='admin'),
-            admin_username=dict(default='admin'),
-            admin_password=dict(default=None),
-            role=dict(default=None),
-            commit=dict(type='bool', default=True)
-        )
+        ip_address=dict(default=None),
+        password=dict(default=None),
+        username=dict(default='admin'),
+        admin_username=dict(default='admin'),
+        admin_password=dict(default=None),
+        role=dict(default=None),
+        commit=dict(type='bool', default=True)
+    )
     module = AnsibleModule(argument_spec=argument_spec)
 
     ip_address = module.params["ip_address"]
@@ -151,7 +163,11 @@ def main():
         module.fail_json(msg="password is required")
     username = module.params['username']
 
-    xapi = pan.xapi.PanXapi(hostname=ip_address, api_username=username, api_password=password)
+    xapi = pan.xapi.PanXapi(
+        hostname=ip_address,
+        api_username=username,
+        api_password=password
+    )
 
     admin_username = module.params['admin_username']
     if admin_username is None:
@@ -167,6 +183,6 @@ def main():
 
     module.exit_json(changed=changed, msg="okey dokey")
 
-from ansible.module_utils.basic import *
+from ansible.module_utils.basic import * # flake8: noqa
 
 main()

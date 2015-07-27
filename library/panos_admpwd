@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 # Copyright (c) 2014, Palo Alto Networks <techbizdev@paloaltonetworks.com>
-# 
+#
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
 # copyright notice and this permission notice appear in all copies.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
 # WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
 # MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
@@ -47,9 +47,9 @@ EXAMPLES = '''
 # Tries for 10 times to set the admin password of 192.168.1.1 to "badpassword"
 # via SSH, authenticating using key /tmp/ssh.key
 - name: set admin password
-  panos_admpwd: 
-    ip_address: "192.168.1.1" 
-    key_filename: "/tmp/ssh.key" 
+  panos_admpwd:
+    ip_address: "192.168.1.1"
+    key_filename: "/tmp/ssh.key"
     password: "badpassword"
   register: result
   until: not result|failed
@@ -68,6 +68,7 @@ except ImportError:
 
 _PROMPTBUFF = 4096
 
+
 def wait_with_timeout(module, shell, prompt, timeout=60):
     now = time.time()
     result = ""
@@ -82,6 +83,7 @@ def wait_with_timeout(module, shell, prompt, timeout=60):
             module.fail_json(msg="Timeout waiting for prompt")
 
     return result
+
 
 def set_pavmaws_password(module, ip_address, key_filename, password):
     stdout = ""
@@ -133,7 +135,7 @@ def set_pavmaws_password(module, ip_address, key_filename, password):
     buff = wait_with_timeout(module, shell, "#", 120)
     stdout += buff
 
-    if not 'success' in buff:
+    if 'success' not in buff:
         module.fail_json(msg="Error setting admin password: "+stdout)
 
     # exit
@@ -143,12 +145,13 @@ def set_pavmaws_password(module, ip_address, key_filename, password):
 
     return stdout
 
+
 def main():
     argument_spec = dict(
-            ip_address=dict(default=None),
-            key_filename=dict(default=None),
-            password=dict(default=None)
-        )
+        ip_address=dict(default=None),
+        key_filename=dict(default=None),
+        password=dict(default=None)
+    )
     module = AnsibleModule(argument_spec=argument_spec)
 
     ip_address = module.params["ip_address"]
@@ -166,6 +169,6 @@ def main():
     module.exit_json(changed=True, stdout=stdout)
 
 
-from ansible.module_utils.basic import *
+from ansible.module_utils.basic import *  # noqa
 
 main()

@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 # Copyright (c) 2014, Palo Alto Networks <techbizdev@paloaltonetworks.com>
-# 
+#
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
 # copyright notice and this permission notice appear in all copies.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
 # WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
 # MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
@@ -34,7 +34,7 @@ options:
         description:
             - password for authentication
         required: true
-        default: null   
+        default: null
     username:
         description:
             - username for authentication
@@ -74,14 +74,17 @@ except ImportError:
     print "failed=True msg='pan-python required for this module'"
     sys.exit(1)
 
-_ADDRGROUP_XPATH = "/config/devices/entry[@name='localhost.localdomain']/vsys/entry[@name='vsys1']/address-group/entry[@name='%s']"
+_ADDRGROUP_XPATH = "/config/devices/entry[@name='localhost.localdomain']" +\
+                   "/vsys/entry[@name='vsys1']/address-group/entry[@name='%s']"
+
 
 def addressgroup_exists(xapi, group_name):
-    xapi.get(_ADDRGROUP_XPATH%group_name)
+    xapi.get(_ADDRGROUP_XPATH % group_name)
     e = xapi.element_root.find('.//entry')
     if e is None:
         return False
     return True
+
 
 def add_dag(xapi, dag_name, dag_filter):
     if addressgroup_exists(xapi, dag_name):
@@ -91,23 +94,24 @@ def add_dag(xapi, dag_name, dag_filter):
     exml = []
 
     exml.append('<dynamic>')
-    exml.append('<filter>%s</filter>'%dag_filter)
+    exml.append('<filter>%s</filter>' % dag_filter)
     exml.append('</dynamic>')
 
     exml = ''.join(exml)
-    xapi.set(xpath=_ADDRGROUP_XPATH%dag_name, element=exml)
+    xapi.set(xpath=_ADDRGROUP_XPATH % dag_name, element=exml)
 
     return True
 
+
 def main():
     argument_spec = dict(
-            ip_address=dict(default=None),
-            password=dict(default=None),
-            username=dict(default='admin'),
-            dag_name=dict(default=None),
-            dag_filter=dict(default=None),
-            commit=dict(type='bool', default=True)
-        )
+        ip_address=dict(default=None),
+        password=dict(default=None),
+        username=dict(default='admin'),
+        dag_name=dict(default=None),
+        dag_filter=dict(default=None),
+        commit=dict(type='bool', default=True)
+    )
     module = AnsibleModule(argument_spec=argument_spec)
 
     ip_address = module.params["ip_address"]
@@ -118,7 +122,11 @@ def main():
         module.fail_json(msg="password is required")
     username = module.params['username']
 
-    xapi = pan.xapi.PanXapi(hostname=ip_address, api_username=username, api_password=password)
+    xapi = pan.xapi.PanXapi(
+        hostname=ip_address,
+        api_username=username,
+        api_password=password
+    )
 
     dag_name = module.params['dag_name']
     if not dag_name:
@@ -135,6 +143,6 @@ def main():
 
     module.exit_json(changed=changed, msg="okey dokey")
 
-from ansible.module_utils.basic import *
+from ansible.module_utils.basic import *  # noqa
 
 main()

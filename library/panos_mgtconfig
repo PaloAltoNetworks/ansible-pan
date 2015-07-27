@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 # Copyright (c) 2014, Palo Alto Networks <techbizdev@paloaltonetworks.com>
-# 
+#
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
 # copyright notice and this permission notice appear in all copies.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
 # WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
 # MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
@@ -34,7 +34,7 @@ options:
         description:
             - password for authentication
         required: true
-        default: null   
+        default: null
     username:
         description:
             - username for authentication
@@ -86,8 +86,12 @@ except ImportError:
     print "failed=True msg='pan-python required for this module'"
     sys.exit(1)
 
-_XPATH_DNS_SERVERS = "/config/devices/entry[@name='localhost.localdomain']/deviceconfig/system/dns-setting/servers"
-_XPATH_PANORAMA_SERVERS = "/config/devices/entry[@name='localhost.localdomain']/deviceconfig/system"
+_XPATH_DNS_SERVERS = "/config/devices/entry[@name='localhost.localdomain']" +\
+                     "/deviceconfig/system/dns-setting/servers"
+_XPATH_PANORAMA_SERVERS = "/config" +\
+                          "/devices/entry[@name='localhost.localdomain']" +\
+                          "/deviceconfig/system"
+
 
 def set_dns_server(xapi, new_dns_server, primary=True):
     if primary:
@@ -105,10 +109,12 @@ def set_dns_server(xapi, new_dns_server, primary=True):
     if val == new_dns_server:
         return False
 
-    element = "<%(tag)s>%(value)s</%(tag)s>"%dict(tag=tag, value=new_dns_server)
+    element = "<%(tag)s>%(value)s</%(tag)s>" %\
+              dict(tag=tag, value=new_dns_server)
     xapi.edit(xpath, element)
 
     return True
+
 
 def set_panorama_server(xapi, new_panorama_server, primary=True):
     if primary:
@@ -126,22 +132,24 @@ def set_panorama_server(xapi, new_panorama_server, primary=True):
     if val == new_panorama_server:
         return False
 
-    element = "<%(tag)s>%(value)s</%(tag)s>"%dict(tag=tag, value=new_panorama_server)
+    element = "<%(tag)s>%(value)s</%(tag)s>" %\
+              dict(tag=tag, value=new_panorama_server)
     xapi.edit(xpath, element)
 
     return True
 
+
 def main():
     argument_spec = dict(
-            ip_address=dict(default=None),
-            password=dict(default=None),
-            username=dict(default='admin'),
-            dns_server_primary=dict(default=None),
-            dns_server_secondary=dict(default=None),
-            panorama_primary=dict(default=None),
-            panorama_secondary=dict(default=None),
-            commit=dict(type='bool', default=True)
-        )
+        ip_address=dict(default=None),
+        password=dict(default=None),
+        username=dict(default='admin'),
+        dns_server_primary=dict(default=None),
+        dns_server_secondary=dict(default=None),
+        panorama_primary=dict(default=None),
+        panorama_secondary=dict(default=None),
+        commit=dict(type='bool', default=True)
+    )
     module = AnsibleModule(argument_spec=argument_spec)
 
     ip_address = module.params["ip_address"]
@@ -152,7 +160,11 @@ def main():
         module.fail_json(msg="password is required")
     username = module.params['username']
 
-    xapi = pan.xapi.PanXapi(hostname=ip_address, api_username=username, api_password=password)
+    xapi = pan.xapi.PanXapi(
+        hostname=ip_address,
+        api_username=username,
+        api_password=password
+    )
 
     dns_server_primary = module.params['dns_server_primary']
     dns_server_secondary = module.params['dns_server_secondary']
@@ -175,6 +187,6 @@ def main():
 
     module.exit_json(changed=changed, msg="okey dokey")
 
-from ansible.module_utils.basic import *
+from ansible.module_utils.basic import *  # noqa
 
 main()

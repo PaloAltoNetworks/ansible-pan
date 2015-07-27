@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 # Copyright (c) 2014, Palo Alto Networks <techbizdev@paloaltonetworks.com>
-# 
+#
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
 # copyright notice and this permission notice appear in all copies.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
 # WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
 # MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
@@ -35,7 +35,7 @@ options:
         description:
             - password for authentication
         required: true
-        default: null   
+        default: null
     username:
         description:
             - username for authentication
@@ -111,68 +111,76 @@ except ImportError:
     print "failed=True msg='pan-python required for this module'"
     sys.exit(1)
 
-_NAT_XPATH = "/config/devices/entry[@name='localhost.localdomain']/vsys/entry[@name='vsys1']/rulebase/nat/rules/entry[@name='%s']"
+_NAT_XPATH = "/config/devices/entry[@name='localhost.localdomain']" +\
+             "/vsys/entry[@name='vsys1']/rulebase/nat/rules/entry[@name='%s']"
+
 
 def nat_rule_exists(xapi, rule_name):
-    xapi.get(_NAT_XPATH%rule_name)
+    xapi.get(_NAT_XPATH % rule_name)
     e = xapi.element_root.find('.//entry')
     if e is None:
         return False
     return True
 
-def add_dnat(xapi, module, rule_name, from_zone, to_zone, source, destination, service, translated_address=None, translated_port=None):
+
+def add_dnat(xapi, module, rule_name, from_zone, to_zone,
+             source, destination, service,
+             translated_address=None, translated_port=None):
     if translated_address is None and translated_port is None:
-        module.fail_json(msg="at least one of translated_address and translated_port should be specified")
+        module.fail_json(msg="at least one of translated_address "
+                         "and translated_port should be specified")
 
     if nat_rule_exists(xapi, rule_name):
         return False
 
     exml = ["<destination-translation>"]
     if translated_address is not None:
-        exml.append("<translated-address>%s</translated-address>"%translated_address)
+        exml.append("<translated-address>%s</translated-address>" %
+                    translated_address)
     if translated_port is not None:
-        exml.append("<translated-port>%s</translated-port>"%translated_port)
+        exml.append("<translated-port>%s</translated-port>" % translated_port)
     exml.append('</destination-translation>')
 
-    exml.append("<to><member>%s</member></to>"%to_zone)
+    exml.append("<to><member>%s</member></to>" % to_zone)
 
     exml.append("<from>")
-    exml = exml+["<member>%s</member>"%e for e in from_zone]
+    exml = exml+["<member>%s</member>" % e for e in from_zone]
     exml.append("</from>")
 
     exml.append("<source>")
-    exml = exml+["<member>%s</member>"%e for e in source]
+    exml = exml+["<member>%s</member>" % e for e in source]
     exml.append("</source>")
 
     exml.append("<destination>")
-    exml = exml+["<member>%s</member>"%e for e in destination]
+    exml = exml+["<member>%s</member>" % e for e in destination]
     exml.append("</destination>")
 
-    exml.append("<service>%s</service>"%service)
+    exml.append("<service>%s</service>" % service)
 
     exml.append("<nat-type>ipv4</nat-type>")
 
     exml = ''.join(exml)
 
-    xapi.set(xpath=_NAT_XPATH%rule_name, element=exml)
+    xapi.set(xpath=_NAT_XPATH % rule_name, element=exml)
 
     return True
 
+
 def main():
     argument_spec = dict(
-            ip_address=dict(default=None),
-            password=dict(default=None),
-            username=dict(default='admin'),
-            rule_name=dict(default=None),
-            translated_address=dict(default=None),
-            translated_port=dict(default=None),
-            from_zone=dict(default=None),
-            to_zone=dict(default=None),
-            source=dict(default="any"),
-            destination=dict(default="any"),
-            service=dict(default="any"),
-            commit=dict(type='bool', default=True)
-        )
+        ip_address=dict(default=None),
+        password=dict(default=None),
+        username=dict(default='admin'),
+        rule_name=dict(default=None),
+        translated_address=dict(default=None),
+        translated_port=dict(default=None),
+        from_zone=dict(default=None),
+        to_zone=dict(default=None),
+        source=dict(default="any"),
+        destination=dict(default="any"),
+        service=dict(default="any"),
+        commit=dict(type='bool', default=True)
+    )
     module = AnsibleModule(argument_spec=argument_spec)
 
     ip_address = module.params["ip_address"]
@@ -183,7 +191,11 @@ def main():
         module.fail_json(msg="password is required")
     username = module.params['username']
 
-    xapi = pan.xapi.PanXapi(hostname=ip_address, api_username=username, api_password=password)
+    xapi = pan.xapi.PanXapi(
+        hostname=ip_address,
+        api_username=username,
+        api_password=password
+    )
 
     rule_name = module.params['rule_name']
     if not rule_name:
@@ -208,13 +220,13 @@ def main():
     commit = module.params['commit']
 
     changed = False
-    changed = add_dnat(xapi, module, 
-                       rule_name, 
-                       from_zone, 
-                       to_zone, 
-                       source, 
-                       destination, 
-                       service, 
+    changed = add_dnat(xapi, module,
+                       rule_name,
+                       from_zone,
+                       to_zone,
+                       source,
+                       destination,
+                       service,
                        translated_address,
                        translated_port)
 
@@ -223,6 +235,6 @@ def main():
 
     module.exit_json(changed=changed, msg="okey dokey")
 
-from ansible.module_utils.basic import *
+from ansible.module_utils.basic import *  # noqa
 
 main()

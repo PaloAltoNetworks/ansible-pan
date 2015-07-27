@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 # Copyright (c) 2014, Palo Alto Networks <techbizdev@paloaltonetworks.com>
-# 
+#
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
 # copyright notice and this permission notice appear in all copies.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
 # WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
 # MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
@@ -34,7 +34,7 @@ options:
         description:
             - password for authentication
         required: true
-        default: null   
+        default: null
     username:
         description:
             - username for authentication
@@ -86,44 +86,49 @@ except ImportError:
     print "failed=True msg='pan-python required for this module'"
     sys.exit(1)
 
-_SERVICE_XPATH = "/config/devices/entry[@name='localhost.localdomain']/vsys/entry[@name='vsys1']/service/entry[@name='%s']"
+_SERVICE_XPATH = "/config/devices/entry[@name='localhost.localdomain']" +\
+                 "/vsys/entry[@name='vsys1']" +\
+                 "/service/entry[@name='%s']"
+
 
 def service_exists(xapi, service_name):
-    xapi.get(_SERVICE_XPATH%service_name)
+    xapi.get(_SERVICE_XPATH % service_name)
     e = xapi.element_root.find('.//entry')
     if e is None:
         return False
     return True
+
 
 def add_service(xapi, module, service_name, protocol, port, source_port):
     if service_exists(xapi, service_name):
         return False
 
     exml = ['<protocol>']
-    exml.append('<%s>'%protocol)
-    exml.append('<port>%s</port>'%port)
+    exml.append('<%s>' % protocol)
+    exml.append('<port>%s</port>' % port)
     if source_port:
-        exml.append('<source-port>%s</source-port>'%source_port)
-    exml.append('</%s>'%protocol)
+        exml.append('<source-port>%s</source-port>' % source_port)
+    exml.append('</%s>' % protocol)
     exml.append('</protocol>')
 
     exml = ''.join(exml)
 
-    xapi.set(xpath=_SERVICE_XPATH%service_name, element=exml)
+    xapi.set(xpath=_SERVICE_XPATH % service_name, element=exml)
 
     return True
 
+
 def main():
     argument_spec = dict(
-            ip_address=dict(default=None),
-            password=dict(default=None),
-            username=dict(default='admin'),
-            service_name=dict(default=None),
-            protocol=dict(default=None, choices=['tcp', 'udp']),
-            port=dict(default=None),
-            source_port=dict(default=None),
-            commit=dict(type='bool', default=True)
-        )
+        ip_address=dict(default=None),
+        password=dict(default=None),
+        username=dict(default='admin'),
+        service_name=dict(default=None),
+        protocol=dict(default=None, choices=['tcp', 'udp']),
+        port=dict(default=None),
+        source_port=dict(default=None),
+        commit=dict(type='bool', default=True)
+    )
     module = AnsibleModule(argument_spec=argument_spec)
 
     ip_address = module.params["ip_address"]
@@ -134,7 +139,11 @@ def main():
         module.fail_json(msg="password is required")
     username = module.params['username']
 
-    xapi = pan.xapi.PanXapi(hostname=ip_address, api_username=username, api_password=password)
+    xapi = pan.xapi.PanXapi(
+        hostname=ip_address,
+        api_username=username,
+        api_password=password
+    )
 
     service_name = module.params['service_name']
     if not service_name:
@@ -149,7 +158,7 @@ def main():
     commit = module.params['commit']
 
     changed = False
-    changed = add_service(xapi, module, 
+    changed = add_service(xapi, module,
                           service_name,
                           protocol,
                           port,
@@ -160,6 +169,6 @@ def main():
 
     module.exit_json(changed=changed, msg="okey dokey")
 
-from ansible.module_utils.basic import *
+from ansible.module_utils.basic import *  # noqa
 
 main()
