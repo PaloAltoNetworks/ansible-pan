@@ -3,11 +3,17 @@
 panos_sshkey
 ``````````````````````````````
 
-Manage SSH keys of admins 
+Synopsis
+--------
+
+Manage SSH keys of admins
+
+Options
+-------
 
 .. raw:: html
 
-    <table>
+    <table border=1 cellpadding=4>
     <tr>
     <th class="head">parameter</th>
     <th class="head">required</th>
@@ -15,56 +21,67 @@ Manage SSH keys of admins
     <th class="head">choices</th>
     <th class="head">comments</th>
     </tr>
-        <tr>
-    <td>username</td>
-    <td>no</td>
-    <td>admin</td>
-    <td><ul></ul></td>
-    <td>username for authentication</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">username</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">admin</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      username for authentication<br></td>
     </tr>
-        <tr>
-    <td>public_key</td>
-    <td>no</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>SSH public key to set</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">public_key</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      SSH public key to set<br></td>
     </tr>
-        <tr>
-    <td>state</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul><li>present</li><li>absent</li></ul></td>
-    <td>if present module checks for presence of SSH key if absent module deletes SSH key if present</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">state</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"><li>present</li><li>absent</li></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      if present module checks for presence of SSH key if absent module deletes SSH key if present<br></td>
     </tr>
-        <tr>
-    <td>commit</td>
-    <td>no</td>
-    <td>True</td>
-    <td><ul></ul></td>
-    <td>commit if changed</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">commit</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">True</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      commit if changed<br></td>
     </tr>
-        <tr>
-    <td>password</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>password for authentication</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">password</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      password for authentication<br></td>
     </tr>
-        <tr>
-    <td>ip_address</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>IP address (or hostname) of PAN-OS device</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">ip_address</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      IP address (or hostname) of PAN-OS device<br></td>
     </tr>
-        <tr>
-    <td>admin_username</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>username of the admin to operate on</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">admin_username</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      username of the admin to operate on<br></td>
     </tr>
-        </table>
+        </table><br>
+
+
+.. important:: Requires pan-python
+
 
 Examples
 --------

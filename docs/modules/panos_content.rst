@@ -3,11 +3,17 @@
 panos_content
 ``````````````````````````````
 
-Upgrade PAN-OS device dynamic updates with the latest available version 
+Synopsis
+--------
+
+Upgrade PAN-OS device dynamic updates with the latest available version
+
+Options
+-------
 
 .. raw:: html
 
-    <table>
+    <table border=1 cellpadding=4>
     <tr>
     <th class="head">parameter</th>
     <th class="head">required</th>
@@ -15,63 +21,75 @@ Upgrade PAN-OS device dynamic updates with the latest available version
     <th class="head">choices</th>
     <th class="head">comments</th>
     </tr>
-        <tr>
-    <td>username</td>
-    <td>no</td>
-    <td>admin</td>
-    <td><ul></ul></td>
-    <td>username for authentication</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">username</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">admin</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      username for authentication<br></td>
     </tr>
-        <tr>
-    <td>wildfire_update</td>
-    <td>no</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>whether Wildfire signatures should be updated</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">wildfire_update</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      whether Wildfire signatures should be updated<br></td>
     </tr>
-        <tr>
-    <td>url_download_region</td>
-    <td>no</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>region to download PAN-DB seed forif null, PAN-DB won't be updated</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">url_download_region</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      region to download PAN-DB seed for<br>if null, PAN-DB won't be updated<br></td>
     </tr>
-        <tr>
-    <td>content_update</td>
-    <td>no</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>whether content (Apps or Apps+Threats) should be updated</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">content_update</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      whether content (Apps or Apps+Threats) should be updated<br></td>
     </tr>
-        <tr>
-    <td>password</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>password for authentication</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">password</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      password for authentication<br></td>
     </tr>
-        <tr>
-    <td>ip_address</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>IP address (or hostname) of PAN-OS device</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">ip_address</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      IP address (or hostname) of PAN-OS device<br></td>
     </tr>
-        <tr>
-    <td>job_timeout</td>
-    <td>no</td>
-    <td>240</td>
-    <td><ul></ul></td>
-    <td>timeout for download and install jobs in seconds</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">job_timeout</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">240</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      timeout for download and install jobs in seconds<br></td>
     </tr>
-        <tr>
-    <td>anti_virus_update</td>
-    <td>no</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>whether Anti-Virus signatures should be updated</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">anti_virus_update</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      whether Anti-Virus signatures should be updated<br></td>
     </tr>
-        </table>
+        </table><br>
+
+
+.. important:: Requires pan-python
+
 
 Examples
 --------

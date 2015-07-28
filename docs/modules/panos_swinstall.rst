@@ -3,12 +3,18 @@
 panos_swinstall
 ``````````````````````````````
 
-Install PAN-OS software image 
-The image should have been already imported on the device 
+Synopsis
+--------
+
+Install PAN-OS software image
+The image should have been already imported on the device
+
+Options
+-------
 
 .. raw:: html
 
-    <table>
+    <table border=1 cellpadding=4>
     <tr>
     <th class="head">parameter</th>
     <th class="head">required</th>
@@ -16,49 +22,59 @@ The image should have been already imported on the device
     <th class="head">choices</th>
     <th class="head">comments</th>
     </tr>
-        <tr>
-    <td>username</td>
-    <td>no</td>
-    <td>admin</td>
-    <td><ul></ul></td>
-    <td>username for authentication</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">username</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">admin</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      username for authentication<br></td>
     </tr>
-        <tr>
-    <td>version</td>
-    <td>no</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>version to install</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">version</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      version to install<br></td>
     </tr>
-        <tr>
-    <td>file</td>
-    <td>no</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>file to install</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">file</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      file to install<br></td>
     </tr>
-        <tr>
-    <td>password</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>password for authentication</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">password</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      password for authentication<br></td>
     </tr>
-        <tr>
-    <td>ip_address</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>IP address (or hostname) of PAN-OS device</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">ip_address</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      IP address (or hostname) of PAN-OS device<br></td>
     </tr>
-        <tr>
-    <td>job_timeout</td>
-    <td>no</td>
-    <td>240</td>
-    <td><ul></ul></td>
-    <td>timeout for download and install jobs in seconds</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">job_timeout</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">240</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      timeout for download and install jobs in seconds<br></td>
     </tr>
-        </table>
+        </table><br>
+
+
+.. important:: Requires pan-python
+
 
 Examples
 --------

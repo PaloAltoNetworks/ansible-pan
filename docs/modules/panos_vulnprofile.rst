@@ -3,11 +3,17 @@
 panos_vulnprofile
 ``````````````````````````````
 
-Create custom vulnerability profile 
+Synopsis
+--------
+
+Create custom vulnerability profile
+
+Options
+-------
 
 .. raw:: html
 
-    <table>
+    <table border=1 cellpadding=4>
     <tr>
     <th class="head">parameter</th>
     <th class="head">required</th>
@@ -15,42 +21,51 @@ Create custom vulnerability profile
     <th class="head">choices</th>
     <th class="head">comments</th>
     </tr>
-        <tr>
-    <td>username</td>
-    <td>no</td>
-    <td>admin</td>
-    <td><ul></ul></td>
-    <td>username for authentication</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">username</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">admin</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      username for authentication<br></td>
     </tr>
-        <tr>
-    <td>commit</td>
-    <td>no</td>
-    <td>True</td>
-    <td><ul></ul></td>
-    <td>commit if changed</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">commit</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">True</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      commit if changed<br></td>
     </tr>
-        <tr>
-    <td>password</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>password for authentication</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">password</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      password for authentication<br></td>
     </tr>
-        <tr>
-    <td>ip_address</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>IP address (or hostname) of PAN-OS device</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">ip_address</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      IP address (or hostname) of PAN-OS device<br></td>
     </tr>
-        <tr>
-    <td>rule_tuples</td>
-    <td>no</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>a list of dictionaries that contains each rule definition. A rule is made of:rule_name: requiredthreat_name: optional, deafult is 'any'vendor_id: optional, deafult is 'any'cve: optional, deafult is 'any'host_type: optional, deafult is 'client'severity: requiredaction: optional, deafult is 'default'capture: optional, deafult is 'disable'</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">rule_tuples</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      a list of dictionaries that contains each rule definition. A rule is made of:<br>rule_name: required<br>threat_name: optional, deafult is 'any'<br>vendor_id: optional, deafult is 'any'<br>cve: optional, deafult is 'any'<br>host_type: optional, deafult is 'client'<br>severity: required<br>action: optional, deafult is 'default'<br>capture: optional, deafult is 'disable'<br></td>
     </tr>
-        </table>
+        </table><br>
+
+
+.. important:: Requires pan-python
+
 
 Examples
 --------

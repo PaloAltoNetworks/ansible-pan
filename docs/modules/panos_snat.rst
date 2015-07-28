@@ -3,13 +3,19 @@
 panos_snat
 ``````````````````````````````
 
-Create a source nat rule 
-Note, only static SNAT rules are supported 
-Superseded, use panos_nat module 
+Synopsis
+--------
+
+Create a source nat rule
+Note, only static SNAT rules are supported
+Superseded, use panos_nat module
+
+Options
+-------
 
 .. raw:: html
 
-    <table>
+    <table border=1 cellpadding=4>
     <tr>
     <th class="head">parameter</th>
     <th class="head">required</th>
@@ -17,112 +23,131 @@ Superseded, use panos_nat module
     <th class="head">choices</th>
     <th class="head">comments</th>
     </tr>
-        <tr>
-    <td>username</td>
-    <td>no</td>
-    <td>admin</td>
-    <td><ul></ul></td>
-    <td>username for authentication</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">username</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">admin</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      username for authentication<br></td>
     </tr>
-        <tr>
-    <td>translated_address</td>
-    <td>no</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>translated address</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">translated_address</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      translated address<br></td>
     </tr>
-        <tr>
-    <td>to_zone</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>destination zone</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">to_zone</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      destination zone<br></td>
     </tr>
-        <tr>
-    <td>service</td>
-    <td>no</td>
-    <td>any</td>
-    <td><ul></ul></td>
-    <td>service</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">service</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">any</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      service<br></td>
     </tr>
-        <tr>
-    <td>snat_type</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>type of SNAT</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">snat_type</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      type of SNAT<br></td>
     </tr>
-        <tr>
-    <td>rule_name</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>name of the SNAT rule</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">rule_name</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      name of the SNAT rule<br></td>
     </tr>
-        <tr>
-    <td>ip_address</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>IP address (or hostname) of PAN-OS device</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">ip_address</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      IP address (or hostname) of PAN-OS device<br></td>
     </tr>
-        <tr>
-    <td>interface_address_if</td>
-    <td>no</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>interface for dynamic-ip-and-port interface address NAT rules</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">interface_address_if</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      interface for dynamic-ip-and-port interface address NAT rules<br></td>
     </tr>
-        <tr>
-    <td>destination</td>
-    <td>no</td>
-    <td>any</td>
-    <td><ul></ul></td>
-    <td>destination address</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">destination</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">any</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      destination address<br></td>
     </tr>
-        <tr>
-    <td>from_zone</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>source zone</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">from_zone</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      source zone<br></td>
     </tr>
-        <tr>
-    <td>source</td>
-    <td>no</td>
-    <td>any</td>
-    <td><ul></ul></td>
-    <td>source address</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">source</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">any</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      source address<br></td>
     </tr>
-        <tr>
-    <td>bidirectional</td>
-    <td>no</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>whether the SNAT should be bidirectional</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">bidirectional</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      whether the SNAT should be bidirectional<br></td>
     </tr>
-        <tr>
-    <td>commit</td>
-    <td>no</td>
-    <td>True</td>
-    <td><ul></ul></td>
-    <td>commit if changed</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">commit</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">True</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      commit if changed<br></td>
     </tr>
-        <tr>
-    <td>password</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>password for authentication</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">password</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      password for authentication<br></td>
     </tr>
-        <tr>
-    <td>interface_address_ip</td>
-    <td>no</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>IP address for dynamic-ip-and-port interface address NAT rules</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">interface_address_ip</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      IP address for dynamic-ip-and-port interface address NAT rules<br></td>
     </tr>
-        </table>
+        </table><br>
+
+
+.. important:: Requires pan-python
+
 
 Examples
 --------

@@ -3,11 +3,17 @@
 panos_awsmonitor
 ``````````````````````````````
 
-Create an AWS monitor object 
+Synopsis
+--------
+
+Create an AWS monitor object
+
+Options
+-------
 
 .. raw:: html
 
-    <table>
+    <table border=1 cellpadding=4>
     <tr>
     <th class="head">parameter</th>
     <th class="head">required</th>
@@ -15,70 +21,83 @@ Create an AWS monitor object
     <th class="head">choices</th>
     <th class="head">comments</th>
     </tr>
-        <tr>
-    <td>username</td>
-    <td>no</td>
-    <td>admin</td>
-    <td><ul></ul></td>
-    <td>username for authentication</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">username</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">admin</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      username for authentication<br></td>
     </tr>
-        <tr>
-    <td>access_key</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>access key to use</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">access_key</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      access key to use<br></td>
     </tr>
-        <tr>
-    <td>monitor_name</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>name of the vm information source</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">monitor_name</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      name of the vm information source<br></td>
     </tr>
-        <tr>
-    <td>secret_access_key</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>secret access key to use</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">secret_access_key</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      secret access key to use<br></td>
     </tr>
-        <tr>
-    <td>source</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>EC2 endpoint to monitor (ec2.<region>.amazonaws.com)</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">source</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      EC2 endpoint to monitor (ec2.<region>.amazonaws.com)<br></td>
     </tr>
-        <tr>
-    <td>vpc_id</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>ID of the VPC to monitor</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">vpc_id</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      ID of the VPC to monitor<br></td>
     </tr>
-        <tr>
-    <td>commit</td>
-    <td>no</td>
-    <td>True</td>
-    <td><ul></ul></td>
-    <td>commit if changed</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">commit</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">True</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      commit if changed<br></td>
     </tr>
-        <tr>
-    <td>password</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>password for authentication</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">password</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      password for authentication<br></td>
     </tr>
-        <tr>
-    <td>ip_address</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>IP address (or hostname) of PAN-OS device</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">ip_address</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      IP address (or hostname) of PAN-OS device<br></td>
     </tr>
-        </table>
+        </table><br>
+
+
+.. important:: Requires pan-python
+
 
 Examples
 --------

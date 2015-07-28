@@ -3,11 +3,17 @@
 panos_gpp_gateway
 ``````````````````````````````
 
-Configure a GlobalProtect Portal gateway list 
+Synopsis
+--------
+
+Configure a GlobalProtect Portal gateway list
+
+Options
+-------
 
 .. raw:: html
 
-    <table>
+    <table border=1 cellpadding=4>
     <tr>
     <th class="head">parameter</th>
     <th class="head">required</th>
@@ -15,84 +21,99 @@ Configure a GlobalProtect Portal gateway list
     <th class="head">choices</th>
     <th class="head">comments</th>
     </tr>
-        <tr>
-    <td>username</td>
-    <td>no</td>
-    <td>admin</td>
-    <td><ul></ul></td>
-    <td>username for authentication</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">username</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">admin</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      username for authentication<br></td>
     </tr>
-        <tr>
-    <td>config_name</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>name of the client config</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">config_name</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      name of the client config<br></td>
     </tr>
-        <tr>
-    <td>gateway_address</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>name address of the gateway</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">gateway_address</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      name address of the gateway<br></td>
     </tr>
-        <tr>
-    <td>description</td>
-    <td>no</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>description of the gateway</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">description</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      description of the gateway<br></td>
     </tr>
-        <tr>
-    <td>ip_address</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>IP address (or hostname) of PAN-OS device</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">ip_address</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      IP address (or hostname) of PAN-OS device<br></td>
     </tr>
-        <tr>
-    <td>portal_name</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>name of the GlobalProtect portal</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">portal_name</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      name of the GlobalProtect portal<br></td>
     </tr>
-        <tr>
-    <td>manual</td>
-    <td>no</td>
-    <td>True</td>
-    <td><ul></ul></td>
-    <td>manual gateway</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">manual</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">True</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      manual gateway<br></td>
     </tr>
-        <tr>
-    <td>state</td>
-    <td>no</td>
-    <td>present</td>
-    <td><ul><li>absent</li><li>present</li></ul></td>
-    <td>state of the gateway</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">state</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">present</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"><li>absent</li><li>present</li></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      state of the gateway<br></td>
     </tr>
-        <tr>
-    <td>commit</td>
-    <td>no</td>
-    <td>True</td>
-    <td><ul></ul></td>
-    <td>commit if changed</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">commit</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">True</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      commit if changed<br></td>
     </tr>
-        <tr>
-    <td>password</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>password for authentication</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">password</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      password for authentication<br></td>
     </tr>
-        <tr>
-    <td>type</td>
-    <td>no</td>
-    <td>external</td>
-    <td><ul><li>internal</li><li>external</li></ul></td>
-    <td>internal or external gateway</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">type</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">external</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"><li>internal</li><li>external</li></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      internal or external gateway<br></td>
     </tr>
-        </table>
+        </table><br>
+
+
+.. important:: Requires pan-python
+
 
 Examples
 --------

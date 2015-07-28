@@ -3,11 +3,17 @@
 panos_srule
 ``````````````````````````````
 
-Create a security rule 
+Synopsis
+--------
+
+Create a security rule
+
+Options
+-------
 
 .. raw:: html
 
-    <table>
+    <table border=1 cellpadding=4>
     <tr>
     <th class="head">parameter</th>
     <th class="head">required</th>
@@ -15,133 +21,155 @@ Create a security rule
     <th class="head">choices</th>
     <th class="head">comments</th>
     </tr>
-        <tr>
-    <td>username</td>
-    <td>no</td>
-    <td>admin</td>
-    <td><ul></ul></td>
-    <td>username for authentication</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">username</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">admin</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      username for authentication<br></td>
     </tr>
-        <tr>
-    <td>vulnprofile_name</td>
-    <td>no</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>name of the vulnerability profile</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">vulnprofile_name</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      name of the vulnerability profile<br></td>
     </tr>
-        <tr>
-    <td>hip_profiles</td>
-    <td>no</td>
-    <td>any</td>
-    <td><ul></ul></td>
-    <td>list of HIP profiles</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">hip_profiles</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">any</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      list of HIP profiles<br></td>
     </tr>
-        <tr>
-    <td>rule_name</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>name of the security rule</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">rule_name</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      name of the security rule<br></td>
     </tr>
-        <tr>
-    <td>log_start</td>
-    <td>no</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>whether to log at session start</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">log_start</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      whether to log at session start<br></td>
     </tr>
-        <tr>
-    <td>password</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>password for authentication</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">password</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      password for authentication<br></td>
     </tr>
-        <tr>
-    <td>ip_address</td>
-    <td>yes</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>IP address (or hostname) of PAN-OS device</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">ip_address</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      IP address (or hostname) of PAN-OS device<br></td>
     </tr>
-        <tr>
-    <td>rule_type</td>
-    <td>no</td>
-    <td>universal</td>
-    <td><ul></ul></td>
-    <td>type of security rule (6.1+)</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">rule_type</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">universal</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      type of security rule (6.1+)<br></td>
     </tr>
-        <tr>
-    <td>to_zone</td>
-    <td>no</td>
-    <td>any</td>
-    <td><ul></ul></td>
-    <td>list of destination zones</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">to_zone</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">any</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      list of destination zones<br></td>
     </tr>
-        <tr>
-    <td>service</td>
-    <td>no</td>
-    <td>application-default</td>
-    <td><ul></ul></td>
-    <td>list of services</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">service</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">application-default</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      list of services<br></td>
     </tr>
-        <tr>
-    <td>source</td>
-    <td>no</td>
-    <td>any</td>
-    <td><ul></ul></td>
-    <td>list of source addresses</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">source</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">any</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      list of source addresses<br></td>
     </tr>
-        <tr>
-    <td>destination</td>
-    <td>no</td>
-    <td>any</td>
-    <td><ul></ul></td>
-    <td>list of destination addresses</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">destination</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">any</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      list of destination addresses<br></td>
     </tr>
-        <tr>
-    <td>from_zone</td>
-    <td>no</td>
-    <td>any</td>
-    <td><ul></ul></td>
-    <td>list of source zones</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">from_zone</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">any</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      list of source zones<br></td>
     </tr>
-        <tr>
-    <td>application</td>
-    <td>no</td>
-    <td>any</td>
-    <td><ul></ul></td>
-    <td>list of applications</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">application</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">any</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      list of applications<br></td>
     </tr>
-        <tr>
-    <td>group_profile</td>
-    <td>no</td>
-    <td></td>
-    <td><ul></ul></td>
-    <td>security profile group</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">group_profile</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      security profile group<br></td>
     </tr>
-        <tr>
-    <td>action</td>
-    <td>no</td>
-    <td>allow</td>
-    <td><ul></ul></td>
-    <td>action</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">action</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">allow</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      action<br></td>
     </tr>
-        <tr>
-    <td>commit</td>
-    <td>no</td>
-    <td>True</td>
-    <td><ul></ul></td>
-    <td>commit if changed</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">commit</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">True</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      commit if changed<br></td>
     </tr>
-        <tr>
-    <td>log_end</td>
-    <td>no</td>
-    <td>True</td>
-    <td><ul></ul></td>
-    <td>whether to log at session end</td>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">log_end</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">True</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      whether to log at session end<br></td>
     </tr>
-        </table>
+        </table><br>
+
+
+.. important:: Requires pan-python
+
 
 Examples
 --------

@@ -10,14 +10,20 @@
  #
  --------------------------------------------#}
 
+Synopsis
+--------
+
 {% for desc in description -%}
-@{ desc | jpfunc }@ 
+@{ desc }@
 {% endfor %}
 
 {% if options -%}
+Options
+-------
+
 .. raw:: html
 
-    <table>
+    <table border=1 cellpadding=4>
     <tr>
     <th class="head">parameter</th>
     <th class="head">required</th>
@@ -25,16 +31,30 @@
     <th class="head">choices</th>
     <th class="head">comments</th>
     </tr>
-    {% for (k,v) in options.iteritems()  %}
-    <tr>
-    <td>@{ k }@</td>
-    <td>{% if v.get('required', False) %}yes{% else %}no{% endif %}</td>
-    <td>{% if v['default'] %}@{ v['default'] }@{% endif %}</td>
-    <td><ul>{% for choice in v.get('choices',[]) -%}<li>@{ choice }@</li>{% endfor -%}</ul></td>
-    <td>{% for desc in v.description -%}@{ desc | html_ify }@{% endfor -%}{% if v['version_added'] %} (added in Ansible @{v['version_added']}@){% endif %}</td>
+    {% for (k, v) in options.iteritems() %}
+    <tr style="text-align:center">
+    <td style="vertical-align:middle">@{ k }@</td>
+    <td style="vertical-align:middle">{% if v.get('required', False) %}yes{% else %}no{% endif %}</td>
+    <td style="vertical-align:middle">{% if v['default'] %}@{ v['default'] }@{% endif %}</td>
+    {% if v.get('type', 'not_bool') == 'bool' %}
+    <td style="vertical-align:middle"><ul><li>yes</li><li>no</li></ul></td>
+    {% else %}
+    <td style="vertical-align:middle;text-align:left"><ul style="margin:0;">{% for choice in v.get('choices',[]) -%}<li>@{ choice }@</li>{% endfor -%}</ul></td>
+    {% endif %}
+    <td style="vertical-align:middle;text-align:left">
+      {% for desc in v.description -%}@{ desc | html_ify }@<br>{% endfor -%}
+    </td>
     </tr>
     {% endfor %}
-    </table>
+    </table><br>
+{% endif %}
+
+{% if requirements %}
+{% for req in requirements %}
+
+.. important:: Requires @{ req }@
+
+{% endfor %}
 {% endif %}
 
 {% if plainexamples -%}
