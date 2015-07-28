@@ -41,7 +41,11 @@ We are working to add the modules to the Ansible Galaxy, in the meantime just cl
 Documentation
 -------------
 
-Each module is documented using Ansible best practices, the documentation is in the module source code.
+Each module is documented in docs/modules
+
+## Rebuild documentation
+
+    cd docs; make modules
 
 Dependencies
 ------------

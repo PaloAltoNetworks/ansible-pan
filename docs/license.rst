@@ -1,3 +1,6 @@
+License
+=======
+
 Copyright (c) 2015, Palo Alto Networks <techbizdev@paloaltonetworks.com>
 
 Permission to use, copy, modify, and/or distribute this software for any

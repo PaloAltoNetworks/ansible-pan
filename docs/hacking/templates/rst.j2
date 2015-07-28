@@ -1,0 +1,77 @@
+.. _@{ module }@:
+
+@{ module }@
+``````````````````````````````
+
+{# ------------------------------------------
+ #
+ # Please note: this looks like a core dump
+ # but it isn't one.
+ #
+ --------------------------------------------#}
+
+Synopsis
+--------
+
+{% for desc in description -%}
+@{ desc }@
+{% endfor %}
+
+{% if options -%}
+Options
+-------
+
+.. raw:: html
+
+    <table border=1 cellpadding=4>
+    <tr>
+    <th class="head">parameter</th>
+    <th class="head">required</th>
+    <th class="head">default</th>
+    <th class="head">choices</th>
+    <th class="head">comments</th>
+    </tr>
+    {% for (k, v) in options.iteritems() %}
+    <tr style="text-align:center">
+    <td style="vertical-align:middle">@{ k }@</td>
+    <td style="vertical-align:middle">{% if v.get('required', False) %}yes{% else %}no{% endif %}</td>
+    <td style="vertical-align:middle">{% if v['default'] %}@{ v['default'] }@{% endif %}</td>
+    {% if v.get('type', 'not_bool') == 'bool' %}
+    <td style="vertical-align:middle"><ul><li>yes</li><li>no</li></ul></td>
+    {% else %}
+    <td style="vertical-align:middle;text-align:left"><ul style="margin:0;">{% for choice in v.get('choices',[]) -%}<li>@{ choice }@</li>{% endfor -%}</ul></td>
+    {% endif %}
+    <td style="vertical-align:middle;text-align:left">
+      {% for desc in v.description -%}@{ desc | html_ify }@<br>{% endfor -%}
+    </td>
+    </tr>
+    {% endfor %}
+    </table><br>
+{% endif %}
+
+{% if requirements %}
+{% for req in requirements %}
+
+.. important:: Requires @{ req }@
+
+{% endfor %}
+{% endif %}
+
+{% if plainexamples -%}
+Examples
+--------
+
+ ::
+
+{% if plainexamples %}@{ plainexamples | indent(4, True) }@{% endif %}
+{% endif %}
+
+{% if notes %}
+.. raw:: html
+
+    <h4>Notes</h4>
+    {% for note in notes %}
+    <p>@{ note | html_ify }@</p>
+    {% endfor %}
+{% endif %}
+

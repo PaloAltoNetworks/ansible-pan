@@ -41,16 +41,16 @@ options:
         required: false
         default: "admin"
     rule_tuples:
-        description
-            - a list of dictionaries that contains each rule definition. A rule is made of:
-                - rule_name: required
-                - threat_name: optional, deafult is 'any'
-                - vendor_id: optional, deafult is 'any'
-                - cve: optional, deafult is 'any'
-                - host_type: optional, deafult is 'client'
-                - severity: required
-                - action: optional, deafult is 'default'
-                - capture: optional, deafult is 'disable'
+        description:
+            - "a list of dictionaries that contains each rule definition. A rule is made of:"
+            - "rule_name: required"
+            - "threat_name: optional, deafult is 'any'"
+            - "vendor_id: optional, deafult is 'any'"
+            - "cve: optional, deafult is 'any'"
+            - "host_type: optional, deafult is 'client'"
+            - "severity: required"
+            - "action: optional, deafult is 'default'"
+            - "capture: optional, deafult is 'disable'"
         required: false
     commit:
         description:
