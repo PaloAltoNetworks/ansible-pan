@@ -38,7 +38,7 @@ Installation
 
 Clone the github repo or
 
-    galaxy install paloaltonetworks.panos
+    ansible-galaxy install paloaltonetworks.panos
 
 Documentation
 -------------
