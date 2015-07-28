@@ -36,14 +36,18 @@ Overview of modules
 Installation
 --------------
 
-We are working to add the modules to the Ansible Galaxy, in the meantime just clone this repo and add the library folder to the Ansible library paths using the ANSIBLE_LIBRARY environment variable or an ansible.cfg file.
+Clone the github repo or
+
+    galaxy install paloaltonetworks.panos
 
 Documentation
 -------------
 
-Each module is documented in docs/modules
+Each module is documented in docs/modules, you can also look at the documentation online at http://ansible-pan.readthedocs.org/
 
-## Rebuild documentation
+#### Rebuild documentation
+
+Requires Sphinx
 
     cd docs; make modules
 
