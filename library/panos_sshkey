@@ -20,8 +20,10 @@ module: panos_sshkey
 short_description: manage public SSH keys of admins
 description:
     - Manage SSH keys of admins
-author: Palo Alto Networks - lmori
-version_added: "0.1"
+author: 
+    - Palo Alto Networks 
+    - Luigi Mori (jtschichold)
+version_added: "0.0"
 requirements:
     - pan-python
 options:
@@ -29,12 +31,10 @@ options:
         description:
             - IP address (or hostname) of PAN-OS device
         required: true
-        default: null
     password:
         description:
             - password for authentication
         required: true
-        default: null
     username:
         description:
             - username for authentication
@@ -44,18 +44,16 @@ options:
         description:
             - username of the admin to operate on
         required: true
-        default: null
     public_key:
         description:
             - SSH public key to set
         required: false
-        default: null
+        default: None
     state:
         description:
             - if C(present) module checks for presence of SSH key
               if C(absent) module deletes SSH key if present
         required: true
-        default: null
         choices: [ present, absent ]
     commit:
         description:
@@ -110,7 +108,7 @@ def set_publickey(xapi, user, cpkey, pkey):
 def main():
     argument_spec = dict(
         ip_address=dict(default=None),
-        password=dict(default=None),
+        password=dict(default=None, no_log=True),
         username=dict(default='admin'),
         admin_username=dict(default=None, required=True),
         public_key=dict(default=None),

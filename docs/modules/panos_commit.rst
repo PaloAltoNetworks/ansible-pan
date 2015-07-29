@@ -8,6 +8,7 @@ Synopsis
 
 Commit config on a device
 
+
 Options
 -------
 
@@ -40,7 +41,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">timeout</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle">none</td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       timeout for commit job<br></td>

@@ -21,7 +21,7 @@ short_description: restart a device
 description:
     - Restart a device
 author: Palo Alto Networks - lmori
-version_added: "0.1"
+version_added: "0.0"
 requirements:
     - pan-python
 options:
@@ -29,12 +29,10 @@ options:
         description:
             - IP address (or hostname) of PAN-OS device
         required: true
-        default: null
     password:
         description:
             - password for authentication
         required: true
-        default: null
     username:
         description:
             - username for authentication
@@ -61,7 +59,7 @@ except ImportError:
 def main():
     argument_spec = dict(
         ip_address=dict(default=None),
-        password=dict(default=None),
+        password=dict(default=None, no_log=True),
         username=dict(default='admin')
     )
     module = AnsibleModule(argument_spec=argument_spec)

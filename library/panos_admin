@@ -17,11 +17,13 @@
 DOCUMENTATION = '''
 ---
 module: panos_admin
-short_description: add or modify PAN-OS admin
+short_description: add or modify PAN-OS admins
 description:
-    - Add or modify PAN-OS admin
-author: Palo Alto Networks - lmori
-version_added: "0.1"
+    - Add or modify PAN-OS admins
+author: 
+    - Palo Alto Networks 
+    - Luigi Mori (jtschichold)
+version_added: "0.0"
 requirements:
     - pan-python
 options:
@@ -29,12 +31,10 @@ options:
         description:
             - IP address (or hostname) of PAN-OS device
         required: true
-        default: null
     password:
         description:
             - password for authentication
         required: true
-        default: null
     username:
         description:
             - username for authentication
@@ -49,7 +49,6 @@ options:
         description:
             - password for admin user
         required: true
-        default: null
     role:
         description:
             - role for admin user
@@ -146,10 +145,10 @@ def admin_set(xapi, module, admin_username, admin_password, role):
 def main():
     argument_spec = dict(
         ip_address=dict(default=None),
-        password=dict(default=None),
+        password=dict(default=None, no_log=True),
         username=dict(default='admin'),
         admin_username=dict(default='admin'),
-        admin_password=dict(default=None),
+        admin_password=dict(default=None, no_log=True),
         role=dict(default=None),
         commit=dict(type='bool', default=True)
     )

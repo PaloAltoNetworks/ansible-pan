@@ -6,8 +6,9 @@ panos_check
 Synopsis
 --------
 
-Check if PAN-OS device is ready for being configured (no pending jobs)
-The check could be done once or multiple times until the device is ready
+Check if PAN-OS device is ready for being configured (no pending jobs).
+The check could be done once or multiple times until the device is ready.
+
 
 Options
 -------
@@ -49,7 +50,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">timeout</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">0</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       timeout of API calls<br></td>
@@ -57,7 +58,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">interval</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">0</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       time waited between checks<br></td>

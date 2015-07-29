@@ -19,11 +19,14 @@ DOCUMENTATION = '''
 module: panos_snat
 short_description: create a source nat rule
 description:
-    - Create a source nat rule
+    - Create a source nat rule.
     - Note, only static SNAT rules are supported
+notes:
     - Superseded, use panos_nat module
-author: Palo Alto Networks - lmori
-version_added: "0.1"
+author: 
+    - Palo Alto Networks 
+    - Luigi Mori (jtschichold)
+version_added: "0.0"
 requirements:
     - pan-python
 options:
@@ -31,12 +34,10 @@ options:
         description:
             - IP address (or hostname) of PAN-OS device
         required: true
-        default: null
     password:
         description:
             - password for authentication
         required: true
-        default: null
     username:
         description:
             - username for authentication
@@ -46,17 +47,14 @@ options:
         description:
             - name of the SNAT rule
         required: true
-        default: null
     from_zone:
         description:
             - source zone
         required: true
-        default: null
     to_zone:
         description:
             - destination zone
         required: true
-        default: null
     source:
         description:
             - source address
@@ -76,27 +74,27 @@ options:
         description:
             - type of SNAT
         required: true
-        default: null
+        choices: ['static-ip', 'dynamic-ip-and-port']
     translated_address:
         description:
             - translated address
         required: false
-        default: null
+        default: None
     interface_address_if:
         description:
             - interface for dynamic-ip-and-port interface address NAT rules
         required: false
-        default: null
+        default: None
     interface_address_ip:
         description:
             - IP address for dynamic-ip-and-port interface address NAT rules
         required: false
-        default: null
+        default: None
     bidirectional:
         description:
             - whether the SNAT should be bidirectional
         required: false
-        default: false
+        default: "false"
     commit:
         description:
             - commit if changed
@@ -243,7 +241,7 @@ def add_snat_dipp(xapi, module, rule_name, from_zone, to_zone,
 def main():
     argument_spec = dict(
         ip_address=dict(default=None),
-        password=dict(default=None),
+        password=dict(default=None, no_log=True),
         username=dict(default='admin'),
         rule_name=dict(default=None),
         bidirectional=dict(type='bool', default=False),

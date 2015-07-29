@@ -21,8 +21,10 @@ short_description: search AMI of PA-VM-AWS
 description:
     - Search and return AMI ID of PA-VM-AWS instance in a specific region.
     - All the standard EC2 module paramaters are supported.
-author: Palo Alto Networks - lmori
-version_added: "0.1"
+author:
+    - Palo Alto Networks 
+    - Luigi Mori (jtschichold)
+version_added: "0.0"
 requirements:
     - pan-python
 options:
@@ -30,7 +32,6 @@ options:
         description:
             - release of PAN-OS
         required: true
-        default: null
     first:
         description:
             - whether return only the first AMI found

@@ -8,6 +8,7 @@ Synopsis
 
 Import file on PAN-OS device
 
+
 Options
 -------
 
@@ -40,7 +41,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">file</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       file to import<br></td>
@@ -48,7 +49,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">url</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       url to file to import<br></td>

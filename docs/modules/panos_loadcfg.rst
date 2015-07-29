@@ -8,6 +8,7 @@ Synopsis
 
 Load configuration on PAN-OS device
 
+
 Options
 -------
 
@@ -56,7 +57,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">file</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       configuration file to load<br></td>

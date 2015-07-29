@@ -21,8 +21,10 @@ short_description: change admin password of PAN-OS device using SSH with SSH key
 description:
     - Change the admin password of PAN-OS via SSH using a SSH key for authentication.
     - Useful for AWS instances where the first login should be done via SSH.
-author: Palo Alto Networks - Luigi Mori lmori@paloaltonetworks.com
-version_added: "0.1"
+author: 
+    - Palo Alto Networks 
+    - Luigi Mori (jtschichold)
+version_added: "0.0"
 requirements:
     - paramiko
 options:
@@ -30,17 +32,14 @@ options:
         description:
             - IP address (or hostname) of PAN-OS device
         required: true
-        default: null
     key_filename:
         description:
             - filename of the SSH Key to use for authentication
         required: true
-        default: null
     password:
         description:
             - password to configure for admin on the PAN-OS device
         required: true
-        default: null
 '''
 
 EXAMPLES = '''
@@ -150,7 +149,7 @@ def main():
     argument_spec = dict(
         ip_address=dict(default=None),
         key_filename=dict(default=None),
-        password=dict(default=None)
+        password=dict(default=None, no_log=True)
     )
     module = AnsibleModule(argument_spec=argument_spec)
 

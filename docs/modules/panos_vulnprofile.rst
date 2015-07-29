@@ -8,6 +8,7 @@ Synopsis
 
 Create custom vulnerability profile
 
+
 Options
 -------
 
@@ -56,7 +57,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">rule_tuples</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       a list of dictionaries that contains each rule definition. A rule is made of:<br>rule_name: required<br>threat_name: optional, deafult is 'any'<br>vendor_id: optional, deafult is 'any'<br>cve: optional, deafult is 'any'<br>host_type: optional, deafult is 'client'<br>severity: required<br>action: optional, deafult is 'default'<br>capture: optional, deafult is 'disable'<br></td>

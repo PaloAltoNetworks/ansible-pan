@@ -20,8 +20,10 @@ module: panos_import
 short_description: import file on PAN-OS devices
 description:
     - Import file on PAN-OS device
-author: Palo Alto Networks - lmori
-version_added: "0.1"
+author: 
+    - Palo Alto Networks 
+    - Luigi Mori (jtschichold)
+version_added: "0.0"
 requirements:
     - pan-python
     - requests
@@ -31,12 +33,10 @@ options:
         description:
             - IP address (or hostname) of PAN-OS device
         required: true
-        default: null
     password:
         description:
             - password for authentication
         required: true
-        default: null
     username:
         description:
             - username for authentication
@@ -51,12 +51,12 @@ options:
         description:
             - file to import
         required: false
-        default: null
+        default: None
     url:
         description:
             - url to file to import
         required: false
-        default: null
+        default: None
 '''
 
 EXAMPLES = '''
@@ -147,7 +147,7 @@ def delete_file(path):
 def main():
     argument_spec = dict(
         ip_address=dict(default=None),
-        password=dict(default=None),
+        password=dict(default=None, no_log=True),
         username=dict(default='admin'),
         category=dict(default='software'),
         file=dict(default=None),

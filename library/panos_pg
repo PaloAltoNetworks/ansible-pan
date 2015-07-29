@@ -20,8 +20,10 @@ module: panos_pg
 short_description: create a security profiles group
 description:
     - Create a security profile group
-author: Palo Alto Networks - lmori
-version_added: "0.1"
+author:
+    - Palo Alto Networks 
+    - Luigi Mori (jtschichold)
+version_added: "0.0"
 requirements:
     - pan-python
 options:
@@ -29,12 +31,10 @@ options:
         description:
             - IP address (or hostname) of PAN-OS device
         required: true
-        default: null
     password:
         description:
             - password for authentication
         required: true
-        default: null
     username:
         description:
             - username for authentication
@@ -44,37 +44,36 @@ options:
         description:
             - name of the security profile group
         required: true
-        default: null
     data_filtering:
         description:
             - name of the data filtering profile
         required: false
-        default: null
+        default: None
     file_blocking:
         description:
             - name of the file blocking profile
         required: false
-        default: null
+        default: None
     spyware:
         description:
             - name of the spyware profile
         required: false
-        default: null
+        default: None
     url_filtering:
         description:
             - name of the url filtering profile
         required: false
-        default: null
+        default: None
     virus:
         description:
             - name of the anti-virus profile
         required: false
-        default: null
+        default: None
     vulnerability:
         description:
             - name of the vulnerability profile
         required: false
-        default: null
+        default: None
     commit:
         description:
             - commit if changed
@@ -150,7 +149,7 @@ def add_pg(xapi, pg_name, data_filtering, file_blocking, spyware,
 def main():
     argument_spec = dict(
         ip_address=dict(default=None),
-        password=dict(default=None),
+        password=dict(default=None, no_log=True),
         username=dict(default='admin'),
         pg_name=dict(default=None),
         data_filtering=dict(default=None),

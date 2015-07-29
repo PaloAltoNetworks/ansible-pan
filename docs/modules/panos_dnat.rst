@@ -7,7 +7,10 @@ Synopsis
 --------
 
 Create a destination nat rule
-Superseded, use panos_nat module
+
+
+.. important:: Superseded, use panos_nat module
+
 
 Options
 -------
@@ -33,7 +36,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">translated_address</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       translated address<br></td>
@@ -89,7 +92,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">translated_port</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       translated port<br></td>
@@ -142,3 +145,9 @@ Examples
           destination: "{{PAVMAWSPublicIP}}"
           service: "service-tcp-22"
           translated_address: "{{ServerIP}}"
+
+.. raw:: html
+
+    <h4>Notes</h4>
+        <p>Superseded, use panos_nat module</p>
+    

@@ -22,8 +22,10 @@ description:
     - Apply an authcode to a device.
     - The authcode should have been previously registered on the Palo Alto Networks support portal.
     - The device should have Internet access.
-author: Palo Alto Networks - lmori
-version_added: "0.1"
+author: 
+    - Palo Alto Networks 
+    - Luigi Mori (jtschichold)
+version_added: "0.0"
 requirements:
     - pan-python
 options:
@@ -31,12 +33,10 @@ options:
         description:
             - IP address (or hostname) of PAN-OS device
         required: true
-        default: null
     password:
         description:
             - password for authentication
         required: true
-        default: null
     username:
         description:
             - username for authentication
@@ -46,12 +46,11 @@ options:
         description:
             - authcode to be applied
         required: true
-        default: null
     force:
         description:
             - whether to apply authcode even if device is already licensed
         required: false
-        default: false
+        default: "false"
 '''
 
 EXAMPLES = '''
@@ -119,7 +118,7 @@ def fetch_authcode(xapi, module):
 def main():
     argument_spec = dict(
         ip_address=dict(default=None),
-        password=dict(default=None),
+        password=dict(default=None, no_log=True),
         auth_code=dict(default=None),
         username=dict(default='admin'),
         force=dict(type='bool', default=False)

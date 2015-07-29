@@ -20,8 +20,9 @@ module: panos_srule
 short_description: create a security rule
 description:
     - Create a security rule
-author: Palo Alto Networks
-version_added: "0.1"
+author:
+    - Palo Alto Networks
+version_added: "0.0"
 requirements:
     - pan-python
 options:
@@ -29,12 +30,10 @@ options:
         description:
             - IP address (or hostname) of PAN-OS device
         required: true
-        default: null
     password:
         description:
             - password for authentication
         required: true
-        default: null
     username:
         description:
             - username for authentication
@@ -44,7 +43,6 @@ options:
         description:
             - name of the security rule
         required: true
-        default: null
     from_zone:
         description:
             - list of source zones
@@ -84,12 +82,12 @@ options:
         description:
             - security profile group
         required: false
-        default: null
+        default: None
     log_start:
         description:
             - whether to log at session start
         required: false
-        default: false
+        default: "false"
     log_end:
         description:
             - whether to log at session end
@@ -104,7 +102,7 @@ options:
         description:
             - name of the vulnerability profile
         required: false
-        default: null
+        default: None
     action:
         description:
             - action
@@ -258,7 +256,7 @@ def add_security_rule(xapi, **kwargs):
 def main():
     argument_spec = dict(
         ip_address=dict(default=None),
-        password=dict(default=None),
+        password=dict(default=None, no_log=True),
         username=dict(default='admin'),
         rule_name=dict(default=None),
         from_zone=dict(default=['any']),

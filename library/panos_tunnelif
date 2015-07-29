@@ -20,8 +20,10 @@ module: panos_tunnelif
 short_description: configure a tunnel interface
 description:
     - Configure a tunnel interface
-author: Palo Alto Networks - lmori
-version_added: "0.1"
+author:
+    - Palo Alto Networks 
+    - Luigi Mori (jtschichold)
+version_added: "0.0"
 requirements:
     - pan-python
 options:
@@ -29,12 +31,10 @@ options:
         description:
             - IP address (or hostname) of PAN-OS device
         required: true
-        default: null
     password:
         description:
             - password for authentication
         required: true
-        default: null
     username:
         description:
             - username for authentication
@@ -44,13 +44,11 @@ options:
         description:
             - unit number of the tunnel interface
         required: true
-        default: null
     zone_name:
         description:
             - name of the zone for the interface
             - if the zone does not exist it is created
         required: true
-        default: null
     commit:
         description:
             - commit if changed
@@ -112,7 +110,7 @@ def if_exists(xapi, tunnel_unit):
 def main():
     argument_spec = dict(
         ip_address=dict(default=None),
-        password=dict(default=None),
+        password=dict(default=None, no_log=True),
         username=dict(default='admin'),
         tunnel_unit=dict(default=None),
         zone_name=dict(default=None),

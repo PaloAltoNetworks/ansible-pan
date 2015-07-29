@@ -6,8 +6,9 @@ panos_swinstall
 Synopsis
 --------
 
-Install PAN-OS software image
+Install PAN-OS software image.
 The image should have been already imported on the device
+
 
 Options
 -------
@@ -33,7 +34,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">version</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       version to install<br></td>
@@ -41,7 +42,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">file</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       file to install<br></td>

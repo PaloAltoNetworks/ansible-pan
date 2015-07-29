@@ -8,6 +8,7 @@ Synopsis
 
 Upgrade PAN-OS device dynamic updates with the latest available version
 
+
 Options
 -------
 
@@ -32,7 +33,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">wildfire_update</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">false</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       whether Wildfire signatures should be updated<br></td>
@@ -40,7 +41,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">url_download_region</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">null</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       region to download PAN-DB seed for<br>if null, PAN-DB won't be updated<br></td>
@@ -48,7 +49,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">content_update</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">false</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       whether content (Apps or Apps+Threats) should be updated<br></td>
@@ -80,7 +81,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">anti_virus_update</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">false</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       whether Anti-Virus signatures should be updated<br></td>

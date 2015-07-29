@@ -17,6 +17,14 @@ Synopsis
 @{ desc }@
 {% endfor %}
 
+{% if notes %}
+{% for note in notes %}
+
+.. important:: @{ note }@
+
+{% endfor %}
+{% endif %}
+
 {% if options -%}
 Options
 -------
@@ -67,6 +75,7 @@ Examples
 {% endif %}
 
 {% if notes %}
+
 .. raw:: html
 
     <h4>Notes</h4>

@@ -8,6 +8,7 @@ Synopsis
 
 Create a security profile group
 
+
 Options
 -------
 
@@ -32,7 +33,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">data_filtering</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       name of the data filtering profile<br></td>
@@ -40,7 +41,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">file_blocking</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       name of the file blocking profile<br></td>
@@ -56,7 +57,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">vulnerability</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       name of the vulnerability profile<br></td>
@@ -64,7 +65,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">spyware</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       name of the spyware profile<br></td>
@@ -72,7 +73,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">url_filtering</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       name of the url filtering profile<br></td>
@@ -80,7 +81,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">virus</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       name of the anti-virus profile<br></td>

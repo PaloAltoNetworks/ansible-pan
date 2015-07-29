@@ -20,8 +20,10 @@ module: panos_content
 short_description: upgrade PAN-OS dynamic updates
 description:
     - Upgrade PAN-OS device dynamic updates with the latest available version
-author: Palo Alto Networks - lmori
-version_added: "0.1"
+author: 
+    - Palo Alto Networks 
+    - Luigi Mori (jtschichold)
+version_added: "0.0"
 requirements:
     - pan-python
 options:
@@ -29,12 +31,10 @@ options:
         description:
             - IP address (or hostname) of PAN-OS device
         required: true
-        default: null
     password:
         description:
             - password for authentication
         required: true
-        default: null
     username:
         description:
             - username for authentication
@@ -44,23 +44,23 @@ options:
         description:
             - whether content (Apps or Apps+Threats) should be updated
         required: false
-        default: false
+        default: "false"
     anti_virus_update:
         description:
             - whether Anti-Virus signatures should be updated
         required: false
-        default: false
+        default: "false"
     wildfire_update:
         description:
             - whether Wildfire signatures should be updated
         required: false
-        default: false
+        default: "false"
     url_download_region:
         description:
             - region to download PAN-DB seed for
             - if null, PAN-DB won't be updated
         required: false
-        default: null
+        default: "null"
     job_timeout:
         description:
             - timeout for download and install jobs in seconds
@@ -229,7 +229,7 @@ def download_url_region(xapi, module, region, job_timeout):
 def main():
     argument_spec = dict(
         ip_address=dict(default=None),
-        password=dict(default=None),
+        password=dict(default=None, no_log=True),
         username=dict(default='admin'),
         url_download_region=dict(default=None),
         content_update=dict(type='bool', default=False),

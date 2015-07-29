@@ -8,6 +8,7 @@ Synopsis
 
 Create a security rule
 
+
 Options
 -------
 
@@ -32,7 +33,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">vulnprofile_name</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       name of the vulnerability profile<br></td>
@@ -56,7 +57,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">log_start</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">false</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       whether to log at session start<br></td>
@@ -136,7 +137,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">group_profile</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       security profile group<br></td>

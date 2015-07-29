@@ -8,6 +8,7 @@ Synopsis
 
 Restart a device
 
+
 Options
 -------
 

@@ -8,6 +8,7 @@ Synopsis
 
 Create an AWS monitor object
 
+
 Options
 -------
 

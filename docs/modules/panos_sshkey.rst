@@ -8,6 +8,7 @@ Synopsis
 
 Manage SSH keys of admins
 
+
 Options
 -------
 
@@ -32,7 +33,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">public_key</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       SSH public key to set<br></td>
