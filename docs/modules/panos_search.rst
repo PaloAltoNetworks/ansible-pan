@@ -6,6 +6,7 @@ panos_search
 Synopsis
 --------
 
+
 Search and return AMI ID of PA-VM-AWS instance in a specific region.
 All the standard EC2 module paramaters are supported.
 

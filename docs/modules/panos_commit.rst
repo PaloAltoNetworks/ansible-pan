@@ -6,6 +6,7 @@ panos_commit
 Synopsis
 --------
 
+
 Commit config on a device
 
 

@@ -6,6 +6,7 @@ panos_import
 Synopsis
 --------
 
+
 Import file on PAN-OS device
 
 

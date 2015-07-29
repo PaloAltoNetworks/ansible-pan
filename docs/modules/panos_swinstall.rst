@@ -6,6 +6,7 @@ panos_swinstall
 Synopsis
 --------
 
+
 Install PAN-OS software image.
 The image should have been already imported on the device
 

@@ -23,7 +23,7 @@ description:
 author: 
     - Palo Alto Networks 
     - Luigi Mori (jtschichold)
-version_added: "0.1"
+version_added: "0.0"
 requirements:
     - pan-python
 options:

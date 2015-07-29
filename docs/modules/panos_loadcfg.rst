@@ -6,6 +6,7 @@ panos_loadcfg
 Synopsis
 --------
 
+
 Load configuration on PAN-OS device
 
 

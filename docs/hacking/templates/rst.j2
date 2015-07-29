@@ -13,6 +13,10 @@
 Synopsis
 --------
 
+{% if version_added is defined and version_added != '0.0' -%}
+Added in version @{ version_added }@
+{% endif %}
+
 {% for desc in description -%}
 @{ desc }@
 {% endfor %}

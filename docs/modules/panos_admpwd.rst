@@ -6,6 +6,7 @@ panos_admpwd
 Synopsis
 --------
 
+
 Change the admin password of PAN-OS via SSH using a SSH key for authentication.
 Useful for AWS instances where the first login should be done via SSH.
 

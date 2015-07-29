@@ -6,6 +6,7 @@ panos_lic
 Synopsis
 --------
 
+
 Apply an authcode to a device.
 The authcode should have been previously registered on the Palo Alto Networks support portal.
 The device should have Internet access.

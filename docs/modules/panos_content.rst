@@ -6,6 +6,7 @@ panos_content
 Synopsis
 --------
 
+
 Upgrade PAN-OS device dynamic updates with the latest available version
 
 

@@ -6,6 +6,7 @@ panos_gpp_gateway
 Synopsis
 --------
 
+
 Configure a GlobalProtect Portal gateway list
 
 

@@ -6,6 +6,7 @@ panos_cstapphost
 Synopsis
 --------
 
+
 Create a custom application for internal website based on the Host header
 
 

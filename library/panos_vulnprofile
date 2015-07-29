@@ -23,7 +23,7 @@ description:
 author: 
     - Palo Alto Networks 
     - Ivan Bojer
-version_added: "0.1"
+version_added: "0.0"
 requirements:
     - pan-python
 options:

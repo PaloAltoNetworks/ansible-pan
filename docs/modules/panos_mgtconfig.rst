@@ -6,6 +6,7 @@ panos_mgtconfig
 Synopsis
 --------
 
+
 Configure management settings of device
 
 

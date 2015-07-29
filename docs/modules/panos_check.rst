@@ -6,6 +6,7 @@ panos_check
 Synopsis
 --------
 
+
 Check if PAN-OS device is ready for being configured (no pending jobs).
 The check could be done once or multiple times until the device is ready.
 
