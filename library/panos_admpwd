@@ -21,8 +21,8 @@ short_description: change admin password of PAN-OS device using SSH with SSH key
 description:
     - Change the admin password of PAN-OS via SSH using a SSH key for authentication.
     - Useful for AWS instances where the first login should be done via SSH.
-author: 
-    - Palo Alto Networks 
+author:
+    - Palo Alto Networks
     - Luigi Mori (jtschichold)
 version_added: "0.0"
 requirements:

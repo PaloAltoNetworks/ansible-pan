@@ -21,7 +21,7 @@ short_description: check if PAN-OS device is ready for configuration
 description:
     - Check if PAN-OS device is ready for being configured (no pending jobs).
     - The check could be done once or multiple times until the device is ready.
-author: 
+author:
     - Palo Alto Networks
     - Luigi Mori (jtschichold)
 version_added: "0.0"
