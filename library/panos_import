@@ -174,7 +174,7 @@ def main():
     if file_ is None and url is None:
         module.fail_json(msg="file or url is required")
     if file_ is not None and url is not None:
-        module.fail_json(msg="only of file or url could be specified")
+        module.fail_json(msg="only one of file or url can be specified")
     category = module.params['category']
 
     if url is not None:
