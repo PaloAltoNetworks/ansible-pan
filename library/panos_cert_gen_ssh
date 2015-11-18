@@ -119,6 +119,8 @@ def generate_cert(module, ip_address, key_filename, password,
     stdout += buff
 
     # generate self-signed certificate
+    if isinstance(cert_cn, list):
+        cert_cn = cert_cn[0]
     cmd = 'request certificate generate signed-by {0} certificate-name {1} name {2} algorithm RSA rsa-nbits {3}\n'.format(signed_by, cert_friendly_name, cert_cn, rsa_nbits)
     shell.send(cmd)
 
@@ -183,7 +185,7 @@ def main():
                            signed_by,
                            rsa_nbits)
 
-    module.exit_json(changed=True, stdout=stdout)
+    module.exit_json(changed=True, msg="okey dokey")
 
 
 from ansible.module_utils.basic import *  # noqa
