@@ -8,6 +8,7 @@ Modules list
    modules/panos_admin
    modules/panos_admpwd
    modules/panos_awsmonitor
+   modules/panos_cert_gen_ssh
    modules/panos_check
    modules/panos_commit
    modules/panos_content
@@ -28,6 +29,7 @@ Modules list
    modules/panos_snat
    modules/panos_srule
    modules/panos_sshkey
+   modules/panos_swapif
    modules/panos_swinstall
    modules/panos_tunnelif
    modules/panos_vulnprofile

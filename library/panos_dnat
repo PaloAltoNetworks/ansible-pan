@@ -20,9 +20,12 @@ module: panos_dnat
 short_description: create a destination nat rule
 description:
     - Create a destination nat rule
+notes:
     - Superseded, use panos_nat module
-author: Palo Alto Networks - lmori
-version_added: "0.1"
+author: 
+    - Palo Alto Networks 
+    - Luigi Mori (jtschichold)
+version_added: "0.0"
 requirements:
     - pan-python
 options:
@@ -30,12 +33,10 @@ options:
         description:
             - IP address (or hostname) of PAN-OS device
         required: true
-        default: null
     password:
         description:
             - password for authentication
         required: true
-        default: null
     username:
         description:
             - username for authentication
@@ -45,17 +46,14 @@ options:
         description:
             - name of the SNAT rule
         required: true
-        default: null
     from_zone:
         description:
             - source zone
         required: true
-        default: null
     to_zone:
         description:
             - destination zone
         required: true
-        default: null
     source:
         description:
             - source address
@@ -75,12 +73,12 @@ options:
         description:
             - translated address
         required: false
-        default: null
+        default: None
     translated_port:
         description:
             - translated port
         required: false
-        default: null
+        default: None
     commit:
         description:
             - commit if changed
@@ -169,7 +167,7 @@ def add_dnat(xapi, module, rule_name, from_zone, to_zone,
 def main():
     argument_spec = dict(
         ip_address=dict(default=None),
-        password=dict(default=None),
+        password=dict(default=None, no_log=True),
         username=dict(default='admin'),
         rule_name=dict(default=None),
         translated_address=dict(default=None),

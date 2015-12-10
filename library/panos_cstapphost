@@ -20,8 +20,10 @@ module: panos_cstapphost
 short_description: create a custom application based on the Host header
 description:
     - Create a custom application for internal website based on the Host header
-author: Palo Alto Networks - lmori
-version_added: "0.1"
+author: 
+    - Palo Alto Networks 
+    - Luigi Mori (jtschichold)
+version_added: "0.0"
 requirements:
     - pan-python
 options:
@@ -29,12 +31,10 @@ options:
         description:
             - IP address (or hostname) of PAN-OS device
         required: true
-        default: null
     password:
         description:
             - password for authentication
         required: true
-        default: null
     username:
         description:
             - username for authentication
@@ -44,17 +44,15 @@ options:
         description:
             - name of the new custom application
         required: true
-        default: null
     host_regex:
         description:
             - regex to match against the Host header
         required: true
-        default: null
     convert_hostname:
         description:
             - wheter convert string given as regex in a real regex
         required: false
-        default: false
+        default: "false"
     commit:
         description:
             - commit if changed
@@ -145,7 +143,7 @@ def convert_to_regex(hname):
 def main():
     argument_spec = dict(
         ip_address=dict(default=None),
-        password=dict(default=None),
+        password=dict(default=None, no_log=True),
         username=dict(default='admin'),
         app_name=dict(default=None),
         host_regex=dict(default=None),

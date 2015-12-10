@@ -6,9 +6,11 @@ panos_lic
 Synopsis
 --------
 
+
 Apply an authcode to a device.
 The authcode should have been previously registered on the Palo Alto Networks support portal.
 The device should have Internet access.
+
 
 Options
 -------
@@ -50,7 +52,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">force</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">false</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       whether to apply authcode even if device is already licensed<br></td>

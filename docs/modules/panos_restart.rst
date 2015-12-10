@@ -6,7 +6,9 @@ panos_restart
 Synopsis
 --------
 
+
 Restart a device
+
 
 Options
 -------

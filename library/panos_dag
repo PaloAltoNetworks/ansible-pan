@@ -20,8 +20,10 @@ module: panos_dag
 short_description: create a dynamic address group
 description:
     - Create a dynamic address group
-author: Palo Alto Networks - lmori
-version_added: "0.1"
+author: 
+    - Palo Alto Networks 
+    - Luigi Mori (jtschichold)
+version_added: "0.0"
 requirements:
     - pan-python
 options:

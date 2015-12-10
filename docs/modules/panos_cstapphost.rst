@@ -6,7 +6,9 @@ panos_cstapphost
 Synopsis
 --------
 
+
 Create a custom application for internal website based on the Host header
+
 
 Options
 -------
@@ -32,7 +34,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">convert_hostname</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">false</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       wheter convert string given as regex in a real regex<br></td>

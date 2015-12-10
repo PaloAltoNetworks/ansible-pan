@@ -6,7 +6,9 @@ panos_mgtconfig
 Synopsis
 --------
 
+
 Configure management settings of device
+
 
 Options
 -------
@@ -32,7 +34,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">panorama_primary</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       address of primary Panorama server<br></td>
@@ -40,7 +42,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">dns_server_secondary</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       address of secondary DNS server<br></td>
@@ -48,7 +50,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">dns_server_primary</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       address of primary DNS server<br></td>
@@ -56,7 +58,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">panorama_secondary</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       address of secondary Panorama server<br></td>

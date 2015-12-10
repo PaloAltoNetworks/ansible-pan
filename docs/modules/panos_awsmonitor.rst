@@ -6,7 +6,9 @@ panos_awsmonitor
 Synopsis
 --------
 
+
 Create an AWS monitor object
+
 
 Options
 -------

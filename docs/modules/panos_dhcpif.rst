@@ -6,8 +6,9 @@ panos_dhcpif
 Synopsis
 --------
 
+
 Configure a DP network interface for DHCP
-Useful for configuring new AWS instances
+
 
 Options
 -------
@@ -33,7 +34,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">create_default_route</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">false</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       whether add default route with router learned via DHCP<br></td>

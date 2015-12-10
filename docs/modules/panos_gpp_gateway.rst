@@ -6,7 +6,9 @@ panos_gpp_gateway
 Synopsis
 --------
 
+
 Configure a GlobalProtect Portal gateway list
+
 
 Options
 -------
@@ -48,7 +50,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">description</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       description of the gateway<br></td>

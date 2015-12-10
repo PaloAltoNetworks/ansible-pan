@@ -19,10 +19,12 @@ DOCUMENTATION = '''
 module: panos_check
 short_description: check if PAN-OS device is ready for configuration
 description:
-    - Check if PAN-OS device is ready for being configured (no pending jobs)
-    - The check could be done once or multiple times until the device is ready
-author: Palo Alto Networks - lmori
-version_added: "0.1"
+    - Check if PAN-OS device is ready for being configured (no pending jobs).
+    - The check could be done once or multiple times until the device is ready.
+author:
+    - Palo Alto Networks
+    - Luigi Mori (jtschichold)
+version_added: "0.0"
 requirements:
     - pan-python
 options:
@@ -30,12 +32,10 @@ options:
         description:
             - IP address (or hostname) of PAN-OS device
         required: true
-        default: null
     password:
         description:
             - password for authentication
         required: true
-        default: null
     username:
         description:
             - username for authentication
@@ -45,12 +45,12 @@ options:
         description:
             - timeout of API calls
         required: false
-        default: 0
+        default: "0"
     interval:
         description:
             - time waited between checks
         required: false
-        default: 0
+        default: "0"
 '''
 
 EXAMPLES = '''
@@ -97,7 +97,7 @@ def check_jobs(jobs, module):
 def main():
     argument_spec = dict(
         ip_address=dict(default=None),
-        password=dict(default=None),
+        password=dict(default=None, no_log=True),
         username=dict(default='admin'),
         timeout=dict(default=0, type='int'),
         interval=dict(default=0, type='int')

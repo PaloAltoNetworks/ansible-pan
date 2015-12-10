@@ -6,7 +6,9 @@ panos_admin
 Synopsis
 --------
 
-Add or modify PAN-OS admin
+
+Add or modify PAN-OS admins
+
 
 Options
 -------

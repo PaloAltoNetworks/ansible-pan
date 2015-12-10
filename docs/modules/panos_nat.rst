@@ -6,7 +6,9 @@ panos_nat
 Synopsis
 --------
 
+
 Create a nat rule
+
 
 Options
 -------
@@ -32,7 +34,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">snat_bidirectional</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">false</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       bidirectional flag<br></td>
@@ -40,7 +42,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">dnat_port</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       dnat translated port<br></td>
@@ -48,7 +50,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">snat_interface_address</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       snat interface address<br></td>
@@ -80,7 +82,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">snat_address</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       snat translated address<br></td>
@@ -88,7 +90,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">dnat_address</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       dnat translated address<br></td>
@@ -112,7 +114,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">snat_type</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       type of source translation<br></td>
@@ -123,7 +125,7 @@ Options
     <td style="vertical-align:middle">['any']</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
-      destination address<br></td>
+      list of destination addresses<br></td>
     </tr>
         <tr style="text-align:center">
     <td style="vertical-align:middle">from_zone</td>
@@ -131,7 +133,7 @@ Options
     <td style="vertical-align:middle"></td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
-      source zones<br></td>
+      list of source zones<br></td>
     </tr>
         <tr style="text-align:center">
     <td style="vertical-align:middle">source</td>
@@ -139,7 +141,7 @@ Options
     <td style="vertical-align:middle">['any']</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
-      source address<br></td>
+      list of source addresses<br></td>
     </tr>
         <tr style="text-align:center">
     <td style="vertical-align:middle">commit</td>
@@ -152,7 +154,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">snat_interface</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       snat interface<br></td>

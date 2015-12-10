@@ -6,9 +6,13 @@ panos_snat
 Synopsis
 --------
 
-Create a source nat rule
+
+Create a source nat rule.
 Note, only static SNAT rules are supported
-Superseded, use panos_nat module
+
+
+.. important:: Superseded, use panos_nat module
+
 
 Options
 -------
@@ -34,7 +38,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">translated_address</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       translated address<br></td>
@@ -59,7 +63,7 @@ Options
     <td style="vertical-align:middle">snat_type</td>
     <td style="vertical-align:middle">yes</td>
     <td style="vertical-align:middle"></td>
-        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"><li>static-ip</li><li>dynamic-ip-and-port</li></ul></td>
         <td style="vertical-align:middle;text-align:left">
       type of SNAT<br></td>
     </tr>
@@ -82,7 +86,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">interface_address_if</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       interface for dynamic-ip-and-port interface address NAT rules<br></td>
@@ -114,7 +118,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">bidirectional</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">false</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       whether the SNAT should be bidirectional<br></td>
@@ -138,7 +142,7 @@ Options
         <tr style="text-align:center">
     <td style="vertical-align:middle">interface_address_ip</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       IP address for dynamic-ip-and-port interface address NAT rules<br></td>
@@ -168,3 +172,9 @@ Examples
         source: "10.1.1.1"
         destination: "any"
         service: "any"
+
+.. raw:: html
+
+    <h4>Notes</h4>
+        <p>Superseded, use panos_nat module</p>
+    
