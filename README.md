@@ -9,6 +9,7 @@ Overview of modules
 - panos_admin - add or modify admin user
 - panos_admpwd - set admin password via SSH
 - panos_awsmonitor - create AWS VM monitor
+- panos_cert_gen_ssh - create SSL certificate
 - panos_check - check if device is ready
 - panos_commit - commit candidate config
 - panos_content - upgrade dynamic updates
@@ -29,6 +30,7 @@ Overview of modules
 - panos_snat - create a source nat rule
 - panos_srule - create a security rule
 - panos_sshkey - manage public SSH keys
+- panos_swapif - swap if on AWS instance
 - panos_swinstall - install software images
 - panos_tunnelif - create a tunnel if
 - panos_vulnprofile - create vulnerability profile
