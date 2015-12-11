@@ -102,6 +102,11 @@ options:
             - dnat translated port
         required: false
         default: None
+    override:
+        description:
+            - attempt to override rule if one with the same name already exists
+        required: false
+        default: "false"
     commit:
         description:
             - commit if changed
@@ -129,11 +134,14 @@ EXAMPLES = '''
 '''
 
 import sys
-
+import os
 try:
     import pan.xapi
 except ImportError:
     print "failed=True msg='pan-python required for this module'"
+    user_paths = os.environ['PYTHONPATH'].split(os.pathsep)
+    print 'Ivan was here '
+    print user_paths
     sys.exit(1)
 
 _NAT_XPATH = "/config/devices/entry[@name='localhost.localdomain']" +\
@@ -234,6 +242,8 @@ def add_nat(xapi, module, rule_name, from_zone, to_zone,
 
     exml = ''.join(exml)
 
+    print exml
+
     xapi.set(xpath=_NAT_XPATH % rule_name, element=exml)
 
     return True
@@ -257,6 +267,7 @@ def main():
         snat_bidirectional=dict(default=False),
         dnat_address=dict(default=None),
         dnat_port=dict(default=None),
+        override=dict(default=False),
         commit=dict(type='bool', default=True)
     )
     module = AnsibleModule(argument_spec=argument_spec)
@@ -298,7 +309,8 @@ def main():
     dnat_port = module.params['dnat_port']
     commit = module.params['commit']
 
-    if nat_rule_exists(xapi, rule_name):
+    override = module.params["override"]
+    if not override and nat_rule_exists(xapi, rule_name):
         module.exit_json(changed=False, msg="rule exists")
 
     changed = add_nat(
