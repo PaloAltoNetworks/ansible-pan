@@ -139,9 +139,6 @@ try:
     import pan.xapi
 except ImportError:
     print "failed=True msg='pan-python required for this module'"
-    user_paths = os.environ['PYTHONPATH'].split(os.pathsep)
-    print 'Ivan was here '
-    print user_paths
     sys.exit(1)
 
 _NAT_XPATH = "/config/devices/entry[@name='localhost.localdomain']" +\
@@ -241,8 +238,6 @@ def add_nat(xapi, module, rule_name, from_zone, to_zone,
     exml.append("<nat-type>ipv4</nat-type>")
 
     exml = ''.join(exml)
-
-    print exml
 
     xapi.set(xpath=_NAT_XPATH % rule_name, element=exml)
 
