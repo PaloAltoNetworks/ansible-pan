@@ -30,11 +30,14 @@ options:
             - IP address (or hostname) of PAN-OS device
         required: true
         default: null
+    key:
+        description:
+            - api key for authentication used in place of username and password
+        required: false
     password:
         description:
             - password for authentication
-        required: true
-        default: null
+        required: false
     username:
         description:
             - username for authentication
