@@ -136,7 +136,7 @@ def main():
         )
 
     xapi = pan.xapi.PanXapi(
-        args
+        **args
     )
 
     checkpnt = time.time()+timeout
