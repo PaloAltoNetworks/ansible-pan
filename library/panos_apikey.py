@@ -92,9 +92,7 @@ def main():
         key = xapi.keygen()
         module.exit_json(changed=True, msg=key)
     except:
-        pass
-
-    module.fail_json(msg="Failed")
+        module.fail_json(msg="Failed")
 
 from ansible.module_utils.basic import *   # noqa
 
