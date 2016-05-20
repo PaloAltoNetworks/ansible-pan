@@ -112,8 +112,8 @@ def main():
     ip_address = module.params["ip_address"]
     if not ip_address:
         module.fail_json(msg="ip_address should be specified")
-    key = module.params["key"]
     password = module.params["password"]
+    key = module.params["key"]
     if not password and not key:
         module.fail_json(msg="password is required")
     username = module.params['username']

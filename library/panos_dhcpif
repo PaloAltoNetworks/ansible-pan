@@ -129,6 +129,7 @@ def if_exists(xapi, if_name):
 def main():
     argument_spec = dict(
         ip_address=dict(default=None),
+        key=dict(default=None, no_log=True),
         password=dict(default=None, no_log=True),
         username=dict(default='admin'),
         if_name=dict(default=None),
@@ -142,14 +143,28 @@ def main():
     if not ip_address:
         module.fail_json(msg="ip_address should be specified")
     password = module.params["password"]
-    if not password:
+    key = module.params["key"]
+    if not password and not key:
         module.fail_json(msg="password is required")
     username = module.params['username']
 
+    if not key:
+        args = dict(
+            hostname=ip_address,
+            api_username=username,
+            api_password=password,
+            timeout=60
+        )
+    else:
+        args = dict(
+            hostname=ip_address,
+            api_key=key,
+            api_username=username,
+            timeout=60
+        )
+
     xapi = pan.xapi.PanXapi(
-        hostname=ip_address,
-        api_username=username,
-        api_password=password
+        **args
     )
 
     if_name = module.params['if_name']
