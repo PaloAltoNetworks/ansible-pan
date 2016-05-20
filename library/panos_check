@@ -131,6 +131,7 @@ def main():
         args = dict(
             hostname=ip_address,
             api_key=key,
+            api_username=username,
             timeout=60
         )
 
