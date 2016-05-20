@@ -16,13 +16,12 @@
 
 DOCUMENTATION = '''
 ---
-module: panos_commit
-short_description: commit config
+module: panos_apikey
+short_description: generate an api key
 description:
-    - Commit config on a device
+    - Use the XML API to generate a new API Key for later use
 author:
-    - Palo Alto Networks
-    - Luigi Mori (jtschichold)
+    - John Anderson
 version_added: "0.0"
 requirements:
     - pan-python
@@ -31,41 +30,27 @@ options:
         description:
             - IP address (or hostname) of PAN-OS device
         required: true
-    key:
-        description:
-            - api key for authentication used in place of username and password
-        required: false
     password:
         description:
             - password for authentication
-        required: false
+        required: true
     username:
         description:
             - username for authentication
         required: false
         default: "admin"
-    interval:
-        description:
-            - interval for checking commit job
-        required: false
-        default: 0.5
     timeout:
         description:
-            - timeout for commit job
+            - timeout of API calls
         required: false
-        default: None
-    sync:
-        description:
-            - if commit should be synchronous
-        required: false
-        default: true
+        default: "60"
 '''
 
 EXAMPLES = '''
-# Commit candidate config on 192.168.1.1 in sync mode
-- panos_commit:
+# 192.168.1.1 with credentials admin/admin
+- name: generate key
+  panos_apikey:
     ip_address: "192.168.1.1"
-    username: "admin"
     password: "admin"
 '''
 
@@ -81,12 +66,9 @@ except ImportError:
 def main():
     argument_spec = dict(
         ip_address=dict(default=None),
-        key=dict(default=None, no_log=True),
         password=dict(default=None, no_log=True),
         username=dict(default='admin'),
-        interval=dict(default=0.5),
-        timeout=dict(default=None),
-        sync=dict(type='bool', default=True)
+        timeout=dict(default=60, type='int')
     )
     module = AnsibleModule(argument_spec=argument_spec)
 
@@ -94,43 +76,25 @@ def main():
     if not ip_address:
         module.fail_json(msg="ip_address should be specified")
     password = module.params["password"]
-    key = module.params["key"]
-    if not password and not key:
+    if not password:
         module.fail_json(msg="password is required")
     username = module.params['username']
-
-    interval = module.params['interval']
     timeout = module.params['timeout']
-    sync = module.params['sync']
-
-    if not key:
-        args = dict(
-            hostname=ip_address,
-            api_username=username,
-            api_password=password,
-            timeout=60
-        )
-    else:
-        args = dict(
-            hostname=ip_address,
-            api_key=key,
-            api_username=username,
-            timeout=60
-        )
 
     xapi = pan.xapi.PanXapi(
-        **args
-    )
-
-    xapi.commit(
-        cmd="<commit></commit>",
-        sync=sync,
-        interval=interval,
+        hostname=ip_address,
+        api_username=username,
+        api_password=password,
         timeout=timeout
     )
 
-    module.exit_json(changed=True, msg="okey dokey")
+    key = xapi.keygen()
+    if not key:
+        module.fail_json(msg="failed")
+    else:
+        module.exit_json(changed=True, key=key)
 
-from ansible.module_utils.basic import *  # noqa
+
+from ansible.module_utils.basic import *   # noqa
 
 main()

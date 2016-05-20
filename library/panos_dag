@@ -32,11 +32,14 @@ options:
             - IP address (or hostname) of PAN-OS device
         required: true
         default: null
+    key:
+        description:
+            - api key for authentication used in place of username and password
+        required: false
     password:
         description:
             - password for authentication
-        required: true
-        default: null
+        required: false
     username:
         description:
             - username for authentication
@@ -108,7 +111,8 @@ def add_dag(xapi, dag_name, dag_filter):
 def main():
     argument_spec = dict(
         ip_address=dict(default=None),
-        password=dict(default=None),
+        key=dict(default=None, no_log=True),
+        password=dict(default=None, no_log=True),
         username=dict(default='admin'),
         dag_name=dict(default=None),
         dag_filter=dict(default=None),
@@ -124,10 +128,23 @@ def main():
         module.fail_json(msg="password is required")
     username = module.params['username']
 
+    if not key:
+        args = dict(
+            hostname=ip_address,
+            api_username=username,
+            api_password=password,
+            timeout=60
+        )
+    else:
+        args = dict(
+            hostname=ip_address,
+            api_key=key,
+            api_username=username,
+            timeout=60
+        )
+
     xapi = pan.xapi.PanXapi(
-        hostname=ip_address,
-        api_username=username,
-        api_password=password
+        **args
     )
 
     dag_name = module.params['dag_name']
