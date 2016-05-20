@@ -8,6 +8,7 @@ Overview of modules
 
 - panos_admin - add or modify admin user
 - panos_admpwd - set admin password via SSH
+- panos_apikey - generate a new api key
 - panos_awsmonitor - create AWS VM monitor
 - panos_cert_gen_ssh - create SSL certificate
 - panos_check - check if device is ready

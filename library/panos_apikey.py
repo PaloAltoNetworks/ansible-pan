@@ -43,7 +43,7 @@ options:
         description:
             - timeout of API calls
         required: false
-        default: "0"
+        default: "60"
 '''
 
 EXAMPLES = '''
@@ -68,7 +68,7 @@ def main():
         ip_address=dict(default=None),
         password=dict(default=None, no_log=True),
         username=dict(default='admin'),
-        timeout=dict(default=0, type='int')
+        timeout=dict(default=60, type='int')
     )
     module = AnsibleModule(argument_spec=argument_spec)
 
