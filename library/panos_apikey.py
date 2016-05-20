@@ -88,11 +88,12 @@ def main():
         timeout=timeout
     )
 
-    try:
-        key = xapi.keygen()
-        module.exit_json(changed=True, msg=key)
-    except:
-        module.fail_json(msg="Failed")
+    key = xapi.keygen()
+    if not key:
+        module.fail_json(msg="failed")
+    else:
+        module.exit_json(changed=True, key=key)
+
 
 from ansible.module_utils.basic import *   # noqa
 
