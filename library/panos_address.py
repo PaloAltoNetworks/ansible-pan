@@ -73,7 +73,7 @@ options:
 '''
 
 EXAMPLES = '''
-# Creates service for port 22
+# Creates address for google_dns
   - name: create IP-Netmask Object
     panos_address:
       ip_address: "192.168.1.1"
