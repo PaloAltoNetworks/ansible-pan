@@ -19,7 +19,7 @@ DOCUMENTATION = '''
 module: panos_address
 short_description: create an address object
 description:
-    - Create a service object
+    - Create an address object
 author: 
     - Network to Code
     - Ken Celenza (itdependsnetworks)
