@@ -30,7 +30,7 @@ description:
 author: 
     - Palo Alto Networks 
     - Luigi Mori (jtschichold)
-version_added: "0.0"
+version_added: "2.2"
 requirements:
     - pan-python
 options:
@@ -78,6 +78,14 @@ EXAMPLES = '''
       admin_username: admin
       admin_password: "badpassword"
       commit: False
+'''
+
+RETURN = '''
+status:
+    description: success status
+    returned: success
+    type: string
+    sample: "okey dokey"
 '''
 
 try:
