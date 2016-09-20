@@ -23,7 +23,7 @@ description:
 author: 
     - Palo Alto Networks 
     - Luigi Mori (jtschichold)
-version_added: "0.0"
+version_added: "2.2"
 requirements:
     - pan-python
 options:
@@ -73,13 +73,19 @@ EXAMPLES = '''
       commit: False
 '''
 
-import sys
+RETURN = '''
+status:
+    description: success status
+    returned: success
+    type: string
+    sample: "okey dokey"
+'''
 
 try:
     import pan.xapi
+    HAS_LIB = True
 except ImportError:
-    print "failed=True msg='pan-python required for this module'"
-    sys.exit(1)
+    HAS_LIB = False
 
 _ADMIN_XPATH = "/config/mgt-config/users/entry[@name='%s']"
 
@@ -154,6 +160,9 @@ def main():
     )
     module = AnsibleModule(argument_spec=argument_spec)
 
+    if not HAS_LIB:
+        module.fail_json(msg='pan-python required for this module')
+
     ip_address = module.params["ip_address"]
     if not ip_address:
         module.fail_json(msg="ip_address should be specified")
@@ -184,4 +193,5 @@ def main():
 
 from ansible.module_utils.basic import * # flake8: noqa
 
-main()
+if __name__ == '__main__':
+    main()
