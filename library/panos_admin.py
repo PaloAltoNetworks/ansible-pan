@@ -1,36 +1,33 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
-"""
-Ansible module to manage PaloAltoNetworks Firewall
-(c) 2016, techbizdev <techbizdev@paloaltonetworks.com>
-
-This file is part of Ansible
-
-Ansible is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Ansible is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
-"""
+#
+# Ansible module to manage PaloAltoNetworks Firewall
+# (c) 2016, techbizdev <techbizdev@paloaltonetworks.com>
+#
+# This file is part of Ansible
+#
+# Ansible is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Ansible is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
 DOCUMENTATION = '''
 ---
 module: panos_admin
-short_description: add or modify PAN-OS admins
+short_description: Add or modify PAN-OS user accounts password.
 description:
-    - Add or modify PAN-OS admins
-author: 
-    - Palo Alto Networks 
-    - Luigi Mori (jtschichold)
-version_added: "2.2"
+    - PanOS module that allows changes to the user account passwords by doing
+      API calls to the Firewall using pan-api as the protocol.
+author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
+version_added: "2.3"
 requirements:
     - pan-python
 options:
@@ -87,6 +84,7 @@ status:
     type: string
     sample: "okey dokey"
 '''
+from ansible.module_utils.basic import AnsibleModule
 
 try:
     import pan.xapi
@@ -157,15 +155,15 @@ def admin_set(xapi, module, admin_username, admin_password, role):
 
 def main():
     argument_spec = dict(
-        ip_address=dict(default=None),
-        password=dict(default=None, no_log=True),
+        ip_address=dict(),
+        password=dict(no_log=True),
         username=dict(default='admin'),
         admin_username=dict(default='admin'),
-        admin_password=dict(default=None, no_log=True),
-        role=dict(default=None),
+        admin_password=dict(no_log=True),
+        role=dict(),
         commit=dict(type='bool', default=True)
     )
-    module = AnsibleModule(argument_spec=argument_spec)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
 
     if not HAS_LIB:
         module.fail_json(msg='pan-python required for this module')
@@ -197,8 +195,6 @@ def main():
         xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
 
     module.exit_json(changed=changed, msg="okey dokey")
-
-from ansible.module_utils.basic import * # flake8: noqa
 
 if __name__ == '__main__':
     main()
