@@ -27,7 +27,7 @@ description:
     - PanOS module that allows changes to the user account passwords by doing
       API calls to the Firewall using pan-api as the protocol.
 author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
-version_added: "2.3"
+version_added: "2.2"
 requirements:
     - pan-python
 options:
