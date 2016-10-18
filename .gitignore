@@ -1,3 +1,5 @@
 *.yml
 docs/_build
 .idea/
+panos_*.retry
+
