@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 
-# Copyright (c) 2014, Palo Alto Networks <techbizdev@paloaltonetworks.com>
+# Copyright (c) 2016, Palo Alto Networks <techbizdev@paloaltonetworks.com>
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -17,13 +17,12 @@
 DOCUMENTATION = '''
 ---
 module: panos_admin
-short_description: add or modify PAN-OS admins
+short_description: Add or modify PAN-OS user accounts password.
 description:
-    - Add or modify PAN-OS admins
-author: 
-    - Palo Alto Networks 
-    - Luigi Mori (jtschichold)
-version_added: "2.2"
+    - PanOS module that allows changes to the user account passwords by doing
+      API calls to the Firewall using pan-api as the protocol.
+author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
+version_added: "2.3"
 requirements:
     - pan-python
 options:
@@ -80,6 +79,7 @@ status:
     type: string
     sample: "okey dokey"
 '''
+from ansible.module_utils.basic import AnsibleModule
 
 try:
     import pan.xapi
@@ -150,15 +150,15 @@ def admin_set(xapi, module, admin_username, admin_password, role):
 
 def main():
     argument_spec = dict(
-        ip_address=dict(default=None),
-        password=dict(default=None, no_log=True),
+        ip_address=dict(),
+        password=dict(no_log=True),
         username=dict(default='admin'),
         admin_username=dict(default='admin'),
-        admin_password=dict(default=None, no_log=True),
-        role=dict(default=None),
+        admin_password=dict(no_log=True),
+        role=dict(),
         commit=dict(type='bool', default=True)
     )
-    module = AnsibleModule(argument_spec=argument_spec)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
 
     if not HAS_LIB:
         module.fail_json(msg='pan-python required for this module')
@@ -190,8 +190,6 @@ def main():
         xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
 
     module.exit_json(changed=changed, msg="okey dokey")
-
-from ansible.module_utils.basic import * # flake8: noqa
 
 if __name__ == '__main__':
     main()
