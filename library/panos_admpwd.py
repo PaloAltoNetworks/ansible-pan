@@ -56,6 +56,7 @@ EXAMPLES = '''
 - name: set admin password
   panos_admpwd:
     ip_address: "192.168.1.1"
+    username: "admin"
     key_filename: "/tmp/ssh.key"
     newpassword: "badpassword"
   register: result
@@ -72,6 +73,7 @@ status:
     sample: "Last login: Fri Sep 16 11:09:20 2016 from 10.35.34.56.....Configuration committed successfully"
 '''
 from ansible.module_utils.basic import AnsibleModule
+import time
 
 try:
     import paramiko
@@ -98,13 +100,13 @@ def wait_with_timeout(module, shell, prompt, timeout=60):
     return result
 
 
-def set_pavmaws_password(module, ip_address, key_filename, newpassword, username):
+def set_panwfw_password(module, ip_address, key_filename, newpassword, username):
     stdout = ""
 
     ssh = paramiko.SSHClient()
 
     # add policy to accept all host keys, I haven't found
-    # a way to retreive the instance SSH key fingerprint from AWS
+    # a way to retrieve the instance SSH key fingerprint from AWS
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
     ssh.connect(ip_address, username=username, key_filename=key_filename)
@@ -119,6 +121,12 @@ def set_pavmaws_password(module, ip_address, key_filename, newpassword, username
     # wait for the config prompt
     buff = wait_with_timeout(module, shell, "#")
     stdout += buff
+
+    if module.check_mode:
+        # exit and close connection
+        shell.send('exit\n')
+        ssh.close()
+        return False, 'Connection test successful. Password left intact.'
 
     # set admin password
     shell.send('set mgt-config users ' + username + ' password\n')
@@ -156,7 +164,7 @@ def set_pavmaws_password(module, ip_address, key_filename, newpassword, username
 
     ssh.close()
 
-    return stdout
+    return True, stdout
 
 
 def main():
@@ -166,9 +174,9 @@ def main():
         key_filename=dict(),
         newpassword=dict(no_log=True)
     )
-    module = AnsibleModule(argument_spec=argument_spec)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     if not HAS_LIB:
-        module.fail_json(msg='paramiko required for this module')
+        module.fail_json(msg='paramiko is required for this module')
 
     ip_address = module.params["ip_address"]
     if not ip_address:
@@ -182,8 +190,8 @@ def main():
     username = module.params['username']
 
     try:
-        stdout = set_pavmaws_password(module, ip_address, key_filename, newpassword, username)
-        module.exit_json(changed=True, stdout=stdout)
+        changed, stdout = set_panwfw_password(module, ip_address, key_filename, newpassword, username)
+        module.exit_json(changed=changed, stdout=stdout)
     except Exception as x:
         module.fail_json(msg=x.message)
 
