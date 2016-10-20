@@ -17,13 +17,12 @@
 DOCUMENTATION = '''
 ---
 module: panos_commit
-short_description: commit config
+short_description: commit firewall's candidate configuration
 description:
-    - Commit config on a device
-author:
-    - Palo Alto Networks
-    - Luigi Mori (jtschichold)
-version_added: "0.0"
+    - PanOS module that will commit firewall's candidate configuration on
+    the device. The new configuration will become active immediately.
+author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
+version_added: "2.3"
 requirements:
     - pan-python
 options:
@@ -65,25 +64,37 @@ EXAMPLES = '''
     password: "admin"
 '''
 
-import sys
+RETURN = '''
+status:
+    description: success status
+    returned: success
+    type: string
+    sample: "okey dokey"
+'''
+
+
+from ansible.module_utils.basic import AnsibleModule
 
 try:
     import pan.xapi
+    HAS_LIB = True
 except ImportError:
-    print "failed=True msg='pan-python required for this module'"
-    sys.exit(1)
+    HAS_LIB = False
 
 
 def main():
     argument_spec = dict(
-        ip_address=dict(default=None),
-        password=dict(default=None, no_log=True),
+        ip_address=dict(),
+        password=dict(no_log=True),
         username=dict(default='admin'),
         interval=dict(default=0.5),
-        timeout=dict(default=None),
+        timeout=dict(),
         sync=dict(type='bool', default=True)
     )
-    module = AnsibleModule(argument_spec=argument_spec)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
+
+    if not HAS_LIB:
+        module.fail_json(msg='pan-python required for this module')
 
     ip_address = module.params["ip_address"]
     if not ip_address:
@@ -112,6 +123,5 @@ def main():
 
     module.exit_json(changed=True, msg="okey dokey")
 
-from ansible.module_utils.basic import *  # noqa
-
-main()
+if __name__ == '__main__':
+    main()
