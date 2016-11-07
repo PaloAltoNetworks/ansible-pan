@@ -25,7 +25,7 @@ module: panos_commit
 short_description: commit firewall's candidate configuration
 description:
     - PanOS module that will commit firewall's candidate configuration on
-    the device. The new configuration will become active immediately.
+    - the device. The new configuration will become active immediately.
 author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
 version_added: "2.3"
 requirements:
