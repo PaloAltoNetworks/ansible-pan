@@ -61,6 +61,7 @@ status:
 '''
 
 from ansible.module_utils.basic import AnsibleModule
+import sys
 
 try:
     import pan.xapi
@@ -95,11 +96,13 @@ def main():
 
     try:
         xapi.op(cmd="<request><restart><system></system></restart></request>")
-    except pan.xapi.PanXapiError, msg:
-        if 'succeeded' in str(msg):
+    except Exception:
+        x = sys.exc_info()[1]
+        if 'succeeded' in str(x):
             module.exit_json(changed=True, msg=str(msg))
-
-        raise
+        else:
+            module.fail_json(msg=x)
+            raise
 
     module.exit_json(changed=True, msg="okey dokey")
 
