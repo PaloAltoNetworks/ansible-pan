@@ -74,6 +74,7 @@ status:
 '''
 from ansible.module_utils.basic import AnsibleModule
 import time
+import sys
 
 try:
     import paramiko
@@ -192,8 +193,9 @@ def main():
     try:
         changed, stdout = set_panwfw_password(module, ip_address, key_filename, newpassword, username)
         module.exit_json(changed=changed, stdout=stdout)
-    except Exception as x:
-        module.fail_json(msg=x.message)
+    except Exception:
+        x = sys.exc_info()[1]
+        module.fail_json(msg=x)
 
 if __name__ == '__main__':
     main()
