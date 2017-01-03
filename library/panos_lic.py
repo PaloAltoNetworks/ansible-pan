@@ -27,10 +27,8 @@ description:
     - Apply an authcode to a device.
     - The authcode should have been previously registered on the Palo Alto Networks support portal.
     - The device should have Internet access.
-author: 
-    - Palo Alto Networks 
-    - Luigi Mori (jtschichold)
-version_added: "0.0"
+author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
+version_added: "2.3"
 requirements:
     - pan-python
 options:
@@ -66,13 +64,24 @@ EXAMPLES = '''
         auth_code: "IBADCODE"
 '''
 
-import sys
+RETURN = '''
+status:
+    description: success status
+    returned: success
+    type: string
+'''
+
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'version': '1.0'}
+
+from ansible.module_utils.basic import AnsibleModule
 
 try:
     import pan.xapi
+    HAS_LIB = True
 except ImportError:
-    print "failed=True msg='pan-python required for this module'"
-    sys.exit(1)
+    HAS_LIB = False
 
 
 def get_serial(xapi, module):
@@ -122,13 +131,15 @@ def fetch_authcode(xapi, module):
 
 def main():
     argument_spec = dict(
-        ip_address=dict(default=None),
-        password=dict(default=None, no_log=True),
-        auth_code=dict(default=None),
+        ip_address=dict(required=True),
+        password=dict(required=True, no_log=True),
+        auth_code=dict(),
         username=dict(default='admin'),
         force=dict(type='bool', default=False)
     )
-    module = AnsibleModule(argument_spec=argument_spec)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
+    if not HAS_LIB:
+        module.fail_json(msg='pan-python is required for this module')
 
     ip_address = module.params["ip_address"]
     if not ip_address:
@@ -157,6 +168,5 @@ def main():
 
     module.exit_json(changed=True, msg="okey dokey")
 
-from ansible.module_utils.basic import *  # noqa
-
-main()
+if __name__ == '__main__':
+    main()

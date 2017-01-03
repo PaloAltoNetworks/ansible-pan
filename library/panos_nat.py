@@ -25,10 +25,8 @@ module: panos_nat
 short_description: create a nat rule
 description:
     - Create a nat rule
-author:
-    - Palo Alto Networks 
-    - Luigi Mori (jtschichold)
-version_added: "0.0"
+author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
+version_added: "2.3"
 requirements:
     - pan-python
 options:
@@ -138,13 +136,24 @@ EXAMPLES = '''
       commit: False
 '''
 
-import sys
-import os
+RETURN = '''
+status:
+    description: success status
+    returned: success
+    type: string
+'''
+
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'version': '1.0'}
+
+from ansible.module_utils.basic import AnsibleModule
+
 try:
     import pan.xapi
+    HAS_LIB = True
 except ImportError:
-    print "failed=True msg='pan-python required for this module'"
-    sys.exit(1)
+    HAS_LIB = False
 
 _NAT_XPATH = "/config/devices/entry[@name='localhost.localdomain']" +\
              "/vsys/entry[@name='vsys1']" +\
@@ -182,8 +191,7 @@ def snat_xml(m, snat_type, snat_address, snat_interface,
             m.fail_json(msg="snat_address should be speicified "
                         "for snat_type static-ip")
 
-        exml = ["<source-translation>",
-                "<static-ip>"]
+        exml = ["<source-translation>", "<static-ip>"]
         exml.append('<bi-directional>%s</bi-directional>' %
                     ('yes' if snat_bidirectional else 'no'))
         exml.append('<translated-address>%s</translated-address>' %
@@ -251,26 +259,28 @@ def add_nat(xapi, module, rule_name, from_zone, to_zone,
 
 def main():
     argument_spec = dict(
-        ip_address=dict(default=None),
-        password=dict(default=None, no_log=True),
+        ip_address=dict(required=True),
+        password=dict(required=True, no_log=True),
         username=dict(default='admin'),
-        rule_name=dict(default=None),
-        from_zone=dict(default=None),
-        to_zone=dict(default=None),
+        rule_name=dict(required=True),
+        from_zone=dict(required=True),
+        to_zone=dict(required=True),
         source=dict(default=["any"]),
         destination=dict(default=["any"]),
         service=dict(default="any"),
-        snat_type=dict(default=None),
-        snat_address=dict(default=None),
-        snat_interface=dict(default=None),
-        snat_interface_address=dict(default=None),
+        snat_type=dict(),
+        snat_address=dict(),
+        snat_interface=dict(),
+        snat_interface_address=dict(),
         snat_bidirectional=dict(default=False),
-        dnat_address=dict(default=None),
-        dnat_port=dict(default=None),
+        dnat_address=dict(),
+        dnat_port=dict(),
         override=dict(default=False),
         commit=dict(type='bool', default=True)
     )
-    module = AnsibleModule(argument_spec=argument_spec)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
+    if not HAS_LIB:
+        module.fail_json(msg='pan-python is required for this module')
 
     ip_address = module.params["ip_address"]
     if not ip_address:
@@ -333,6 +343,5 @@ def main():
 
     module.exit_json(changed=changed, msg="okey dokey")
 
-from ansible.module_utils.basic import *  # noqa
-
-main()
+if __name__ == '__main__':
+    main()

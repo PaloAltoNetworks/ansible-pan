@@ -25,8 +25,8 @@ module: panos_cert_gen_ssh
 short_description: generates a self-signed certificate - NOT A CA -- using SSH with SSH key
 description:
     - generate certificate
-author: Palo Alto Networks
-version_added: "0.1"
+author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
+version_added: "2.3"
 requirements:
     - paramiko
 options:
@@ -78,13 +78,25 @@ EXAMPLES = '''
     signed_by: "root-ca"
 '''
 
-import sys
+RETURN = '''
+status:
+    description: success status
+    returned: success
+    type: string
+    sample: "Last login: Fri Sep 16 11:09:20 2016 from 10.35.34.56.....Configuration committed successfully"
+'''
+
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'version': '1.0'}
+
+from ansible.module_utils.basic import AnsibleModule
 
 try:
     import paramiko
+    HAS_LIB=True
 except ImportError:
-    print "failed=True msg='paramiko required for this module'"
-    sys.exit(1)
+    HAS_LIB=False
 
 _PROMPTBUFF = 4096
 
@@ -145,16 +157,18 @@ def generate_cert(module, ip_address, key_filename, password,
 
 def main():
     argument_spec = dict(
-        ip_address=dict(default=None),
-        key_filename=dict(default=None),
-        password=dict(default=None),
-        cert_cn=dict(default=None),
-        cert_friendly_name=dict(default=None),
+        ip_address=dict(required=True),
+        key_filename=dict(),
+        password=dict(),
+        cert_cn=dict(required=True),
+        cert_friendly_name=dict(required=True),
         rsa_nbits=dict(default='1024'),
-        signed_by=dict(default=None)
+        signed_by=dict(required=True)
 
     )
-    module = AnsibleModule(argument_spec=argument_spec)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
+    if not HAS_LIB:
+        module.fail_json(msg='paramiko is required for this module')
 
     ip_address = module.params["ip_address"]
     if not ip_address:
@@ -192,7 +206,5 @@ def main():
 
     module.exit_json(changed=True, msg="okey dokey")
 
-
-from ansible.module_utils.basic import *  # noqa
-
-main()
+if __name__ == '__main__':
+    main()
