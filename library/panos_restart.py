@@ -16,14 +16,12 @@
 
 DOCUMENTATION = '''
 ---
-module: panos_commit
-short_description: commit config
+module: panos_restart
+short_description: restart a device
 description:
-    - Commit config on a device
-author:
-    - Palo Alto Networks
-    - Luigi Mori (jtschichold)
-version_added: "0.0"
+    - Restart a device
+author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
+version_added: "2.3"
 requirements:
     - pan-python
 options:
@@ -40,50 +38,46 @@ options:
             - username for authentication
         required: false
         default: "admin"
-    interval:
-        description:
-            - interval for checking commit job
-        required: false
-        default: 0.5
-    timeout:
-        description:
-            - timeout for commit job
-        required: false
-        default: None
-    sync:
-        description:
-            - if commit should be synchronous
-        required: false
-        default: true
 '''
 
 EXAMPLES = '''
-# Commit candidate config on 192.168.1.1 in sync mode
-- panos_commit:
+- panos_restart:
     ip_address: "192.168.1.1"
     username: "admin"
     password: "admin"
 '''
 
+RETURN = '''
+status:
+    description: success status
+    returned: success
+    type: string
+    sample: "okey dokey"
+'''
+
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'version': '1.0'}
+
+from ansible.module_utils.basic import AnsibleModule
 import sys
 
 try:
     import pan.xapi
+    HAS_LIB = True
 except ImportError:
-    print "failed=True msg='pan-python required for this module'"
-    sys.exit(1)
-
+    HAS_LIB = False
 
 def main():
     argument_spec = dict(
-        ip_address=dict(default=None),
-        password=dict(default=None, no_log=True),
-        username=dict(default='admin'),
-        interval=dict(default=0.5),
-        timeout=dict(default=None),
-        sync=dict(type='bool', default=True)
+        ip_address=dict(),
+        password=dict(no_log=True),
+        username=dict(default='admin')
     )
-    module = AnsibleModule(argument_spec=argument_spec)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
+
+    if not HAS_LIB:
+        module.fail_json(msg='pan-python required for this module')
 
     ip_address = module.params["ip_address"]
     if not ip_address:
@@ -93,25 +87,23 @@ def main():
         module.fail_json(msg="password is required")
     username = module.params['username']
 
-    interval = module.params['interval']
-    timeout = module.params['timeout']
-    sync = module.params['sync']
-
     xapi = pan.xapi.PanXapi(
         hostname=ip_address,
         api_username=username,
         api_password=password
     )
 
-    xapi.commit(
-        cmd="<commit></commit>",
-        sync=sync,
-        interval=interval,
-        timeout=timeout
-    )
+    try:
+        xapi.op(cmd="<request><restart><system></system></restart></request>")
+    except Exception:
+        x = sys.exc_info()[1]
+        if 'succeeded' in str(x):
+            module.exit_json(changed=True, msg=str(msg))
+        else:
+            module.fail_json(msg=x)
+            raise
 
     module.exit_json(changed=True, msg="okey dokey")
 
-from ansible.module_utils.basic import *  # noqa
-
-main()
+if __name__ == '__main__':
+    main()

@@ -67,8 +67,14 @@ status:
     type: string
     sample: "Last login: Fri Sep 16 11:09:20 2016 from 10.35.34.56.....Configuration committed successfully"
 '''
+
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'version': '1.0'}
+
 from ansible.module_utils.basic import AnsibleModule
 import time
+import sys
 
 try:
     import paramiko
@@ -164,10 +170,10 @@ def set_panwfw_password(module, ip_address, key_filename, newpassword, username)
 
 def main():
     argument_spec = dict(
-        ip_address=dict(),
+        ip_address=dict(required=True),
         username=dict(default='admin'),
-        key_filename=dict(),
-        newpassword=dict(no_log=True)
+        key_filename=dict(required=True),
+        newpassword=dict(no_log=True, required=True)
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     if not HAS_LIB:
@@ -187,8 +193,9 @@ def main():
     try:
         changed, stdout = set_panwfw_password(module, ip_address, key_filename, newpassword, username)
         module.exit_json(changed=changed, stdout=stdout)
-    except Exception as x:
-        module.fail_json(msg=x.message)
+    except Exception:
+        x = sys.exc_info()[1]
+        module.fail_json(msg=x)
 
 if __name__ == '__main__':
     main()
