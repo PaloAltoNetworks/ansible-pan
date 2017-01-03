@@ -166,7 +166,7 @@ def main():
         signed_by=dict(required=True)
 
     )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
     if not HAS_LIB:
         module.fail_json(msg='paramiko is required for this module')
 

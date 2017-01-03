@@ -75,7 +75,18 @@ EXAMPLES = '''
     category: software
 '''
 
-import sys
+RETURN = '''
+status:
+    description: success status
+    returned: success
+    type: string
+'''
+
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'version': '1.0'}
+
+from ansible.module_utils.basic import *
 import os.path
 import xml.etree
 import tempfile
@@ -84,21 +95,11 @@ import os
 
 try:
     import pan.xapi
-except ImportError:
-    print "failed=True msg='pan-python required for this module'"
-    sys.exit(1)
-
-try:
     import requests
-except ImportError:
-    print "failed=True msg='requests required for this module'"
-    sys.exit(1)
-
-try:
     import requests_toolbelt
+    HAS_LIB = True
 except ImportError:
-    print "failed=True msg='requests_toolbelt required for this module'"
-    sys.exit(1)
+    HAS_LIB = False
 
 
 def import_file(xapi, module, ip_address, file_, category):
@@ -151,14 +152,16 @@ def delete_file(path):
 
 def main():
     argument_spec = dict(
-        ip_address=dict(default=None),
-        password=dict(default=None, no_log=True),
+        ip_address=dict(required=True),
+        password=dict(required=True, no_log=True),
         username=dict(default='admin'),
         category=dict(default='software'),
-        file=dict(default=None),
-        url=dict(default=None)
+        file=dict(),
+        url=dict()
     )
-    module = AnsibleModule(argument_spec=argument_spec)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
+    if not HAS_LIB:
+        module.fail_json(msg='pan-python, requests, and requests_toolbelt are required for this module')
 
     ip_address = module.params["ip_address"]
     if not ip_address:
@@ -192,6 +195,5 @@ def main():
 
     module.exit_json(changed=changed, filename=filename, msg="okey dokey")
 
-from ansible.module_utils.basic import *  # noqa
-
-main()
+if __name__ == '__main__':
+    main()

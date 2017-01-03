@@ -25,10 +25,8 @@ module: panos_gpp_gateway
 short_description: configure a GlobalProtect Portal gateway list
 description:
     - Configure a GlobalProtect Portal gateway list
-author: 
-  - Palo Alto Networks 
-  - Luigi Mori (jtschichold)
-version_added: "0.0"
+author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
+version_added: "2.3"
 requirements:
     - pan-python
 options:
@@ -115,13 +113,25 @@ EXAMPLES = '''
       state: "absent"
 '''
 
-import sys
+RETURN = '''
+status:
+    description: success status
+    returned: success
+    type: string
+'''
+
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'version': '1.0'}
+
+from ansible.module_utils.basic import AnsibleModule
+
 
 try:
     import pan.xapi
+    HAS_LIB = True
 except ImportError:
-    print "failed=True msg='pan-python required for this module'"
-    sys.exit(1)
+    HAS_LIB = False
 
 _GW_PATH = "/config/devices/entry[@name='localhost.localdomain']" +\
            "/vsys/entry[@name='vsys1']" +\
@@ -230,19 +240,21 @@ def check_gpp_gateway(xapi, module, portal_name, config_name, gateway_address,
 
 def main():
     argument_spec = dict(
-        ip_address=dict(default=None),
-        password=dict(default=None, no_log=True),
+        ip_address=dict(required=True),
+        password=dict(required=True, no_log=True),
         username=dict(default='admin'),
-        portal_name=dict(default=None),
-        config_name=dict(default=None),
-        gateway_address=dict(default=None),
+        portal_name=dict(required=True),
+        config_name=dict(required=True),
+        gateway_address=dict(required=True),
         type=dict(default="external", choices=['internal', 'external']),
         state=dict(default="present", choices=['absent', 'present']),
         manual=dict(type='bool', default=None),
         description=dict(default=None),
         commit=dict(type='bool', default=True)
     )
-    module = AnsibleModule(argument_spec=argument_spec)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
+    if not HAS_LIB:
+        module.fail_json(msg='pan-python is required for this module')
 
     ip_address = module.params["ip_address"]
     if not ip_address:
@@ -291,6 +303,5 @@ def main():
 
     module.exit_json(changed=changed, msg="okey dokey")
 
-from ansible.module_utils.basic import *  # noqa
-
-main()
+if __name__ == '__main__':
+    main()

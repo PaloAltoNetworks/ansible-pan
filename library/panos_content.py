@@ -25,10 +25,8 @@ module: panos_content
 short_description: upgrade PAN-OS dynamic updates
 description:
     - Upgrade PAN-OS device dynamic updates with the latest available version
-author: 
-    - Palo Alto Networks 
-    - Luigi Mori (jtschichold)
-version_added: "0.0"
+author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
+version_added: "2.3"
 requirements:
     - pan-python
 options:
@@ -98,14 +96,24 @@ EXAMPLES = '''
     url_download_region: europe
 '''
 
-import sys
-import time
+RETURN = '''
+status:
+    description: success status
+    returned: success
+    type: string
+'''
+
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'version': '1.0'}
+
+from ansible.module_utils.basic import AnsibleModule
 
 try:
     import pan.xapi
+    HAS_LIB = True
 except ImportError:
-    print "failed=True msg='pan-python required for this module'"
-    sys.exit(1)
+    HAS_LIB = False
 
 PAN_DB_REGIONS = [
     "APAC",
@@ -233,16 +241,18 @@ def download_url_region(xapi, module, region, job_timeout):
 
 def main():
     argument_spec = dict(
-        ip_address=dict(default=None),
-        password=dict(default=None, no_log=True),
+        ip_address=dict(required=True),
+        password=dict(required=True, no_log=True),
         username=dict(default='admin'),
-        url_download_region=dict(default=None),
+        url_download_region=dict(),
         content_update=dict(type='bool', default=False),
         anti_virus_update=dict(type='bool', default=False),
         wildfire_update=dict(type='bool', default=False),
         job_timeout=dict(type='int', default=240)
     )
-    module = AnsibleModule(argument_spec=argument_spec)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
+    if not HAS_LIB:
+        module.fail_json(msg='pan-python is required for this module')
 
     ip_address = module.params["ip_address"]
     if not ip_address:
@@ -278,6 +288,6 @@ def main():
 
     module.exit_json(changed=changed, msg="okey dokey")
 
-from ansible.module_utils.basic import *  # noqa
 
-main()
+if __name__ == '__main__':
+    main()

@@ -24,11 +24,9 @@ DOCUMENTATION = '''
 module: panos_service
 short_description: create a service object
 description:
-    - Create a service object
-author: 
-    - Palo Alto Networks 
-    - Luigi Mori (jtschichold)
-version_added: "0.0"
+    - Create a service object. Service objects are fundamental representation of the applications given src/dst ports and protocol
+author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
+version_added: "2.3"
 requirements:
     - pan-python
 options:
@@ -80,13 +78,25 @@ EXAMPLES = '''
       port: "22"
 '''
 
-import sys
+RETURN = '''
+status:
+    description: success status
+    returned: success
+    type: string
+'''
+
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'version': '1.0'}
+
+from ansible.module_utils.basic import AnsibleModule
+
 
 try:
     import pan.xapi
+    HAS_LIB = True
 except ImportError:
-    print "failed=True msg='pan-python required for this module'"
-    sys.exit(1)
+    HAS_LIB = False
 
 _SERVICE_XPATH = "/config/devices/entry[@name='localhost.localdomain']" +\
                  "/vsys/entry[@name='vsys1']" +\
@@ -122,16 +132,18 @@ def add_service(xapi, module, service_name, protocol, port, source_port):
 
 def main():
     argument_spec = dict(
-        ip_address=dict(default=None),
-        password=dict(default=None, no_log=True),
+        ip_address=dict(required=True),
+        password=dict(required=True, no_log=True),
         username=dict(default='admin'),
-        service_name=dict(default=None),
-        protocol=dict(default=None, choices=['tcp', 'udp']),
-        port=dict(default=None),
-        source_port=dict(default=None),
+        service_name=dict(required=True),
+        protocol=dict(required=True, choices=['tcp', 'udp']),
+        port=dict(required=True),
+        source_port=dict(),
         commit=dict(type='bool', default=True)
     )
-    module = AnsibleModule(argument_spec=argument_spec)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
+    if not HAS_LIB:
+        module.fail_json(msg='pan-python is required for this module')
 
     ip_address = module.params["ip_address"]
     if not ip_address:
@@ -171,6 +183,5 @@ def main():
 
     module.exit_json(changed=changed, msg="okey dokey")
 
-from ansible.module_utils.basic import *  # noqa
-
-main()
+if __name__ == '__main__':
+    main()

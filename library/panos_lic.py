@@ -137,7 +137,7 @@ def main():
         username=dict(default='admin'),
         force=dict(type='bool', default=False)
     )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
     if not HAS_LIB:
         module.fail_json(msg='pan-python is required for this module')
 
