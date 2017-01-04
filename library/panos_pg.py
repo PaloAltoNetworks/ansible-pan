@@ -77,6 +77,11 @@ options:
             - name of the vulnerability profile
         required: false
         default: None
+    wildfire:
+        description:
+            - name of the wildfire analysis profile
+        required: false
+        default: None
     commit:
         description:
             - commit if changed
@@ -112,6 +117,7 @@ from ansible.module_utils.basic import AnsibleModule
 
 try:
     import pan.xapi
+    from pan.xapi import PanXapiError
     HAS_LIB = True
 except ImportError:
     HAS_LIB = False
@@ -130,7 +136,7 @@ def pg_exists(xapi, pg_name):
 
 
 def add_pg(xapi, pg_name, data_filtering, file_blocking, spyware,
-           url_filtering, virus, vulnerability):
+           url_filtering, virus, vulnerability, wildfire):
     if pg_exists(xapi, pg_name):
         return False
 
@@ -154,6 +160,9 @@ def add_pg(xapi, pg_name, data_filtering, file_blocking, spyware,
     if vulnerability is not None:
         exml.append('<vulnerability><member>%s</member></vulnerability>' %
                     vulnerability)
+    if wildfire is not None:
+        exml.append('<wildfire-analysis><member>%s</member></wildfire-analysis>' %
+                    wildfire)
 
     exml = ''.join(exml)
     xapi.set(xpath=_PG_XPATH % pg_name, element=exml)
@@ -167,12 +176,13 @@ def main():
         password=dict(required=True, no_log=True),
         username=dict(default='admin'),
         pg_name=dict(required=True),
-        data_filtering=dict(default=None),
-        file_blocking=dict(default=None),
-        spyware=dict(default=None),
-        url_filtering=dict(default=None),
-        virus=dict(default=None),
-        vulnerability=dict(default=None),
+        data_filtering=dict(),
+        file_blocking=dict(),
+        spyware=dict(),
+        url_filtering=dict(),
+        virus=dict(),
+        vulnerability=dict(),
+        wildfire=dict(),
         commit=dict(type='bool', default=True)
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
@@ -202,13 +212,19 @@ def main():
     url_filtering = module.params['url_filtering']
     virus = module.params['virus']
     vulnerability = module.params['vulnerability']
+    wildfire = module.params['wildfire']
     commit = module.params['commit']
 
-    changed = add_pg(xapi, pg_name, data_filtering, file_blocking,
-                     spyware, url_filtering, virus, vulnerability)
+    try:
+        changed = add_pg(xapi, pg_name, data_filtering, file_blocking,
+                         spyware, url_filtering, virus, vulnerability, wildfire)
 
-    if changed and commit:
-        xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
+        if changed and commit:
+            xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
+    except PanXapiError:
+        import sys
+        x = sys.exc_info()[1]
+        module.fail_json(msg=x.message)
 
     module.exit_json(changed=changed, msg="okey dokey")
 
