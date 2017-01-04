@@ -1,0 +1,8 @@
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: load configuration
+      panos_loadcfg:
+        ip_address: "10.5.172.91"
+        password: "paloalto"
+        file: "running-config_sample.xml"
