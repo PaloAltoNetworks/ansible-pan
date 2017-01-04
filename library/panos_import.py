@@ -25,10 +25,8 @@ module: panos_import
 short_description: import file on PAN-OS devices
 description:
     - Import file on PAN-OS device
-author: 
-    - Palo Alto Networks 
-    - Luigi Mori (jtschichold)
-version_added: "0.0"
+author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
+version_added: "2.3"
 requirements:
     - pan-python
     - requests
