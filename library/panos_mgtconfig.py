@@ -96,6 +96,7 @@ from ansible.module_utils.basic import AnsibleModule
 
 try:
     import pan.xapi
+    from pan.xapi import PanXapiError
     HAS_LIB = True
 except ImportError:
     HAS_LIB = False
@@ -189,17 +190,20 @@ def main():
     commit = module.params['commit']
 
     changed = False
-    if dns_server_primary is not None:
-        changed |= set_dns_server(xapi, dns_server_primary, primary=True)
-    if dns_server_secondary is not None:
-        changed |= set_dns_server(xapi, dns_server_secondary, primary=False)
-    if panorama_primary is not None:
-        changed |= set_panorama_server(xapi, panorama_primary, primary=True)
-    if panorama_secondary is not None:
-        changed |= set_panorama_server(xapi, panorama_secondary, primary=False)
+    try:
+        if dns_server_primary is not None:
+            changed |= set_dns_server(xapi, dns_server_primary, primary=True)
+        if dns_server_secondary is not None:
+            changed |= set_dns_server(xapi, dns_server_secondary, primary=False)
+        if panorama_primary is not None:
+            changed |= set_panorama_server(xapi, panorama_primary, primary=True)
+        if panorama_secondary is not None:
+            changed |= set_panorama_server(xapi, panorama_secondary, primary=False)
 
-    if changed and commit:
-        xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
+        if changed and commit:
+            xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
+    except PanXapiError as x:
+        module.fail_json(msg=x.message)
 
     module.exit_json(changed=changed, msg="okey dokey")
 
