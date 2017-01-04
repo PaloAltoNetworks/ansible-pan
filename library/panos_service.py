@@ -89,11 +89,12 @@ ANSIBLE_METADATA = {'status': ['preview'],
                     'supported_by': 'community',
                     'version': '1.0'}
 
-from ansible.module_utils.basic import AnsibleModule
 
+from ansible.module_utils.basic import AnsibleModule
 
 try:
     import pan.xapi
+    from pan.xapi import PanXapiError
     HAS_LIB = True
 except ImportError:
     HAS_LIB = False
@@ -171,15 +172,16 @@ def main():
     source_port = module.params['source_port']
     commit = module.params['commit']
 
-    changed = False
-    changed = add_service(xapi, module,
-                          service_name,
-                          protocol,
-                          port,
-                          source_port)
-
-    if changed and commit:
-        xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
+    try:
+        changed = add_service(xapi, module,
+                              service_name,
+                              protocol,
+                              port,
+                              source_port)
+        if changed and commit:
+            xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
+    except PanXapiError as x:
+        module.fail_json(msg=x.message)
 
     module.exit_json(changed=changed, msg="okey dokey")
 
