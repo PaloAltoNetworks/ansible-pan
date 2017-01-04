@@ -91,6 +91,7 @@ ANSIBLE_METADATA = {'status': ['preview'],
                     'version': '1.0'}
 
 from ansible.module_utils.basic import AnsibleModule
+import time
 
 try:
     import paramiko

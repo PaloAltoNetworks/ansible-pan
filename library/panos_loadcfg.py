@@ -67,7 +67,7 @@ EXAMPLES = '''
   - name: load configuration
     panos_loadcfg:
       ip_address: "192.168.1.1"
-      password: "{{password}}"
+      password: "admin"
       file: "{{result.filename}}"
 '''
 

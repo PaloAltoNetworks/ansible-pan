@@ -22,7 +22,7 @@
 DOCUMENTATION = '''
 ---
 module: panos_lic
-short_description: apply and authcode to a device/instance
+short_description: apply authcode to a device/instance
 description:
     - Apply an authcode to a device.
     - The authcode should have been previously registered on the Palo Alto Networks support portal.
