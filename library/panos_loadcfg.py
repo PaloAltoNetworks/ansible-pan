@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 
-# Copyright (c) 2014, Palo Alto Networks <techbizdev@paloaltonetworks.com>
+# Copyright (c) 2016, Palo Alto Networks <techbizdev@paloaltonetworks.com>
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -20,10 +20,8 @@ module: panos_loadcfg
 short_description: load configuration on PAN-OS device
 description:
     - Load configuration on PAN-OS device
-author: 
-    - Palo Alto Networks 
-    - Luigi Mori (jtschichold)
-version_added: "0.0"
+author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
+version_added: "2.3"
 requirements:
     - pan-python
 options:
@@ -64,17 +62,25 @@ EXAMPLES = '''
   - name: load configuration
     panos_loadcfg:
       ip_address: "192.168.1.1"
-      password: "{{password}}"
+      password: "admin"
       file: "{{result.filename}}"
 '''
 
-import sys
+RETURN='''
+# Default return values
+'''
+
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'version': '1.0'}
+
+from ansible.module_utils.basic import AnsibleModule
 
 try:
     import pan.xapi
+    HAS_LIB = True
 except ImportError:
-    print "failed=True msg='pan-python required for this module'"
-    sys.exit(1)
+    HAS_LIB = False
 
 
 def load_cfgfile(xapi, module, ip_address, file_):
@@ -89,21 +95,21 @@ def load_cfgfile(xapi, module, ip_address, file_):
 
 def main():
     argument_spec = dict(
-        ip_address=dict(default=None),
-        password=dict(default=None, no_log=True),
+        ip_address=dict(required=True),
+        password=dict(required=True, no_log=True),
         username=dict(default='admin'),
-        file=dict(default=None),
+        file=dict(),
         commit=dict(type='bool', default=True)
     )
-    module = AnsibleModule(argument_spec=argument_spec)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
+    if not HAS_LIB:
+        module.fail_json(msg='pan-python is required for this module')
 
     ip_address = module.params["ip_address"]
-    if not ip_address:
-        module.fail_json(msg="ip_address should be specified")
     password = module.params["password"]
-    if not password:
-        module.fail_json(msg="password is required")
     username = module.params['username']
+    file_ = module.params['file']
+    commit = module.params['commit']
 
     xapi = pan.xapi.PanXapi(
         hostname=ip_address,
@@ -111,17 +117,12 @@ def main():
         api_password=password
     )
 
-    file_ = module.params['file']
-    if file_ is None:
-        module.fail_json(msg="file is required")
-    commit = module.params['commit']
-
     changed = load_cfgfile(xapi, module, ip_address, file_)
     if changed and commit:
         xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
 
     module.exit_json(changed=changed, msg="okey dokey")
 
-from ansible.module_utils.basic import *  # noqa
 
-main()
+if __name__ == '__main__':
+    main()
