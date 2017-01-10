@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 
-# Copyright (c) 2014, Palo Alto Networks <techbizdev@paloaltonetworks.com>
+# Copyright (c) 2016, Palo Alto Networks <techbizdev@paloaltonetworks.com>
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -20,10 +20,8 @@ module: panos_import
 short_description: import file on PAN-OS devices
 description:
     - Import file on PAN-OS device
-author: 
-    - Palo Alto Networks 
-    - Luigi Mori (jtschichold)
-version_added: "0.0"
+author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
+version_added: "2.3"
 requirements:
     - pan-python
     - requests
@@ -70,7 +68,15 @@ EXAMPLES = '''
     category: software
 '''
 
-import sys
+RETURN='''
+# Default return values
+'''
+
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'version': '1.0'}
+
+from ansible.module_utils.basic import *
 import os.path
 import xml.etree
 import tempfile
@@ -79,21 +85,11 @@ import os
 
 try:
     import pan.xapi
-except ImportError:
-    print "failed=True msg='pan-python required for this module'"
-    sys.exit(1)
-
-try:
     import requests
-except ImportError:
-    print "failed=True msg='requests required for this module'"
-    sys.exit(1)
-
-try:
     import requests_toolbelt
+    HAS_LIB = True
 except ImportError:
-    print "failed=True msg='requests_toolbelt required for this module'"
-    sys.exit(1)
+    HAS_LIB = False
 
 
 def import_file(xapi, module, ip_address, file_, category):
@@ -146,21 +142,19 @@ def delete_file(path):
 
 def main():
     argument_spec = dict(
-        ip_address=dict(default=None),
-        password=dict(default=None, no_log=True),
+        ip_address=dict(required=True),
+        password=dict(required=True, no_log=True),
         username=dict(default='admin'),
         category=dict(default='software'),
-        file=dict(default=None),
-        url=dict(default=None)
+        file=dict(),
+        url=dict()
     )
-    module = AnsibleModule(argument_spec=argument_spec)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False, required_one_of=[['file', 'url']])
+    if not HAS_LIB:
+        module.fail_json(msg='pan-python, requests, and requests_toolbelt are required for this module')
 
     ip_address = module.params["ip_address"]
-    if not ip_address:
-        module.fail_json(msg="ip_address should be specified")
     password = module.params["password"]
-    if not password:
-        module.fail_json(msg="password is required")
     username = module.params['username']
 
     xapi = pan.xapi.PanXapi(
@@ -171,10 +165,7 @@ def main():
 
     file_ = module.params['file']
     url = module.params['url']
-    if file_ is None and url is None:
-        module.fail_json(msg="file or url is required")
-    if file_ is not None and url is not None:
-        module.fail_json(msg="only one of file or url can be specified")
+
     category = module.params['category']
 
     if url is not None:
@@ -187,6 +178,5 @@ def main():
 
     module.exit_json(changed=changed, filename=filename, msg="okey dokey")
 
-from ansible.module_utils.basic import *  # noqa
-
-main()
+if __name__ == '__main__':
+    main()
