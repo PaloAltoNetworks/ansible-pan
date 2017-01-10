@@ -1,18 +1,23 @@
-#!/usr/bin/env python
-
-# Copyright (c) 2014, Palo Alto Networks <techbizdev@paloaltonetworks.com>
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 #
-# Permission to use, copy, modify, and/or distribute this software for any
-# purpose with or without fee is hereby granted, provided that the above
-# copyright notice and this permission notice appear in all copies.
+# Ansible module to manage PaloAltoNetworks Firewall
+# (c) 2016, techbizdev <techbizdev@paloaltonetworks.com>
 #
-# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+# This file is part of Ansible
+#
+# Ansible is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Ansible is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
 DOCUMENTATION = '''
 ---
@@ -20,10 +25,8 @@ module: panos_vulnprofile
 short_description: create vulnerability profile
 description:
     - Create custom vulnerability profile
-author: 
-    - Palo Alto Networks 
-    - Ivan Bojer
-version_added: "0.0"
+author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
+version_added: "2.3"
 requirements:
     - pan-python
 options:
@@ -71,13 +74,29 @@ panos_vulnprofile:
   commit: False
 '''
 
-import sys
+RETURN = '''
+status:
+    description: success status
+    returned: success
+    type: string
+'''
+
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'version': '1.0'}
+
+from ansible.module_utils.basic import AnsibleModule
+import json
+# import pydevd
+# pydevd.settrace('localhost', port=62980, stdoutToServer=True, stderrToServer=True)
+
 
 try:
     import pan.xapi
+    from pan.xapi import PanXapiError
+    HAS_LIB = True
 except ImportError:
-    print "failed=True msg='pan-python required for this module'"
-    sys.exit(1)
+    HAS_LIB = False
 
 _SERVICE_XPATH = "/config/devices/entry[@name='localhost.localdomain']" +\
                  "/vsys/entry[@name='vsys1']" +\
@@ -169,16 +188,18 @@ def add_vulnerability_profile(xapi, **kwargs):
 
 def main():
     argument_spec = dict(
-        ip_address=dict(default=None),
-        password=dict(default=None, no_log=True),
+        ip_address=dict(required=True),
+        password=dict(required=True, no_log=True),
         username=dict(default='admin'),
-        vulnprofile_name=dict(default=None),
+        vulnprofile_name=dict(required=True),
         description=dict(default=None),
         rule_tuples=dict(default=None),
         exception_ids=dict(default=None),
         commit=dict(type='bool', default=True)
     )
-    module = AnsibleModule(argument_spec=argument_spec)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
+    if not HAS_LIB:
+        module.fail_json(msg='pan-python is required for this module')
 
     ip_address = module.params["ip_address"]
     if not ip_address:
@@ -200,6 +221,8 @@ def main():
 
     description = module.params["description"]
     rule_tuples = module.params["rule_tuples"]
+    rule_tuples = rule_tuples.replace('\'','"') #get rid of double-quotes
+    rule_tuples = json.loads(rule_tuples)
     exception_ids = module.params["exception_ids"]
 
     if not rule_tuples and not exception_ids:
@@ -207,18 +230,21 @@ def main():
 
     commit = module.params['commit']
 
-    changed = False
-    changed = add_vulnerability_profile(xapi,
-                                        vulnprofile_name=vulnprofile_name,
-                                        description=description,
-                                        rule_tuples=rule_tuples,
-                                        exception_ids=exception_ids)
+    try:
+        changed = add_vulnerability_profile(xapi,
+                                            vulnprofile_name=vulnprofile_name,
+                                            description=description,
+                                            rule_tuples=rule_tuples,
+                                            exception_ids=exception_ids)
 
-    if changed and commit:
-        xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
+        if changed and commit:
+            xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
+    except PanXapiError:
+        import sys
+        x = sys.exc_info()[1]
+        module.fail_json(msg=x.message)
 
     module.exit_json(changed=changed, msg="okey dokey")
 
-from ansible.module_utils.basic import *  # noqa
-
-main()
+if __name__ == '__main__':
+    main()
