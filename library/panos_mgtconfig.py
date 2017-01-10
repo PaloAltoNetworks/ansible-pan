@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 
-# Copyright (c) 2014, Palo Alto Networks <techbizdev@paloaltonetworks.com>
+# Copyright (c) 2016, Palo Alto Networks <techbizdev@paloaltonetworks.com>
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -20,10 +20,8 @@ module: panos_mgtconfig
 short_description: configure management settings of device
 description:
     - Configure management settings of device
-author: 
-    - Palo Alto Networks 
-    - Luigi Mori (jtschichold)
-version_added: "0.0"
+author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
+version_added: "2.3"
 requirements:
     - pan-python
 options:
@@ -78,13 +76,23 @@ EXAMPLES = '''
     panorama_secondary: "1.1.1.4"
 '''
 
-import sys
+RETURN='''
+# Default return values
+'''
+
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'version': '1.0'}
+
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.basic import get_exception
 
 try:
     import pan.xapi
+    from pan.xapi import PanXapiError
+    HAS_LIB = True
 except ImportError:
-    print "failed=True msg='pan-python required for this module'"
-    sys.exit(1)
+    HAS_LIB = False
 
 _XPATH_DNS_SERVERS = "/config/devices/entry[@name='localhost.localdomain']" +\
                      "/deviceconfig/system/dns-setting/servers"
@@ -141,24 +149,27 @@ def set_panorama_server(xapi, new_panorama_server, primary=True):
 
 def main():
     argument_spec = dict(
-        ip_address=dict(default=None),
-        password=dict(default=None, no_log=True),
+        ip_address=dict(required=True),
+        password=dict(required=True, no_log=True),
         username=dict(default='admin'),
-        dns_server_primary=dict(default=None),
-        dns_server_secondary=dict(default=None),
-        panorama_primary=dict(default=None),
-        panorama_secondary=dict(default=None),
+        dns_server_primary=dict(),
+        dns_server_secondary=dict(),
+        panorama_primary=dict(),
+        panorama_secondary=dict(),
         commit=dict(type='bool', default=True)
     )
-    module = AnsibleModule(argument_spec=argument_spec)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
+    if not HAS_LIB:
+        module.fail_json(msg='pan-python is required for this module')
 
     ip_address = module.params["ip_address"]
-    if not ip_address:
-        module.fail_json(msg="ip_address should be specified")
     password = module.params["password"]
-    if not password:
-        module.fail_json(msg="password is required")
     username = module.params['username']
+    dns_server_primary = module.params['dns_server_primary']
+    dns_server_secondary = module.params['dns_server_secondary']
+    panorama_primary = module.params['panorama_primary']
+    panorama_secondary = module.params['panorama_secondary']
+    commit = module.params['commit']
 
     xapi = pan.xapi.PanXapi(
         hostname=ip_address,
@@ -166,27 +177,24 @@ def main():
         api_password=password
     )
 
-    dns_server_primary = module.params['dns_server_primary']
-    dns_server_secondary = module.params['dns_server_secondary']
-    panorama_primary = module.params['panorama_primary']
-    panorama_secondary = module.params['panorama_secondary']
-    commit = module.params['commit']
-
     changed = False
-    if dns_server_primary is not None:
-        changed |= set_dns_server(xapi, dns_server_primary, primary=True)
-    if dns_server_secondary is not None:
-        changed |= set_dns_server(xapi, dns_server_secondary, primary=False)
-    if panorama_primary is not None:
-        changed |= set_panorama_server(xapi, panorama_primary, primary=True)
-    if panorama_secondary is not None:
-        changed |= set_panorama_server(xapi, panorama_secondary, primary=False)
+    try:
+        if dns_server_primary is not None:
+            changed |= set_dns_server(xapi, dns_server_primary, primary=True)
+        if dns_server_secondary is not None:
+            changed |= set_dns_server(xapi, dns_server_secondary, primary=False)
+        if panorama_primary is not None:
+            changed |= set_panorama_server(xapi, panorama_primary, primary=True)
+        if panorama_secondary is not None:
+            changed |= set_panorama_server(xapi, panorama_secondary, primary=False)
 
-    if changed and commit:
-        xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
+        if changed and commit:
+            xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
+    except PanXapiError:
+        exc = get_exception()
+        module.fail_json(msg=exc.message)
 
     module.exit_json(changed=changed, msg="okey dokey")
 
-from ansible.module_utils.basic import *  # noqa
-
-main()
+if __name__ == '__main__':
+    main()
