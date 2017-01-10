@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 
-# Copyright (c) 2014, Palo Alto Networks <techbizdev@paloaltonetworks.com>
+# Copyright (c) 2016, Palo Alto Networks <techbizdev@paloaltonetworks.com>
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -21,10 +21,8 @@ short_description: check if PAN-OS device is ready for configuration
 description:
     - Check if PAN-OS device is ready for being configured (no pending jobs).
     - The check could be done once or multiple times until the device is ready.
-author:
-    - Palo Alto Networks
-    - Luigi Mori (jtschichold)
-version_added: "0.0"
+author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
+version_added: "2.3"
 requirements:
     - pan-python
 options:
@@ -72,14 +70,22 @@ EXAMPLES = '''
   delay: 30
 '''
 
-import sys
+RETURN='''
+# Default return values
+'''
+
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'version': '1.0'}
+
+from ansible.module_utils.basic import AnsibleModule
 import time
 
 try:
     import pan.xapi
+    HAS_LIB = True
 except ImportError:
-    print "failed=True msg='pan-python required for this module'"
-    sys.exit(1)
+    HAS_LIB = False
 
 
 def check_jobs(jobs, module):
@@ -96,20 +102,18 @@ def check_jobs(jobs, module):
 
 def main():
     argument_spec = dict(
-        ip_address=dict(default=None),
-        password=dict(default=None, no_log=True),
+        ip_address=dict(required=True),
+        password=dict(required=True, no_log=True),
         username=dict(default='admin'),
         timeout=dict(default=0, type='int'),
         interval=dict(default=0, type='int')
     )
-    module = AnsibleModule(argument_spec=argument_spec)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
+    if not HAS_LIB:
+        module.fail_json(msg='pan-python is required for this module')
 
     ip_address = module.params["ip_address"]
-    if not ip_address:
-        module.fail_json(msg="ip_address should be specified")
     password = module.params["password"]
-    if not password:
-        module.fail_json(msg="password is required")
     username = module.params['username']
     timeout = module.params['timeout']
     interval = module.params['interval']
@@ -139,6 +143,5 @@ def main():
 
     module.fail_json(msg="Timeout")
 
-from ansible.module_utils.basic import *   # noqa
-
-main()
+if __name__ == '__main__':
+    main()
