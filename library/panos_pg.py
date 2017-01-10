@@ -1,18 +1,23 @@
-#!/usr/bin/env python
-
-# Copyright (c) 2014, Palo Alto Networks <techbizdev@paloaltonetworks.com>
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 #
-# Permission to use, copy, modify, and/or distribute this software for any
-# purpose with or without fee is hereby granted, provided that the above
-# copyright notice and this permission notice appear in all copies.
+# Ansible module to manage PaloAltoNetworks Firewall
+# (c) 2016, techbizdev <techbizdev@paloaltonetworks.com>
 #
-# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+# This file is part of Ansible
+#
+# Ansible is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Ansible is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
 DOCUMENTATION = '''
 ---
@@ -20,10 +25,8 @@ module: panos_pg
 short_description: create a security profiles group
 description:
     - Create a security profile group
-author:
-    - Palo Alto Networks 
-    - Luigi Mori (jtschichold)
-version_added: "0.0"
+author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
+version_added: "2.3"
 requirements:
     - pan-python
 options:
@@ -74,6 +77,11 @@ options:
             - name of the vulnerability profile
         required: false
         default: None
+    wildfire:
+        description:
+            - name of the wildfire analysis profile
+        required: false
+        default: None
     commit:
         description:
             - commit if changed
@@ -93,13 +101,24 @@ EXAMPLES = '''
     vulnerability: "default"
 '''
 
-import sys
+RETURN='''
+# Default return values
+'''
+
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'version': '1.0'}
+
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.basic import get_exception
+
 
 try:
     import pan.xapi
+    from pan.xapi import PanXapiError
+    HAS_LIB = True
 except ImportError:
-    print "failed=True msg='pan-python required for this module'"
-    sys.exit(1)
+    HAS_LIB = False
 
 _PG_XPATH = "/config/devices/entry[@name='localhost.localdomain']" +\
             "/vsys/entry[@name='vsys1']" +\
@@ -115,7 +134,7 @@ def pg_exists(xapi, pg_name):
 
 
 def add_pg(xapi, pg_name, data_filtering, file_blocking, spyware,
-           url_filtering, virus, vulnerability):
+           url_filtering, virus, vulnerability, wildfire):
     if pg_exists(xapi, pg_name):
         return False
 
@@ -139,6 +158,9 @@ def add_pg(xapi, pg_name, data_filtering, file_blocking, spyware,
     if vulnerability is not None:
         exml.append('<vulnerability><member>%s</member></vulnerability>' %
                     vulnerability)
+    if wildfire is not None:
+        exml.append('<wildfire-analysis><member>%s</member></wildfire-analysis>' %
+                    wildfire)
 
     exml = ''.join(exml)
     xapi.set(xpath=_PG_XPATH % pg_name, element=exml)
@@ -148,26 +170,25 @@ def add_pg(xapi, pg_name, data_filtering, file_blocking, spyware,
 
 def main():
     argument_spec = dict(
-        ip_address=dict(default=None),
-        password=dict(default=None, no_log=True),
+        ip_address=dict(required=True),
+        password=dict(required=True, no_log=True),
         username=dict(default='admin'),
-        pg_name=dict(default=None),
-        data_filtering=dict(default=None),
-        file_blocking=dict(default=None),
-        spyware=dict(default=None),
-        url_filtering=dict(default=None),
-        virus=dict(default=None),
-        vulnerability=dict(default=None),
+        pg_name=dict(required=True),
+        data_filtering=dict(),
+        file_blocking=dict(),
+        spyware=dict(),
+        url_filtering=dict(),
+        virus=dict(),
+        vulnerability=dict(),
+        wildfire=dict(),
         commit=dict(type='bool', default=True)
     )
-    module = AnsibleModule(argument_spec=argument_spec)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
+    if not HAS_LIB:
+        module.fail_json(msg='pan-python is required for this module')
 
     ip_address = module.params["ip_address"]
-    if not ip_address:
-        module.fail_json(msg="ip_address should be specified")
     password = module.params["password"]
-    if not password:
-        module.fail_json(msg="password is required")
     username = module.params['username']
 
     xapi = pan.xapi.PanXapi(
@@ -177,24 +198,27 @@ def main():
     )
 
     pg_name = module.params['pg_name']
-    if not pg_name:
-        module.fail_json(msg='pg_name is required')
     data_filtering = module.params['data_filtering']
     file_blocking = module.params['file_blocking']
     spyware = module.params['spyware']
     url_filtering = module.params['url_filtering']
     virus = module.params['virus']
     vulnerability = module.params['vulnerability']
+    wildfire = module.params['wildfire']
     commit = module.params['commit']
 
-    changed = add_pg(xapi, pg_name, data_filtering, file_blocking,
-                     spyware, url_filtering, virus, vulnerability)
+    try:
+        changed = add_pg(xapi, pg_name, data_filtering, file_blocking,
+                         spyware, url_filtering, virus, vulnerability, wildfire)
 
-    if changed and commit:
-        xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
+        if changed and commit:
+            xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
+    except PanXapiError:
+        exc = get_exception()
+        module.fail_json(msg=exc.message)
 
     module.exit_json(changed=changed, msg="okey dokey")
 
-from ansible.module_utils.basic import *  # noqa
 
-main()
+if __name__ == '__main__':
+    main()
