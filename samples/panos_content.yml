@@ -1,0 +1,9 @@
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: upgrade anti-virus and wildfire
+      panos_content:
+        ip_address: "10.5.172.91"
+        password: "paloalto"
+        anti_virus_update: yes
+        wildfire_update: yes

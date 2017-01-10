@@ -73,11 +73,8 @@ EXAMPLES = '''
     category: software
 '''
 
-RETURN = '''
-status:
-    description: success status
-    returned: success
-    type: string
+RETURN='''
+# Default return values
 '''
 
 ANSIBLE_METADATA = {'status': ['preview'],
@@ -157,16 +154,12 @@ def main():
         file=dict(),
         url=dict()
     )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False, required_one_of=[['file', 'url']])
     if not HAS_LIB:
         module.fail_json(msg='pan-python, requests, and requests_toolbelt are required for this module')
 
     ip_address = module.params["ip_address"]
-    if not ip_address:
-        module.fail_json(msg="ip_address should be specified")
     password = module.params["password"]
-    if not password:
-        module.fail_json(msg="password is required")
     username = module.params['username']
 
     xapi = pan.xapi.PanXapi(
@@ -177,10 +170,7 @@ def main():
 
     file_ = module.params['file']
     url = module.params['url']
-    if file_ is None and url is None:
-        module.fail_json(msg="file or url is required")
-    if file_ is not None and url is not None:
-        module.fail_json(msg="only one of file or url can be specified")
+
     category = module.params['category']
 
     if url is not None:

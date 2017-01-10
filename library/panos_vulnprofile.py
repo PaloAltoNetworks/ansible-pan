@@ -25,10 +25,8 @@ module: panos_vulnprofile
 short_description: create vulnerability profile
 description:
     - Create custom vulnerability profile
-author: 
-    - Palo Alto Networks 
-    - Ivan Bojer
-version_added: "0.0"
+author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
+version_added: "2.3"
 requirements:
     - pan-python
 options:
@@ -88,10 +86,14 @@ ANSIBLE_METADATA = {'status': ['preview'],
                     'version': '1.0'}
 
 from ansible.module_utils.basic import AnsibleModule
+import json
+# import pydevd
+# pydevd.settrace('localhost', port=62980, stdoutToServer=True, stderrToServer=True)
 
 
 try:
     import pan.xapi
+    from pan.xapi import PanXapiError
     HAS_LIB = True
 except ImportError:
     HAS_LIB = False
@@ -219,6 +221,8 @@ def main():
 
     description = module.params["description"]
     rule_tuples = module.params["rule_tuples"]
+    rule_tuples = rule_tuples.replace('\'','"') #get rid of double-quotes
+    rule_tuples = json.loads(rule_tuples)
     exception_ids = module.params["exception_ids"]
 
     if not rule_tuples and not exception_ids:
@@ -226,15 +230,19 @@ def main():
 
     commit = module.params['commit']
 
-    changed = False
-    changed = add_vulnerability_profile(xapi,
-                                        vulnprofile_name=vulnprofile_name,
-                                        description=description,
-                                        rule_tuples=rule_tuples,
-                                        exception_ids=exception_ids)
+    try:
+        changed = add_vulnerability_profile(xapi,
+                                            vulnprofile_name=vulnprofile_name,
+                                            description=description,
+                                            rule_tuples=rule_tuples,
+                                            exception_ids=exception_ids)
 
-    if changed and commit:
-        xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
+        if changed and commit:
+            xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
+    except PanXapiError:
+        import sys
+        x = sys.exc_info()[1]
+        module.fail_json(msg=x.message)
 
     module.exit_json(changed=changed, msg="okey dokey")
 

@@ -151,6 +151,7 @@ from ansible.module_utils.basic import AnsibleModule
 
 try:
     import pan.xapi
+    from pan.xapi import PanXapiError
     HAS_LIB = True
 except ImportError:
     HAS_LIB = False
@@ -323,25 +324,29 @@ def main():
     if not override and nat_rule_exists(xapi, rule_name):
         module.exit_json(changed=False, msg="rule exists")
 
-    changed = add_nat(
-        xapi,
-        module,
-        rule_name,
-        from_zone,
-        to_zone,
-        source,
-        destination,
-        service,
-        dnatxml=dnat_xml(module, dnat_address, dnat_port),
-        snatxml=snat_xml(module, snat_type, snat_address,
-                         snat_interface, snat_interface_address,
-                         snat_bidirectional)
-    )
+    try:
+        changed = add_nat(
+            xapi,
+            module,
+            rule_name,
+            from_zone,
+            to_zone,
+            source,
+            destination,
+            service,
+            dnatxml=dnat_xml(module, dnat_address, dnat_port),
+            snatxml=snat_xml(module, snat_type, snat_address,
+                             snat_interface, snat_interface_address,
+                             snat_bidirectional)
+        )
 
-    if changed and commit:
-        xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
+        if changed and commit:
+            xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
 
-    module.exit_json(changed=changed, msg="okey dokey")
+        module.exit_json(changed=changed, msg="okey dokey")
+
+    except PanXapiError as x:
+        module.fail_json(msg = x.message)
 
 if __name__ == '__main__':
     main()
