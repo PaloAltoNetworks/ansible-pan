@@ -1,0 +1,9 @@
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: dag
+      panos_dag:
+        ip_address: "10.5.172.91"
+        password: "paloalto"
+        dag_name: "dag-1"
+        dag_filter: "'aws-tag.aws:cloudformation:logical-id.ServerInstance' and 'instanceState.running'"

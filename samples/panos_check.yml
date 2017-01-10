@@ -1,0 +1,11 @@
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: wait for reboot
+      panos_check:
+        ip_address: "10.5.172.91"
+        password: "paloalto"
+      register: result
+      until: not result|failed
+      retries: 50
+      delay: 5
