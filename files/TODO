@@ -1,0 +1,35 @@
+# batch 1 done
+__init__.py #OK
+panos_admin.py #OK
+panos_admpwd.py #OK
+panos_commit.py #OK
+panos_restart.py #OK
+
+# batch 2 done
+panos_cert_gen_ssh.py #OK
+panos_check.py #OK
+panos_dag.py #OK
+panos_service.py #OK
+panos_mgtconfig.py #OK
+panos_import.py #OK
+panos_loadcfg.py #OK
+panos_pg.py #OK
+
+# working on
+panos_swinstall.py
+panos_dhcpif.py
+panos_tunnelif.py
+panos_cstapphost.py
+panos_gpp_gateway.py
+panos_lic.py
+
+#BUGGY!!!!!
+panos_nat.py
+panos_content.py
+
+#Potentially out!!!
+panos_vulnprofile.py
+panos_swapif.py  <-- should be moved to panos_mgtconfig
+
+#NEW
+panos_address.py
