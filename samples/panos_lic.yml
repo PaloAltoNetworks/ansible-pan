@@ -1,0 +1,12 @@
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: fetch license
+      panos_lic:
+        ip_address: "10.5.172.91"
+        password: "paloalto"
+        auth_code: "IBADCODE"
+      register: result
+    - name: Display serialnumber (if already registered)
+      debug:
+        var: "{{result.serialnumber}}"

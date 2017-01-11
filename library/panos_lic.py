@@ -57,19 +57,28 @@ options:
 '''
 
 EXAMPLES = '''
-  - name: fetch license
-    panos_lic:
-        ip_address: "192.168.1.1"
-        password: "admin"
-        auth_code: "IBADCODE"
+    - hosts: localhost
+      connection: local
+      tasks:
+        - name: fetch license
+          panos_lic:
+            ip_address: "192.168.1.1"
+            password: "paloalto"
+            auth_code: "IBADCODE"
+          register: result
+    - name: Display serialnumber (if already registered)
+      debug:
+        var: "{{result.serialnumber}}"
 '''
 
 RETURN = '''
-status:
-    description: success status
+serialnumber:
+    description: serialnumber of the device in case that it has been already registered
     returned: success
     type: string
+    sample: 007200004214
 '''
+
 
 ANSIBLE_METADATA = {'status': ['preview'],
                     'supported_by': 'community',
@@ -142,11 +151,7 @@ def main():
         module.fail_json(msg='pan-python is required for this module')
 
     ip_address = module.params["ip_address"]
-    if not ip_address:
-        module.fail_json(msg="ip_address should be specified")
     password = module.params["password"]
-    if not password:
-        module.fail_json(msg="password is required")
     auth_code = module.params["auth_code"]
     force = module.params['force']
     username = module.params['username']
