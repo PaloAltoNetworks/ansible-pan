@@ -277,7 +277,7 @@ def main():
         snat_bidirectional=dict(default=False),
         dnat_address=dict(),
         dnat_port=dict(),
-        override=dict(default=False),
+        override=dict(type='bool', default=False),
         commit=dict(type='bool', default=True)
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
@@ -312,7 +312,8 @@ def main():
     commit = module.params['commit']
 
     override = module.params["override"]
-    if not override and nat_rule_exists(xapi, rule_name):
+
+    if nat_rule_exists(xapi, rule_name) and not override:
         module.exit_json(changed=False, msg="rule exists")
 
     try:
