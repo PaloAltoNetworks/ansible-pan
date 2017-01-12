@@ -127,10 +127,10 @@ EXAMPLES = '''
       ip_address: "192.168.1.1"
       password: "admin"
       rule_name: "Web SSH"
-      from_zone: "external"
+      from_zone: ["external"]
       to_zone: "external"
-      source: "any"
-      destination: "10.0.0.100"
+      source: ["any"]
+      destination: ["10.0.0.100"]
       service: "service-tcp-221"
       snat_type: "dynamic-ip-and-port"
       snat_interface: "ethernet1/2"
@@ -237,15 +237,15 @@ def add_nat(xapi, module, rule_name, from_zone, to_zone,
     exml.append("<to><member>%s</member></to>" % to_zone)
 
     exml.append("<from>")
-    exml = exml+["<member>%s</member>" % from_zone]
+    exml = exml+["<member>%s</member>" % e for e in from_zone]
     exml.append("</from>")
 
     exml.append("<source>")
-    exml = exml+["<member>%s</member>" % source]
+    exml = exml+["<member>%s</member>" % e for e in source]
     exml.append("</source>")
 
     exml.append("<destination>")
-    exml = exml+["<member>%s</member>" % destination]
+    exml = exml+["<member>%s</member>" % e for e in destination]
     exml.append("</destination>")
 
     exml.append("<service>%s</service>" % service)
@@ -265,10 +265,10 @@ def main():
         password=dict(required=True, no_log=True),
         username=dict(default='admin'),
         rule_name=dict(required=True),
-        from_zone=dict(required=True),
+        from_zone=dict(type='list', required=True),
         to_zone=dict(required=True),
-        source=dict(default=["any"]),
-        destination=dict(default=["any"]),
+        source=dict(type='list', default=["any"]),
+        destination=dict(type='list', default=["any"]),
         service=dict(default="any"),
         snat_type=dict(),
         snat_address=dict(),
@@ -312,8 +312,7 @@ def main():
     commit = module.params['commit']
 
     override = module.params["override"]
-
-    if nat_rule_exists(xapi, rule_name) and not override:
+    if not override and nat_rule_exists(xapi, rule_name):
         module.exit_json(changed=False, msg="rule exists")
 
     try:

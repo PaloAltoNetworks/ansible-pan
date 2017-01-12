@@ -6,12 +6,12 @@
         ip_address: "10.5.172.91"
         password: "paloalto"
         rule_name: "Web SSH"
-        from_zone: "external"
+        from_zone: ["external"]
         to_zone: "external"
-        source: "any"
+        source: ["any"]
         snat_type: "dynamic-ip-and-port"
         snat_interface: "ethernet1/2"
-        destination: "10.0.0.100"
+        destination: ["10.0.0.100"]
         service: "service-https"
         dnat_address: "10.0.1.101"
         dnat_port: "22"
