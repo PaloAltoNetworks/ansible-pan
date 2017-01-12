@@ -22,9 +22,12 @@
 DOCUMENTATION = '''
 ---
 module: panos_nat
-short_description: create a nat rule
+short_description: create a policy nat rule
 description:
-    - Create a nat rule
+    - Create a policy nat rule. Keep in mind that we can either end
+    up configuring source NAT, destination NAT, or both. Instead of
+    splitting it into two we will make a fair attempt to determine which
+    one the user wants.
 author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
 version_added: "2.3"
 requirements:
@@ -124,10 +127,10 @@ EXAMPLES = '''
       ip_address: "192.168.1.1"
       password: "admin"
       rule_name: "Web SSH"
-      from_zone: ["external"]
+      from_zone: "external"
       to_zone: "external"
-      source: ["any"]
-      destination: ["10.0.0.100"]
+      source: "any"
+      destination: "10.0.0.100"
       service: "service-tcp-221"
       snat_type: "dynamic-ip-and-port"
       snat_interface: "ethernet1/2"
@@ -136,11 +139,8 @@ EXAMPLES = '''
       commit: False
 '''
 
-RETURN = '''
-status:
-    description: success status
-    returned: success
-    type: string
+RETURN='''
+# Default return values
 '''
 
 ANSIBLE_METADATA = {'status': ['preview'],
@@ -148,6 +148,7 @@ ANSIBLE_METADATA = {'status': ['preview'],
                     'version': '1.0'}
 
 from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.basic import get_exception
 
 try:
     import pan.xapi
@@ -236,15 +237,15 @@ def add_nat(xapi, module, rule_name, from_zone, to_zone,
     exml.append("<to><member>%s</member></to>" % to_zone)
 
     exml.append("<from>")
-    exml = exml+["<member>%s</member>" % e for e in from_zone]
+    exml = exml+["<member>%s</member>" % from_zone]
     exml.append("</from>")
 
     exml.append("<source>")
-    exml = exml+["<member>%s</member>" % e for e in source]
+    exml = exml+["<member>%s</member>" % source]
     exml.append("</source>")
 
     exml.append("<destination>")
-    exml = exml+["<member>%s</member>" % e for e in destination]
+    exml = exml+["<member>%s</member>" % destination]
     exml.append("</destination>")
 
     exml.append("<service>%s</service>" % service)
@@ -284,11 +285,7 @@ def main():
         module.fail_json(msg='pan-python is required for this module')
 
     ip_address = module.params["ip_address"]
-    if not ip_address:
-        module.fail_json(msg="ip_address should be specified")
     password = module.params["password"]
-    if not password:
-        module.fail_json(msg="password is required")
     username = module.params['username']
 
     xapi = pan.xapi.PanXapi(
@@ -298,14 +295,8 @@ def main():
     )
 
     rule_name = module.params['rule_name']
-    if not rule_name:
-        module.fail_json(msg='rule_name is required')
     from_zone = module.params['from_zone']
-    if from_zone is None:
-        module.fail_json(msg='from_zone is required')
     to_zone = module.params['to_zone']
-    if to_zone is None:
-        module.fail_json(msg='to_zone is required')
     source = module.params['source']
     destination = module.params['destination']
     service = module.params['service']
@@ -345,8 +336,9 @@ def main():
 
         module.exit_json(changed=changed, msg="okey dokey")
 
-    except PanXapiError as x:
-        module.fail_json(msg = x.message)
+    except PanXapiError:
+        exc = get_exception()
+        module.fail_json(msg=exc.message)
 
 if __name__ == '__main__':
     main()
