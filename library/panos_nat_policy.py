@@ -21,8 +21,8 @@
 
 DOCUMENTATION = '''
 ---
-module: panos_nat
-short_description: create a policy nat rule
+module: panos_nat_policy
+short_description: create a policy NAT rule
 description:
     - Create a policy nat rule. Keep in mind that we can either end
     up configuring source NAT, destination NAT, or both. Instead of
