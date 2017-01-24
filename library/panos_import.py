@@ -81,7 +81,9 @@ ANSIBLE_METADATA = {'status': ['preview'],
                     'supported_by': 'community',
                     'version': '1.0'}
 
-from ansible.module_utils.basic import *
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.basic import get_exception
+
 import os.path
 import xml.etree
 import tempfile
@@ -126,6 +128,7 @@ def import_file(xapi, module, ip_address, file_, category):
     r.raise_for_status()
 
     resp = xml.etree.ElementTree.fromstring(r.content)
+
     if resp.attrib['status'] == 'error':
         module.fail_json(msg=r.content)
 
@@ -173,11 +176,17 @@ def main():
 
     category = module.params['category']
 
+    # we can get file from URL or local storage
     if url is not None:
         file_ = download_file(url)
 
-    changed, filename = import_file(xapi, module, ip_address, file_, category)
+    try:
+        changed, filename = import_file(xapi, module, ip_address, file_, category)
+    except Exception:
+        exc = get_exception()
+        module.fail_json(msg=exc.message)
 
+    # cleanup and delete file if local
     if url is not None:
         delete_file(file_)
 
