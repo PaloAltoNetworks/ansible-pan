@@ -8,32 +8,20 @@ Overview of modules
 
 - panos_admin - add or modify admin user
 - panos_admpwd - set admin password via SSH
-- panos_awsmonitor - create AWS VM monitor
 - panos_cert_gen_ssh - create SSL certificate
 - panos_check - check if device is ready
 - panos_commit - commit candidate config
-- panos_content - upgrade dynamic updates
-- panos_cstapphost - create a custom application for a website
 - panos_dag - create dynamic address groups
-- panos_dhcpif - configure a DP interface in DHCP Client mode
-- panos_dnat - create a destination nat rule
-- panos_gpp_gateway - configure GP Portal gateway list
 - panos_import - import files
+- panos_interface - configure a DP interface in DHCP Client mode
 - panos_lic - apply an authcode
 - panos_loadcfg - load configuration file
 - panos_mgtconfig - set management settings
-- panos_nat - create a nat rule
+- panos_nat_policy - create a nat rule
 - panos_pg - create a security profile group
 - panos_restart - restart a device
-- panos_search - search AWS Matketplace for PA-VM-AWS images
 - panos_service - create a service
-- panos_snat - create a source nat rule
 - panos_srule - create a security rule
-- panos_sshkey - manage public SSH keys
-- panos_swapif - swap if on AWS instance
-- panos_swinstall - install software images
-- panos_tunnelif - create a tunnel if
-- panos_vulnprofile - create vulnerability profile
 
 Installation
 --------------
@@ -118,14 +106,3 @@ This is an example playbook for import and load a config on a list of hosts:
         until: not result|failed
         retries: 10
         delay: 10
-
-License
--------
-
-ISC
-
-Author Information
-------------------
-
-Palo Alto Networks
-

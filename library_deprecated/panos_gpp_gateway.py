@@ -109,10 +109,7 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
-status:
-    description: success status
-    returned: success
-    type: string
+# Default return values
 '''
 
 ANSIBLE_METADATA = {'status': ['preview'],
@@ -120,18 +117,20 @@ ANSIBLE_METADATA = {'status': ['preview'],
                     'version': '1.0'}
 
 from ansible.module_utils.basic import AnsibleModule
-
+from ansible.module_utils.basic import get_exception
 
 try:
     import pan.xapi
+    from pan.xapi import PanXapiError
+
     HAS_LIB = True
 except ImportError:
     HAS_LIB = False
 
-_GW_PATH = "/config/devices/entry[@name='localhost.localdomain']" +\
-           "/vsys/entry[@name='vsys1']" +\
-           "/global-protect/global-protect-portal/entry[@name='%s']" +\
-           "/client-config/configs/entry[@name='%s']" +\
+_GW_PATH = "/config/devices/entry[@name='localhost.localdomain']" + \
+           "/vsys/entry[@name='vsys1']" + \
+           "/global-protect/global-protect-portal/entry[@name='%s']" + \
+           "/client-config/configs/entry[@name='%s']" + \
            "/gateways/%s/list/entry[@name='%s']"
 
 
@@ -161,22 +160,22 @@ def modify_gpp_gateway(cgw, xapi, module, portal_name, config_name,
             raise Exception('Invalid manual value: %s' % cmanual.text)
 
         if bool(cmanual == 'yes') ^ bool(manual):
-            xapi.edit(xpath=(_GW_PATH+"/manual") %
-                      (portal_name, config_name, type_, gateway_address),
+            xapi.edit(xpath=(_GW_PATH + "/manual") %
+                            (portal_name, config_name, type_, gateway_address),
                       element="<manual>%s</manual>" %
-                      ('yes' if manual else 'no'))
+                              ('yes' if manual else 'no'))
             result = True
 
     if description is not None:
         cdescription = cgw.find('description')
         if cdescription is not None and \
-           cdescription.text is not None and \
-           cdescription.text == description:
+                        cdescription.text is not None and \
+                        cdescription.text == description:
             return result
-        xapi.edit(xpath=(_GW_PATH+"/description") %
-                  (portal_name, config_name, type_, gateway_address),
+        xapi.edit(xpath=(_GW_PATH + "/description") %
+                        (portal_name, config_name, type_, gateway_address),
                   element="<description>%s</description>" %
-                  description)
+                          description)
         result = True
 
     return result
@@ -194,11 +193,11 @@ def create_gpp_gateway(xapi, module, portal_name, config_name,
 
     if exists:
         xapi.set(xpath=_GW_PATH %
-                 (portal_name, config_name, type_, gateway_address),
+                       (portal_name, config_name, type_, gateway_address),
                  element=''.join(entry))
     else:
         xapi.set(xpath=_GW_PATH %
-                 (portal_name, config_name, type_, gateway_address),
+                       (portal_name, config_name, type_, gateway_address),
                  element=''.join(entry))
     return True
 
@@ -252,11 +251,7 @@ def main():
         module.fail_json(msg='pan-python is required for this module')
 
     ip_address = module.params["ip_address"]
-    if not ip_address:
-        module.fail_json(msg="ip_address should be specified")
     password = module.params["password"]
-    if not password:
-        module.fail_json(msg="password is required")
     username = module.params['username']
 
     xapi = pan.xapi.PanXapi(
@@ -266,14 +261,9 @@ def main():
     )
 
     portal_name = module.params['portal_name']
-    if portal_name is None:
-        module.fail_json(msg='portal_name is required')
     config_name = module.params['config_name']
-    if config_name is None:
-        module.fail_json(msg='config_name is required')
     gateway_address = module.params['gateway_address']
-    if gateway_address is None:
-        module.fail_json(msg='gateway_address is required')
+
     type_ = module.params['type']
     state = module.params['state']
     manual = module.params['manual']
@@ -281,22 +271,27 @@ def main():
     commit = module.params['commit']
 
     changed = False
-    changed = check_gpp_gateway(
-        xapi,
-        module,
-        portal_name,
-        config_name,
-        gateway_address,
-        type_,
-        state,
-        manual,
-        description
-    )
+    try:
+        changed = check_gpp_gateway(
+            xapi,
+            module,
+            portal_name,
+            config_name,
+            gateway_address,
+            type_,
+            state,
+            manual,
+            description
+        )
+    except PanXapiError:
+        exc = get_exception()
+        module.fail_json(msg=exc.message)
 
     if changed and commit:
         xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
 
     module.exit_json(changed=changed, msg="okey dokey")
+
 
 if __name__ == '__main__':
     main()
