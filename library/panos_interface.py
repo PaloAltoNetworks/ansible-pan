@@ -16,10 +16,10 @@
 
 DOCUMENTATION = '''
 ---
-module: panos_dhcpif
-short_description: configure a DP network interface for DHCP
+module: panos_interface
+short_description: configure data-port network interface for DHCP
 description:
-    - Configure a DP network interface for DHCP
+    - Configure data-port (DP) network interface for DHCP. By default DP interfaces are static.
 author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
 version_added: "2.3"
 requirements:
@@ -46,6 +46,7 @@ options:
         description:
             - name of the zone for the interface
             - if the zone does not exist it is created
+            - if the zone exists and is not of the layer3 type the operation will fail
         required: true
     create_default_route:
         description:
@@ -62,7 +63,7 @@ options:
 EXAMPLES = '''
 # enable DHCP client on ethernet1/1 in zone public
 - name: configure ethernet1/1
-  panos_dhcpif:
+  interface:
     password: "admin"
     ip_address: "192.168.1.1"
     if_name: "ethernet1/1"
@@ -70,11 +71,8 @@ EXAMPLES = '''
     create_default_route: "yes"
 '''
 
-RETURN = '''
-status:
-    description: success status
-    returned: success
-    type: string
+RETURN='''
+# Default return values
 '''
 
 ANSIBLE_METADATA = {'status': ['preview'],
@@ -82,10 +80,12 @@ ANSIBLE_METADATA = {'status': ['preview'],
                     'version': '1.0'}
 
 from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.basic import get_exception
 
 
 try:
     import pan.xapi
+    from pan.xapi import PanXapiError
     HAS_LIB = True
 except ImportError:
     HAS_LIB = False
@@ -147,11 +147,7 @@ def main():
         module.fail_json(msg='pan-python is required for this module')
 
     ip_address = module.params["ip_address"]
-    if not ip_address:
-        module.fail_json(msg="ip_address should be specified")
     password = module.params["password"]
-    if not password:
-        module.fail_json(msg="password is required")
     username = module.params['username']
 
     xapi = pan.xapi.PanXapi(
@@ -161,19 +157,21 @@ def main():
     )
 
     if_name = module.params['if_name']
-    if not if_name:
-        module.fail_json(msg="if_name required")
     zone_name = module.params['zone_name']
-    if not zone_name:
-        module.fail_json(msg="zone_name required")
     create_default_route = module.params['create_default_route']
     commit = module.params['commit']
 
     ifexists = if_exists(xapi, if_name)
-    if ifexists:
-        module.exit_json(changed=False, msg="if exists, not changed")
 
-    changed = add_dhcp_if(xapi, if_name, zone_name, create_default_route)
+    if ifexists:
+        module.exit_json(changed=False, msg="interface exists, not changed")
+
+    try:
+        changed = add_dhcp_if(xapi, if_name, zone_name, create_default_route)
+    except PanXapiError:
+        exc = get_exception()
+        module.fail_json(msg=exc.message)
+
     if changed and commit:
         xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
 
