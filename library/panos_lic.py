@@ -17,15 +17,13 @@
 DOCUMENTATION = '''
 ---
 module: panos_lic
-short_description: apply and authcode to a device/instance
+short_description: apply authcode to a device/instance
 description:
     - Apply an authcode to a device.
     - The authcode should have been previously registered on the Palo Alto Networks support portal.
     - The device should have Internet access.
-author: 
-    - Palo Alto Networks 
-    - Luigi Mori (jtschichold)
-version_added: "0.0"
+author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
+version_added: "2.3"
 requirements:
     - pan-python
 options:
@@ -54,20 +52,40 @@ options:
 '''
 
 EXAMPLES = '''
-  - name: fetch license
-    panos_lic:
-        ip_address: "192.168.1.1"
-        password: "admin"
-        auth_code: "IBADCODE"
+    - hosts: localhost
+      connection: local
+      tasks:
+        - name: fetch license
+          panos_lic:
+            ip_address: "192.168.1.1"
+            password: "paloalto"
+            auth_code: "IBADCODE"
+          register: result
+    - name: Display serialnumber (if already registered)
+      debug:
+        var: "{{result.serialnumber}}"
 '''
 
-import sys
+RETURN = '''
+serialnumber:
+    description: serialnumber of the device in case that it has been already registered
+    returned: success
+    type: string
+    sample: 007200004214
+'''
+
+
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'version': '1.0'}
+
+from ansible.module_utils.basic import AnsibleModule
 
 try:
     import pan.xapi
+    HAS_LIB = True
 except ImportError:
-    print "failed=True msg='pan-python required for this module'"
-    sys.exit(1)
+    HAS_LIB = False
 
 
 def get_serial(xapi, module):
@@ -117,20 +135,18 @@ def fetch_authcode(xapi, module):
 
 def main():
     argument_spec = dict(
-        ip_address=dict(default=None),
-        password=dict(default=None, no_log=True),
-        auth_code=dict(default=None),
+        ip_address=dict(required=True),
+        password=dict(required=True, no_log=True),
+        auth_code=dict(),
         username=dict(default='admin'),
         force=dict(type='bool', default=False)
     )
-    module = AnsibleModule(argument_spec=argument_spec)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
+    if not HAS_LIB:
+        module.fail_json(msg='pan-python is required for this module')
 
     ip_address = module.params["ip_address"]
-    if not ip_address:
-        module.fail_json(msg="ip_address should be specified")
     password = module.params["password"]
-    if not password:
-        module.fail_json(msg="password is required")
     auth_code = module.params["auth_code"]
     force = module.params['force']
     username = module.params['username']
@@ -152,6 +168,5 @@ def main():
 
     module.exit_json(changed=True, msg="okey dokey")
 
-from ansible.module_utils.basic import *  # noqa
-
-main()
+if __name__ == '__main__':
+    main()
