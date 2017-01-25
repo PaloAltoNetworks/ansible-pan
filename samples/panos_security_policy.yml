@@ -1,0 +1,31 @@
+- hosts: localhost
+  connection: local
+  tasks:
+    # permit ssh to 1.1.1.1
+    - panos_security_policy:
+        ip_address: "10.5.172.91"
+        password: 'paloalto'
+        rule_name: "SSH permit"
+        from_zone: ["public"]
+        to_zone: ["private"]
+        source: ["any"]
+        source_user: ["any"]
+        destination: ["1.1.1.1"]
+        category: ["any"]
+        application: ["ssh"]
+        service: ["application-default"]
+        hip_profiles: ["any"]
+        action: "allow"
+        commit: False
+
+    # deny all
+    - panos_security_policy:
+        ip_address: "10.5.172.91"
+        password: 'paloalto'
+        username: "admin"
+        rule_name: "DenyAll"
+        log_start: true
+        log_end: true
+        action: "deny"
+        rule_type: "interzone"
+        commit: False

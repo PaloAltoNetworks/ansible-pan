@@ -16,7 +16,7 @@
 
 DOCUMENTATION = '''
 ---
-module: panos_srule
+module: panos_security_policy
 short_description: create a security rule
 description:
     - Create a security rule
@@ -116,11 +116,11 @@ options:
 '''
 
 EXAMPLES = '''
-# permti ssh to 1.1.1.1
-- panos_srule:
+# permit ssh to 1.1.1.1
+- panos_security_policy:
     ip_address: "192.168.1.1"
     password: "admin"
-    rule_name: "server permit"
+    rule_name: "SSH permit"
     from_zone: ["public"]
     to_zone: ["private"]
     source: ["any"]
@@ -131,28 +131,42 @@ EXAMPLES = '''
     service: ["application-default"]
     hip_profiles: ["any"]
     action: "allow"
+    commmit: False
 
 # deny all
-- panos_srule:
+- panos_security_policy:
     ip_address: "192.168.1.1"
     password: "admin"
     username: "admin"
+    rule_name: "DenyAll"
     log_start: true
     log_end: true
     action: "deny"
     rule_type: "interzone"
+    commmit: False
 '''
 
-import sys
+RETURN = '''
+# Default return values
+'''
+
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'version': '1.0'}
+
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.basic import get_exception
 
 try:
     import pan.xapi
-except ImportError:
-    print "failed=True msg='pan-python required for this module'"
-    sys.exit(1)
+    from pan.xapi import PanXapiError
 
-_SRULE_XPATH = "/config/devices/entry[@name='localhost.localdomain']" +\
-               "/vsys/entry[@name='vsys1']" +\
+    HAS_LIB = True
+except ImportError:
+    HAS_LIB = False
+
+_SRULE_XPATH = "/config/devices/entry[@name='localhost.localdomain']" + \
+               "/vsys/entry[@name='vsys1']" + \
                "/rulebase/security/rules/entry[@name='%s']"
 
 
@@ -255,19 +269,19 @@ def add_security_rule(xapi, **kwargs):
 
 def main():
     argument_spec = dict(
-        ip_address=dict(default=None),
-        password=dict(default=None, no_log=True),
+        ip_address=dict(required=True),
+        password=dict(required=True, no_log=True),
         username=dict(default='admin'),
-        rule_name=dict(default=None),
-        from_zone=dict(default=['any']),
-        to_zone=dict(default=['any']),
-        source=dict(default=["any"]),
-        source_user=dict(default=['any']),
-        destination=dict(default=["any"]),
-        category=dict(default=['any']),
-        application=dict(default=['any']),
-        service=dict(default=['application-default']),
-        hip_profiles=dict(default=['any']),
+        rule_name=dict(required=True),
+        from_zone=dict(type='list', default=['any']),
+        to_zone=dict(type='list', default=['any']),
+        source=dict(type='list', default=["any"]),
+        source_user=dict(type='list', default=['any']),
+        destination=dict(type='list', default=["any"]),
+        category=dict(type='list', default=['any']),
+        application=dict(type='list', default=['any']),
+        service=dict(type='list', default=['application-default']),
+        hip_profiles=dict(type='list', default=['any']),
         group_profile=dict(),
         vulnprofile_name=dict(),
         log_start=dict(type='bool', default=False),
@@ -276,14 +290,11 @@ def main():
         action=dict(default='allow'),
         commit=dict(type='bool', default=True)
     )
-    module = AnsibleModule(argument_spec=argument_spec)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
+                           mutually_exclusive=[['group_profile', 'vulnprofile_name']])
 
     ip_address = module.params["ip_address"]
-    if not ip_address:
-        module.fail_json(msg="ip_address should be specified")
     password = module.params["password"]
-    if not password:
-        module.fail_json(msg="password is required")
     username = module.params['username']
 
     xapi = pan.xapi.PanXapi(
@@ -293,8 +304,6 @@ def main():
     )
 
     rule_name = module.params['rule_name']
-    if not rule_name:
-        module.fail_json(msg='rule_name is required')
     from_zone = module.params['from_zone']
     to_zone = module.params['to_zone']
     source = module.params['source']
@@ -308,39 +317,40 @@ def main():
 
     group_profile = module.params['group_profile']
     vulnprofile_name = module.params['vulnprofile_name']
-    if group_profile is not None and vulnprofile_name is not None:
-        module.fail_json(msg="only one of group_profile and "
-                         "vulnprofile_name should be specified")
-
     log_start = module.params['log_start']
     log_end = module.params['log_end']
     rule_type = module.params['rule_type']
     commit = module.params['commit']
 
-    changed = add_security_rule(
-        xapi,
-        rule_name=rule_name,
-        from_zone=from_zone,
-        to_zone=to_zone,
-        source=source,
-        source_user=source_user,
-        destination=destination,
-        category=category,
-        application=application,
-        service=service,
-        hip_profiles=hip_profiles,
-        group_profile=group_profile,
-        log_start=log_start,
-        log_end=log_end,
-        rule_type=rule_type,
-        vulnprofile_name=vulnprofile_name,
-        action=action
-    )
+    try:
+        changed = add_security_rule(
+            xapi,
+            rule_name=rule_name,
+            from_zone=from_zone,
+            to_zone=to_zone,
+            source=source,
+            source_user=source_user,
+            destination=destination,
+            category=category,
+            application=application,
+            service=service,
+            hip_profiles=hip_profiles,
+            group_profile=group_profile,
+            log_start=log_start,
+            log_end=log_end,
+            rule_type=rule_type,
+            vulnprofile_name=vulnprofile_name,
+            action=action
+        )
+    except PanXapiError:
+        exc = get_exception()
+        module.fail_json(msg=exc.message)
+
     if changed and commit:
         xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
 
     module.exit_json(changed=changed, msg="okey dokey")
 
-from ansible.module_utils.basic import *  # noqa
 
-main()
+if __name__ == '__main__':
+    main()

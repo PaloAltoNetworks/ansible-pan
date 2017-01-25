@@ -21,4 +21,4 @@ Modules list
    modules/panos_pg
    modules/panos_restart
    modules/panos_service
-   modules/panos_srule
+   modules/panos_security_policy

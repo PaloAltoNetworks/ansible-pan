@@ -1,13 +1,13 @@
-.. _panos_srule:
+.. _panos_security_policy:
 
-panos_srule
+panos_security_policy
 ``````````````````````````````
 
 Synopsis
 --------
 
 
-Create a security rule
+Create a security policy
 
 
 Options
@@ -180,10 +180,10 @@ Examples
 
     
     # permti ssh to 1.1.1.1
-    - panos_srule:
+    - panos_security_policy:
         ip_address: "192.168.1.1"
         password: "admin"
-        rule_name: "server permit"
+        rule_name: "SSH permit"
         from_zone: ["public"]
         to_zone: ["private"]
         source: ["any"]
@@ -194,13 +194,16 @@ Examples
         service: ["application-default"]
         hip_profiles: ["any"]
         action: "allow"
+        commmit: False
     
     # deny all
-    - panos_srule:
+    - panos_security_policy:
         ip_address: "192.168.1.1"
         password: "admin"
+        rule_name: "DenyAll"
         username: "admin"
         log_start: true
         log_end: true
         action: "deny"
         rule_type: "interzone"
+        commmit: False

@@ -21,6 +21,7 @@
 #### batch 3
     panos_interface.py (ex. panos_dhcpif.py)
     panos_address.py (new)
+    panos_security_policy.py
 
 ##### Working on
     panos_srule.py
