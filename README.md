@@ -26,21 +26,26 @@ Overview of modules
 Installation
 --------------
 
-Clone the github repo or
+PANWAnsible modules are part of the deafult Ansible distribution. If you'd like to download Apache 2 licensed code 
+Clone the github repo at:
+    https://github.com/PaloAltoNetworks/ansible-pan/
 
-    ansible-galaxy install paloaltonetworks.panos
+ [comment]: <> (ansible-galaxy install paloaltonetworks.panos)
 
 Documentation
 -------------
 
-Each module is documented in docs/modules, you can also look at the documentation online at http://ansible-pan.readthedocs.org/
+Each module is documented in docs/modules, you can also look at the documentation online at http://panwansible.readthedocs.io/en/latest/
 
 #### Rebuild documentation
-
-Requires Sphinx
-
+    
+######Using Docker
+    docker run -it -v <PATH_TO_REPO>/ansible-pan/docs/:/documents/ ivanbojer/spinx-with-rtd
+    make html
+    
+######Using Spinx
     cd docs; make modules
-
+    
 Dependencies
 ------------
 
