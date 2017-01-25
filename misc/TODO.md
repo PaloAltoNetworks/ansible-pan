@@ -20,9 +20,9 @@
     
 #### batch 3
     panos_interface.py (ex. panos_dhcpif.py)
+    panos_address.py (new)
 
 ##### Working on
-    panos_address.py (new)
     panos_srule.py
 
 #### Needs major changes / deprecated
@@ -31,8 +31,8 @@
     panos_tunnelif.py
     panos_cstapphost.py
     panos_gpp_gateway.py
+    panos_vulnprofile.py
 
 ##### Out
-    panos_vulnprofile.py
     panos_swapif.py  <-- should be moved to panos_mgtconfig
 
