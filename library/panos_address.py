@@ -17,16 +17,11 @@
 DOCUMENTATION = '''
 ---
 module: panos_address
-short_description: create a service object
+short_description: create address service object
 description:
-    - Create a service object
-author: 
-    - Palo Alto Networks 
-    - Luigi Mori (jtschichold)
-copy-paste-author:
-    - Network to Code
-    - Ken Celenza (itdependsnetworks)
-version_added: "0.0"
+    - Create address service object of different types [IP Range, FQDN, or IP Netmask].
+author: "Luigi Mori (@jtschichold), Ken Celenza (@itdependsnetworks), Ivan Bojer (@ivanbojer)"
+version_added: "2.3"
 requirements:
     - pan-python
 options:
@@ -105,16 +100,27 @@ EXAMPLES = '''
       address: 'www.google.com'
 '''
 
-import sys
+RETURN = '''
+# Default return values
+'''
+
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'version': '1.0'}
+
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.basic import get_exception
 
 try:
     import pan.xapi
-except ImportError:
-    print "failed=True msg='pan-python required for this module'"
-    sys.exit(1)
+    from pan.xapi import PanXapiError
 
-_ADDRESS_XPATH = "/config/devices/entry[@name='localhost.localdomain']" +\
-                 "/vsys/entry[@name='vsys1']" +\
+    HAS_LIB = True
+except ImportError:
+    HAS_LIB = False
+
+_ADDRESS_XPATH = "/config/devices/entry[@name='localhost.localdomain']" + \
+                 "/vsys/entry[@name='vsys1']" + \
                  "/address/entry[@name='%s']"
 
 
@@ -154,24 +160,20 @@ def add_address(xapi, module, address, address_name, description, type, tag):
 
 def main():
     argument_spec = dict(
-        ip_address=dict(default=None),
-        password=dict(default=None, no_log=True),
+        ip_address=dict(required=True),
+        password=dict(required=True, no_log=True),
         username=dict(default='admin'),
-        address_name=dict(default=None),
+        address_name=dict(required=True),
         address=dict(default=None),
         description=dict(default=None),
         tag=dict(default=None),
         type=dict(default='ip-netmask', choices=['ip-netmask', 'ip-range', 'fqdn']),
         commit=dict(type='bool', default=True)
     )
-    module = AnsibleModule(argument_spec=argument_spec)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
 
     ip_address = module.params["ip_address"]
-    if not ip_address:
-        module.fail_json(msg="ip_address should be specified")
     password = module.params["password"]
-    if not password:
-        module.fail_json(msg="password is required")
     username = module.params['username']
 
     xapi = pan.xapi.PanXapi(
@@ -180,13 +182,8 @@ def main():
         api_password=password
     )
 
-
     address_name = module.params['address_name']
-    if not address_name:
-        module.fail_json(msg='address_name is required')
     address = module.params['address']
-    if not address:
-        module.fail_json(msg='address is required')
     commit = module.params['commit']
 
     description = module.params['description']
@@ -194,18 +191,22 @@ def main():
     type = module.params['type']
 
     changed = False
-    changed = add_address(xapi, module,
-                          address,
-                          address_name,
-                          description,
-                          type,
-                          tag)
+    try:
+        changed = add_address(xapi, module,
+                              address,
+                              address_name,
+                              description,
+                              type,
+                              tag)
+    except PanXapiError:
+        exc = get_exception()
+        module.fail_json(msg=exc.message)
 
     if changed and commit:
         xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
 
     module.exit_json(changed=changed, msg="okey dokey")
 
-from ansible.module_utils.basic import *  # noqa
 
-main()
+if __name__ == '__main__':
+    main()
