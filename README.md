@@ -35,7 +35,7 @@ Clone the github repo at:
 Documentation
 -------------
 
-Each module is documented in docs/modules, you can also look at the documentation online at http://panwansible.readthedocs.io/en/latest/
+Each module is documented in docs/modules, you can also look at the documentation online at http://panwansible.readthedocs.io/en/develop/
 
 #### Rebuild documentation
     
