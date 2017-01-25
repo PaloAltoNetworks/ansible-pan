@@ -50,7 +50,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'ansible-pan'
-copyright = u'2015, Palo Alto Networks'
+copyright = u'2017, Palo Alto Networks'
 author = u'Palo Alto Networks'
 
 # The version info for the project you're documenting, acts as replacement for

@@ -2,3 +2,4 @@ docs/_build
 .idea/
 panos_*.retry
 
+.DS_Store
