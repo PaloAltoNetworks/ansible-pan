@@ -17,9 +17,9 @@
 DOCUMENTATION = '''
 ---
 module: panos_security_policy
-short_description: create a security rule
+short_description: create security rule tuple
 description:
-    - Create a security rule
+    - This module will create a security rule based on provided tuples. The basic objects (zones, etc) must be already present.
 author:
     - Palo Alto Networks
 version_added: "0.0"
