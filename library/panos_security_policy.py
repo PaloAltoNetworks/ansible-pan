@@ -17,14 +17,14 @@
 DOCUMENTATION = '''
 ---
 module: panos_security_policy
-short_description: create security rule tuple
+short_description: create security rule policy
 description:
-    - This module will create a security rule based on provided tuples. The basic objects (zones, etc) must be already present.
-author:
-    - Palo Alto Networks
-version_added: "0.0"
+    - Security policies allow you to enforce rules and take action, and can be as general or specific as needed. The policy rules are compared against the incoming traffic in sequence, and because the first rule that matches the traffic is applied, the more specific rules must precede the more general ones.
+author: "Ivan Bojer (@ivanbojer)"
+version_added: "2.3"
 requirements:
     - pan-python
+    - pandevice
 options:
     ip_address:
         description:
@@ -43,6 +43,21 @@ options:
         description:
             - name of the security rule
         required: true
+    rule_type:
+        description:
+            - type of security rule (6.1+)
+        required: false
+        default: "universal"
+    description:
+        description:
+            - Description of this rule
+        required: false
+        default: "None"
+    tag:
+        description:
+            - Administrative tags that can be added to the rule. Note: Tags must be already defined.
+        required: false
+        default: "None"
     from_zone:
         description:
             - list of source zones
@@ -56,6 +71,16 @@ options:
     source:
         description:
             - list of source addresses
+        required: false
+        default: "any"
+    source-user:
+        description:
+            - use users to enforce policy for individual users or a group of users
+        required: false
+        default: "any"
+    hip_profiles:
+        description:
+            - If you are using GlobalProtect with host information profile (HIP) enabled, you can also base the policy on information collected by GlobalProtect. For example, the user access level can be determined HIP that notifies the firewall about the user's local configuration.
         required: false
         default: "any"
     destination:
@@ -73,41 +98,61 @@ options:
             - list of services
         required: false
         default: "application-default"
-    hip_profiles:
-        description:
-            - list of HIP profiles
-        required: false
-        default: "any"
-    group_profile:
-        description:
-            - security profile group
-        required: false
-        default: None
     log_start:
         description:
             - whether to log at session start
         required: false
-        default: "false"
+        default: false
     log_end:
         description:
             - whether to log at session end
         required: false
         default: true
-    rule_type:
-        description:
-            - type of security rule (6.1+)
-        required: false
-        default: "universal"
-    vulnprofile_name:
-        description:
-            - name of the vulnerability profile
-        required: false
-        default: None
     action:
         description:
             - action
         required: false
         default: "allow"
+    group_profile:
+        description:
+            - security profile group that is already defined in the system. This property supersedes antivirus, vulnerability, spyware, url_filtering, file_blocking, data_filtering, and wildfire_analysis properties.
+        required: false
+        default: None
+    antivirus:
+        description:
+            - name of the already defined profile
+        required: false
+        default: None
+    vulnerability:
+        description:
+            - name of the already defined profile
+        required: false
+        default: None
+    spyware:
+        description:
+            - name of the already defined profile
+        required: false
+        default: None
+    url_filtering:
+        description:
+            - name of the already defined profile
+        required: false
+        default: None
+    file_blocking:
+        description:
+            - name of the already defined profile
+        required: false
+        default: None
+    data_filtering:
+        description:
+            - name of the already defined profile
+        required: false
+        default: None
+    wildfire_analysis:
+        description:
+            - name of the already defined profile
+        required: false
+        default: None
     commit:
         description:
             - commit if changed
@@ -117,33 +162,70 @@ options:
 
 EXAMPLES = '''
 # permit ssh to 1.1.1.1
-- panos_security_policy:
-    ip_address: "192.168.1.1"
-    password: "admin"
-    rule_name: "SSH permit"
-    from_zone: ["public"]
-    to_zone: ["private"]
-    source: ["any"]
-    source_user: ["any"]
-    destination: ["1.1.1.1"]
-    category: ["any"]
-    application: ["ssh"]
-    service: ["application-default"]
-    hip_profiles: ["any"]
-    action: "allow"
-    commmit: False
+- panos_security_policy1:
+    ip_address: '10.5.172.91'
+    username: 'admin'
+    password: 'paloalto'
+    rule_name: 'SSH permit'
+    description: 'SSH rule test'
+    from_zone: ['public']
+    to_zone: ['private']
+    source: ['any']
+    source_user: ['any']
+    destination: ['1.1.1.1']
+    category: ['any']
+    application: ['ssh']
+    service: ['application-default']
+    hip_profiles: ['any']
+    action: 'allow'
+    commit: false
+
+# Allow HTTP multimedia only from CDNs
+- panos_security_policy1:
+    ip_address: '10.5.172.91'
+    username: 'admin'
+    password: 'paloalto'
+    rule_name: 'HTTP Multimedia'
+    description: 'Allow HTTP multimedia only to host at 1.1.1.1'
+    from_zone: ['public']
+    to_zone: ['private']
+    source: ['any']
+    source_user: ['any']
+    destination: ['1.1.1.1']
+    category: ['content-delivery-networks']
+    application: ['http-video', 'http-audio']
+    service: ['service-http', 'service-https']
+    hip_profiles: ['any']
+    action: 'allow'
+    commit: false
+
+# more complex fictitious rule that uses profiles
+- panos_security_policy1:
+    ip_address: '10.5.172.91'
+    username: 'admin'
+    password: 'paloalto'
+    rule_name: 'Allow HTTP w profile'
+    log_start: false
+    log_end: true
+    action: 'allow'
+    antivirus: 'default'
+    vulnerability: 'default'
+    spyware: 'default'
+    url_filtering: 'default'
+    wildfire_analysis: 'default'
+    commit: false
 
 # deny all
-- panos_security_policy:
-    ip_address: "192.168.1.1"
-    password: "admin"
-    username: "admin"
-    rule_name: "DenyAll"
+- panos_security_policy1:
+    ip_address: '10.5.172.91'
+    username: 'admin'
+    password: 'paloalto'
+    rule_name: 'DenyAll'
     log_start: true
     log_end: true
-    action: "deny"
-    rule_type: "interzone"
-    commmit: False
+    action: 'deny'
+    rule_type: 'interzone'
+    commit: false
 '''
 
 RETURN = '''
@@ -160,111 +242,84 @@ from ansible.module_utils.basic import get_exception
 try:
     import pan.xapi
     from pan.xapi import PanXapiError
+    import pandevice
+    import pandevice.firewall
+    import pandevice.objects
+    import pandevice.policies
 
     HAS_LIB = True
 except ImportError:
     HAS_LIB = False
 
-_SRULE_XPATH = "/config/devices/entry[@name='localhost.localdomain']" + \
-               "/vsys/entry[@name='vsys1']" + \
-               "/rulebase/security/rules/entry[@name='%s']"
+
+def security_rule_exists(fw, rule_name):
+    rule_base = pandevice.policies.Rulebase.refreshall(fw)
+    if rule_base:
+        rule_base = rule_base[0]
+        security_rules = rule_base.findall(pandevice.policies.SecurityRule)
+
+        for r in security_rules:
+            if r.name == rule_name:
+                return True
+
+    return False
 
 
-def security_rule_exists(xapi, rule_name):
-    xapi.get(_SRULE_XPATH % rule_name)
-    e = xapi.element_root.find('.//entry')
-    if e is None:
-        return False
-    return True
+def create_security_rule(**kwargs):
+    security_rule = pandevice.policies.SecurityRule(
+        name=kwargs['rule_name'],
+        description=kwargs['description'],
+        tozone=kwargs['to_zone'],
+        fromzone=kwargs['from_zone'],
+        source=kwargs['source'],
+        source_user=kwargs['source_user'],
+        destination=kwargs['destination'],
+        category=kwargs['category'],
+        application=kwargs['application'],
+        service=kwargs['service'],
+        hip_profiles=kwargs['hip_profiles'],
+        log_start=kwargs['log_start'],
+        log_end=kwargs['log_end'],
+        type=kwargs['rule_type'],
+        action=kwargs['action'])
 
+    if 'tag' in kwargs:
+        security_rule.tag = kwargs['tag']
 
-def add_security_rule(xapi, **kwargs):
-    if security_rule_exists(xapi, kwargs['rule_name']):
-        return False
-
-    # exml = ['<entry name="permit-server"%s">'%kwargs['rule_name']]
-    exml = []
-
-    exml.append('<to>')
-    for t in kwargs['to_zone']:
-        exml.append('<member>%s</member>' % t)
-    exml.append('</to>')
-
-    exml.append('<from>')
-    for t in kwargs['from_zone']:
-        exml.append('<member>%s</member>' % t)
-    exml.append('</from>')
-
-    exml.append('<source>')
-    for t in kwargs['source']:
-        exml.append('<member>%s</member>' % t)
-    exml.append('</source>')
-
-    exml.append('<destination>')
-    for t in kwargs['destination']:
-        exml.append('<member>%s</member>' % t)
-    exml.append('</destination>')
-
-    exml.append('<source-user>')
-    for t in kwargs['source_user']:
-        exml.append('<member>%s</member>' % t)
-    exml.append('</source-user>')
-
-    exml.append('<category>')
-    for t in kwargs['category']:
-        exml.append('<member>%s</member>' % t)
-    exml.append('</category>')
-
-    exml.append('<application>')
-    for t in kwargs['application']:
-        exml.append('<member>%s</member>' % t)
-    exml.append('</application>')
-
-    exml.append('<service>')
-    for t in kwargs['service']:
-        exml.append('<member>%s</member>' % t)
-    exml.append('</service>')
-
-    exml.append('<hip-profiles>')
-    for t in kwargs['hip_profiles']:
-        exml.append('<member>%s</member>' % t)
-    exml.append('</hip-profiles>')
-
-    if kwargs['group_profile'] is not None:
-        exml.append('<profile-setting>'
-                    '<group><member>%s</member></group>'
-                    '</profile-setting>' % kwargs['group_profile'])
-
-    if kwargs['log_start']:
-        exml.append('<log-start>yes</log-start>')
+    # profile settings
+    if 'group_profile' in kwargs:
+        security_rule.group = kwargs['group_profile']
     else:
-        exml.append('<log-start>no</log-start>')
+        if 'antivirus' in kwargs:
+            security_rule.virus = kwargs['antivirus']
+        if 'vulnerability' in kwargs:
+            security_rule.vulnerability = kwargs['vulnerability']
+        if 'spyware' in kwargs:
+            security_rule.spyware = kwargs['spyware']
+        if 'url_filtering' in kwargs:
+            security_rule.url_filtering = kwargs['url_filtering']
+        if 'file_blocking' in kwargs:
+            security_rule.file_blocking = kwargs['file_blocking']
+        if 'data_filtering' in kwargs:
+            security_rule.data_filtering = kwargs['data_filtering']
+        if 'wildfire_analysis' in kwargs:
+            security_rule.wildfire_analysis = kwargs['wildfire_analysis']
 
-    if kwargs['log_end']:
-        exml.append('<log-end>yes</log-end>')
+    return security_rule
+
+
+def add_security_rule(fw, sec_rule):
+    rule_base = pandevice.policies.Rulebase.refreshall(fw)
+
+    if rule_base:
+        rule_base = rule_base[0]
+
+        rule_base.add(sec_rule)
+        sec_rule.create()
+
+        return True
     else:
-        exml.append('<log-end>no</log-end>')
-
-    if kwargs['rule_type'] != 'universal':
-        exml.append('<rule-type>%s</rule-type>' % kwargs['rule_type'])
-
-    exml.append('<action>%s</action>' % kwargs['action'])
-
-    if kwargs['vulnprofile_name'] is not None:
-        exml.append('<profile-setting>')
-        exml.append('<profiles>')
-        exml.append('<vulnerability>')
-        exml.append('<member>%s</member>' % kwargs['vulnprofile_name'])
-        exml.append('</vulnerability>')
-        exml.append('</profiles>')
-        exml.append('</profile-setting>')
-
-    # exml.append('</entry>')
-
-    exml = ''.join(exml)
-    xapi.set(xpath=_SRULE_XPATH % kwargs['rule_name'], element=exml)
-
-    return True
+        return False
 
 
 def main():
@@ -273,8 +328,10 @@ def main():
         password=dict(required=True, no_log=True),
         username=dict(default='admin'),
         rule_name=dict(required=True),
-        from_zone=dict(type='list', default=['any']),
+        description=dict(default=''),
+        tag=dict(),
         to_zone=dict(type='list', default=['any']),
+        from_zone=dict(type='list', default=['any']),
         source=dict(type='list', default=["any"]),
         source_user=dict(type='list', default=['any']),
         destination=dict(type='list', default=["any"]),
@@ -283,27 +340,27 @@ def main():
         service=dict(type='list', default=['application-default']),
         hip_profiles=dict(type='list', default=['any']),
         group_profile=dict(),
-        vulnprofile_name=dict(),
+        antivirus=dict(),
+        vulnerability=dict(),
+        spyware=dict(),
+        url_filtering=dict(),
+        file_blocking=dict(),
+        data_filtering=dict(),
+        wildfire_analysis=dict(),
         log_start=dict(type='bool', default=False),
         log_end=dict(type='bool', default=True),
         rule_type=dict(default='universal'),
         action=dict(default='allow'),
         commit=dict(type='bool', default=True)
     )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
-                           mutually_exclusive=[['group_profile', 'vulnprofile_name']])
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
 
     ip_address = module.params["ip_address"]
     password = module.params["password"]
     username = module.params['username']
-
-    xapi = pan.xapi.PanXapi(
-        hostname=ip_address,
-        api_username=username,
-        api_password=password
-    )
-
     rule_name = module.params['rule_name']
+    description = module.params['description']
+    tag = module.params['tag']
     from_zone = module.params['from_zone']
     to_zone = module.params['to_zone']
     source = module.params['source']
@@ -313,19 +370,32 @@ def main():
     application = module.params['application']
     service = module.params['service']
     hip_profiles = module.params['hip_profiles']
-    action = module.params['action']
-
-    group_profile = module.params['group_profile']
-    vulnprofile_name = module.params['vulnprofile_name']
     log_start = module.params['log_start']
     log_end = module.params['log_end']
     rule_type = module.params['rule_type']
+    action = module.params['action']
+
+    group_profile = module.params['group_profile']
+    antivirus = module.params['antivirus']
+    vulnerability = module.params['vulnerability']
+    spyware = module.params['spyware']
+    url_filtering = module.params['url_filtering']
+    file_blocking = module.params['file_blocking']
+    data_filtering = module.params['data_filtering']
+    wildfire_analysis = module.params['wildfire_analysis']
+
     commit = module.params['commit']
 
+    fw = pandevice.firewall.Firewall(ip_address, username, password)
+
+    if security_rule_exists(fw, rule_name):
+        module.fail_json(msg='Rule with the same name already exists.')
+
     try:
-        changed = add_security_rule(
-            xapi,
+        sec_rule = create_security_rule(
             rule_name=rule_name,
+            description=description,
+            tag=tag,
             from_zone=from_zone,
             to_zone=to_zone,
             source=source,
@@ -336,18 +406,26 @@ def main():
             service=service,
             hip_profiles=hip_profiles,
             group_profile=group_profile,
+            antivirus=antivirus,
+            vulnerability=vulnerability,
+            spyware=spyware,
+            url_filtering=url_filtering,
+            file_blocking=file_blocking,
+            data_filtering=data_filtering,
+            wildfire_analysis=wildfire_analysis,
             log_start=log_start,
             log_end=log_end,
             rule_type=rule_type,
-            vulnprofile_name=vulnprofile_name,
             action=action
         )
+
+        changed = add_security_rule(fw, sec_rule)
     except PanXapiError:
         exc = get_exception()
         module.fail_json(msg=exc.message)
 
     if changed and commit:
-        xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
+        fw.commit(sync=True)
 
     module.exit_json(changed=changed, msg="okey dokey")
 
