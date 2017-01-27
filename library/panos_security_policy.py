@@ -19,7 +19,9 @@ DOCUMENTATION = '''
 module: panos_security_policy
 short_description: create security rule policy
 description:
-    - Security policies allow you to enforce rules and take action, and can be as general or specific as needed. The policy rules are compared against the incoming traffic in sequence, and because the first rule that matches the traffic is applied, the more specific rules must precede the more general ones.
+    - Security policies allow you to enforce rules and take action, and can be as general or specific as needed.
+    The policy rules are compared against the incoming traffic in sequence, and because the first rule that matches the traffic
+    is applied, the more specific rules must precede the more general ones.
 author: "Ivan Bojer (@ivanbojer)"
 version_added: "2.3"
 requirements:
@@ -30,18 +32,18 @@ options:
         description:
             - IP address (or hostname) of PAN-OS device
         required: true
-    password:
-        description:
-            - password for authentication
-        required: true
     username:
         description:
             - username for authentication
         required: false
         default: "admin"
+    password:
+        description:
+            - password for authentication
+        required: true
     rule_name:
         description:
-            - name of the security rule
+            - description of the security rule
         required: true
     rule_type:
         description:
@@ -73,7 +75,7 @@ options:
             - list of source addresses
         required: false
         default: "any"
-    source-user:
+    source_user:
         description:
             - use users to enforce policy for individual users or a group of users
         required: false
