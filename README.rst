@@ -1,18 +1,23 @@
-=========================
-Palo Alto Ansible modules
-=========================
+==================================
+Palo Alto Networks Ansible modules
+==================================
 
-About
------
+The Palo Alto Networks Ansible modules project is a collection of Ansible modules to automate configuration and
+operational tasks on Palo Alto Networks *Next Generation Firewalls*. The underlying protocol uses API calls that
+are wrapped withing Ansible framework.
 
-A collection of Ansible modules to automate configuration and operational tasks on Palo Alto Networks NGFWs
+- Free software: Apache 2.0 License
+- Documentation: http://panwansible.readthedocs.io/
 
 
 Installation
 ------------
 
-PANW Ansible modules are part of the default Ansible distribution. If you'd like to download Apache 2 licensed code
-you can clone the github repo at:
+PANW PANOS Ansible modules are part of the default Ansible distribution which is available at:
+
+    https://github.com/ansible/ansible/tree/devel/lib/ansible/modules/network/panos
+
+It is also available as free Apache 2.0 licensed code from Palo Alto Networks Github repo at:
 
     https://github.com/PaloAltoNetworks/ansible-pan/
 
@@ -21,14 +26,15 @@ you can clone the github repo at:
 Documentation
 -------------
 
-Each module is documented in docs/modules, you can also look at the documentation online at http://panwansible.readthedocs.io/en/develop/
+Each module is documented in docs/modules, you can also look at the documentation online at http://panwansible.readthedocs.io/
 under *modules* section
 
-How to Rebuild documentation?
+**How to build doc's locally?**
     
 Using Docker::
 
-    $ docker run -it -v <PATH_TO_REPO>/ansible-pan/docs/:/documents/ ivanbojer/spinx-with-rtd
+    $ docker run -it -v <PATH_TO_REPO>/ansible-pan/:/documents/ ivanbojer/spinx-with-rtd
+    $ cd docs
     $ make html
 
 Using Spinx::
@@ -36,62 +42,3 @@ Using Spinx::
     $ cd docs
     $ make html
     
-Example Playbook
-----------------
-
-This is an example playbook for import and load a config on a list of hosts:
-
-::
-
-    ---
-    - name: import config
-      hosts: gp-portals
-      connection: local
-      gather_facts: False
-      vars:
-        cfg_file: gp-portal-empty.xml
-    
-      tasks:
-      - name: wait for SSH (timeout 10min)
-        wait_for: port=22 host="{{inventory_hostname}}" search_regex=SSH timeout=600
-      - name: checking if device ready
-        panos_check: 
-          ip_address: "{{inventory_hostname}}" 
-          password: "{{password}}"
-        register: result
-        until: not result|failed
-        retries: 10
-        delay: 10
-      - name: import configuration
-        panos_import:
-          ip_address: "{{inventory_hostname}}" 
-          password: "{{password}}"
-          file: "{{cfg_file}}"
-          category: "configuration"
-        register: result
-      - name: load configuration
-        panos_loadcfg:
-          ip_address: "{{inventory_hostname}}" 
-          password: "{{password}}"
-          file: "{{result.filename}}"
-          commit: False       
-      - name: set admin password
-        panos_admin:
-          ip_address: "{{inventory_hostname}}"
-          password: "{{password}}"
-          admin_username: admin
-          admin_password: "{{password}}"
-          commit: False
-      - name: commit
-        panos_commit:
-          ip_address: "{{inventory_hostname}}"
-          password: "{{password}}"
-          sync: False
-      - name: waiting for commit
-        panos_check: 
-          ip_address: "{{inventory_hostname}}" 
-          password: "{{password}}"
-        register: result
-        until: not result|failed
-        retries: 10
-        delay: 10
