@@ -24,7 +24,6 @@
     panos_security_policy.py
 
 ##### Working on
-    panos_srule.py
 
 #### Needs major changes / deprecated
     panos_content.py
@@ -36,4 +35,4 @@
 
 ##### Out
     panos_swapif.py  <-- should be moved to panos_mgtconfig
-
+    panos_srule.py
