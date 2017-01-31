@@ -1,14 +1,15 @@
-.. _panos_check:
+.. _panos_commit:
 
-panos_check
+panos_commit
 ``````````````````````````````
 
 Synopsis
 --------
 
+Added in version 2.3
 
-Check if PAN-OS device is ready for being configured (no pending jobs).
-The check could be done once or multiple times until the device is ready.
+PanOS module that will commit firewall's candidate configuration on
+the device. The new configuration will become active immediately.
 
 
 Options
@@ -41,6 +42,22 @@ Options
       password for authentication<br></td>
     </tr>
         <tr style="text-align:center">
+    <td style="vertical-align:middle">timeout</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">None</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      timeout for commit job<br></td>
+    </tr>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">interval</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">0.5</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      interval for checking commit job<br></td>
+    </tr>
+        <tr style="text-align:center">
     <td style="vertical-align:middle">ip_address</td>
     <td style="vertical-align:middle">yes</td>
     <td style="vertical-align:middle"></td>
@@ -49,20 +66,12 @@ Options
       IP address (or hostname) of PAN-OS device<br></td>
     </tr>
         <tr style="text-align:center">
-    <td style="vertical-align:middle">timeout</td>
+    <td style="vertical-align:middle">sync</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle">0</td>
+    <td style="vertical-align:middle">True</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
-      timeout of API calls<br></td>
-    </tr>
-        <tr style="text-align:center">
-    <td style="vertical-align:middle">interval</td>
-    <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle">0</td>
-        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
-        <td style="vertical-align:middle;text-align:left">
-      time waited between checks<br></td>
+      if commit should be synchronous<br></td>
     </tr>
         </table><br>
 
@@ -76,19 +85,8 @@ Examples
  ::
 
     
-    # single check on 192.168.1.1 with credentials admin/admin
-    - name: check if ready
-      panos_check:
+    # Commit candidate config on 192.168.1.1 in sync mode
+    - panos_commit:
         ip_address: "192.168.1.1"
+        username: "admin"
         password: "admin"
-    
-    # check for 10 times, every 30 seconds, if device 192.168.1.1
-    # is ready, using credentials admin/admin
-    - name: wait for reboot
-      panos_check:
-        ip_address: "192.168.1.1"
-        password: "admin"
-      register: result
-      until: not result|failed
-      retries: 10
-      delay: 30

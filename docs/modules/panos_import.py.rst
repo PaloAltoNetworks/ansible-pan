@@ -1,13 +1,14 @@
-.. _panos_awsmonitor:
+.. _panos_import:
 
-panos_awsmonitor
+panos_import
 ``````````````````````````````
 
 Synopsis
 --------
 
+Added in version 2.3
 
-Create an AWS monitor object
+Import file on PAN-OS device
 
 
 Options
@@ -32,52 +33,28 @@ Options
       username for authentication<br></td>
     </tr>
         <tr style="text-align:center">
-    <td style="vertical-align:middle">access_key</td>
-    <td style="vertical-align:middle">yes</td>
-    <td style="vertical-align:middle"></td>
-        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
-        <td style="vertical-align:middle;text-align:left">
-      access key to use<br></td>
-    </tr>
-        <tr style="text-align:center">
-    <td style="vertical-align:middle">monitor_name</td>
-    <td style="vertical-align:middle">yes</td>
-    <td style="vertical-align:middle"></td>
-        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
-        <td style="vertical-align:middle;text-align:left">
-      name of the vm information source<br></td>
-    </tr>
-        <tr style="text-align:center">
-    <td style="vertical-align:middle">secret_access_key</td>
-    <td style="vertical-align:middle">yes</td>
-    <td style="vertical-align:middle"></td>
-        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
-        <td style="vertical-align:middle;text-align:left">
-      secret access key to use<br></td>
-    </tr>
-        <tr style="text-align:center">
-    <td style="vertical-align:middle">source</td>
-    <td style="vertical-align:middle">yes</td>
-    <td style="vertical-align:middle"></td>
-        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
-        <td style="vertical-align:middle;text-align:left">
-      EC2 endpoint to monitor (ec2.<region>.amazonaws.com)<br></td>
-    </tr>
-        <tr style="text-align:center">
-    <td style="vertical-align:middle">vpc_id</td>
-    <td style="vertical-align:middle">yes</td>
-    <td style="vertical-align:middle"></td>
-        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
-        <td style="vertical-align:middle;text-align:left">
-      ID of the VPC to monitor<br></td>
-    </tr>
-        <tr style="text-align:center">
-    <td style="vertical-align:middle">commit</td>
+    <td style="vertical-align:middle">category</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle">True</td>
+    <td style="vertical-align:middle">software</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
-      commit if changed<br></td>
+      category of file<br></td>
+    </tr>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">file</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">None</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      file to import<br></td>
+    </tr>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">url</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">None</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      url to file to import<br></td>
     </tr>
         <tr style="text-align:center">
     <td style="vertical-align:middle">password</td>
@@ -101,18 +78,23 @@ Options
 .. important:: Requires pan-python
 
 
+.. important:: Requires requests
+
+
+.. important:: Requires requests_toolbelt
+
+
 Examples
 --------
 
  ::
 
     
-    - name: test
-      panos_awsmonitor:
-        ip_address: "192.168.1.1"
-        password: "admin"
-        monitor_name: "awsmonitor"
-        vpc_id: "vpc-12345678"
-        source: "ec2.eu-west-1.amazonaws.com"
-        access_key: "BADACCESSKEY"
-        secret_access_key: "BADSECRETACCESSKEY"
+    # import software image PanOS_vm-6.1.1 on 192.168.1.1
+    - name: import software image into PAN-OS
+      panos_import:
+        ip_address: 192.168.1.1
+        username: admin
+        password: admin
+        file: /tmp/PanOS_vm-6.1.1
+        category: software

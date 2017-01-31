@@ -1,13 +1,14 @@
-.. _panos_import:
+.. _panos_mgtconfig:
 
-panos_import
+panos_mgtconfig
 ``````````````````````````````
 
 Synopsis
 --------
 
+Added in version 2.3
 
-Import file on PAN-OS device
+Configure management settings of device
 
 
 Options
@@ -32,28 +33,44 @@ Options
       username for authentication<br></td>
     </tr>
         <tr style="text-align:center">
-    <td style="vertical-align:middle">category</td>
-    <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle">software</td>
-        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
-        <td style="vertical-align:middle;text-align:left">
-      category of file<br></td>
-    </tr>
-        <tr style="text-align:center">
-    <td style="vertical-align:middle">file</td>
+    <td style="vertical-align:middle">panorama_primary</td>
     <td style="vertical-align:middle">no</td>
     <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
-      file to import<br></td>
+      address of primary Panorama server<br></td>
     </tr>
         <tr style="text-align:center">
-    <td style="vertical-align:middle">url</td>
+    <td style="vertical-align:middle">dns_server_secondary</td>
     <td style="vertical-align:middle">no</td>
     <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
-      url to file to import<br></td>
+      address of secondary DNS server<br></td>
+    </tr>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">dns_server_primary</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">None</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      address of primary DNS server<br></td>
+    </tr>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">panorama_secondary</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">None</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      address of secondary Panorama server<br></td>
+    </tr>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">commit</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">True</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      commit if changed<br></td>
     </tr>
         <tr style="text-align:center">
     <td style="vertical-align:middle">password</td>
@@ -77,23 +94,17 @@ Options
 .. important:: Requires pan-python
 
 
-.. important:: Requires requests
-
-
-.. important:: Requires requests_toolbelt
-
-
 Examples
 --------
 
  ::
 
     
-    # import software image PanOS_vm-6.1.1 on 192.168.1.1
-    - name: import software image into PAN-OS
-      panos_import:
-        ip_address: 192.168.1.1
-        username: admin
-        password: admin
-        file: /tmp/PanOS_vm-6.1.1
-        category: software
+    - name: set dns and panorama
+      panos_mgtconfig:
+        ip_address: "192.168.1.1"
+        password: "admin"
+        dns_server_primary: "1.1.1.1"
+        dns_server_secondary: "1.1.1.2"
+        panorama_primary: "1.1.1.3"
+        panorama_secondary: "1.1.1.4"

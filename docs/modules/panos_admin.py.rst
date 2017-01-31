@@ -1,13 +1,14 @@
-.. _panos_vulnprofile:
+.. _panos_admin:
 
-panos_vulnprofile
+panos_admin
 ``````````````````````````````
 
 Synopsis
 --------
 
+Added in version 2.3
 
-Create custom vulnerability profile
+PanOS module that allows changes to the user account passwords by doing API calls to the Firewall using pan-api as the protocol.
 
 
 Options
@@ -30,6 +31,22 @@ Options
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       username for authentication<br></td>
+    </tr>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">role</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      role for admin user<br></td>
+    </tr>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">admin_password</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      password for admin user<br></td>
     </tr>
         <tr style="text-align:center">
     <td style="vertical-align:middle">commit</td>
@@ -56,12 +73,12 @@ Options
       IP address (or hostname) of PAN-OS device<br></td>
     </tr>
         <tr style="text-align:center">
-    <td style="vertical-align:middle">rule_tuples</td>
+    <td style="vertical-align:middle">admin_username</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle">None</td>
+    <td style="vertical-align:middle">admin</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
-      a list of dictionaries that contains each rule definition. A rule is made of:<br>rule_name: required<br>threat_name: optional, deafult is 'any'<br>vendor_id: optional, deafult is 'any'<br>cve: optional, deafult is 'any'<br>host_type: optional, deafult is 'client'<br>severity: required<br>action: optional, deafult is 'default'<br>capture: optional, deafult is 'disable'<br></td>
+      username for admin user<br></td>
     </tr>
         </table><br>
 
@@ -75,11 +92,12 @@ Examples
  ::
 
     
-    panos_vulnprofile:
-      ip_address: "10.0.0.43"
-      password: "admin"
-      vulnprofile_name: "SampleVRule"
-      description: "some description"
-      rule_tuples: [{'rule_name': 'simple-client-critical', 'threat_name': 'any', 'vendor_id': 'any', 'cve': '1.1.1.1', 'host_type': 'client', 'severity': 'critical', 'action': 'default', 'capture': 'disable'}, {'rule_name': 'simple-client-high', 'threat_name': 'any', 'cve': 'any', 'vendor_id': '1.1.1.1', 'host_type': 'client', 'severity': 'high', 'action': 'default', 'capture': 'disable'}]
-      exception_ids: ["35931","35933"]
-      commit: False
+    # Set the password of user admin to "badpassword"
+    # Doesn't commit the candidate config
+      - name: set admin password
+        panos_admin:
+          ip_address: "192.168.1.1"
+          password: "admin"
+          admin_username: admin
+          admin_password: "badpassword"
+          commit: False

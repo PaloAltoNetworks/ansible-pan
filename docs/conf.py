@@ -35,7 +35,7 @@ project_root = os.path.dirname(cwd)
 # version is used.
 sys.path.insert(0, project_root)
 
-import configtree
+# import configtree
 import library
 
 # -- General configuration ---------------------------------------------

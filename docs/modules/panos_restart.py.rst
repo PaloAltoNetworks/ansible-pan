@@ -1,14 +1,14 @@
-.. _panos_swapif:
+.. _panos_restart:
 
-panos_swapif
+panos_restart
 ``````````````````````````````
 
 Synopsis
 --------
 
-Added in version 0.1
+Added in version 2.3
 
-Swap password interface from eth0 to eth1. This operation requires reboot.
+Restart a device
 
 
 Options
@@ -48,18 +48,10 @@ Options
         <td style="vertical-align:middle;text-align:left">
       IP address (or hostname) of PAN-OS device<br></td>
     </tr>
-        <tr style="text-align:center">
-    <td style="vertical-align:middle">swap</td>
-    <td style="vertical-align:middle">yes</td>
-    <td style="vertical-align:middle">no</td>
-        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
-        <td style="vertical-align:middle;text-align:left">
-      password to configure for admin on the PAN-OS device<br></td>
-    </tr>
         </table><br>
 
 
-.. important:: Requires pan.xapi
+.. important:: Requires pan-python
 
 
 Examples
@@ -68,8 +60,7 @@ Examples
  ::
 
     
-    - name: swap management interface
-      panos_swapif:
+    - panos_restart:
         ip_address: "192.168.1.1"
-        password: "changeme"
-        swap: "yes"
+        username: "admin"
+        password: "admin"

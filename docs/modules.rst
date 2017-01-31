@@ -1,6 +1,6 @@
 
-Modules list
-============
+Modules
+=======
 
 .. toctree::
    :maxdepth: 1

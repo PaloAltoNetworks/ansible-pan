@@ -1,14 +1,14 @@
-.. _panos_swinstall:
+.. _panos_interface:
 
-panos_swinstall
+panos_interface
 ``````````````````````````````
 
 Synopsis
 --------
 
+Added in version 2.3
 
-Install PAN-OS software image.
-The image should have been already imported on the device
+Configure data-port (DP) network interface for DHCP. By default DP interfaces are static.
 
 
 Options
@@ -33,20 +33,28 @@ Options
       username for authentication<br></td>
     </tr>
         <tr style="text-align:center">
-    <td style="vertical-align:middle">version</td>
+    <td style="vertical-align:middle">create_default_route</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle">None</td>
+    <td style="vertical-align:middle">false</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
-      version to install<br></td>
+      whether add default route with router learned via DHCP<br></td>
     </tr>
         <tr style="text-align:center">
-    <td style="vertical-align:middle">file</td>
-    <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle">None</td>
+    <td style="vertical-align:middle">zone_name</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
-      file to install<br></td>
+      name of the zone for the interface<br>if the zone does not exist it is created<br>if the zone exists and is not of the layer3 type the operation will fail<br></td>
+    </tr>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">commit</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">True</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      commit if changed<br></td>
     </tr>
         <tr style="text-align:center">
     <td style="vertical-align:middle">password</td>
@@ -65,12 +73,12 @@ Options
       IP address (or hostname) of PAN-OS device<br></td>
     </tr>
         <tr style="text-align:center">
-    <td style="vertical-align:middle">job_timeout</td>
-    <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle">240</td>
+    <td style="vertical-align:middle">if_name</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle"></td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
-      timeout for download and install jobs in seconds<br></td>
+      name of the interface to configure<br></td>
     </tr>
         </table><br>
 
@@ -84,10 +92,11 @@ Examples
  ::
 
     
-    # install PanOS_vm-6.1.1 image
-    - name: install software
-      panos_swinstall:
-        ip_address: 192.168.1.1
-        username: admin
-        password: admin
-        file: PanOS_vm-6.1.1
+    # enable DHCP client on ethernet1/1 in zone public
+    - name: configure ethernet1/1
+      interface:
+        password: "admin"
+        ip_address: "192.168.1.1"
+        if_name: "ethernet1/1"
+        zone_name: "public"
+        create_default_route: "yes"

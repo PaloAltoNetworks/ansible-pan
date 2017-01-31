@@ -1,13 +1,14 @@
-.. _panos_nat:
+.. _panos_nat_policy:
 
-panos_nat
+panos_nat_policy
 ``````````````````````````````
 
 Synopsis
 --------
 
+Added in version 2.3
 
-Create a nat rule
+Create a policy nat rule. Keep in mind that we can either end up configuring source NAT, destination NAT, or both. Instead of splitting it into two we will make a fair attempt to determine which one the user wants.
 
 
 Options
@@ -142,6 +143,14 @@ Options
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
       list of source addresses<br></td>
+    </tr>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">override</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">false</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      attempt to override rule if one with the same name already exists<br></td>
     </tr>
         <tr style="text-align:center">
     <td style="vertical-align:middle">commit</td>

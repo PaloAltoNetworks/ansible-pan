@@ -1,63 +1,47 @@
+=========================
+Palo Alto Ansible modules
+=========================
+
 About
 -----
 
 A collection of Ansible modules to automate configuration and operational tasks on Palo Alto Networks NGFWs
 
-Overview of modules
--------------------
-
-- panos_admin - add or modify admin user
-- panos_admpwd - set admin password via SSH
-- panos_cert_gen_ssh - create SSL certificate
-- panos_check - check if device is ready
-- panos_commit - commit candidate config
-- panos_dag - create dynamic address groups
-- panos_import - import files
-- panos_interface - configure a DP interface in DHCP Client mode
-- panos_lic - apply an authcode
-- panos_loadcfg - load configuration file
-- panos_mgtconfig - set management settings
-- panos_nat_policy - create a nat rule
-- panos_pg - create a security profile group
-- panos_restart - restart a device
-- panos_service - create a service
-- panos_srule - create a security rule
 
 Installation
---------------
+------------
 
-PANWAnsible modules are part of the deafult Ansible distribution. If you'd like to download Apache 2 licensed code 
-Clone the github repo at:
+PANW Ansible modules are part of the default Ansible distribution. If you'd like to download Apache 2 licensed code
+you can clone the github repo at:
+
     https://github.com/PaloAltoNetworks/ansible-pan/
 
- [comment]: <> (ansible-galaxy install paloaltonetworks.panos)
+.. <comment> <> (ansible-galaxy install paloaltonetworks.panos) </comment>
 
 Documentation
 -------------
 
 Each module is documented in docs/modules, you can also look at the documentation online at http://panwansible.readthedocs.io/en/develop/
+under *modules* section
 
-#### Rebuild documentation
+How to Rebuild documentation?
     
-######Using Docker
-    docker run -it -v <PATH_TO_REPO>/ansible-pan/docs/:/documents/ ivanbojer/spinx-with-rtd
-    make html
-    
-######Using Spinx
-    cd docs; make modules
-    
-Dependencies
-------------
+Using Docker::
 
-- panos_admpwd requires paramiko
-- panos_search depends on ec2 module
-- panos_import requires requests and requests_toolbelt modules
-- all the other modules requires pan-python
+    $ docker run -it -v <PATH_TO_REPO>/ansible-pan/docs/:/documents/ ivanbojer/spinx-with-rtd
+    $ make html
 
+Using Spinx::
+
+    $ cd docs
+    $ make html
+    
 Example Playbook
 ----------------
 
 This is an example playbook for import and load a config on a list of hosts:
+
+::
 
     ---
     - name: import config

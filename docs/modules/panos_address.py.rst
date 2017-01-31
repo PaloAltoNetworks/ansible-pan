@@ -1,13 +1,14 @@
-.. _panos_mgtconfig:
+.. _panos_address:
 
-panos_mgtconfig
+panos_address
 ``````````````````````````````
 
 Synopsis
 --------
 
+Added in version 2.3
 
-Configure management settings of device
+Create address service object of different types [IP Range, FQDN, or IP Netmask].
 
 
 Options
@@ -32,36 +33,44 @@ Options
       username for authentication<br></td>
     </tr>
         <tr style="text-align:center">
-    <td style="vertical-align:middle">panorama_primary</td>
+    <td style="vertical-align:middle">description</td>
     <td style="vertical-align:middle">no</td>
     <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
-      address of primary Panorama server<br></td>
+      description of address object<br></td>
     </tr>
         <tr style="text-align:center">
-    <td style="vertical-align:middle">dns_server_secondary</td>
+    <td style="vertical-align:middle">type</td>
     <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle">None</td>
+    <td style="vertical-align:middle">ip-nemask</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
-      address of secondary DNS server<br></td>
+      ip-netmask, fqdn, ip-range<br></td>
     </tr>
         <tr style="text-align:center">
-    <td style="vertical-align:middle">dns_server_primary</td>
+    <td style="vertical-align:middle">tag</td>
     <td style="vertical-align:middle">no</td>
     <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
-      address of primary DNS server<br></td>
+      tag of address object<br></td>
     </tr>
         <tr style="text-align:center">
-    <td style="vertical-align:middle">panorama_secondary</td>
-    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">address_name</td>
+    <td style="vertical-align:middle">yes</td>
     <td style="vertical-align:middle">None</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
-      address of secondary Panorama server<br></td>
+      name of the address<br></td>
+    </tr>
+        <tr style="text-align:center">
+    <td style="vertical-align:middle">address</td>
+    <td style="vertical-align:middle">yes</td>
+    <td style="vertical-align:middle">None</td>
+        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
+        <td style="vertical-align:middle;text-align:left">
+      IP address with or without mask, range, or fqdn<br></td>
     </tr>
         <tr style="text-align:center">
     <td style="vertical-align:middle">commit</td>
@@ -99,11 +108,30 @@ Examples
  ::
 
     
-    - name: set dns and panorama
-      panos_mgtconfig:
-        ip_address: "192.168.1.1"
-        password: "admin"
-        dns_server_primary: "1.1.1.1"
-        dns_server_secondary: "1.1.1.2"
-        panorama_primary: "1.1.1.3"
-        panorama_secondary: "1.1.1.4"
+    # Creates service for port 22
+      - name: create IP-Netmask Object
+        panos_address:
+          ip_address: "192.168.1.1"
+          password: 'admin'
+          address_name: 'google_dns'
+          address: '8.8.8.8/32'
+          description: 'Google DNS'
+          tag: 'Outbound'
+          commit: False
+    
+      - name: create IP-Range Object
+        panos_address:
+          ip_address: "192.168.1.1"
+          password: 'admin'
+          type: 'ip-range'
+          address_name: 'apple-range'
+          address: '17.0.0.0-17.255.255.255'
+          commit: False
+    
+      - name: create FQDN Object
+        panos_address:
+          ip_address: "192.168.1.1"
+          password: 'admin'
+          type: 'fqdn'
+          address_name: 'google.com'
+          address: 'www.google.com'

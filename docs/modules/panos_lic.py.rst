@@ -1,13 +1,16 @@
-.. _panos_dhcpif:
+.. _panos_lic:
 
-panos_dhcpif
+panos_lic
 ``````````````````````````````
 
 Synopsis
 --------
 
+Added in version 2.3
 
-Configure a DP network interface for DHCP
+Apply an authcode to a device.
+The authcode should have been previously registered on the Palo Alto Networks support portal.
+The device should have Internet access.
 
 
 Options
@@ -32,28 +35,12 @@ Options
       username for authentication<br></td>
     </tr>
         <tr style="text-align:center">
-    <td style="vertical-align:middle">create_default_route</td>
-    <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle">false</td>
-        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
-        <td style="vertical-align:middle;text-align:left">
-      whether add default route with router learned via DHCP<br></td>
-    </tr>
-        <tr style="text-align:center">
-    <td style="vertical-align:middle">zone_name</td>
+    <td style="vertical-align:middle">ip_address</td>
     <td style="vertical-align:middle">yes</td>
     <td style="vertical-align:middle"></td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
-      name of the zone for the interface<br>if the zone does not exist it is created<br></td>
-    </tr>
-        <tr style="text-align:center">
-    <td style="vertical-align:middle">commit</td>
-    <td style="vertical-align:middle">no</td>
-    <td style="vertical-align:middle">True</td>
-        <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
-        <td style="vertical-align:middle;text-align:left">
-      commit if changed<br></td>
+      IP address (or hostname) of PAN-OS device<br></td>
     </tr>
         <tr style="text-align:center">
     <td style="vertical-align:middle">password</td>
@@ -64,20 +51,20 @@ Options
       password for authentication<br></td>
     </tr>
         <tr style="text-align:center">
-    <td style="vertical-align:middle">ip_address</td>
-    <td style="vertical-align:middle">yes</td>
-    <td style="vertical-align:middle"></td>
+    <td style="vertical-align:middle">force</td>
+    <td style="vertical-align:middle">no</td>
+    <td style="vertical-align:middle">false</td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
-      IP address (or hostname) of PAN-OS device<br></td>
+      whether to apply authcode even if device is already licensed<br></td>
     </tr>
         <tr style="text-align:center">
-    <td style="vertical-align:middle">if_name</td>
+    <td style="vertical-align:middle">auth_code</td>
     <td style="vertical-align:middle">yes</td>
     <td style="vertical-align:middle"></td>
         <td style="vertical-align:middle;text-align:left"><ul style="margin:0;"></ul></td>
         <td style="vertical-align:middle;text-align:left">
-      name of the interface to configure<br></td>
+      authcode to be applied<br></td>
     </tr>
         </table><br>
 
@@ -91,11 +78,15 @@ Examples
  ::
 
     
-    # enable DHCP client on ethernet1/1 in zone public
-    - name: configure ethernet1/1
-      panos_dhcpif:
-        password: "admin"
-        ip_address: "192.168.1.1"
-        if_name: "ethernet1/1"
-        zone_name: "public"
-        create_default_route: "yes"
+        - hosts: localhost
+          connection: local
+          tasks:
+            - name: fetch license
+              panos_lic:
+                ip_address: "192.168.1.1"
+                password: "paloalto"
+                auth_code: "IBADCODE"
+              register: result
+        - name: Display serialnumber (if already registered)
+          debug:
+            var: "{{result.serialnumber}}"
