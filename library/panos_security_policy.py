@@ -1,27 +1,32 @@
-#!/usr/bin/env python
-
-#  Copyright 2016 Palo Alto Networks, Inc
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 #
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
+# Ansible module to manage PaloAltoNetworks Firewall
+# (c) 2016, techbizdev <techbizdev@paloaltonetworks.com>
 #
-#      http://www.apache.org/licenses/LICENSE-2.0
+# This file is part of Ansible
 #
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Ansible is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Ansible is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
 DOCUMENTATION = '''
 ---
 module: panos_security_policy
 short_description: create security rule policy
-description:
-    - Security policies allow you to enforce rules and take action, and can be as general or specific as needed.
-    The policy rules are compared against the incoming traffic in sequence, and because the first rule that matches the traffic
-    is applied, the more specific rules must precede the more general ones.
+description: >
+    Security policies allow you to enforce rules and take action, and can be as general or specific as needed.
+    The policy rules are compared against the incoming traffic in sequence, and because the first rule that matches
+    the traffic is applied, the more specific rules must precede the more general ones.
 author: "Ivan Bojer (@ivanbojer)"
 version_added: "2.3"
 requirements:
@@ -57,7 +62,7 @@ options:
         default: "None"
     tag:
         description:
-            - Administrative tags that can be added to the rule. Note: Tags must be already defined.
+            - Administrative tags that can be added to the rule. Note, tags must be already defined.
         required: false
         default: "None"
     from_zone:
@@ -81,8 +86,10 @@ options:
         required: false
         default: "any"
     hip_profiles:
-        description:
-            - If you are using GlobalProtect with host information profile (HIP) enabled, you can also base the policy on information collected by GlobalProtect. For example, the user access level can be determined HIP that notifies the firewall about the user's local configuration.
+        description: >
+            If you are using GlobalProtect with host information profile (HIP) enabled, you can also base the policy
+            on information collected by GlobalProtect. For example, the user access level can be determined HIP that
+            notifies the firewall about the user's local configuration.
         required: false
         default: "any"
     destination:
@@ -116,8 +123,9 @@ options:
         required: false
         default: "allow"
     group_profile:
-        description:
-            - security profile group that is already defined in the system. This property supersedes antivirus, vulnerability, spyware, url_filtering, file_blocking, data_filtering, and wildfire_analysis properties.
+        description: >
+            security profile group that is already defined in the system. This property supersedes antivirus,
+            vulnerability, spyware, url_filtering, file_blocking, data_filtering, and wildfire_analysis properties.
         required: false
         default: None
     antivirus:
