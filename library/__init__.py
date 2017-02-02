@@ -14,3 +14,4 @@
 
 __author__ = 'Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)'
 __version__ = '0.1.5'
+
