@@ -1,29 +1,27 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2014, Palo Alto Networks <techbizdev@paloaltonetworks.com>
+#  Copyright 2016 Palo Alto Networks, Inc
 #
-# Permission to use, copy, modify, and/or distribute this software for any
-# purpose with or without fee is hereby granted, provided that the above
-# copyright notice and this permission notice appear in all copies.
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
 #
-# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
 
 DOCUMENTATION = '''
 ---
 module: panos_service
 short_description: create a service object
 description:
-    - Create a service object
-author: 
-    - Palo Alto Networks 
-    - Luigi Mori (jtschichold)
-version_added: "0.0"
+    - Create a service object. Service objects are fundamental representation of the applications given src/dst ports and protocol
+author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
+version_added: "2.3"
 requirements:
     - pan-python
 options:
@@ -75,13 +73,24 @@ EXAMPLES = '''
       port: "22"
 '''
 
-import sys
+RETURN='''
+# Default return values
+'''
+
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'version': '1.0'}
+
+
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.basic import get_exception
 
 try:
     import pan.xapi
+    from pan.xapi import PanXapiError
+    HAS_LIB = True
 except ImportError:
-    print "failed=True msg='pan-python required for this module'"
-    sys.exit(1)
+    HAS_LIB = False
 
 _SERVICE_XPATH = "/config/devices/entry[@name='localhost.localdomain']" +\
                  "/vsys/entry[@name='vsys1']" +\
@@ -117,24 +126,27 @@ def add_service(xapi, module, service_name, protocol, port, source_port):
 
 def main():
     argument_spec = dict(
-        ip_address=dict(default=None),
-        password=dict(default=None, no_log=True),
+        ip_address=dict(required=True),
+        password=dict(required=True, no_log=True),
         username=dict(default='admin'),
-        service_name=dict(default=None),
-        protocol=dict(default=None, choices=['tcp', 'udp']),
-        port=dict(default=None),
-        source_port=dict(default=None),
+        service_name=dict(required=True),
+        protocol=dict(required=True, choices=['tcp', 'udp']),
+        port=dict(required=True),
+        source_port=dict(),
         commit=dict(type='bool', default=True)
     )
-    module = AnsibleModule(argument_spec=argument_spec)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
+    if not HAS_LIB:
+        module.fail_json(msg='pan-python is required for this module')
 
     ip_address = module.params["ip_address"]
-    if not ip_address:
-        module.fail_json(msg="ip_address should be specified")
     password = module.params["password"]
-    if not password:
-        module.fail_json(msg="password is required")
     username = module.params['username']
+    service_name = module.params['service_name']
+    protocol = module.params['protocol']
+    port = module.params['port']
+    source_port = module.params['source_port']
+    commit = module.params['commit']
 
     xapi = pan.xapi.PanXapi(
         hostname=ip_address,
@@ -142,30 +154,19 @@ def main():
         api_password=password
     )
 
-    service_name = module.params['service_name']
-    if not service_name:
-        module.fail_json(msg='service_name is required')
-    protocol = module.params['protocol']
-    if not protocol:
-        module.fail_json(msg="protocol is required")
-    port = module.params['port']
-    if not port:
-        module.fail_json(msg="port is required")
-    source_port = module.params['source_port']
-    commit = module.params['commit']
-
-    changed = False
-    changed = add_service(xapi, module,
-                          service_name,
-                          protocol,
-                          port,
-                          source_port)
-
-    if changed and commit:
-        xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
+    try:
+        changed = add_service(xapi, module,
+                              service_name,
+                              protocol,
+                              port,
+                              source_port)
+        if changed and commit:
+            xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
+    except PanXapiError:
+        exc = get_exception()
+        module.fail_json(msg=exc.message)
 
     module.exit_json(changed=changed, msg="okey dokey")
 
-from ansible.module_utils.basic import *  # noqa
-
-main()
+if __name__ == '__main__':
+    main()

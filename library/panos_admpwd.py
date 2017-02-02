@@ -1,18 +1,18 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2014, Palo Alto Networks <techbizdev@paloaltonetworks.com>
+#  Copyright 2016 Palo Alto Networks, Inc
 #
-# Permission to use, copy, modify, and/or distribute this software for any
-# purpose with or without fee is hereby granted, provided that the above
-# copyright notice and this permission notice appear in all copies.
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
 #
-# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
 
 DOCUMENTATION = '''
 ---
@@ -21,10 +21,8 @@ short_description: change admin password of PAN-OS device using SSH with SSH key
 description:
     - Change the admin password of PAN-OS via SSH using a SSH key for authentication.
     - Useful for AWS instances where the first login should be done via SSH.
-author:
-    - Palo Alto Networks
-    - Luigi Mori (jtschichold)
-version_added: "0.0"
+author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
+version_added: "2.3"
 requirements:
     - paramiko
 options:
@@ -32,11 +30,16 @@ options:
         description:
             - IP address (or hostname) of PAN-OS device
         required: true
+    username:
+        description:
+            - username for initial authentication
+        required: false
+        default: "admin"
     key_filename:
         description:
             - filename of the SSH Key to use for authentication
         required: true
-    password:
+    newpassword:
         description:
             - password to configure for admin on the PAN-OS device
         required: true
@@ -48,22 +51,36 @@ EXAMPLES = '''
 - name: set admin password
   panos_admpwd:
     ip_address: "192.168.1.1"
+    username: "admin"
     key_filename: "/tmp/ssh.key"
-    password: "badpassword"
+    newpassword: "badpassword"
   register: result
   until: not result|failed
   retries: 10
   delay: 30
 '''
 
+RETURN = '''
+status:
+    description: success status
+    returned: success
+    type: string
+    sample: "Last login: Fri Sep 16 11:09:20 2016 from 10.35.34.56.....Configuration committed successfully"
+'''
+
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'version': '1.0'}
+
+from ansible.module_utils.basic import AnsibleModule
 import time
 import sys
 
 try:
     import paramiko
+    HAS_LIB=True
 except ImportError:
-    print "failed=True msg='paramiko required for this module'"
-    sys.exit(1)
+    HAS_LIB=False
 
 _PROMPTBUFF = 4096
 
@@ -84,16 +101,16 @@ def wait_with_timeout(module, shell, prompt, timeout=60):
     return result
 
 
-def set_pavmaws_password(module, ip_address, key_filename, password):
+def set_panwfw_password(module, ip_address, key_filename, newpassword, username):
     stdout = ""
 
     ssh = paramiko.SSHClient()
 
     # add policy to accept all host keys, I haven't found
-    # a way to retreive the instance SSH key fingerprint from AWS
+    # a way to retrieve the instance SSH key fingerprint from AWS
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
-    ssh.connect(ip_address, username="admin", key_filename=key_filename)
+    ssh.connect(ip_address, username=username, key_filename=key_filename)
     shell = ssh.invoke_shell()
 
     # wait for the shell to start
@@ -106,22 +123,28 @@ def set_pavmaws_password(module, ip_address, key_filename, password):
     buff = wait_with_timeout(module, shell, "#")
     stdout += buff
 
+    if module.check_mode:
+        # exit and close connection
+        shell.send('exit\n')
+        ssh.close()
+        return False, 'Connection test successful. Password left intact.'
+
     # set admin password
-    shell.send('set mgt-config users admin password\n')
+    shell.send('set mgt-config users ' + username + ' password\n')
 
     # wait for the password prompt
     buff = wait_with_timeout(module, shell, ":")
     stdout += buff
 
     # enter password for the first time
-    shell.send(password+'\n')
+    shell.send(newpassword+'\n')
 
     # wait for the password prompt
     buff = wait_with_timeout(module, shell, ":")
     stdout += buff
 
     # enter password for the second time
-    shell.send(password+'\n')
+    shell.send(newpassword+'\n')
 
     # wait for the config mode prompt
     buff = wait_with_timeout(module, shell, "#")
@@ -135,23 +158,26 @@ def set_pavmaws_password(module, ip_address, key_filename, password):
     stdout += buff
 
     if 'success' not in buff:
-        module.fail_json(msg="Error setting admin password: "+stdout)
+        module.fail_json(msg="Error setting " + username + " password: " + stdout)
 
     # exit
     shell.send('exit\n')
 
     ssh.close()
 
-    return stdout
+    return True, stdout
 
 
 def main():
     argument_spec = dict(
-        ip_address=dict(default=None),
-        key_filename=dict(default=None),
-        password=dict(default=None, no_log=True)
+        ip_address=dict(required=True),
+        username=dict(default='admin'),
+        key_filename=dict(required=True),
+        newpassword=dict(no_log=True, required=True)
     )
-    module = AnsibleModule(argument_spec=argument_spec)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
+    if not HAS_LIB:
+        module.fail_json(msg='paramiko is required for this module')
 
     ip_address = module.params["ip_address"]
     if not ip_address:
@@ -159,15 +185,17 @@ def main():
     key_filename = module.params["key_filename"]
     if not key_filename:
         module.fail_json(msg="key_filename should be specified")
-    password = module.params["password"]
-    if not password:
-        module.fail_json(msg="password is required")
+    newpassword = module.params["newpassword"]
+    if not newpassword:
+        module.fail_json(msg="newpassword is required")
+    username = module.params['username']
 
-    stdout = set_pavmaws_password(module, ip_address, key_filename, password)
+    try:
+        changed, stdout = set_panwfw_password(module, ip_address, key_filename, newpassword, username)
+        module.exit_json(changed=changed, stdout=stdout)
+    except Exception:
+        x = sys.exc_info()[1]
+        module.fail_json(msg=x)
 
-    module.exit_json(changed=True, stdout=stdout)
-
-
-from ansible.module_utils.basic import *  # noqa
-
-main()
+if __name__ == '__main__':
+    main()

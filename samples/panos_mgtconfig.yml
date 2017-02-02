@@ -1,0 +1,12 @@
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: set dns and panorama but don't commit
+      panos_mgtconfig:
+        ip_address: "10.5.172.91"
+        password: "paloalto"
+        dns_server_primary: "1.1.1.1"
+        dns_server_secondary: "1.1.1.2"
+        panorama_primary: "1.1.1.3"
+        panorama_secondary: "1.1.1.4"
+        commit: False

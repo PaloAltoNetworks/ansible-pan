@@ -1,0 +1,15 @@
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: add gateway to already existing portal
+      panos_gpp_gateway:
+        username: "admin"
+        password: "paloalto"
+        ip_address: "10.5.172.91"
+        portal_name: "GP-Portal"
+        config_name: "GPClientConfig"
+        type: "external"
+        gateway_address: "1.2.3.4"
+        description: "Sample test device"
+        manual: true
+        state: "absent"

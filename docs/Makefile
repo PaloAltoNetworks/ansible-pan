@@ -51,7 +51,7 @@ help:
 	@echo "  coverage   to run coverage check of the documentation (if enabled)"
 
 clean:
-	rm -rf $(BUILDDIR)/* modules modules_list.rst
+	rm -rf $(BUILDDIR)/* modules modules.rst
 
 html: modules
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
@@ -195,4 +195,4 @@ pseudoxml:
 
 modules:
 	mkdir modules
-	$(FORMATTER) -M ../library/ -o modules/ -T hacking/templates/ -t rst -I modules_list.rst
+	$(FORMATTER) -M ../library/ -o modules/ -T hacking/templates/ -t rst -I modules.rst

@@ -1,18 +1,18 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2014, Palo Alto Networks <techbizdev@paloaltonetworks.com>
+#  Copyright 2016 Palo Alto Networks, Inc
 #
-# Permission to use, copy, modify, and/or distribute this software for any
-# purpose with or without fee is hereby granted, provided that the above
-# copyright notice and this permission notice appear in all copies.
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
 #
-# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
 
 DOCUMENTATION = '''
 ---
@@ -20,10 +20,8 @@ module: panos_import
 short_description: import file on PAN-OS devices
 description:
     - Import file on PAN-OS device
-author: 
-    - Palo Alto Networks 
-    - Luigi Mori (jtschichold)
-version_added: "0.0"
+author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
+version_added: "2.3"
 requirements:
     - pan-python
     - requests
@@ -31,30 +29,30 @@ requirements:
 options:
     ip_address:
         description:
-            - IP address (or hostname) of PAN-OS device
+            - IP address (or hostname) of PAN-OS device.
         required: true
     password:
         description:
-            - password for authentication
+            - Password for device authentication.
         required: true
     username:
         description:
-            - username for authentication
+            - Username for device authentication.
         required: false
         default: "admin"
     category:
         description:
-            - category of file
+            - Category of file uploaded. The default is software.
         required: false
         default: software
     file:
         description:
-            - file to import
+            - Location of the file to import into device.
         required: false
         default: None
     url:
         description:
-            - url to file to import
+            - URL of the file that will be imported to device.
         required: false
         default: None
 '''
@@ -70,7 +68,17 @@ EXAMPLES = '''
     category: software
 '''
 
-import sys
+RETURN='''
+# Default return values
+'''
+
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'version': '1.0'}
+
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.basic import get_exception
+
 import os.path
 import xml.etree
 import tempfile
@@ -79,21 +87,11 @@ import os
 
 try:
     import pan.xapi
-except ImportError:
-    print "failed=True msg='pan-python required for this module'"
-    sys.exit(1)
-
-try:
     import requests
-except ImportError:
-    print "failed=True msg='requests required for this module'"
-    sys.exit(1)
-
-try:
     import requests_toolbelt
+    HAS_LIB = True
 except ImportError:
-    print "failed=True msg='requests_toolbelt required for this module'"
-    sys.exit(1)
+    HAS_LIB = False
 
 
 def import_file(xapi, module, ip_address, file_, category):
@@ -125,6 +123,7 @@ def import_file(xapi, module, ip_address, file_, category):
     r.raise_for_status()
 
     resp = xml.etree.ElementTree.fromstring(r.content)
+
     if resp.attrib['status'] == 'error':
         module.fail_json(msg=r.content)
 
@@ -146,21 +145,19 @@ def delete_file(path):
 
 def main():
     argument_spec = dict(
-        ip_address=dict(default=None),
-        password=dict(default=None, no_log=True),
+        ip_address=dict(required=True),
+        password=dict(required=True, no_log=True),
         username=dict(default='admin'),
         category=dict(default='software'),
-        file=dict(default=None),
-        url=dict(default=None)
+        file=dict(),
+        url=dict()
     )
-    module = AnsibleModule(argument_spec=argument_spec)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False, required_one_of=[['file', 'url']])
+    if not HAS_LIB:
+        module.fail_json(msg='pan-python, requests, and requests_toolbelt are required for this module')
 
     ip_address = module.params["ip_address"]
-    if not ip_address:
-        module.fail_json(msg="ip_address should be specified")
     password = module.params["password"]
-    if not password:
-        module.fail_json(msg="password is required")
     username = module.params['username']
 
     xapi = pan.xapi.PanXapi(
@@ -171,22 +168,24 @@ def main():
 
     file_ = module.params['file']
     url = module.params['url']
-    if file_ is None and url is None:
-        module.fail_json(msg="file or url is required")
-    if file_ is not None and url is not None:
-        module.fail_json(msg="only one of file or url can be specified")
+
     category = module.params['category']
 
+    # we can get file from URL or local storage
     if url is not None:
         file_ = download_file(url)
 
-    changed, filename = import_file(xapi, module, ip_address, file_, category)
+    try:
+        changed, filename = import_file(xapi, module, ip_address, file_, category)
+    except Exception:
+        exc = get_exception()
+        module.fail_json(msg=exc.message)
 
+    # cleanup and delete file if local
     if url is not None:
         delete_file(file_)
 
     module.exit_json(changed=changed, filename=filename, msg="okey dokey")
 
-from ansible.module_utils.basic import *  # noqa
-
-main()
+if __name__ == '__main__':
+    main()

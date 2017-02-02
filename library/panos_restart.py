@@ -1,18 +1,18 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2014, Palo Alto Networks <techbizdev@paloaltonetworks.com>
+#  Copyright 2016 Palo Alto Networks, Inc
 #
-# Permission to use, copy, modify, and/or distribute this software for any
-# purpose with or without fee is hereby granted, provided that the above
-# copyright notice and this permission notice appear in all copies.
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
 #
-# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
 
 DOCUMENTATION = '''
 ---
@@ -20,8 +20,8 @@ module: panos_restart
 short_description: restart a device
 description:
     - Restart a device
-author: Palo Alto Networks - lmori
-version_added: "0.0"
+author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
+version_added: "2.3"
 requirements:
     - pan-python
 options:
@@ -47,22 +47,37 @@ EXAMPLES = '''
     password: "admin"
 '''
 
+RETURN = '''
+status:
+    description: success status
+    returned: success
+    type: string
+    sample: "okey dokey"
+'''
+
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'version': '1.0'}
+
+from ansible.module_utils.basic import AnsibleModule
 import sys
 
 try:
     import pan.xapi
+    HAS_LIB = True
 except ImportError:
-    print "failed=True msg='pan-python required for this module'"
-    sys.exit(1)
-
+    HAS_LIB = False
 
 def main():
     argument_spec = dict(
-        ip_address=dict(default=None),
-        password=dict(default=None, no_log=True),
+        ip_address=dict(),
+        password=dict(no_log=True),
         username=dict(default='admin')
     )
-    module = AnsibleModule(argument_spec=argument_spec)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
+
+    if not HAS_LIB:
+        module.fail_json(msg='pan-python required for this module')
 
     ip_address = module.params["ip_address"]
     if not ip_address:
@@ -80,14 +95,15 @@ def main():
 
     try:
         xapi.op(cmd="<request><restart><system></system></restart></request>")
-    except pan.xapi.PanXapiError, msg:
-        if 'succeeded' in str(msg):
+    except Exception:
+        x = sys.exc_info()[1]
+        if 'succeeded' in str(x):
             module.exit_json(changed=True, msg=str(msg))
-
-        raise
+        else:
+            module.fail_json(msg=x)
+            raise
 
     module.exit_json(changed=True, msg="okey dokey")
 
-from ansible.module_utils.basic import *  # noqa
-
-main()
+if __name__ == '__main__':
+    main()
