@@ -1,2 +1,2 @@
-This folder contains modules that are currently depreated.
+This folder contains modules that are currently deprecated.
 
