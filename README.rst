@@ -17,7 +17,7 @@ PANW PANOS Ansible modules are part of the default Ansible distribution which is
 
     https://github.com/ansible/ansible/tree/devel/lib/ansible/modules/network/panos
 
-It is also available as free Apache 2.0 licensed code from Palo Alto Networks Github repo at:
+It is also available as free **Apache 2.0** licensed code from Palo Alto Networks Github repo at:
 
     https://github.com/PaloAltoNetworks/ansible-pan/
 
