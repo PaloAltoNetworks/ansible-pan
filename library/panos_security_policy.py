@@ -46,6 +46,9 @@ options:
         description:
             - password for authentication
         required: true
+    api_key:
+        description:
+            - API key that can be used instead of username/password credentials.
     rule_name:
         description:
             - description of the security rule
