@@ -333,8 +333,9 @@ def add_security_rule(fw, sec_rule):
 def main():
     argument_spec = dict(
         ip_address=dict(required=True),
-        password=dict(required=True, no_log=True),
+        password=dict(no_log=True),
         username=dict(default='admin'),
+        api_key=dict(no_log=True),
         rule_name=dict(required=True),
         description=dict(default=''),
         tag=dict(),
@@ -361,11 +362,13 @@ def main():
         action=dict(default='allow'),
         commit=dict(type='bool', default=True)
     )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
+                           required_one_of=[['api_key', 'password']])
 
     ip_address = module.params["ip_address"]
     password = module.params["password"]
     username = module.params['username']
+    api_key = module.params['api_key']
     rule_name = module.params['rule_name']
     description = module.params['description']
     tag = module.params['tag']
@@ -394,7 +397,7 @@ def main():
 
     commit = module.params['commit']
 
-    fw = pandevice.firewall.Firewall(ip_address, username, password)
+    fw = pandevice.firewall.Firewall(ip_address, username, password, api_key=api_key)
 
     if security_rule_exists(fw, rule_name):
         module.fail_json(msg='Rule with the same name already exists.')
