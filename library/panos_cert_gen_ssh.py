@@ -25,6 +25,8 @@ author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
 version_added: "2.3"
 requirements:
     - paramiko
+note:
+    - Checkmode is not supported.
 options:
     ip_address:
         description:
