@@ -27,6 +27,9 @@ version_added: "2.3"
 requirements:
     - pan-python
     - pandevice
+note:
+    - Checkmode is not supported.
+    - Panorama is supported
 options:
     ip_address:
         description:
