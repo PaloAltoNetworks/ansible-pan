@@ -4,6 +4,19 @@
 Snippets
 ========
 
+Add security policy to Firewall or Panorama
+===========================================
+
+    Security policies allow you to enforce rules and take action, and can be as general or specific as needed.
+    The policy rules are compared against the incoming traffic in sequence, and because the first rule that matches
+    the traffic is applied, the more specific rules must precede the more general ones.
+
+.. include:: ../samples/panos_security_policy.yml
+    :literal:
+
+.. include:: ../samples/panos_security_policy_w_panorama.yml
+    :literal:
+
 Address service object
 =============================
 
