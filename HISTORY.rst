@@ -7,7 +7,7 @@ History
 V1.0.1
 ______
 
-- Released: 2017-01-31
+- Released: 2017-02-15
 - Status: Release
 
 All modules have been touched and refactored to adhere to Ansible module development practices. Documentatio
