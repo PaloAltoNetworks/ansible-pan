@@ -1,23 +1,18 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
+
+#  Copyright 2016 Palo Alto Networks, Inc
 #
-# Ansible module to manage PaloAltoNetworks Firewall
-# (c) 2016, techbizdev <techbizdev@paloaltonetworks.com>
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
 #
-# This file is part of Ansible
+#      http://www.apache.org/licenses/LICENSE-2.0
 #
-# Ansible is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Ansible is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
 
 DOCUMENTATION = '''
 ---
@@ -30,42 +25,44 @@ author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
 version_added: "2.3"
 requirements:
     - paramiko
+note:
+    - Checkmode is not supported.
 options:
     ip_address:
         description:
-            - IP address (or hostname) of PAN-OS device
+            - IP address (or hostname) of PAN-OS device being configured.
         required: true
         default: null
     key_filename:
         description:
-            - filename of the SSH Key to use for authentication (either key or password is required)
+            - Location of the filename that is used for the auth. Either I(key_filename) or I(password) is required.
         required: true
         default: null
     password:
         description:
-            - password to use for authentication (either key or password is required)
+            - Password credentials to use for auth. Either I(key_filename) or I(password) is required.
         required: true
         default: null
     cert_friendly_name:
         description:
-            - certificate name (not CN but just a friendly name)
+            - Human friendly certificate name (not CN but just a friendly name).
         required: true
         default: null
     cert_cn:
         description:
-            - certificate cn
+            - Certificate CN (common name) embeded in the certificate signature.
         required: true
         default: null
     signed_by:
         description:
-            - undersigning authorithy which MUST be presents on the device already
+            - Undersigning authority (CA) that MUST already be presents on the device.
         required: true
         default: null
     rsa_nbits:
         description:
-            - number of bits used by the RSA alg
+            - Number of bits used by the RSA algorithm for the certificate generation.
         required: false
-        default: "1024"
+        default: "2048"
 '''
 
 EXAMPLES = '''
@@ -161,7 +158,7 @@ def main():
     argument_spec = dict(
         ip_address=dict(required=True),
         key_filename=dict(),
-        password=dict(),
+        password=dict(no_log=True),
         cert_cn=dict(required=True),
         cert_friendly_name=dict(required=True),
         rsa_nbits=dict(default='2048'),

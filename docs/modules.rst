@@ -21,3 +21,4 @@ Modules
    modules/panos_pg.py
    modules/panos_restart.py
    modules/panos_security_policy.py
+   modules/panos_service.py

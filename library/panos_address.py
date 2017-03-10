@@ -14,99 +14,94 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'version': '1.0'}
+
 DOCUMENTATION = '''
 ---
 module: panos_address
-short_description: create address service object
+short_description: Create address service object on PanOS devices
 description:
     - Create address service object of different types [IP Range, FQDN, or IP Netmask].
 author: "Luigi Mori (@jtschichold), Ken Celenza (@itdependsnetworks), Ivan Bojer (@ivanbojer)"
 version_added: "2.3"
 requirements:
-    - pan-python
+    - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
 options:
     ip_address:
         description:
-            - IP address (or hostname) of PAN-OS device
-        required: true
-    password:
-        description:
-            - password for authentication
+            - IP address (or hostname) of PAN-OS device being configured.
         required: true
     username:
         description:
-            - username for authentication
-        required: false
+            - Username credentials to use for authentication.
         default: "admin"
+    password:
+        description:
+            - Password credentials to use for authentication.
+        required: true
     address:
         description:
-            - IP address with or without mask, range, or fqdn
+            - IP address with or without mask, range, or FQDN.
         required: true
         default: None
     address_name:
         description:
-            - name of the address
+            - Human readable name of the address.
         required: true
         default: None
     type:
         description:
-            - ip-netmask, fqdn, ip-range
-        required: false
+            - This is the type of the object created.
         default: ip-nemask
+        choices: [ 'ip-netmask', 'fqdn', 'ip-range' ]
     description:
         description:
-            - description of address object
-        required: false
+            - Description of the address object.
         default: None
     tag:
         description:
-            - tag of address object 
-        required: false
+            - Tag of the address object.
         default: None
     commit:
         description:
-            - commit if changed
-        required: false
+            - Commit configuration to the Firewall if it is changed.
         default: true
 '''
 
 EXAMPLES = '''
-# Creates service for port 22
-  - name: create IP-Netmask Object
-    panos_address:
-      ip_address: "192.168.1.1"
-      password: 'admin'
-      address_name: 'google_dns'
-      address: '8.8.8.8/32'
-      description: 'Google DNS'
-      tag: 'Outbound'
-      commit: False
+- name: create IP-Netmask Object
+  panos_address:
+    ip_address: "192.168.1.1"
+    password: 'admin'
+    address_name: 'google_dns'
+    address: '8.8.8.8/32'
+    description: 'Google DNS'
+    tag: 'Outbound'
+    commit: False
 
-  - name: create IP-Range Object
-    panos_address:
-      ip_address: "192.168.1.1"
-      password: 'admin'
-      type: 'ip-range'
-      address_name: 'apple-range'
-      address: '17.0.0.0-17.255.255.255'
-      commit: False
+- name: create IP-Range Object
+  panos_address:
+    ip_address: "192.168.1.1"
+    password: 'admin'
+    type: 'ip-range'
+    address_name: 'apple-range'
+    address: '17.0.0.0-17.255.255.255'
+    commit: False
 
-  - name: create FQDN Object
-    panos_address:
-      ip_address: "192.168.1.1"
-      password: 'admin'
-      type: 'fqdn'
-      address_name: 'google.com'
-      address: 'www.google.com'
+- name: create FQDN Object
+  panos_address:
+    ip_address: "192.168.1.1"
+    password: 'admin'
+    type: 'fqdn'
+    address_name: 'google.com'
+    address: 'www.google.com'
 '''
 
 RETURN = '''
 # Default return values
 '''
-
-ANSIBLE_METADATA = {'status': ['preview'],
-                    'supported_by': 'community',
-                    'version': '1.0'}
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.basic import get_exception
@@ -164,9 +159,9 @@ def main():
         password=dict(required=True, no_log=True),
         username=dict(default='admin'),
         address_name=dict(required=True),
-        address=dict(default=None),
-        description=dict(default=None),
-        tag=dict(default=None),
+        address=dict(),
+        description=dict(),
+        tag=dict(),
         type=dict(default='ip-netmask', choices=['ip-netmask', 'ip-range', 'fqdn']),
         commit=dict(type='bool', default=True)
     )

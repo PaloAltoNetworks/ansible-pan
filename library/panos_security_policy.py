@@ -1,28 +1,27 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
+
+#  Copyright 2016 Palo Alto Networks, Inc
 #
-# Ansible module to manage PaloAltoNetworks Firewall
-# (c) 2016, techbizdev <techbizdev@paloaltonetworks.com>
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
 #
-# This file is part of Ansible
+#      http://www.apache.org/licenses/LICENSE-2.0
 #
-# Ansible is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Ansible is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'version': '1.0'}
 
 DOCUMENTATION = '''
 ---
 module: panos_security_policy
-short_description: create security rule policy
+short_description: Create security rule policy on PanOS devices.
 description: >
     Security policies allow you to enforce rules and take action, and can be as general or specific as needed.
     The policy rules are compared against the incoming traffic in sequence, and because the first rule that matches
@@ -30,149 +29,136 @@ description: >
 author: "Ivan Bojer (@ivanbojer)"
 version_added: "2.3"
 requirements:
-    - pan-python
-    - pandevice
+    - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
+    - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
+notes:
+    - Checkmode is not supported.
+    - Panorama is supported
 options:
     ip_address:
         description:
-            - IP address (or hostname) of PAN-OS device
+            - IP address (or hostname) of PAN-OS device being configured.
         required: true
     username:
         description:
-            - username for authentication
-        required: false
+            - Username credentials to use for auth unless I(api_key) is set.
         default: "admin"
     password:
         description:
-            - password for authentication
+            - Password credentials to use for auth unless I(api_key) is set.
         required: true
+    api_key:
+        description:
+            - API key that can be used instead of I(username)/I(password) credentials.
     rule_name:
         description:
-            - description of the security rule
+            - Name of the security rule.
         required: true
     rule_type:
         description:
-            - type of security rule (6.1+)
-        required: false
+            - Type of security rule (version 6.1 of PanOS and above).
         default: "universal"
     description:
         description:
-            - Description of this rule
-        required: false
+            - Description for the security rule.
         default: "None"
     tag:
         description:
             - Administrative tags that can be added to the rule. Note, tags must be already defined.
-        required: false
         default: "None"
     from_zone:
         description:
-            - list of source zones
-        required: false
+            - List of source zones.
         default: "any"
     to_zone:
         description:
-            - list of destination zones
-        required: false
+            - List of destination zones.
         default: "any"
     source:
         description:
-            - list of source addresses
-        required: false
+            - List of source addresses.
         default: "any"
     source_user:
         description:
-            - use users to enforce policy for individual users or a group of users
-        required: false
+            - Use users to enforce policy for individual users or a group of users.
         default: "any"
     hip_profiles:
         description: >
             If you are using GlobalProtect with host information profile (HIP) enabled, you can also base the policy
             on information collected by GlobalProtect. For example, the user access level can be determined HIP that
             notifies the firewall about the user's local configuration.
-        required: false
         default: "any"
     destination:
         description:
-            - list of destination addresses
-        required: false
+            - List of destination addresses.
         default: "any"
     application:
         description:
-            - list of applications
-        required: false
+            - List of applications.
         default: "any"
     service:
         description:
-            - list of services
-        required: false
+            - List of services.
         default: "application-default"
     log_start:
         description:
-            - whether to log at session start
-        required: false
+            - Whether to log at session start.
         default: false
     log_end:
         description:
-            - whether to log at session end
-        required: false
+            - Whether to log at session end.
         default: true
     action:
         description:
-            - action
-        required: false
+            - Action to apply once rules maches.
         default: "allow"
     group_profile:
         description: >
-            security profile group that is already defined in the system. This property supersedes antivirus,
+            Security profile group that is already defined in the system. This property supersedes antivirus,
             vulnerability, spyware, url_filtering, file_blocking, data_filtering, and wildfire_analysis properties.
-        required: false
         default: None
     antivirus:
         description:
-            - name of the already defined profile
-        required: false
+            - Name of the already defined antivirus profile.
         default: None
     vulnerability:
         description:
-            - name of the already defined profile
-        required: false
+            - Name of the already defined vulnerability profile.
         default: None
     spyware:
         description:
-            - name of the already defined profile
-        required: false
+            - Name of the already defined spyware profile.
         default: None
     url_filtering:
         description:
-            - name of the already defined profile
-        required: false
+            - Name of the already defined url_filtering profile.
         default: None
     file_blocking:
         description:
-            - name of the already defined profile
-        required: false
+            - Name of the already defined file_blocking profile.
         default: None
     data_filtering:
         description:
-            - name of the already defined profile
-        required: false
+            - Name of the already defined data_filtering profile.
         default: None
     wildfire_analysis:
         description:
-            - name of the already defined profile
-        required: false
+            - Name of the already defined wildfire_analysis profile.
+        default: None
+    devicegroup:
+        description: >
+            Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama.
+            If device group is not define we assume that we are contacting Firewall.
         default: None
     commit:
         description:
-            - commit if changed
-        required: false
+            - Commit configuration if changed.
         default: true
 '''
 
 EXAMPLES = '''
-# permit ssh to 1.1.1.1
-- panos_security_policy1:
+- name: permit ssh to 1.1.1.1
+  panos_security_policy:
     ip_address: '10.5.172.91'
     username: 'admin'
     password: 'paloalto'
@@ -190,8 +176,8 @@ EXAMPLES = '''
     action: 'allow'
     commit: false
 
-# Allow HTTP multimedia only from CDNs
-- panos_security_policy1:
+- name: Allow HTTP multimedia only from CDNs
+  panos_security_policy:
     ip_address: '10.5.172.91'
     username: 'admin'
     password: 'paloalto'
@@ -209,8 +195,8 @@ EXAMPLES = '''
     action: 'allow'
     commit: false
 
-# more complex fictitious rule that uses profiles
-- panos_security_policy1:
+- name: more complex fictitious rule that uses profiles
+  panos_security_policy:
     ip_address: '10.5.172.91'
     username: 'admin'
     password: 'paloalto'
@@ -225,8 +211,8 @@ EXAMPLES = '''
     wildfire_analysis: 'default'
     commit: false
 
-# deny all
-- panos_security_policy1:
+- name: deny all
+  panos_security_policy:
     ip_address: '10.5.172.91'
     username: 'admin'
     password: 'paloalto'
@@ -236,15 +222,31 @@ EXAMPLES = '''
     action: 'deny'
     rule_type: 'interzone'
     commit: false
+
+# permit ssh to 1.1.1.1 using panorama and pushing the configuration to firewalls
+# that are defined in 'DeviceGroupA' device group
+- name: permit ssh to 1.1.1.1 through Panorama
+  panos_security_policy:
+    ip_address: '10.5.172.92'
+    password: 'paloalto'
+    rule_name: 'SSH permit'
+    description: 'SSH rule test'
+    from_zone: ['public']
+    to_zone: ['private']
+    source: ['any']
+    source_user: ['any']
+    destination: ['1.1.1.1']
+    category: ['any']
+    application: ['ssh']
+    service: ['application-default']
+    hip_profiles: ['any']
+    action: 'allow'
+    devicegroup: 'DeviceGroupA'
 '''
 
 RETURN = '''
 # Default return values
 '''
-
-ANSIBLE_METADATA = {'status': ['preview'],
-                    'supported_by': 'community',
-                    'version': '1.0'}
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.basic import get_exception
@@ -254,6 +256,7 @@ try:
     from pan.xapi import PanXapiError
     import pandevice
     import pandevice.firewall
+    import pandevice.panorama
     import pandevice.objects
     import pandevice.policies
 
@@ -262,15 +265,21 @@ except ImportError:
     HAS_LIB = False
 
 
-def security_rule_exists(fw, rule_name):
-    rule_base = pandevice.policies.Rulebase.refreshall(fw)
+def security_rule_exists(device, rule_name):
+    if isinstance(device, pandevice.firewall.Firewall):
+        rule_base = pandevice.policies.Rulebase.refreshall(device)
+    elif isinstance(device, pandevice.panorama.Panorama):
+        # look for only pre-rulebase ATM
+        rule_base = pandevice.policies.PreRulebase.refreshall(device)
+
     if rule_base:
         rule_base = rule_base[0]
         security_rules = rule_base.findall(pandevice.policies.SecurityRule)
 
-        for r in security_rules:
-            if r.name == rule_name:
-                return True
+        if security_rules:
+            for r in security_rules:
+                if r.name == rule_name:
+                    return True
 
     return False
 
@@ -318,8 +327,12 @@ def create_security_rule(**kwargs):
     return security_rule
 
 
-def add_security_rule(fw, sec_rule):
-    rule_base = pandevice.policies.Rulebase.refreshall(fw)
+def add_security_rule(device, sec_rule):
+    if isinstance(device, pandevice.firewall.Firewall):
+        rule_base = pandevice.policies.Rulebase.refreshall(device)
+    elif isinstance(device, pandevice.panorama.Panorama):
+        # look for only pre-rulebase ATM
+        rule_base = pandevice.policies.PreRulebase.refreshall(device)
 
     if rule_base:
         rule_base = rule_base[0]
@@ -332,11 +345,26 @@ def add_security_rule(fw, sec_rule):
         return False
 
 
+def _commit(device, device_group=None):
+    """
+    :param device: either firewall or panorama
+    :param device_group: panorama device group or if none then 'all'
+    :return: True if successful
+    """
+    result = device.commit(sync=True)
+
+    if isinstance(device, pandevice.panorama.Panorama):
+        result = device.commit_all(sync=True, sync_all=True, devicegroup=device_group)
+
+    return result
+
+
 def main():
     argument_spec = dict(
         ip_address=dict(required=True),
-        password=dict(required=True, no_log=True),
+        password=dict(no_log=True),
         username=dict(default='admin'),
+        api_key=dict(no_log=True),
         rule_name=dict(required=True),
         description=dict(default=''),
         tag=dict(),
@@ -361,13 +389,18 @@ def main():
         log_end=dict(type='bool', default=True),
         rule_type=dict(default='universal'),
         action=dict(default='allow'),
+        devicegroup=dict(),
         commit=dict(type='bool', default=True)
     )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
+                           required_one_of=[['api_key', 'password']])
+    if not HAS_LIB:
+        module.fail_json(msg='Missing required pan-python and pandevice modules.')
 
     ip_address = module.params["ip_address"]
     password = module.params["password"]
     username = module.params['username']
+    api_key = module.params['api_key']
     rule_name = module.params['rule_name']
     description = module.params['description']
     tag = module.params['tag']
@@ -394,11 +427,22 @@ def main():
     data_filtering = module.params['data_filtering']
     wildfire_analysis = module.params['wildfire_analysis']
 
+    devicegroup = module.params['devicegroup']
+
     commit = module.params['commit']
 
-    fw = pandevice.firewall.Firewall(ip_address, username, password)
+    if devicegroup:
+        device = pandevice.panorama.Panorama(ip_address, username, password, api_key=api_key)
+        dev_grps = device.refresh_devices()
 
-    if security_rule_exists(fw, rule_name):
+        for grp in dev_grps:
+            if grp.name == devicegroup:
+                break
+            module.fail_json(msg=' \'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
+    else:
+        device = pandevice.firewall.Firewall(ip_address, username, password, api_key=api_key)
+
+    if security_rule_exists(device, rule_name):
         module.fail_json(msg='Rule with the same name already exists.')
 
     try:
@@ -429,13 +473,13 @@ def main():
             action=action
         )
 
-        changed = add_security_rule(fw, sec_rule)
+        changed = add_security_rule(device, sec_rule)
     except PanXapiError:
         exc = get_exception()
         module.fail_json(msg=exc.message)
 
     if changed and commit:
-        fw.commit(sync=True)
+        result = _commit(device, devicegroup)
 
     module.exit_json(changed=changed, msg="okey dokey")
 
