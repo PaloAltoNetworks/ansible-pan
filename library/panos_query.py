@@ -20,8 +20,8 @@ ANSIBLE_METADATA = {'status': ['preview'],
 
 DOCUMENTATION = '''
 ---
-module: panos_search_address
-short_description: retrieve address object or address group
+module: panos_query
+short_description: search for security rules matching specific criteria
 description: >
     Security policies allow you to enforce rules and take action, and can be as general or specific as needed.
     The policy rules are compared against the incoming traffic in sequence, and because the first rule that matches
@@ -31,13 +31,14 @@ version_added: "1.0"
 requirements:
     - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
+    - xmltodict can be obtains from PyPi U(https://pypi.python.org/pypi/xmltodict)
 notes:
     - Checkmode is not supported.
-    - Panorama is supported
+    - Panorama is supported.
 options:
     ip_address:
         description:
-            - IP address (or hostname) of PAN-OS device being configured.
+            - IP address (or hostname) of PAN-OS firewall or Panorama management console being configured.
         required: true
     username:
         description:
@@ -46,37 +47,88 @@ options:
         default: "admin"
     password:
         description:
-            - Password credentials to use for auth.
+            - Password credentials to use for authentication.
         required: true
     api_key:
         description:
             - API key that can be used instead of I(username)/I(password) credentials.
-    rule_name:
+    application:
         description:
-            - Name of the security rule.
-        required: true
+            - Name of the application, application group, or application filter in a security rule.
+        required: false
+        default: None
+    source_zone:
+        description:
+            - Name of the security zone in a security that is the source of the traffic flow.
+        required: false
+        default: None
+    source_ip:
+        description:
+            - The source IP address.
+        required: false
+        default: None
+    source_port:
+        description:
+            - The source port.
+        required: false
+        default: None
+    destination_zone:
+        description:
+            - The destination security zone
+        required: false
+        default: None
+    destination_ip:
+        description:
+            - The destination IP address.
+        required: false
+        default: None
+    destination_port:
+        description:
+            - The destination port.
+        required: false
+        default: None
+    protocol:
+        description:
+            - The protocol used.
+        required: false
+        default: None
+    tag_name:
+        description:
+            - The name of the rule tag.
+        required: false
+        default: None
     devicegroup:
-        description: >
-            Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama.
-            If device group is not define we assume that we are contacting Firewall.
+        description:
+            - The Panorama device group to query.
         required: false
         default: None
 '''
 
 EXAMPLES = '''
-- name: search for shared address object
-  panos_searchobject:
-    ip_address: '10.0.0.1'
-    username: 'admin'
-    password: 'paloalto'
-    address: 'DevNet'
+- name: search for rules with tcp/3306
+  panos_query:
+    ip_address: '{{ ip_address }}'
+    username: '{{ username }}'
+    password: '{{ password }}'
+    source_zone: 'DevNet'
+    destination_zone: 'DevVPC'
+    port: '3306'
+    protocol: 'tcp'
 
-- name: search for devicegroup address object
-  panos_searchobject:
-    ip_address: '10.0.0.1'
-    password: 'paloalto'
-    object: 'DevNet'
+- name: search devicegroup for inbound rules to dmz host
+  panos_query:
+    ip_address: '{{ ip_address }}'
+    api_key: '{{ api_key }}'
+    destination_zone: 'DMZ'
+    destination_ip: '10.100.42.18'
     address: 'DeviceGroupA'
+
+- name: search for a specified rule tag
+  panos_query:
+    ip_address: '{{ ip_address }}'
+    username: '{{ username }}'
+    password: '{{ password }}'
+    tag_name: '{{ ProjectX }}'
 '''
 
 RETURN = '''
@@ -222,15 +274,15 @@ def port_in_svc(orientation, port, protocol, obj):
     return False
 
 
-def get_tag(device, dev_group, obj_name):
+def get_tag(device, dev_group, tag_name):
     # Search global address objects
-    match = device.find(obj_name, objects.Tag)
+    match = device.find(tag_name, objects.Tag)
     if match:
         return match
     # Search Panorama device group
-    if isinstance(device, pandevice.panorama.Panorama):
+    if isinstance(device, panorama.Panorama):
         # Search device group address objects
-        match = dev_group.find(obj_name, objects.Tag)
+        match = dev_group.find(tag_name, objects.Tag)
         if match:
             return match
     return False
@@ -250,7 +302,7 @@ def main():
         source_port=dict(default=None),
         destination_port=dict(default=None),
         protocol=dict(default=None, choices=['tcp', 'udp']),
-        tag=dict(default=None),
+        tag_name=dict(default=None),
         devicegroup=dict(default=None)
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
@@ -271,7 +323,7 @@ def main():
     destination_ip = module.params['destination_ip']
     destination_port = module.params['destination_port']
     protocol = module.params['protocol']
-    tag = module.params['tag']
+    tag_name = module.params['tag_name']
     devicegroup = module.params['devicegroup']
 
     # Create the device with the appropriate pandevice type
@@ -411,11 +463,11 @@ def main():
                                 destination_port_match = True
             hitlist.append(destination_port_match)
 
-        if tag:
+        if tag_name:
             tag_match = False
             for object_string in rule.tag:
                 obj = get_tag(device, dev_group, object_string)
-                if obj and obj.name == tag:
+                if obj and obj.name == tag_name:
                     return True
             hitlist.append(tag_match)
 

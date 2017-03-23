@@ -96,10 +96,13 @@ def devicegroup_exists(device, devicegroup):
 
 
 def do_commit(device, devicegroup):
-    result = device.commit(sync=True)
-    if isinstance(device, panorama.Panorama):
-        result = device.commit_all(sync=True, sync_all=True, devicegroup=devicegroup)
-    return result
+    try:
+        result = device.commit(sync=True, exception=True)
+        if isinstance(device, panorama.Panorama):
+            result = device.commit_all(sync=True, sync_all=True, exception=True, devicegroup=devicegroup)
+        return result
+    except:
+        return False
 
 
 def main():
