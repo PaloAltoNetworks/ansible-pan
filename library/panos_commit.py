@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#  Copyright 2016 Palo Alto Networks, Inc
+#  Copyright 2017 Palo Alto Networks, Inc
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -14,6 +14,10 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'version': '2.4'}
+
 DOCUMENTATION = '''
 ---
 module: panos_commit
@@ -21,47 +25,43 @@ short_description: commit firewall's candidate configuration
 description:
     - PanOS module that will commit firewall's candidate configuration on
     - the device. The new configuration will become active immediately.
-author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
-version_added: "2.3"
+author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer), Robert Hagen (@rnh556)"
+version_added: "2.4"
 requirements:
-    - pan-python
+    - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
+    - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
 options:
     ip_address:
         description:
-            - IP address (or hostname) of PAN-OS device
-        required: true
-    password:
-        description:
-            - password for authentication
+            - The IP address (or hostname) of the PAN-OS device or Panorama management console.
         required: true
     username:
         description:
-            - username for authentication
+            - Username credentials to use for authentication.
         required: false
         default: "admin"
-    interval:
+    password:
         description:
-            - interval for checking commit job
-        required: false
-        default: 0.5
-    timeout:
+            - Password credentials to use for authentication.
+        required: true
+    devicegroup:
         description:
-            - timeout for commit job
+            - The Panorama device group to be committed.
         required: false
-        default: None
-    sync:
-        description:
-            - if commit should be synchronous
-        required: false
-        default: true
 '''
 
 EXAMPLES = '''
-# Commit candidate config on 192.168.1.1 in sync mode
-- panos_commit:
-    ip_address: "192.168.1.1"
-    username: "admin"
-    password: "admin"
+- name: commit candidate config on firewall
+  panos_commit:
+    ip_address: '{{ ip_address }}'
+    username: '{{ username }}'
+    password: '{{ password }}'
+
+- name: commit candidate config on Panorama using api_key
+  panos_commit:
+    ip_address: '{{ ip_address }}'
+    api_key: '{{ api_key }}'
+    devicegroup: 'Cloud Edge'
 '''
 
 RETURN = '''
@@ -69,7 +69,7 @@ status:
     description: success status
     returned: success
     type: string
-    sample: "okey dokey"
+    sample: "Commit successful"
 '''
 
 from ansible.module_utils.basic import AnsibleModule

@@ -38,11 +38,11 @@ notes:
 options:
     ip_address:
         description:
-            - IP address (or hostname) of PAN-OS firewall or Panorama management console being configured.
+            - IP address (or hostname) of PAN-OS firewall or Panorama management console being queried.
         required: true
     username:
         description:
-            - Username credentials to use for auth.
+            - Username credentials to use for authentication.
         required: false
         default: "admin"
     password:
@@ -54,52 +54,52 @@ options:
             - API key that can be used instead of I(username)/I(password) credentials.
     application:
         description:
-            - Name of the application, application group, or application filter in a security rule.
+            - Name of the application or application group to be queried.
         required: false
         default: None
     source_zone:
         description:
-            - Name of the security zone in a security that is the source of the traffic flow.
+            - Name of the source security zone to be queried.
         required: false
         default: None
     source_ip:
         description:
-            - The source IP address.
+            - The source IP address to be queried.
         required: false
         default: None
     source_port:
         description:
-            - The source port.
+            - The source port to be queried.
         required: false
         default: None
     destination_zone:
         description:
-            - The destination security zone
+            - Name of the destination security zone to be queried.
         required: false
         default: None
     destination_ip:
         description:
-            - The destination IP address.
+            - The destination IP address to be queried.
         required: false
         default: None
     destination_port:
         description:
-            - The destination port.
+            - The destination port to be queried.
         required: false
         default: None
     protocol:
         description:
-            - The protocol used.
+            - The protocol used to be queried.  Must be either I(tcp) or I(udp).
         required: false
         default: None
     tag_name:
         description:
-            - The name of the rule tag.
+            - Name of the rule tag to be queried.
         required: false
         default: None
     devicegroup:
         description:
-            - The Panorama device group to query.
+            - The Panorama device group in which to conduct the query.
         required: false
         default: None
 '''
@@ -112,7 +112,7 @@ EXAMPLES = '''
     password: '{{ password }}'
     source_zone: 'DevNet'
     destination_zone: 'DevVPC'
-    port: '3306'
+    destination_port: '3306'
     protocol: 'tcp'
 
 - name: search devicegroup for inbound rules to dmz host
@@ -123,12 +123,12 @@ EXAMPLES = '''
     destination_ip: '10.100.42.18'
     address: 'DeviceGroupA'
 
-- name: search for a specified rule tag
+- name: search for rules containing a specified rule tag
   panos_query:
     ip_address: '{{ ip_address }}'
     username: '{{ username }}'
     password: '{{ password }}'
-    tag_name: '{{ ProjectX }}'
+    tag_name: 'ProjectX'
 '''
 
 RETURN = '''
@@ -328,13 +328,15 @@ def main():
 
     # Create the device with the appropriate pandevice type
     device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
+
+    # Grab the global objects
     objects.AddressObject.refreshall(device)
     objects.AddressGroup.refreshall(device)
     objects.ServiceObject.refreshall(device)
     objects.ServiceGroup.refreshall(device)
     objects.Tag.refreshall(device)
 
-    # If Panorama, validate the devicegroup
+    # If Panorama, validate the devicegroup and grab the devicegroup objects
     dev_group = None
     if devicegroup and isinstance(device, panorama.Panorama):
         dev_group = get_devicegroup(device, devicegroup)

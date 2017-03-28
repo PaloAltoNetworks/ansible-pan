@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#  Copyright 2016 Palo Alto Networks, Inc
+#  Copyright 2017 Palo Alto Networks, Inc
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -20,14 +20,14 @@ ANSIBLE_METADATA = {'status': ['preview'],
 
 DOCUMENTATION = '''
 ---
-module: panos_security_policy
-short_description: Create security rule policy on PanOS devices.
+module: panos_security_rule
+short_description: Create security rule policy on PAN-OS devices or Panorama management console.
 description: >
     Security policies allow you to enforce rules and take action, and can be as general or specific as needed.
     The policy rules are compared against the incoming traffic in sequence, and because the first rule that matches
     the traffic is applied, the more specific rules must precede the more general ones.
-author: "Ivan Bojer (@ivanbojer)"
-version_added: "2.3"
+author: "Ivan Bojer (@ivanbojer), Robert Hagen (@rnh556)"
+version_added: "2.4"
 requirements:
     - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
@@ -50,6 +50,9 @@ options:
     api_key:
         description:
             - API key that can be used instead of I(username)/I(password) credentials.
+    action:
+        description:
+            - The action to be taken.  Supported values are I(add)/I(delete)/I(find).
     rule_name:
         description:
             - Name of the security rule.
@@ -108,7 +111,7 @@ options:
         description:
             - Whether to log at session end.
         default: true
-    action:
+    rule_action:
         description:
             - Action to apply once rules maches.
         default: "allow"
@@ -153,11 +156,12 @@ options:
 '''
 
 EXAMPLES = '''
-- name: permit ssh to 1.1.1.1
-  panos_security_policy:
-    ip_address: '10.5.172.91'
-    username: 'admin'
-    password: 'paloalto'
+- name: add an SSH inbound rule to devicegroup
+  panos_security_rule:
+    ip_address: '{{ ip_address }}'
+    username: '{{ username }}'
+    password: '{{ password }}'
+    action: 'add'
     rule_name: 'SSH permit'
     description: 'SSH rule test'
     from_zone: ['public']
@@ -169,13 +173,15 @@ EXAMPLES = '''
     application: ['ssh']
     service: ['application-default']
     hip_profiles: ['any']
-    action: 'allow'
+    rule_action: 'allow'
+    devicegroup: 'Cloud Edge'
 
-- name: Allow HTTP multimedia only from CDNs
-  panos_security_policy:
+- name: add a rule to allow HTTP multimedia only from CDNs
+  panos_security_rule:
     ip_address: '10.5.172.91'
     username: 'admin'
     password: 'paloalto'
+    action: 'add'
     rule_name: 'HTTP Multimedia'
     description: 'Allow HTTP multimedia only to host at 1.1.1.1'
     from_zone: ['public']
@@ -187,53 +193,41 @@ EXAMPLES = '''
     application: ['http-video', 'http-audio']
     service: ['service-http', 'service-https']
     hip_profiles: ['any']
-    action: 'allow'
+    rule_action: 'allow'
 
-- name: more complex fictitious rule that uses profiles
-  panos_security_policy:
-    ip_address: '10.5.172.91'
-    username: 'admin'
-    password: 'paloalto'
+- name: add a more complex rule that uses security profiles
+  panos_security_rule:
+    ip_address: '{{ ip_address }}'
+    username: '{{ username }}'
+    password: '{{ password }}'
+    action: 'add'
     rule_name: 'Allow HTTP w profile'
     log_start: false
     log_end: true
-    action: 'allow'
+    rule_action: 'allow'
     antivirus: 'default'
     vulnerability: 'default'
     spyware: 'default'
     url_filtering: 'default'
     wildfire_analysis: 'default'
 
-- name: deny all
-  panos_security_policy:
-    ip_address: '10.5.172.91'
-    username: 'admin'
-    password: 'paloalto'
-    rule_name: 'DenyAll'
-    log_start: true
-    log_end: true
-    action: 'deny'
-    rule_type: 'interzone'
+- name: delete a devicegroup security rule
+  panos_security_rule:
+    ip_address: '{{ ip_address }}'
+    api_key: '{{ api_key }}'
+    action: 'delete'
+    rule_name: 'Allow telnet'
+    devicegroup: 'DC Firewalls'
 
-# permit ssh to 1.1.1.1 using panorama and pushing the configuration to firewalls
-# that are defined in 'DeviceGroupA' device group
-- name: permit ssh to 1.1.1.1 through Panorama
-  panos_security_policy:
-    ip_address: '10.5.172.92'
-    password: 'paloalto'
-    rule_name: 'SSH permit'
-    description: 'SSH rule test'
-    from_zone: ['public']
-    to_zone: ['private']
-    source: ['any']
-    source_user: ['any']
-    destination: ['1.1.1.1']
-    category: ['any']
-    application: ['ssh']
-    service: ['application-default']
-    hip_profiles: ['any']
-    action: 'allow'
-    devicegroup: 'DeviceGroupA'
+- name: find a specific security rule
+  panos_security_rule:
+    ip_address: '{{ ip_address }}'
+    password: '{{ password }}'
+    action: 'find'
+    rule_name: 'Allow RDP to DCs'
+  register: result
+- debug: msg='{{result.stdout_lines}}'
+
 '''
 
 RETURN = '''
@@ -252,13 +246,15 @@ try:
     from pandevice import panorama
     from pandevice import objects
     from pandevice import policies
+    import xmltodict
+    import json
 
     HAS_LIB = True
 except ImportError:
     HAS_LIB = False
 
 
-def devicegroup_exists(device, devicegroup):
+def get_devicegroup(device, devicegroup):
     dev_grps = device.refresh_devices()
     for grp in dev_grps:
         if isinstance(grp, pandevice.panorama.DeviceGroup):
@@ -283,7 +279,7 @@ def get_rulebase(device, devicegroup):
     return rulebase
 
 
-def get_rule(rulebase, rule_name):
+def find_rule(rulebase, rule_name):
     # Search for the rule name
     rule = rulebase.find(rule_name)
     if rule:
@@ -308,7 +304,7 @@ def create_security_rule(**kwargs):
         log_start=kwargs['log_start'],
         log_end=kwargs['log_end'],
         type=kwargs['rule_type'],
-        action=kwargs['action'])
+        action=kwargs['rule_action'])
 
     if 'tag' in kwargs:
         security_rule.tag = kwargs['tag']
@@ -349,6 +345,7 @@ def main():
         password=dict(no_log=True),
         username=dict(default='admin'),
         api_key=dict(no_log=True),
+        action=dict(required=True, choices=['add', 'delete', 'find']),
         rule_name=dict(required=True),
         description=dict(default=''),
         tag=dict(),
@@ -372,7 +369,7 @@ def main():
         log_start=dict(type='bool', default=False),
         log_end=dict(type='bool', default=True),
         rule_type=dict(default='universal'),
-        action=dict(default='allow'),
+        rule_action=dict(default='allow'),
         devicegroup=dict(),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
@@ -384,6 +381,7 @@ def main():
     password = module.params["password"]
     username = module.params['username']
     api_key = module.params['api_key']
+    action = module.params['action']
     rule_name = module.params['rule_name']
     description = module.params['description']
     tag = module.params['tag']
@@ -399,7 +397,7 @@ def main():
     log_start = module.params['log_start']
     log_end = module.params['log_end']
     rule_type = module.params['rule_type']
-    action = module.params['action']
+    rule_action = module.params['rule_action']
     group_profile = module.params['group_profile']
     antivirus = module.params['antivirus']
     vulnerability = module.params['vulnerability']
@@ -414,9 +412,11 @@ def main():
     device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
 
     # If Panorama, validate the devicegroup
-    if isinstance(device, panorama.Panorama):
-        if devicegroup_exists(device, devicegroup):
-            pass
+    dev_group = None
+    if devicegroup and isinstance(device, panorama.Panorama):
+        dev_group = get_devicegroup(device, devicegroup)
+        if dev_group:
+            device.add(dev_group)
         else:
             module.fail_json(
                 failed=1,
@@ -424,44 +424,70 @@ def main():
             )
 
     # Get the rulebase
-    rulebase = get_rulebase(device, devicegroup)
+    rulebase = get_rulebase(device, dev_group)
 
-    # Does this rule exist?
-    #if get_rule(rulebase, rule_name):
-    #    module.exit_json(msg='Rule \'%s\' already exists.' % rule_name)
+    # Which action shall we take on the object?
+    if action == "find":
+        # Search for the object
+        match = find_rule(rulebase, rule_name)
+        # If found, format and return the result
+        if match:
+            match_dict = xmltodict.parse(match.element_str())
+            module.exit_json(
+                stdout_lines=json.dumps(match_dict, indent=2),
+                msg='Rule matched'
+            )
+        else:
+            module.fail_json(msg='Rule \'%s\' not found. Is the name correct?' % rule_name)
+    elif action == "delete":
+        # Search for the object
+        match = find_rule(rulebase, rule_name)
+        # If found, delete it
+        if match:
+            try:
+                match.delete()
+            except PanXapiError:
+                exc = get_exception()
+                module.fail_json(msg=exc.message)
 
-    try:
-        sec_rule = create_security_rule(
-            rule_name=rule_name,
-            description=description,
-            tag=tag,
-            from_zone=from_zone,
-            to_zone=to_zone,
-            source=source,
-            source_user=source_user,
-            destination=destination,
-            category=category,
-            application=application,
-            service=service,
-            hip_profiles=hip_profiles,
-            group_profile=group_profile,
-            antivirus=antivirus,
-            vulnerability=vulnerability,
-            spyware=spyware,
-            url_filtering=url_filtering,
-            file_blocking=file_blocking,
-            data_filtering=data_filtering,
-            wildfire_analysis=wildfire_analysis,
-            log_start=log_start,
-            log_end=log_end,
-            rule_type=rule_type,
-            action=action
-        )
-        changed = add_rule(rulebase, sec_rule)
-    except PanXapiError:
-        exc = get_exception()
-        module.fail_json(msg=exc.message)
-    module.exit_json(changed=changed, msg="Rule \'%s\' successfully added" % rule_name)
+            module.exit_json(changed=True, msg='Rule \'%s\' successfully deleted' % rule_name)
+        else:
+            module.fail_json(msg='Rule \'%s\' not found. Is the name correct?' % rule_name)
+    elif action == "add":
+        try:
+            new_rule = create_security_rule(
+                rule_name=rule_name,
+                description=description,
+                tag=tag,
+                from_zone=from_zone,
+                to_zone=to_zone,
+                source=source,
+                source_user=source_user,
+                destination=destination,
+                category=category,
+                application=application,
+                service=service,
+                hip_profiles=hip_profiles,
+                group_profile=group_profile,
+                antivirus=antivirus,
+                vulnerability=vulnerability,
+                spyware=spyware,
+                url_filtering=url_filtering,
+                file_blocking=file_blocking,
+                data_filtering=data_filtering,
+                wildfire_analysis=wildfire_analysis,
+                log_start=log_start,
+                log_end=log_end,
+                rule_type=rule_type,
+                rule_action=rule_action
+            )
+            changed = add_rule(rulebase, new_rule)
+        except PanXapiError:
+            exc = get_exception()
+            module.fail_json(msg=exc.message)
+        module.exit_json(changed=changed, msg="Rule \'%s\' successfully added" % rule_name)
+    else:
+        module.fail_json(msg='Invalid action')
 
 
 if __name__ == '__main__':
