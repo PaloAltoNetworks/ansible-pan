@@ -21,6 +21,10 @@ It is also available as free **Apache 2.0** licensed code from Palo Alto Network
 
     https://github.com/PaloAltoNetworks/ansible-pan/
 
+Or as package downloaded from pypi
+
+    pip install ansible-pan
+
 .. <comment> <> (ansible-galaxy install paloaltonetworks.panos) </comment>
 
 Documentation
