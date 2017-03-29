@@ -2,4 +2,12 @@ docs/_build
 .idea/
 panos_*.retry
 *.pyc
+
+# MACOS art
 .DS_Store
+
+# build tools and packaging
+MANIFEST
+ansible_pan.egg-info/
+build/
+dist/
