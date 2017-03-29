@@ -16,7 +16,7 @@ setup(
     url='https://github.com/PaloAltoNetworks/ansible-pan',
     license='Apache V2.0',
     author='@ivanbojer',
-    author_email='',
+    author_email='ijb@networkrift.com',
     description='Set ot Ansible modules for Palo Alto Networks device configuration',
     long_description=long_description,
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
