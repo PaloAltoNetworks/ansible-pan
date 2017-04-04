@@ -111,7 +111,7 @@ options:
         description:
             - Whether to log at session end.
         default: true
-    rule_action:
+    action:
         description:
             - Action to apply once rules maches.
         default: "allow"
@@ -161,7 +161,7 @@ EXAMPLES = '''
     ip_address: '{{ ip_address }}'
     username: '{{ username }}'
     password: '{{ password }}'
-    action: 'add'
+    operation: 'add'
     rule_name: 'SSH permit'
     description: 'SSH rule test'
     from_zone: ['public']
@@ -173,7 +173,7 @@ EXAMPLES = '''
     application: ['ssh']
     service: ['application-default']
     hip_profiles: ['any']
-    rule_action: 'allow'
+    action: 'allow'
     devicegroup: 'Cloud Edge'
 
 - name: add a rule to allow HTTP multimedia only from CDNs
@@ -181,7 +181,7 @@ EXAMPLES = '''
     ip_address: '10.5.172.91'
     username: 'admin'
     password: 'paloalto'
-    action: 'add'
+    operation: 'add'
     rule_name: 'HTTP Multimedia'
     description: 'Allow HTTP multimedia only to host at 1.1.1.1'
     from_zone: ['public']
@@ -193,18 +193,18 @@ EXAMPLES = '''
     application: ['http-video', 'http-audio']
     service: ['service-http', 'service-https']
     hip_profiles: ['any']
-    rule_action: 'allow'
+    action: 'allow'
 
 - name: add a more complex rule that uses security profiles
   panos_security_rule:
     ip_address: '{{ ip_address }}'
     username: '{{ username }}'
     password: '{{ password }}'
-    action: 'add'
+    operation: 'add'
     rule_name: 'Allow HTTP w profile'
     log_start: false
     log_end: true
-    rule_action: 'allow'
+    action: 'allow'
     antivirus: 'default'
     vulnerability: 'default'
     spyware: 'default'
@@ -215,7 +215,7 @@ EXAMPLES = '''
   panos_security_rule:
     ip_address: '{{ ip_address }}'
     api_key: '{{ api_key }}'
-    action: 'delete'
+    operation: 'delete'
     rule_name: 'Allow telnet'
     devicegroup: 'DC Firewalls'
 
@@ -223,7 +223,7 @@ EXAMPLES = '''
   panos_security_rule:
     ip_address: '{{ ip_address }}'
     password: '{{ password }}'
-    action: 'find'
+    operation: 'find'
     rule_name: 'Allow RDP to DCs'
   register: result
 - debug: msg='{{result.stdout_lines}}'
@@ -304,7 +304,7 @@ def create_security_rule(**kwargs):
         log_start=kwargs['log_start'],
         log_end=kwargs['log_end'],
         type=kwargs['rule_type'],
-        action=kwargs['rule_action'])
+        action=kwargs['action'])
 
     if 'tag' in kwargs:
         security_rule.tag = kwargs['tag']
@@ -345,7 +345,7 @@ def main():
         password=dict(no_log=True),
         username=dict(default='admin'),
         api_key=dict(no_log=True),
-        action=dict(required=True, choices=['add', 'delete', 'find']),
+        operation=dict(required=True, choices=['add', 'delete', 'find']),
         rule_name=dict(required=True),
         description=dict(default=''),
         tag=dict(),
@@ -369,7 +369,7 @@ def main():
         log_start=dict(type='bool', default=False),
         log_end=dict(type='bool', default=True),
         rule_type=dict(default='universal'),
-        rule_action=dict(default='allow'),
+        action=dict(default='allow'),
         devicegroup=dict(),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
@@ -381,7 +381,7 @@ def main():
     password = module.params["password"]
     username = module.params['username']
     api_key = module.params['api_key']
-    action = module.params['action']
+    operation = module.params['operation']
     rule_name = module.params['rule_name']
     description = module.params['description']
     tag = module.params['tag']
@@ -397,7 +397,7 @@ def main():
     log_start = module.params['log_start']
     log_end = module.params['log_end']
     rule_type = module.params['rule_type']
-    rule_action = module.params['rule_action']
+    action = module.params['action']
     group_profile = module.params['group_profile']
     antivirus = module.params['antivirus']
     vulnerability = module.params['vulnerability']
@@ -427,7 +427,7 @@ def main():
     rulebase = get_rulebase(device, dev_group)
 
     # Which action shall we take on the object?
-    if action == "find":
+    if operation == "find":
         # Search for the object
         match = find_rule(rulebase, rule_name)
         # If found, format and return the result
@@ -439,7 +439,7 @@ def main():
             )
         else:
             module.fail_json(msg='Rule \'%s\' not found. Is the name correct?' % rule_name)
-    elif action == "delete":
+    elif operation == "delete":
         # Search for the object
         match = find_rule(rulebase, rule_name)
         # If found, delete it
@@ -453,7 +453,7 @@ def main():
             module.exit_json(changed=True, msg='Rule \'%s\' successfully deleted' % rule_name)
         else:
             module.fail_json(msg='Rule \'%s\' not found. Is the name correct?' % rule_name)
-    elif action == "add":
+    elif operation == "add":
         try:
             new_rule = create_security_rule(
                 rule_name=rule_name,
@@ -479,7 +479,7 @@ def main():
                 log_start=log_start,
                 log_end=log_end,
                 rule_type=rule_type,
-                rule_action=rule_action
+                action=action
             )
             changed = add_rule(rulebase, new_rule)
         except PanXapiError:

@@ -50,9 +50,9 @@ options:
     api_key:
         description:
             - API key that can be used instead of I(username)/I(password) credentials.
-    action:
+    operation:
         description:
-            - The action to be taken.  Supported values are I(add)/I(delete)/I(find).
+            - The operation to be performed.  Supported values are I(add)/I(delete)/I(find).
         required: true
     addressobject:
         description:
@@ -114,14 +114,14 @@ EXAMPLES = '''
     ip_address: '{{ ip_address }}'
     username: '{{ username }}'
     password: '{{ password }}'
-    action: 'find'
+    operation: 'find'
     address: 'DevNet'
 
 - name: create an address group in devicegroup using API key
   panos_object:
     ip_address: '{{ ip_address }}'
     api_key: '{{ api_key }}'
-    action: 'add'
+    operation: 'add'
     addressgroup: 'Prod_DB_Svrs'
     static_value: ['prod-db1', 'prod-db2', 'prod-db3']
     description: 'Production DMZ database servers'
@@ -132,7 +132,7 @@ EXAMPLES = '''
   panos_object:
     ip_address: '{{ ip_address }}'
     api_key: '{{ api_key }}'
-    action: 'add'
+    operation: 'add'
     serviceobject: 'mysql-3306'
     destination_port: '3306'
     protocol: 'tcp'
@@ -143,7 +143,7 @@ EXAMPLES = '''
     ip_address: '{{ ip_address }}'
     username: '{{ username }}'
     password: '{{ password }}'
-    action: 'add'
+    operation: 'add'
     tag_name: 'ProjectX'
     color: 'yellow'
     description: 'Associated with Project X'
@@ -152,7 +152,7 @@ EXAMPLES = '''
   panos_object:
     ip_address: '{{ ip_address }}'
     api_key: '{{ api_key }}'
-    action: 'delete'
+    operation: 'delete'
     addressobject: 'Win2K test'
 '''
 
@@ -280,7 +280,7 @@ def main():
         password=dict(no_log=True),
         username=dict(default='admin'),
         api_key=dict(no_log=True),
-        action=dict(required=True, choices=['add', 'delete', 'find']),
+        operation=dict(required=True, choices=['add', 'delete', 'find']),
         addressobject=dict(default=None),
         addressgroup=dict(default=None),
         serviceobject=dict(default=None),
@@ -313,7 +313,7 @@ def main():
     password = module.params["password"]
     username = module.params['username']
     api_key = module.params['api_key']
-    action = module.params['action']
+    operation = module.params['operation']
     addressobject = module.params['addressobject']
     addressgroup = module.params['addressgroup']
     serviceobject = module.params['serviceobject']
@@ -365,8 +365,8 @@ def main():
     else:
         module.fail_json(msg='No object type defined!')
 
-    # Which action shall we take on the object?
-    if action == "find":
+    # Which operation shall we perform on the object?
+    if operation == "find":
         # Search for the object
         match = find_object(device, dev_group, obj_name, obj_type)
 
@@ -379,7 +379,7 @@ def main():
             )
         else:
             module.fail_json(msg='Object \'%s\' not found. Is the name correct?' % obj_name)
-    elif action == "delete":
+    elif operation == "delete":
         # Search for the object
         match = find_object(device, dev_group, obj_name, obj_type)
 
@@ -394,7 +394,7 @@ def main():
             module.exit_json(changed=True, msg='Object \'%s\' successfully deleted' % obj_name)
         else:
             module.fail_json(msg='Object \'%s\' not found. Is the name correct?' % obj_name)
-    elif action == "add":
+    elif operation == "add":
         try:
             new_object = create_object(
                 addressobject = addressobject,
@@ -419,7 +419,7 @@ def main():
             module.fail_json(msg=exc.message)
         module.exit_json(changed=changed, msg="Object \'%s\' successfully added" % obj_name)
     else:
-        module.fail_json(msg='Invalid action')
+        module.fail_json(msg='Invalid operation')
 
 if __name__ == '__main__':
     main()
