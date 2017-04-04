@@ -350,7 +350,12 @@ def main():
         exc = get_exception()
         module.fail_json(msg=exc.message)
 
-    rule_name = response[0][0][0].text
+    if response.find('result/rules').__len__() == 1:
+        rule_name = response.find('result/rules/entry').text
+    elif rule_type == 'nat':
+        module.exit_json(msg='No matching NAT rule.')
+    else:
+        module.fail_json(msg='Rule match failed. Please check playbook syntax.')
 
     if rule_type == 'security':
         rule_match = sec_rule_base.find(rule_name, policies.SecurityRule)
