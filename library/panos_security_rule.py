@@ -33,7 +33,7 @@ requirements:
     - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
 notes:
     - Checkmode is not supported.
-    - Panorama is supported
+    - Panorama is supported.
 options:
     ip_address:
         description:
@@ -65,15 +65,15 @@ options:
         description:
             - Description for the security rule.
         default: "None"
-    tag:
+    tag_name:
         description:
             - Administrative tags that can be added to the rule. Note, tags must be already defined.
         default: "None"
-    from_zone:
+    source_zone:
         description:
             - List of source zones.
         default: "any"
-    to_zone:
+    destination_zone:
         description:
             - List of destination zones.
         default: "any"
@@ -164,8 +164,9 @@ EXAMPLES = '''
     operation: 'add'
     rule_name: 'SSH permit'
     description: 'SSH rule test'
-    from_zone: ['public']
-    to_zone: ['private']
+    tag_name: ['ProjectX']
+    source_zone: ['public']
+    destination_zone: ['private']
     source: ['any']
     source_user: ['any']
     destination: ['1.1.1.1']
@@ -184,8 +185,8 @@ EXAMPLES = '''
     operation: 'add'
     rule_name: 'HTTP Multimedia'
     description: 'Allow HTTP multimedia only to host at 1.1.1.1'
-    from_zone: ['public']
-    to_zone: ['private']
+    source_zone: ['public']
+    destination_zone: ['private']
     source: ['any']
     source_user: ['any']
     destination: ['1.1.1.1']
@@ -255,11 +256,11 @@ except ImportError:
 
 
 def get_devicegroup(device, devicegroup):
-    dev_grps = device.refresh_devices()
-    for grp in dev_grps:
-        if isinstance(grp, pandevice.panorama.DeviceGroup):
-            if grp.name == devicegroup:
-                return True
+    dg_list = device.refresh_devices()
+    for group in dg_list:
+        if isinstance(group, pandevice.panorama.DeviceGroup):
+            if group.name == devicegroup:
+                return group
     return False
 
 
@@ -292,22 +293,23 @@ def create_security_rule(**kwargs):
     security_rule = policies.SecurityRule(
         name=kwargs['rule_name'],
         description=kwargs['description'],
-        tozone=kwargs['to_zone'],
-        fromzone=kwargs['from_zone'],
-        source=kwargs['source'],
+        from_zone=kwargs['source_zone'],
+        source=kwargs['source_ip'],
         source_user=kwargs['source_user'],
-        destination=kwargs['destination'],
-        category=kwargs['category'],
+        hip_profiles=kwargs['hip_profiles'],
+        to_zone=kwargs['destination_zone'],
+        destination=kwargs['destination_ip'],
         application=kwargs['application'],
         service=kwargs['service'],
-        hip_profiles=kwargs['hip_profiles'],
+        category=kwargs['category'],
         log_start=kwargs['log_start'],
         log_end=kwargs['log_end'],
-        type=kwargs['rule_type'],
-        action=kwargs['action'])
+        action=kwargs['action'],
+        type=kwargs['rule_type']
+    )
 
-    if 'tag' in kwargs:
-        security_rule.tag = kwargs['tag']
+    if 'tag_name' in kwargs:
+        security_rule.tag = kwargs['tag_name']
 
     # profile settings
     if 'group_profile' in kwargs:
@@ -339,18 +341,27 @@ def add_rule(rulebase, sec_rule):
         return False
 
 
+def update_rule(rulebase, nat_rule):
+    if rulebase:
+        rulebase.add(nat_rule)
+        nat_rule.apply()
+        return True
+    else:
+        return False
+
+
 def main():
     argument_spec = dict(
         ip_address=dict(required=True),
         password=dict(no_log=True),
         username=dict(default='admin'),
         api_key=dict(no_log=True),
-        operation=dict(required=True, choices=['add', 'delete', 'find']),
+        operation=dict(required=True, choices=['add','update','delete','find']),
         rule_name=dict(required=True),
         description=dict(default=''),
-        tag=dict(),
-        to_zone=dict(type='list', default=['any']),
-        from_zone=dict(type='list', default=['any']),
+        tag_name=dict(type='list'),
+        destination_zone=dict(type='list', default=['any']),
+        source_zone=dict(type='list', default=['any']),
         source=dict(type='list', default=["any"]),
         source_user=dict(type='list', default=['any']),
         destination=dict(type='list', default=["any"]),
@@ -384,19 +395,18 @@ def main():
     operation = module.params['operation']
     rule_name = module.params['rule_name']
     description = module.params['description']
-    tag = module.params['tag']
-    from_zone = module.params['from_zone']
-    to_zone = module.params['to_zone']
-    source = module.params['source']
+    tag_name = module.params['tag_name']
+    source_zone = module.params['source_zone']
+    source_ip = module.params['source_ip']
     source_user = module.params['source_user']
-    destination = module.params['destination']
-    category = module.params['category']
+    hip_profiles = module.params['hip_profiles']
+    destination_zone = module.params['destination_zone']
+    destination_ip = module.params['destination_ip']
     application = module.params['application']
     service = module.params['service']
-    hip_profiles = module.params['hip_profiles']
+    category = module.params['category']
     log_start = module.params['log_start']
     log_end = module.params['log_end']
-    rule_type = module.params['rule_type']
     action = module.params['action']
     group_profile = module.params['group_profile']
     antivirus = module.params['antivirus']
@@ -406,6 +416,7 @@ def main():
     file_blocking = module.params['file_blocking']
     data_filtering = module.params['data_filtering']
     wildfire_analysis = module.params['wildfire_analysis']
+    rule_type = module.params['rule_type']
     devicegroup = module.params['devicegroup']
 
     # Create the device with the appropriate pandevice type
@@ -454,40 +465,81 @@ def main():
         else:
             module.fail_json(msg='Rule \'%s\' not found. Is the name correct?' % rule_name)
     elif operation == "add":
-        try:
-            new_rule = create_security_rule(
-                rule_name=rule_name,
-                description=description,
-                tag=tag,
-                from_zone=from_zone,
-                to_zone=to_zone,
-                source=source,
-                source_user=source_user,
-                destination=destination,
-                category=category,
-                application=application,
-                service=service,
-                hip_profiles=hip_profiles,
-                group_profile=group_profile,
-                antivirus=antivirus,
-                vulnerability=vulnerability,
-                spyware=spyware,
-                url_filtering=url_filtering,
-                file_blocking=file_blocking,
-                data_filtering=data_filtering,
-                wildfire_analysis=wildfire_analysis,
-                log_start=log_start,
-                log_end=log_end,
-                rule_type=rule_type,
-                action=action
-            )
-            changed = add_rule(rulebase, new_rule)
-        except PanXapiError:
-            exc = get_exception()
-            module.fail_json(msg=exc.message)
-        module.exit_json(changed=changed, msg="Rule \'%s\' successfully added" % rule_name)
-    else:
-        module.fail_json(msg='Invalid action')
+        # Search for the rule. Fail if found.
+        match = find_rule(rulebase, rule_name)
+        if match:
+            module.fail_json(msg='Rule already exists. Use operation: \'update\' to change rule.')
+        else:
+            try:
+                new_rule = create_security_rule(
+                    rule_name=rule_name,
+                    description=description,
+                    tag_name=tag_name,
+                    source_zone=source_zone,
+                    destination_zone=destination_zone,
+                    source_ip=source_ip,
+                    source_user=source_user,
+                    destination_ip=destination_ip,
+                    category=category,
+                    application=application,
+                    service=service,
+                    hip_profiles=hip_profiles,
+                    group_profile=group_profile,
+                    antivirus=antivirus,
+                    vulnerability=vulnerability,
+                    spyware=spyware,
+                    url_filtering=url_filtering,
+                    file_blocking=file_blocking,
+                    data_filtering=data_filtering,
+                    wildfire_analysis=wildfire_analysis,
+                    log_start=log_start,
+                    log_end=log_end,
+                    rule_type=rule_type,
+                    action=action
+                )
+                changed = add_rule(rulebase, new_rule)
+            except PanXapiError:
+                exc = get_exception()
+                module.fail_json(msg=exc.message)
+            module.exit_json(changed=changed, msg="Rule \'%s\' successfully added" % rule_name)
+    elif operation == 'update':
+        # Search for the rule. Update if found.
+        match = find_rule(rulebase, rule_name)
+        if match:
+            try:
+                new_rule = create_security_rule(
+                    rule_name=rule_name,
+                    description=description,
+                    tag_name=tag_name,
+                    source_zone=source_zone,
+                    destination_zone=destination_zone,
+                    source_ip=source_ip,
+                    source_user=source_user,
+                    destination_ip=destination_ip,
+                    category=category,
+                    application=application,
+                    service=service,
+                    hip_profiles=hip_profiles,
+                    group_profile=group_profile,
+                    antivirus=antivirus,
+                    vulnerability=vulnerability,
+                    spyware=spyware,
+                    url_filtering=url_filtering,
+                    file_blocking=file_blocking,
+                    data_filtering=data_filtering,
+                    wildfire_analysis=wildfire_analysis,
+                    log_start=log_start,
+                    log_end=log_end,
+                    rule_type=rule_type,
+                    action=action
+                )
+                changed = update_rule(rulebase, new_rule)
+            except PanXapiError:
+                exc = get_exception()
+                module.fail_json(msg=exc.message)
+            module.exit_json(changed=changed, msg="Rule \'%s\' successfully updated" % rule_name)
+        else:
+            module.fail_json(msg='Rule does not exist. Use operation: \'add\' to add rule.')
 
 
 if __name__ == '__main__':
