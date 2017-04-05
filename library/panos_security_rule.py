@@ -77,7 +77,7 @@ options:
         description:
             - List of destination zones.
         default: "any"
-    source:
+    source_ip:
         description:
             - List of source addresses.
         default: "any"
@@ -91,7 +91,7 @@ options:
             on information collected by GlobalProtect. For example, the user access level can be determined HIP that
             notifies the firewall about the user's local configuration.
         default: "any"
-    destination:
+    destination_ip:
         description:
             - List of destination addresses.
         default: "any"
@@ -293,11 +293,11 @@ def create_security_rule(**kwargs):
     security_rule = policies.SecurityRule(
         name=kwargs['rule_name'],
         description=kwargs['description'],
-        from_zone=kwargs['source_zone'],
+        fromzone=kwargs['source_zone'],
         source=kwargs['source_ip'],
         source_user=kwargs['source_user'],
         hip_profiles=kwargs['hip_profiles'],
-        to_zone=kwargs['destination_zone'],
+        tozone=kwargs['destination_zone'],
         destination=kwargs['destination_ip'],
         application=kwargs['application'],
         service=kwargs['service'],
@@ -362,9 +362,9 @@ def main():
         tag_name=dict(type='list'),
         destination_zone=dict(type='list', default=['any']),
         source_zone=dict(type='list', default=['any']),
-        source=dict(type='list', default=["any"]),
+        source_ip=dict(type='list', default=["any"]),
         source_user=dict(type='list', default=['any']),
-        destination=dict(type='list', default=["any"]),
+        destination_ip=dict(type='list', default=["any"]),
         category=dict(type='list', default=['any']),
         application=dict(type='list', default=['any']),
         service=dict(type='list', default=['application-default']),
