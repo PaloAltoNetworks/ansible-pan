@@ -1,0 +1,33 @@
+- name: Delete the test security rules from Panorama
+  hosts: my-panorama
+  connection: local
+  gather_facts: False
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'panorama-secrets.yml'
+    no_log: 'yes'
+
+  - name: Delete test rule #1 from Panorama
+    panos_security_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      operation: 'delete'
+      rule_name: 'Ansible test 1'
+
+  - name: Delete test rule #2 from Panorama
+    panos_security_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      operation: 'delete'
+      rule_name: 'Ansible test 2'
+
+  - name: Delete test rule #3 from Panorama
+    panos_security_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      operation: 'delete'
+      rule_name: 'Ansible test 3'

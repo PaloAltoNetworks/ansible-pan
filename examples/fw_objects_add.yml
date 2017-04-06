@@ -1,0 +1,51 @@
+- name: Add some objects to the firewall
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: Add an object to the firewall
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      addressobject: 'test-address'
+      address: '192.168.100.99/24'
+      address_type: 'ip-netmask'
+      description: 'This is a test address object'
+      operation: 'add'
+
+  - name: Add a service to the firewall
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      serviceobject: 'service-xyz'
+      protocol: 'tcp'
+      destination_port: '8889'
+      description: 'This is a test service object'
+      operation: 'add'
+
+  - name: Add an address group to the firewall
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      addressgroup: 'sinkhole servers'
+      static_value: ['sinkhole-v4','sinkhole-v6']
+      description: 'This is an addressgroup object'
+      operation: 'add'
+
+  - name: Add a tag to the firewall
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      tag_name: 'TestTag'
+      color: 'orange'
+      description: 'This is test tag'
+      operation: 'add'

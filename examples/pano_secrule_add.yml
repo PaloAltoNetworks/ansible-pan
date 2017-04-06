@@ -1,0 +1,70 @@
+- name: Add some security rules to Panorama
+  hosts: my-panorama
+  connection: local
+  gather_facts: False
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'panorama-secrets.yml'
+    no_log: 'yes'
+
+  - name: Add test rule #1 to Panorama
+    panos_security_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      operation: 'add'
+      rule_name: 'Ansible test 1'
+      description: 'An Ansible test rule'
+      source_zone: ['internal']
+      destination_zone: ['external']
+      source_ip: ['4.3.2.1']
+      source_user: ['any']
+      destination_ip: ['any']
+      category: ['any']
+      application: ['ssh']
+      service: ['application-default']
+      hip_profiles: ['any']
+      devicegroup: 'shared_services_11022'
+      action: 'allow'
+
+  - name: Add test rule #2 to Panorama
+    panos_security_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      operation: 'add'
+      rule_name: 'Ansible test 2'
+      description: 'Another Ansible test rule'
+      source_zone: ['internal']
+      source_ip: ['1.2.3.4']
+      source_user: ['any']
+      hip_profiles: ['any']
+      destination_zone: ['external']
+      destination_ip: ['any']
+      category: ['any']
+      application: ['vnc']
+      service: ['application-default']
+      action: 'allow'
+      group_profile: 'default'
+      devicegroup: 'shared_services_11022'
+
+  - name: Add test rule #3 to Panorama
+    panos_security_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      operation: 'add'
+      rule_name: 'Ansible test 3'
+      description: 'Yet another Ansible test rule'
+      source_zone: ['internal']
+      source_ip: ['5.6.7.8']
+      source_user: ['any']
+      hip_profiles: ['any']
+      destination_zone: ['external']
+      destination_ip: ['any']
+      category: ['any']
+      application: ['mysql']
+      service: ['application-default']
+      action: 'allow'
+      devicegroup: 'shared_services_11022'

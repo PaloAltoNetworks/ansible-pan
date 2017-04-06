@@ -1,0 +1,16 @@
+- name: Panorama commit
+  hosts: my-panorama
+  connection: local
+  gather_facts: False
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'panorama-secrets.yml'
+    no_log: 'yes'
+
+  - name: Commit pending Panorama changes
+    panos_commit:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      devicegroup: 'shared_services_11022'

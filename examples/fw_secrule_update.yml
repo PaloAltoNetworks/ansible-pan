@@ -1,0 +1,48 @@
+- name: Update some security rules on the firewall
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: Modify a rule on the firewall
+    panos_security_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      operation: 'update'
+      rule_name: 'Ansible test 1'
+      description: 'An Ansible test rule'
+      source_zone: ['internal']
+      destination_zone: ['external']
+      source_ip: ['40.30.20.10']
+      source_user: ['any']
+      destination_ip: ['any']
+      category: ['any']
+      application: ['ssh']
+      service: ['application-default']
+      hip_profiles: ['any']
+      action: 'allow'
+
+  - name: Modify another rule on the firewall
+    panos_security_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      operation: 'update'
+      rule_name: 'Ansible test 2'
+      description: 'Another Ansible test rule'
+      source_zone: ['internal']
+      destination_zone: ['external']
+      source_ip: ['1.2.3.4']
+      source_user: ['any']
+      destination_ip: ['any']
+      category: ['any']
+      application: ['ms-rdp']
+      service: ['application-default']
+      hip_profiles: ['any']
+      action: 'allow'
+      group_profile: 'default'

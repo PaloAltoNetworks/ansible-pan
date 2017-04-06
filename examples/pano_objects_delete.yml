@@ -1,0 +1,45 @@
+- name: Delete some objects on Panorama
+  hosts: my-panorama
+  connection: local
+  gather_facts: False
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'panorama-secrets.yml'
+    no_log: 'yes'
+
+  - name: Delete an address object on Panorama
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      addressobject: 'test-address'
+      devicegroup: 'shared_services_11022'
+      operation: 'delete'
+
+  - name: Delete a service on Panorama
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      serviceobject: 'service-xyz'
+      devicegroup: 'shared_services_11022'
+      operation: 'delete'
+
+  - name: Delete an address group on Panorama
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      addressgroup: 'sinkhole servers'
+      devicegroup: 'shared_services_11022'
+      operation: 'delete'
+
+  - name: Delete a tag on Panorama
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      tag_name: 'TestTag'
+      devicegroup: 'shared_services_11022'
+      operation: 'delete'

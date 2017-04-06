@@ -31,22 +31,17 @@ notes:
 options:
     ip_address:
         description:
-            - IP address (or hostname) of PAN-OS device being configured.
+            - IP address (or hostname) of PAN-OS device
+        required: true
+    password:
+        description:
+            - password for authentication
         required: true
     username:
         description:
-            - Username credentials to use for auth unless I(api_key) is set.
+            - username for authentication
+        required: false
         default: "admin"
-    password:
-        description:
-            - Password credentials to use for auth unless I(api_key) is set.
-        required: true
-    api_key:
-        description:
-            - API key that can be used instead of I(username)/I(password) credentials.
-    operation:
-        description:
-            - The action to be taken.  Supported values are I(add)/I(update)/I(find)/I(delete).
     rule_name:
         description:
             - name of the SNAT rule
@@ -79,14 +74,9 @@ options:
             - type of source translation
         required: false
         default: None
-    snat_static_address:
+    snat_address:
         description:
-            - Source NAT translated address. Used with Static-IP translation.
-        required: false
-        default: None
-    snat_dynamic_address:
-        description:
-            - Source NAT translated address. Used with Dynamic-IP and Dynamic-IP-and-Port.  
+            - snat translated address
         required: false
         default: None
     snat_interface:
@@ -114,11 +104,21 @@ options:
             - dnat translated port
         required: false
         default: None
+    override:
+        description:
+            - attempt to override rule if one with the same name already exists
+        required: false
+        default: "false"
+    commit:
+        description:
+            - commit if changed
+        required: false
+        default: true
 '''
 
 EXAMPLES = '''
 # Create a source and destination nat rule
-  - name: Create NAT SSH rule for 10.0.1.101
+  - name: create nat SSH221 rule for 10.0.1.101
     panos_nat_rule:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
@@ -133,6 +133,7 @@ EXAMPLES = '''
       snat_interface: "ethernet1/2"
       dnat_address: "10.0.1.101"
       dnat_port: "22"
+      commit: False
 '''
 
 RETURN = '''

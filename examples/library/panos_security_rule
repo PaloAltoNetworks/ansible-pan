@@ -50,9 +50,9 @@ options:
     api_key:
         description:
             - API key that can be used instead of I(username)/I(password) credentials.
-    operation:
+    action:
         description:
-            - The action to be taken.  Supported values are I(add)/I(update)/I(find)/I(delete).
+            - The action to be taken.  Supported values are I(add)/I(delete)/I(find).
     rule_name:
         description:
             - Name of the security rule.

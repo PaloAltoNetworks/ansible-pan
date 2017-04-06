@@ -1,0 +1,18 @@
+- name: Find a NAT rules on Panorama
+  hosts: my-panorama
+  connection: local
+  gather_facts: False
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'panorama-secrets.yml'
+    no_log: 'yes'
+
+  - name: Find the NAT SSH rule on Panorama
+    panos_nat_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      rule_name: "Web SSH"
+      devicegroup: 'shared_services_11022'
+      operation: 'find'
