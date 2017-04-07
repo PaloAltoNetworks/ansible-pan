@@ -37,7 +37,7 @@
       description: 'Another Ansible test rule'
       source_zone: ['internal']
       destination_zone: ['external']
-      source_ip: ['1.2.3.4']
+      source_ip: ['10.0.0.0/8']
       source_user: ['any']
       destination_ip: ['any']
       category: ['any']

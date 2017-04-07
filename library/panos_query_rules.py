@@ -467,10 +467,11 @@ def main():
 
         if tag_name:
             tag_match = False
-            for object_string in rule.tag:
-                obj = get_tag(device, dev_group, object_string)
-                if obj and obj.name == tag_name:
-                    return True
+            if rule.tag:
+                for object_string in rule.tag:
+                    obj = get_tag(device, dev_group, object_string)
+                    if obj and (obj.name == tag_name):
+                        tag_match =  True
             hitlist.append(tag_match)
 
         # Add to hit rulebase

@@ -1,12 +1,12 @@
 ---
 - name: Match firewall rules
-  hosts: aws-firewall
+  hosts: my-firewall
   connection: local
   gather_facts: False
 
   tasks:
   - name: Gather the credentials
-    include_vars: 'fwaas_secrets.yml'
+    include_vars: 'firewall-secrets.yml'
     no_log: 'yes'
 
   - name: Look for a match in firewall rulebase
@@ -15,84 +15,9 @@
       username: '{{ username }}'
       password: '{{ password }}'
       rule_type: 'security'
-      source_ip: '10.0.0.1'
-      destination_ip: '192.0.0.1'
-      destination_port: '22'
-      protocol: '6'
-    register: result
-  - debug: msg='{{result.stdout_lines}}'
-
-  - name: check security rules for Google DNS
-    panos_match_rule:
-      ip_address: '{{ ip_address }}'
-      username: '{{ username }}'
-      password: '{{ password }}'
-      rule_type: 'security'
-      source_ip: '10.0.0.0'
-      destination_ip: '8.8.8.8'
-      application: 'dns'
-      destination_port: '53'
-      protocol: '17'
-    register: result
-  - debug: msg='{{result.stdout_lines}}'
-
-  - name: check security rules inbound SSH with user match
-    panos_match_rule:
-      ip_address: '{{ ip_address }}'
-      username: '{{ username }}'
-      password: '{{ password }}'
-      rule_type: 'security'
-      source_ip: '0.0.0.0'
-#      source_user: 'mydomain\jsmith'
-      destination_ip: '192.168.100.115'
-      destination_port: '22'
-      protocol: '6'
-    register: result
-  - debug: msg='{{result.stdout_lines}}'
-  
-  - name: check NAT rules for source NAT
-    panos_match_rule:
-      ip_address: '{{ ip_address }}'
-      username: '{{ username }}'
-      password: '{{ password }}'
-      rule_type: 'nat'
-#      source_zone: 'Prod-DMZ'
-      source_ip: '10.10.118.50'
-      to_interface: 'ethernet1/2'
-#      destination_zone: 'Internet'
-      destination_ip: '0.0.0.0'
-      destination_port: '443'
-      protocol: '6'
-    register: result
-  - debug: msg='{{result.stdout_lines}}'
-  
-  - name: check NAT rules for inbound web
-    panos_match_rule:
-      ip_address: '{{ ip_address }}'
-      username: '{{ username }}'
-      password: '{{ password }}'
-      rule_type: 'nat'
-#      source_zone: 'Internet'
-      source_ip: '0.0.0.0'
-      to_interface: 'ethernet1/1'
-#      destination_zone: 'Prod DMZ'
-      destination_ip: '192.168.118.50'
-      destination_port: '80'
-      protocol: '6'
-#    register: result
-#  - debug: msg='{{result.stdout_lines}}'
-
-  - name: check security rules for outbound POP3 in vsys4
-    panos_match_rule:
-      ip_address: '{{ ip_address }}'
-      username: '{{ username }}'
-      password: '{{ password }}'
-      vsys_id: 'vsys4'
-      rule_type: 'security'
-      source_ip: '10.0.0.0'
-      destination_ip: '4.3.2.1'
-      application: 'pop3'
-      destination_port: '110'
+      source_ip: '1.2.3.4'
+      destination_ip: '8.8.4.4'
+      destination_port: '8889'
       protocol: '6'
     register: result
   - debug: msg='{{result.stdout_lines}}'

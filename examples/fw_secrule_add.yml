@@ -18,12 +18,12 @@
       description: 'An Ansible test rule'
       source_zone: ['internal']
       destination_zone: ['external']
-      source_ip: ['4.3.2.1']
+      source_ip: ['host-1.2.3.4']
       source_user: ['any']
       destination_ip: ['any']
       category: ['any']
-      application: ['ssh']
-      service: ['application-default']
+      application: ['any']
+      service: ['service-xyz']
       hip_profiles: ['any']
       action: 'allow'
 
@@ -36,14 +36,14 @@
       rule_name: 'Ansible test 2'
       description: 'Another Ansible test rule'
       source_zone: ['internal']
-      source_ip: ['1.2.3.4']
+      source_ip: ['range-192.168.100.100-200']
       source_user: ['any']
       hip_profiles: ['any']
       destination_zone: ['external']
       destination_ip: ['any']
       category: ['any']
-      application: ['vnc']
-      service: ['application-default']
+      application: ['any']
+      service: ['service-abc']
       action: 'allow'
       group_profile: 'default'
 
@@ -56,12 +56,12 @@
       rule_name: 'Ansible test 3'
       description: 'Yet another Ansible test rule'
       source_zone: ['internal']
-      source_ip: ['5.6.7.8']
+      source_ip: ['net-10.0.0.0-8']
       source_user: ['any']
       hip_profiles: ['any']
       destination_zone: ['external']
       destination_ip: ['any']
       category: ['any']
-      application: ['mysql']
-      service: ['application-default']
+      application: ['any']
+      service: ['test-service-group']
       action: 'allow'

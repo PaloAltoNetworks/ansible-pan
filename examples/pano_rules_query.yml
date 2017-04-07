@@ -10,16 +10,18 @@
     no_log: 'yes'
 
   - name: Look for a match in Panorama devicegroup rulebase
-    panos_query:
+    panos_query_rules:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
       password: '{{ password }}'
       source_zone: 'internal'
-      source_ip: '10.0.0.1'
+      #source_ip: '1.2.3.4'
+      source_ip: '192.168.100.150'
+      #source_ip: '10.50.60.70'
       destination_zone: 'external'
-      destination_ip: '1.2.3.4'
-      destination_port: '8889'
-      protocol: 'tcp'
+      #destination_port: '8889'
+      #protocol: 'tcp'
+      #tag_name: 'Test'
       devicegroup: 'shared_services_11022'
     register: result
   - debug: msg='{{result.stdout_lines}}'

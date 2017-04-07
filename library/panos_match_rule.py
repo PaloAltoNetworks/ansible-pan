@@ -364,6 +364,7 @@ def main():
 
     # Print out the rule
     module.exit_json(
+        #stdout_lines=test_string,
         stdout_lines=json.dumps(xmltodict.parse(rule_match.element_str()), indent=2),
         msg='Rule matched'
     )
