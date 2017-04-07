@@ -8,12 +8,21 @@
     include_vars: 'panorama-secrets.yml'
     no_log: 'yes'
 
-  - name: Delete the NAT SSH rule on Panorama
+  - name: Delete the dynamic NAT rule on Panorama
     panos_nat_rule:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
       password: '{{ password }}'
-      rule_name: "Web SSH"
+      rule_name: 'Web SSH inbound'
+      devicegroup: 'shared_services_11022'
+      operation: 'delete'
+
+  - name: Delete the static NAT rule on Panorama
+    panos_nat_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      rule_name: 'Static outbound'
       devicegroup: 'shared_services_11022'
       operation: 'delete'
 

@@ -8,7 +8,7 @@
     include_vars: 'panorama-secrets.yml'
     no_log: 'yes'
 
-  - name: Add test rule #1 to Panorama
+  - name: Add test rule 1 to Panorama
     panos_security_rule:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
@@ -28,7 +28,7 @@
       devicegroup: 'shared_services_11022'
       action: 'allow'
 
-  - name: Add test rule #2 to Panorama
+  - name: Add test rule 2 to Panorama
     panos_security_rule:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
@@ -49,7 +49,7 @@
       group_profile: 'default'
       devicegroup: 'shared_services_11022'
 
-  - name: Add test rule #3 to Panorama
+  - name: Add test rule 3 to Panorama
     panos_security_rule:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'

@@ -15,6 +15,8 @@
       password: '{{ password }}'
       addressobject: 'test-address'
       operation: 'find'
+    register: result
+  - debug: msg='{{ result.stdout_lines }}'
 
   - name: Find a service on the firewall
     panos_object:
@@ -23,19 +25,25 @@
       password: '{{ password }}'
       serviceobject: 'service-xyz'
       operation: 'find'
+    register: result
+  - debug: msg='{{ result.stdout_lines }}'
 
   - name: Find an address group on the firewall
     panos_object:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
       password: '{{ password }}'
-      addressgroup: 'sinkhole servers'
+      addressgroup: 'test-address-group'
       operation: 'find'
+    register: result
+  - debug: msg='{{ result.stdout_lines }}'
 
   - name: Find a tag on the firewall
     panos_object:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
       password: '{{ password }}'
-      tag_name: 'TestTag'
+      tag_name: 'Test'
       operation: 'find'
+    register: result
+  - debug: msg='{{ result.stdout_lines }}'

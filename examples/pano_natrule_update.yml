@@ -8,20 +8,39 @@
     include_vars: 'panorama-secrets.yml'
     no_log: 'yes'
 
-  - name: Modify the NAT SSH rule on Panorama
+  - name: Modify a dynamic rule on Panorama
     panos_nat_rule:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
       password: '{{ password }}'
-      rule_name: "Web SSH inbound"
-      from_zone: ["external"]
-      to_zone: "external"
-      source: ["any"]
-      destination: ["10.0.0.100"]
-      service: "service-tcp-221"
-      snat_type: "dynamic-ip-and-port"
-      snat_interface: "ethernet1/2"
-      dnat_address: "10.0.1.101"
-      dnat_port: "22"
+      rule_name: 'Web SSH inbound'
+      source_zone: ['external']
+      destination_zone: 'external'
+      source_ip: ['any']
+      destination_ip: ['10.0.0.100']
+      service: 'service-tcp-221'
+      snat_type: 'dynamic-ip-and-port'
+      snat_interface: ['ethernet1/2']
+      dnat_address: '10.0.1.201'
+      dnat_port: '22'
       devicegroup: 'shared_services_11022'
       operation: 'update'
+
+  - name: Modify a static NAT rule on the firewall
+    panos_nat_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      rule_name: 'Static outbound'
+      source_zone: ['internal']
+      destination_zone: 'external'
+      source_ip: ['10.0.0.150']
+      destination_ip: ['any']
+      service: 'any'
+      snat_type: 'static-ip'
+      snat_interface: ['ethernet1/2']
+      snat_static_address: '6.7.8.9'
+      snat_bidirectional: 'true'
+      devicegroup: 'shared_services_11022'
+      operation: 'update'
+

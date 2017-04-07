@@ -19,19 +19,36 @@
       description: 'SSH on port 221'
       operation: 'add'
 
-  - name: Create the NAT SSH rule on the firewall
+  - name: Create dynamic NAT rule on the firewall
     panos_nat_rule:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
       password: '{{ password }}'
-      rule_name: "Web SSH"
-      from_zone: ["external"]
-      to_zone: "external"
-      source: ["any"]
-      destination: ["10.0.0.100"]
-      service: "service-tcp-221"
-      snat_type: "dynamic-ip-and-port"
-      snat_interface: "ethernet1/2"
-      dnat_address: "10.0.1.101"
-      dnat_port: "22"
+      rule_name: 'Web SSH inbound'
+      source_zone: ['external']
+      destination_zone: 'external'
+      source_ip: ['any']
+      destination_ip: ['10.0.0.100']
+      service: 'service-tcp-221'
+      snat_type: 'dynamic-ip-and-port'
+      snat_interface: ['ethernet1/2']
+      dnat_address: '10.0.1.101'
+      dnat_port: '22'
+      operation: 'add'
+
+  - name: Create a static NAT rule on the firewall
+    panos_nat_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      rule_name: 'Static outbound'
+      source_zone: ['internal']
+      destination_zone: 'external'
+      source_ip: ['10.0.0.150']
+      destination_ip: ['any']
+      service: 'any'
+      snat_type: 'static-ip'
+      snat_interface: ['ethernet1/2']
+      snat_static_address: '9.8.7.6'
+      snat_bidirectional: 'true'
       operation: 'add'

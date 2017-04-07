@@ -15,6 +15,7 @@
       password: '{{ password }}'
       operation: 'delete'
       rule_name: 'Ansible test 1'
+      devicegroup: 'shared_services_11022'
 
   - name: Delete test rule #2 from Panorama
     panos_security_rule:
@@ -23,6 +24,7 @@
       password: '{{ password }}'
       operation: 'delete'
       rule_name: 'Ansible test 2'
+      devicegroup: 'shared_services_11022'
 
   - name: Delete test rule #3 from Panorama
     panos_security_rule:
@@ -31,3 +33,4 @@
       password: '{{ password }}'
       operation: 'delete'
       rule_name: 'Ansible test 3'
+      devicegroup: 'shared_services_11022'

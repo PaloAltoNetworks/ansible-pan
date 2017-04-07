@@ -8,12 +8,39 @@
     include_vars: 'panorama-secrets.yml'
     no_log: 'yes'
 
+  - name: Delete an address group on Panorama
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      addressgroup: 'test-address-group'
+      devicegroup: 'shared_services_11022'
+      operation: 'delete'
+
   - name: Delete an address object on Panorama
     panos_object:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
       password: '{{ password }}'
       addressobject: 'test-address'
+      devicegroup: 'shared_services_11022'
+      operation: 'delete'
+
+  - name: Delete another address object on Panorama
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      addressobject: 'test-range'
+      devicegroup: 'shared_services_11022'
+      operation: 'delete'
+
+  - name: Delete a service group on Panorama
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      servicegroup: 'test-service-group'
       devicegroup: 'shared_services_11022'
       operation: 'delete'
 
@@ -26,12 +53,12 @@
       devicegroup: 'shared_services_11022'
       operation: 'delete'
 
-  - name: Delete an address group on Panorama
+  - name: Delete another service on Panorama
     panos_object:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
       password: '{{ password }}'
-      addressgroup: 'sinkhole servers'
+      serviceobject: 'service-abc'
       devicegroup: 'shared_services_11022'
       operation: 'delete'
 
@@ -40,6 +67,6 @@
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
       password: '{{ password }}'
-      tag_name: 'TestTag'
+      tag_name: 'Test'
       devicegroup: 'shared_services_11022'
       operation: 'delete'

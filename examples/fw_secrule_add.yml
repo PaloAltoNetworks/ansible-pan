@@ -8,7 +8,7 @@
     include_vars: 'firewall-secrets.yml'
     no_log: 'yes'
 
-  - name: Add test rule #1 to the firewall
+  - name: Add test rule 1 to the firewall
     panos_security_rule:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
@@ -27,7 +27,7 @@
       hip_profiles: ['any']
       action: 'allow'
 
-  - name: Add test rule #2 to the firewall
+  - name: Add test rule 2 to the firewall
     panos_security_rule:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
@@ -47,7 +47,7 @@
       action: 'allow'
       group_profile: 'default'
 
-  - name: Add test rule #3 to the firewall
+  - name: Add test rule 3 to the firewall
     panos_security_rule:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'

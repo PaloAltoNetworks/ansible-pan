@@ -429,10 +429,7 @@ def main():
         if dev_group:
             device.add(dev_group)
         else:
-            module.fail_json(
-                failed=1,
-                msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup
-            )
+            module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
 
     # Get the rulebase
     rulebase = get_rulebase(device, dev_group)
@@ -468,7 +465,7 @@ def main():
         # Search for the rule. Fail if found.
         match = find_rule(rulebase, rule_name)
         if match:
-            module.fail_json(msg='Rule already exists. Use operation: \'update\' to change rule.')
+            module.fail_json(msg='Rule \'%s\' already exists. Use operation: \'update\' to change it.' % rule_name)
         else:
             try:
                 new_rule = create_security_rule(
@@ -501,7 +498,7 @@ def main():
             except PanXapiError:
                 exc = get_exception()
                 module.fail_json(msg=exc.message)
-            module.exit_json(changed=changed, msg="Rule \'%s\' successfully added" % rule_name)
+            module.exit_json(changed=changed, msg='Rule \'%s\' successfully added' % rule_name)
     elif operation == 'update':
         # Search for the rule. Update if found.
         match = find_rule(rulebase, rule_name)
@@ -537,9 +534,9 @@ def main():
             except PanXapiError:
                 exc = get_exception()
                 module.fail_json(msg=exc.message)
-            module.exit_json(changed=changed, msg="Rule \'%s\' successfully updated" % rule_name)
+            module.exit_json(changed=changed, msg='Rule \'%s\' successfully updated' % rule_name)
         else:
-            module.fail_json(msg='Rule does not exist. Use operation: \'add\' to add rule.')
+            module.fail_json(msg='Rule \'%s\' does not exist. Use operation: \'add\' to add it.' % rule_name)
 
 
 if __name__ == '__main__':

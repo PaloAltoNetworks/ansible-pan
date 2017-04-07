@@ -280,11 +280,11 @@ def main():
         password=dict(no_log=True),
         username=dict(default='admin'),
         api_key=dict(no_log=True),
-        operation=dict(required=True, choices=['add', 'delete', 'find']),
+        operation=dict(required=True, choices=['add','update','delete','find']),
         addressobject=dict(default=None),
         addressgroup=dict(default=None),
         serviceobject=dict(default=None),
-        servicegroup=dict(type='list', default=None),
+        servicegroup=dict(default=None),
         address=dict(default=None),
         address_type=dict(default='ip-netmask', choices=['ip-netmask', 'ip-range', 'fqdn']),
         static_value=dict(type='list', default=None),
@@ -341,10 +341,7 @@ def main():
         if dev_group:
             device.add(dev_group)
         else:
-            module.fail_json(
-                failed=1,
-                msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup
-            )
+            module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
 
     # What type of object are we talking about?
     if addressobject:
@@ -398,31 +395,31 @@ def main():
         # Search for the object. Fail if found.
         match = find_object(device, dev_group, obj_name, obj_type)
         if match:
-            module.fail_json(msg='Object already exists. Use operation: \'update\' to change object.')
+            module.fail_json(msg='Object \'%s\' already exists. Use operation: \'update\' to change it.' % obj_name)
         else:
             try:
                 new_object = create_object(
-                    addressobject = addressobject,
-                    addressgroup = addressgroup,
-                    serviceobject = serviceobject,
-                    servicegroup = servicegroup,
-                    address = address,
-                    address_type = address_type,
-                    static_value = static_value,
-                    dynamic_value = dynamic_value,
-                    protocol = protocol,
-                    source_port = source_port,
-                    destination_port = destination_port,
-                    services = services,
-                    description = description,
-                    tag_name = tag_name,
-                    color = color
+                    addressobject=addressobject,
+                    addressgroup=addressgroup,
+                    serviceobject=serviceobject,
+                    servicegroup=servicegroup,
+                    address=address,
+                    address_type=address_type,
+                    static_value=static_value,
+                    dynamic_value=dynamic_value,
+                    protocol=protocol,
+                    source_port=source_port,
+                    destination_port=destination_port,
+                    services=services,
+                    description=description,
+                    tag_name=tag_name,
+                    color=color
                 )
                 changed = add_object(device, dev_group, new_object)
             except PanXapiError:
                 exc = get_exception()
                 module.fail_json(msg=exc.message)
-        module.exit_json(changed=changed, msg="Object \'%s\' successfully added" % obj_name)
+        module.exit_json(changed=changed, msg='Object \'%s\' successfully added' % obj_name)
     elif operation == "update":
         # Search for the object. Update if found.
         match = find_object(device, dev_group, obj_name, obj_type)
@@ -449,8 +446,9 @@ def main():
             except PanXapiError:
                 exc = get_exception()
                 module.fail_json(msg=exc.message)
+            module.exit_json(changed=changed, msg='Object \'%s\' successfully updated.' % obj_name)
         else:
-            module.fail_json(msg='Object does not exist. Use operation: \'add\' to add object.')
+            module.fail_json(msg='Object \'%s\' does not exist. Use operation: \'add\' to add it.' % obj_name)
 
 
 if __name__ == '__main__':

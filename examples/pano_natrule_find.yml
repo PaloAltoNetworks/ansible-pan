@@ -8,11 +8,25 @@
     include_vars: 'panorama-secrets.yml'
     no_log: 'yes'
 
-  - name: Find the NAT SSH rule on Panorama
+  - name: Find the dynamic NAT rule on Panorama
     panos_nat_rule:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
       password: '{{ password }}'
-      rule_name: "Web SSH"
+      rule_name: 'Web SSH inbound'
       devicegroup: 'shared_services_11022'
       operation: 'find'
+    register: result
+  - debug: msg='{{ result.stdout_lines }}'
+
+  - name: Find the static NAT rule on the firewall
+    panos_nat_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      rule_name: 'Static outbound'
+      devicegroup: 'shared_services_11022'
+      operation: 'find'
+    register: result
+  - debug: msg='{{ result.stdout_lines }}'
+

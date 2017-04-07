@@ -16,6 +16,8 @@
       addressobject: 'test-address'
       devicegroup: 'shared_services_11022'
       operation: 'find'
+    register: result
+  - debug: msg='{{ result.stdout_lines }}'
 
   - name: Find a service on Panorama
     panos_object:
@@ -25,21 +27,27 @@
       serviceobject: 'service-xyz'
       devicegroup: 'shared_services_11022'
       operation: 'find'
+    register: result
+  - debug: msg='{{ result.stdout_lines }}'
 
   - name: Find an address group on Panorama
     panos_object:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
       password: '{{ password }}'
-      addressgroup: 'sinkhole servers'
+      addressgroup: 'test-address-group'
       devicegroup: 'shared_services_11022'
       operation: 'find'
+    register: result
+  - debug: msg='{{ result.stdout_lines }}'
 
   - name: Find a tag on Panorama
     panos_object:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
       password: '{{ password }}'
-      tag_name: 'TestTag'
+      tag_name: 'Test'
       devicegroup: 'shared_services_11022'
       operation: 'find'
+    register: result
+  - debug: msg='{{ result.stdout_lines }}'

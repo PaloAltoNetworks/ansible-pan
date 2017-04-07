@@ -9,7 +9,7 @@
     no_log: 'yes'
 
   - name: Commit pending firewall changes
-    panos_commit_new:
+    panos_commit:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
       password: '{{ password }}'

@@ -8,10 +8,22 @@
     include_vars: 'firewall-secrets.yml'
     no_log: 'yes'
 
-  - name: Find the NAT SSH rule on the firewall
+  - name: Find the dynamic NAT rule on the firewall
     panos_nat_rule:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
       password: '{{ password }}'
-      rule_name: "Web SSH"
+      rule_name: 'Web SSH inbound'
       operation: 'find'
+    register: result
+  - debug: msg='{{ result.stdout_lines }}'
+
+  - name: Find the static NAT rule on the firewall
+    panos_nat_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      rule_name: 'Static outbound'
+      operation: 'find'
+    register: result
+  - debug: msg='{{ result.stdout_lines }}'

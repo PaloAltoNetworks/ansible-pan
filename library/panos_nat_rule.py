@@ -124,8 +124,8 @@ EXAMPLES = '''
       username: '{{ username }}'
       password: '{{ password }}'
       rule_name: "Web SSH"
-      from_zone: ["external"]
-      to_zone: "external"
+      source_zone: ["external"]
+      destination_zone: "external"
       source: ["any"]
       destination: ["10.0.0.100"]
       service: "service-tcp-221"
@@ -278,16 +278,16 @@ def main():
         rule_name=dict(required=True),
         description=dict(),
         tag_name=dict(),
-        source_zone=dict(type='list', required=True),
+        source_zone=dict(type='list'),
         source_ip=dict(type='list', default=['any']),
-        destination_zone=dict(required=True),
+        destination_zone=dict(),
         destination_ip=dict(type='list', default=['any']),
         service=dict(default='any'),
         to_interface=dict(default='any'),
         snat_type=dict(choices=['static-ip','dynamic-ip-and-port','dynamic-ip']),
         snat_static_address=dict(),
-        snat_dynamic_addresses=dict(type='list'),
-        snat_interface=dict(),
+        snat_dynamic_address=dict(type='list'),
+        snat_interface=dict(type='list'),
         snat_interface_address=dict(),
         snat_bidirectional=dict(type='bool', default=False),
         dnat_address=dict(),
@@ -335,10 +335,7 @@ def main():
         if dev_group:
             device.add(dev_group)
         else:
-            module.fail_json(
-                failed=1,
-                msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup
-            )
+            module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
 
     # Get the rulebase
     rulebase = get_rulebase(device, dev_group)
@@ -371,10 +368,15 @@ def main():
         else:
             module.fail_json(msg='Rule \'%s\' not found. Is the name correct?' % rule_name)
     elif operation == "add":
+        # Look for required parameters
+        if source_zone and destination_zone and nat_type:
+            pass
+        else:
+            module.fail_json(msg='Missing parameter. Required: source_zone, destination_zone, nat_type')
         # Search for the rule. Fail if found.
         match = find_rule(rulebase, rule_name)
         if match:
-            module.fail_json(msg='Rule already exists. Use operation: \'update\' to change rule.')
+            module.fail_json(msg='Rule \'%s\' already exists. Use operation: \'update\' to change it.' % rule_name)
         else:
             try:
                 new_rule = create_nat_rule(
@@ -401,7 +403,7 @@ def main():
             except PanXapiError:
                 exc = get_exception()
                 module.fail_json(msg=exc.message)
-            module.exit_json(changed=changed, msg="Rule \'%s\' successfully added." % rule_name)
+            module.exit_json(changed=changed, msg='Rule \'%s\' successfully added.' % rule_name)
     elif operation == 'update':
         # Search for the rule. Update if found.
         match = find_rule(rulebase, rule_name)
@@ -431,9 +433,9 @@ def main():
             except PanXapiError:
                 exc = get_exception()
                 module.fail_json(msg=exc.message)
-            module.exit_json(changed=changed, msg="Rule \'%s\' successfully updated." % rule_name)
+            module.exit_json(changed=changed, msg='Rule \'%s\' successfully updated.' % rule_name)
         else:
-            module.fail_json(msg='Rule does not exist. Use operation: \'add\' to add rule.')
+            module.fail_json(msg='Rule \'%s\' does not exist. Use operation: \'add\' to add it.' % rule_name)
 
 
 if __name__ == '__main__':
