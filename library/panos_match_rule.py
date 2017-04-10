@@ -351,7 +351,7 @@ def main():
         module.fail_json(msg=exc.message)
 
     if response.find('result/rules').__len__() == 1:
-        rule_name = response.find('result/rules/entry').text
+        rule_name = response.find('result/rules/entry').text.split(';')[0]
     elif rule_type == 'nat':
         module.exit_json(msg='No matching NAT rule.')
     else:
@@ -364,7 +364,6 @@ def main():
 
     # Print out the rule
     module.exit_json(
-        #stdout_lines=test_string,
         stdout_lines=json.dumps(xmltodict.parse(rule_match.element_str()), indent=2),
         msg='Rule matched'
     )
