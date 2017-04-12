@@ -222,29 +222,33 @@ def addr_in_obj(addr, obj):
     return False
 
 
-def get_service(device, dev_group, obj_name):
-    # Search global address objects
-    match = device.find(obj_name, objects.ServiceObject)
-    if match:
-        return match
+def get_services(device, dev_group, svc_list, obj_list):
+    for svc in svc_list:
 
-    # Search global address groups
-    match = device.find(obj_name, objects.ServiceGroup)
-    if match:
-        return match
+        # Search global address objects
+        global_obj_match = device.find(svc, objects.ServiceObject)
+        if global_obj_match:
+            obj_list.append(global_obj_match)
 
-    # Search Panorama device group
-    if isinstance(device, pandevice.panorama.Panorama):
-        # Search device group address objects
-        match = dev_group.find(obj_name, objects.ServiceObject)
-        if match:
-            return match
+        # Search global address groups
+        global_grp_match = device.find(svc, objects.ServiceGroup)
+        if global_grp_match:
+            get_services(device, dev_group, global_grp_match.value, obj_list)
 
-        # Search device group address groups
-        match = dev_group.find(obj_name, objects.ServiceGroup)
-        if match:
-            return match
-    return False
+        # Search Panorama device group
+        if isinstance(device, pandevice.panorama.Panorama):
+
+            # Search device group address objects
+            dg_obj_match = dev_group.find(svc, objects.ServiceObject)
+            if dg_obj_match:
+                obj_list.append(dg_obj_match)
+
+            # Search device group address groups
+            dg_grp_match = dev_group.find(svc, objects.ServiceGroup)
+            if dg_grp_match:
+                get_services(device, dev_group, dg_grp_match.value, obj_list)
+
+    return obj_list
 
 
 def port_in_svc(orientation, port, protocol, obj):
@@ -255,7 +259,7 @@ def port_in_svc(orientation, port, protocol, obj):
                 port_range = x.split('-')
                 lower = int(port_range[0])
                 upper = int(port_range[1])
-                if lower < int(port) < upper and obj.protocol == protocol:
+                if (lower <= int(port) <= upper) and (obj.protocol == protocol):
                     return True
             else:
                 if port == x and obj.protocol == protocol:
@@ -266,7 +270,7 @@ def port_in_svc(orientation, port, protocol, obj):
                 port_range = x.split('-')
                 lower = int(port_range[0])
                 upper = int(port_range[1])
-                if lower < int(port) < upper and obj.protocol == protocol:
+                if (lower <= int(port) <= upper) and (obj.protocol == protocol):
                     return True
             else:
                 if port == x and obj.protocol == protocol:
@@ -389,12 +393,20 @@ def main():
                 source_ip_match = True
             else:
                 for object_string in rule.source:
+                    # Get a valid AddressObject or AddressGroup
                     obj = get_object(device, dev_group, object_string)
+                    # Otherwise the object_string is not an object and should be handled differently
                     if obj is False:
-                        try:
-                            obj = ipaddress.ip_network(unicode(object_string))
-                        except ValueError:
-                            continue
+                        if '-' in object_string:
+                            obj = ipaddress.ip_address(unicode(source_ip))
+                            source_range = object_string.split('-')
+                            source_lower = ipaddress.ip_address(unicode(source_range[0]))
+                            source_upper = ipaddress.ip_address(unicode(source_range[1]))
+                            if source_lower <= obj <= source_upper:
+                                source_ip_match = True
+                        else:
+                            if source_ip == object_string:
+                                source_ip_match = True
                     if isinstance(obj, objects.AddressObject) and addr_in_obj(source_ip, obj):
                         source_ip_match = True
                     elif isinstance(obj, objects.AddressGroup) and obj.static_value:
@@ -410,12 +422,20 @@ def main():
                 destination_ip_match = True
             else:
                 for object_string in rule.destination:
+                    # Get a valid AddressObject or AddressGroup
                     obj = get_object(device, dev_group, object_string)
+                    # Otherwise the object_string is not an object and should be handled differently
                     if obj is False:
-                        try:
-                            obj = ipaddress.ip_network(unicode(object_string))
-                        except ValueError:
-                            continue
+                        if '-' in object_string:
+                            obj = ipaddress.ip_address(unicode(destination_ip))
+                            destination_range = object_string.split('-')
+                            destination_lower = ipaddress.ip_address(unicode(destination_range[0]))
+                            destination_upper = ipaddress.ip_address(unicode(destination_range[1]))
+                            if destination_lower <= obj <= destination_upper:
+                                destination_ip_match = True
+                        else:
+                            if source_ip == object_string:
+                                destination_ip_match = True
                     if isinstance(obj, objects.AddressObject) and addr_in_obj(destination_ip, obj):
                         destination_ip_match = True
                     elif isinstance(obj, objects.AddressGroup) and obj.static_value:
@@ -428,41 +448,33 @@ def main():
         if source_port:
             source_port_match = False
             orientation = 'source'
-            if loose_match and 'any' in rule.service:
+            if loose_match and (rule.service[0] == 'any'):
                 source_port_match = True
-            elif 'application-default' in rule.service:
+            elif rule.service[0] == 'application-default':
                 source_port_match = False  # Fix this once apps are supported
             else:
-                for object_string in rule.service:
-                    obj = get_service(device, dev_group, object_string)
-                    if isinstance(obj, objects.ServiceObject):
-                        if port_in_svc(orientation, source_port, protocol, obj):
-                            source_port_match = True
-                    elif isinstance(obj, objects.ServiceGroup):
-                        for member_string in obj.value:
-                            member = get_service(device, dev_group, member_string)
-                            if port_in_svc(orientation, source_port, protocol, member):
-                                source_port_match = True
+                service_list = []
+                service_list = get_services(device, dev_group, rule.service, service_list)
+                for obj in service_list:
+                    if port_in_svc(orientation, source_port, protocol, obj):
+                        source_port_match = True
+                        break
             hitlist.append(source_port_match)
 
         if destination_port:
             destination_port_match = False
             orientation = 'destination'
-            if loose_match and 'any' in rule.service:
+            if loose_match and (rule.service[0] == 'any'):
                 destination_port_match = True
-            elif 'application-default' in rule.service:
+            elif rule.service[0] == 'application-default':
                 destination_port_match = False  # Fix this once apps are supported
             else:
-                for object_string in rule.service:
-                    obj = get_service(device, dev_group, object_string)
-                    if isinstance(obj, objects.ServiceObject):
-                        if port_in_svc(orientation, destination_port, protocol, obj):
-                            destination_port_match = True
-                    elif isinstance(obj, objects.ServiceGroup):
-                        for member_string in obj.value:
-                            member = get_service(device, dev_group, member_string)
-                            if port_in_svc(orientation, destination_port, protocol, member):
-                                destination_port_match = True
+                service_list = []
+                service_list = get_services(device, dev_group, rule.service, service_list)
+                for obj in service_list:
+                    if port_in_svc(orientation, destination_port, protocol, obj):
+                        destination_port_match = True
+                        break
             hitlist.append(destination_port_match)
 
         if tag_name:
