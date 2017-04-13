@@ -20,5 +20,6 @@ Modules list
    modules/panos_nat_rule_module.rst
    modules/panos_object_module.rst
    modules/panos_pg_module.rst
+   modules/panos_query_rules_module.rst
    modules/panos_restart_module.rst
    modules/panos_security_rule_module.rst
