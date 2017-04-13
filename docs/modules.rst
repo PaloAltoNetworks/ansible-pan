@@ -5,7 +5,6 @@ Modules list
 .. toctree::
    :maxdepth: 1
 
-   modules/panos_address_module.rst
    modules/panos_admin_module.rst
    modules/panos_admpwd_module.rst
    modules/panos_cert_gen_ssh_module.rst
@@ -16,9 +15,10 @@ Modules list
    modules/panos_interface_module.rst
    modules/panos_lic_module.rst
    modules/panos_loadcfg_module.rst
+   modules/panos_match_rule_module.rst
    modules/panos_mgtconfig_module.rst
-   modules/panos_nat_policy_module.rst
+   modules/panos_nat_rule_module.rst
+   modules/panos_object_module.rst
    modules/panos_pg_module.rst
    modules/panos_restart_module.rst
-   modules/panos_security_policy_module.rst
-   modules/panos_service_module.rst
+   modules/panos_security_rule_module.rst
