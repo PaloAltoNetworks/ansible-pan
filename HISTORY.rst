@@ -22,7 +22,7 @@ Another major refactor in order to streamline the code.
 
 
 V1.0.1
-______
+------
 
 - Released: 2017-02-15
 - Status: Release
@@ -66,7 +66,7 @@ has been added as well as sample playbooks for each module.
 
 
 V1.0.0
-______
+------
 
 - Released: 2016-11-27
 - Status: Release
@@ -75,7 +75,7 @@ First release that adheres to the Ansible development practices, now part of the
 have been completely refactored. Some retired and some new modules created.
 
 V0.1.3
-______
+------
 
 - Released: 2015-12-09
 - Status: Alpha
@@ -83,7 +83,7 @@ ______
 Bug fixes and documentation updates
 
 Alpha
-_____
+-----
 
 - Released: 2015-07-28
 - Status: Alpha
