@@ -1,10 +1,10 @@
-.. _panos_nat_policy:
+.. _panos_nat_rule:
 
 
-panos_nat_policy - create a policy NAT rule
-+++++++++++++++++++++++++++++++++++++++++++
+panos_nat_rule - create a policy NAT rule
++++++++++++++++++++++++++++++++++++++++++
 
-.. versionadded:: 2.3
+.. versionadded:: 2.4
 
 
 .. contents::
@@ -21,7 +21,8 @@ Create a policy nat rule. Keep in mind that we can either end up configuring sou
 Requirements (on host that executes module)
 -------------------------------------------
 
-  * pan-python
+  * pan-python can be obtained from PyPi https://pypi.python.org/pypi/pan-python
+  * pandevice can be obtained from PyPi https://pypi.python.org/pypi/pandevice
 
 
 Options
@@ -38,17 +39,23 @@ Options
     <th class="head">comments</th>
     </tr>
             <tr>
-    <td>commit<br/><div style="font-size: small;"></div></td>
+    <td>api_key<br/><div style="font-size: small;"></div></td>
     <td>no</td>
-    <td>True</td>
+    <td></td>
         <td><ul></ul></td>
-        <td><div>commit if changed</div></td></tr>
+        <td><div>API key that can be used instead of <em>username</em>/<em>password</em> credentials.</div></td></tr>
             <tr>
-    <td>destination<br/><div style="font-size: small;"></div></td>
+    <td>destination_ip<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>[u'any']</td>
         <td><ul></ul></td>
         <td><div>list of destination addresses</div></td></tr>
+            <tr>
+    <td>destination_zone<br/><div style="font-size: small;"></div></td>
+    <td>yes</td>
+    <td></td>
+        <td><ul></ul></td>
+        <td><div>destination zone</div></td></tr>
             <tr>
     <td>dnat_address<br/><div style="font-size: small;"></div></td>
     <td>no</td>
@@ -62,29 +69,23 @@ Options
         <td><ul></ul></td>
         <td><div>dnat translated port</div></td></tr>
             <tr>
-    <td>from_zone<br/><div style="font-size: small;"></div></td>
-    <td>yes</td>
-    <td></td>
-        <td><ul></ul></td>
-        <td><div>list of source zones</div></td></tr>
-            <tr>
     <td>ip_address<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
         <td><ul></ul></td>
-        <td><div>IP address (or hostname) of PAN-OS device</div></td></tr>
+        <td><div>IP address (or hostname) of PAN-OS device being configured.</div></td></tr>
             <tr>
-    <td>override<br/><div style="font-size: small;"></div></td>
+    <td>operation<br/><div style="font-size: small;"></div></td>
     <td>no</td>
-    <td>false</td>
+    <td></td>
         <td><ul></ul></td>
-        <td><div>attempt to override rule if one with the same name already exists</div></td></tr>
+        <td><div>The action to be taken.  Supported values are <em>add</em>/<em>update</em>/<em>find</em>/<em>delete</em>.</div></td></tr>
             <tr>
     <td>password<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
         <td><ul></ul></td>
-        <td><div>password for authentication</div></td></tr>
+        <td><div>Password credentials to use for auth unless <em>api_key</em> is set.</div></td></tr>
             <tr>
     <td>rule_name<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
@@ -98,17 +99,17 @@ Options
         <td><ul></ul></td>
         <td><div>service</div></td></tr>
             <tr>
-    <td>snat_address<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td>None</td>
-        <td><ul></ul></td>
-        <td><div>snat translated address</div></td></tr>
-            <tr>
     <td>snat_bidirectional<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>false</td>
         <td><ul></ul></td>
         <td><div>bidirectional flag</div></td></tr>
+            <tr>
+    <td>snat_dynamic_address<br/><div style="font-size: small;"></div></td>
+    <td>no</td>
+    <td>None</td>
+        <td><ul></ul></td>
+        <td><div>Source NAT translated address. Used with Dynamic-IP and Dynamic-IP-and-Port.</div></td></tr>
             <tr>
     <td>snat_interface<br/><div style="font-size: small;"></div></td>
     <td>no</td>
@@ -122,29 +123,35 @@ Options
         <td><ul></ul></td>
         <td><div>snat interface address</div></td></tr>
             <tr>
+    <td>snat_static_address<br/><div style="font-size: small;"></div></td>
+    <td>no</td>
+    <td>None</td>
+        <td><ul></ul></td>
+        <td><div>Source NAT translated address. Used with Static-IP translation.</div></td></tr>
+            <tr>
     <td>snat_type<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>None</td>
         <td><ul></ul></td>
         <td><div>type of source translation</div></td></tr>
             <tr>
-    <td>source<br/><div style="font-size: small;"></div></td>
+    <td>source_ip<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>[u'any']</td>
         <td><ul></ul></td>
         <td><div>list of source addresses</div></td></tr>
             <tr>
-    <td>to_zone<br/><div style="font-size: small;"></div></td>
+    <td>source_zone<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
         <td><ul></ul></td>
-        <td><div>destination zone</div></td></tr>
+        <td><div>list of source zones</div></td></tr>
             <tr>
     <td>username<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>admin</td>
         <td><ul></ul></td>
-        <td><div>username for authentication</div></td></tr>
+        <td><div>Username credentials to use for auth unless <em>api_key</em> is set.</div></td></tr>
         </table>
     </br>
 
@@ -156,13 +163,14 @@ Examples
  ::
 
     # Create a source and destination nat rule
-      - name: create nat SSH221 rule for 10.0.1.101
-        panos_nat:
-          ip_address: "192.168.1.1"
-          password: "admin"
+      - name: Create NAT SSH rule for 10.0.1.101
+        panos_nat_rule:
+          ip_address: '{{ ip_address }}'
+          username: '{{ username }}'
+          password: '{{ password }}'
           rule_name: "Web SSH"
-          from_zone: ["external"]
-          to_zone: "external"
+          source_zone: ["external"]
+          destination_zone: "external"
           source: ["any"]
           destination: ["10.0.0.100"]
           service: "service-tcp-221"
@@ -170,7 +178,11 @@ Examples
           snat_interface: "ethernet1/2"
           dnat_address: "10.0.1.101"
           dnat_port: "22"
-          commit: False
 
 
+Notes
+-----
+
+.. note:: Checkmode is not supported.
+.. note:: Panorama is supported.
 

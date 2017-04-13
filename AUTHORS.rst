@@ -5,6 +5,7 @@ Authors
 
 * Ivan Bojer (@ivanbojer)
 * Luigi Mori (@jtschichold)
+* Robert Hagen (@rnh556)
 
 **Credits**
 

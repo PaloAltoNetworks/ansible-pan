@@ -1,0 +1,90 @@
+- name: Add some objects to Panorama
+  hosts: my-panorama
+  connection: local
+  gather_facts: False
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'panorama-secrets.yml'
+    no_log: 'yes'
+
+  - name: Add an address object to Panorama
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      addressobject: 'test-address'
+      address: '192.168.100.89/24'
+      address_type: 'ip-netmask'
+      description: 'This is a test address object'
+      devicegroup: 'shared_services_11022'
+      operation: 'add'
+
+  - name: Add another address object to Panorama
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      addressobject: 'test-range'
+      address: '192.168.100.100-192.168.100.200'
+      address_type: 'ip-range'
+      description: 'This is a another test address object'
+      devicegroup: 'shared_services_11022'
+      operation: 'add'
+
+  - name: Add an address group to Panorama
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      addressgroup: 'test-address-group'
+      static_value: ['test-address','test-range']
+      description: 'This is a test addressgroup'
+      devicegroup: 'shared_services_11022'
+      operation: 'add'
+
+  - name: Add a service to Panorama
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      serviceobject: 'service-xyz'
+      protocol: 'tcp'
+      destination_port: '8889'
+      description: 'This is a test service object'
+      devicegroup: 'shared_services_11022'
+      operation: 'add'
+
+  - name: Add another service to Panorama
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      serviceobject: 'service-abc'
+      protocol: 'tcp'
+      destination_port: '5000,5001,6000-7000'
+      description: 'This is a test service object'
+      devicegroup: 'shared_services_11022'
+      operation: 'add'
+
+  - name: Add a service group to Panorama
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      servicegroup: 'test-service-group'
+      services: ['service-abc','service-xyz']
+      description: 'This is a test servicegroup'
+      devicegroup: 'shared_services_11022'
+      operation: 'add'
+
+  - name: Add a tag to Panorama
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      tag_name: 'Test'
+      color: 'orange'
+      description: 'This is test tag'
+      devicegroup: 'shared_services_11022'
+      operation: 'add'

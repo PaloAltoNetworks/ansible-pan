@@ -11,10 +11,10 @@ Add security policy to Firewall or Panorama
     The policy rules are compared against the incoming traffic in sequence, and because the first rule that matches
     the traffic is applied, the more specific rules must precede the more general ones.
 
-.. include:: ../samples/panos_security_policy.yml
+.. include:: ../examples/fw_secrule_add.yml
     :literal:
 
-.. include:: ../samples/panos_security_policy_w_panorama.yml
+.. include:: ../examples/pano_secrule_add.yml
     :literal:
 
 Address service object
@@ -22,7 +22,7 @@ Address service object
 
     Create address service object of different types [IP Range, FQDN, or IP Netmask].
 
-.. include:: ../samples/panos_address.yml
+.. include:: ../examples/fw_objects_add.yml
     :literal:
 
 Set admin password

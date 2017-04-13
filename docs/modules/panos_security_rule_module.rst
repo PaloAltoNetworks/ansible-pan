@@ -1,10 +1,10 @@
-.. _panos_security_policy:
+.. _panos_security_rule:
 
 
-panos_security_policy - Create security rule policy on PanOS devices.
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+panos_security_rule - Create security rule policy on PAN-OS devices or Panorama management console.
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-.. versionadded:: 2.3
+.. versionadded:: 2.4
 
 
 .. contents::
@@ -83,11 +83,17 @@ Options
         <td><ul></ul></td>
         <td><div>Description for the security rule.</div></td></tr>
             <tr>
-    <td>destination<br/><div style="font-size: small;"></div></td>
+    <td>destination_ip<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>any</td>
         <td><ul></ul></td>
         <td><div>List of destination addresses.</div></td></tr>
+            <tr>
+    <td>destination_zone<br/><div style="font-size: small;"></div></td>
+    <td>no</td>
+    <td>any</td>
+        <td><ul></ul></td>
+        <td><div>List of destination zones.</div></td></tr>
             <tr>
     <td>devicegroup<br/><div style="font-size: small;"></div></td>
     <td>no</td>
@@ -100,12 +106,6 @@ Options
     <td>None</td>
         <td><ul></ul></td>
         <td><div>Name of the already defined file_blocking profile.</div></td></tr>
-            <tr>
-    <td>from_zone<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td>any</td>
-        <td><ul></ul></td>
-        <td><div>List of source zones.</div></td></tr>
             <tr>
     <td>group_profile<br/><div style="font-size: small;"></div></td>
     <td>no</td>
@@ -137,6 +137,12 @@ Options
         <td><ul></ul></td>
         <td><div>Whether to log at session start.</div></td></tr>
             <tr>
+    <td>operation<br/><div style="font-size: small;"></div></td>
+    <td>no</td>
+    <td></td>
+        <td><ul></ul></td>
+        <td><div>The action to be taken.  Supported values are <em>add</em>/<em>update</em>/<em>find</em>/<em>delete</em>.</div></td></tr>
+            <tr>
     <td>password<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
@@ -161,7 +167,7 @@ Options
         <td><ul></ul></td>
         <td><div>List of services.</div></td></tr>
             <tr>
-    <td>source<br/><div style="font-size: small;"></div></td>
+    <td>source_ip<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>any</td>
         <td><ul></ul></td>
@@ -173,23 +179,23 @@ Options
         <td><ul></ul></td>
         <td><div>Use users to enforce policy for individual users or a group of users.</div></td></tr>
             <tr>
+    <td>source_zone<br/><div style="font-size: small;"></div></td>
+    <td>no</td>
+    <td>any</td>
+        <td><ul></ul></td>
+        <td><div>List of source zones.</div></td></tr>
+            <tr>
     <td>spyware<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>None</td>
         <td><ul></ul></td>
         <td><div>Name of the already defined spyware profile.</div></td></tr>
             <tr>
-    <td>tag<br/><div style="font-size: small;"></div></td>
+    <td>tag_name<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>None</td>
         <td><ul></ul></td>
         <td><div>Administrative tags that can be added to the rule. Note, tags must be already defined.</div></td></tr>
-            <tr>
-    <td>to_zone<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td>any</td>
-        <td><ul></ul></td>
-        <td><div>List of destination zones.</div></td></tr>
             <tr>
     <td>url_filtering<br/><div style="font-size: small;"></div></td>
     <td>no</td>
@@ -224,15 +230,17 @@ Examples
 
  ::
 
-    - name: permit ssh to 1.1.1.1
-      panos_security_policy:
-        ip_address: '10.5.172.91'
-        username: 'admin'
-        password: 'paloalto'
+    - name: add an SSH inbound rule to devicegroup
+      panos_security_rule:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        operation: 'add'
         rule_name: 'SSH permit'
         description: 'SSH rule test'
-        from_zone: ['public']
-        to_zone: ['private']
+        tag_name: ['ProjectX']
+        source_zone: ['public']
+        destination_zone: ['private']
         source: ['any']
         source_user: ['any']
         destination: ['1.1.1.1']
@@ -241,17 +249,18 @@ Examples
         service: ['application-default']
         hip_profiles: ['any']
         action: 'allow'
-        commit: false
+        devicegroup: 'Cloud Edge'
     
-    - name: Allow HTTP multimedia only from CDNs
-      panos_security_policy:
+    - name: add a rule to allow HTTP multimedia only from CDNs
+      panos_security_rule:
         ip_address: '10.5.172.91'
         username: 'admin'
         password: 'paloalto'
+        operation: 'add'
         rule_name: 'HTTP Multimedia'
         description: 'Allow HTTP multimedia only to host at 1.1.1.1'
-        from_zone: ['public']
-        to_zone: ['private']
+        source_zone: ['public']
+        destination_zone: ['private']
         source: ['any']
         source_user: ['any']
         destination: ['1.1.1.1']
@@ -260,13 +269,13 @@ Examples
         service: ['service-http', 'service-https']
         hip_profiles: ['any']
         action: 'allow'
-        commit: false
     
-    - name: more complex fictitious rule that uses profiles
-      panos_security_policy:
-        ip_address: '10.5.172.91'
-        username: 'admin'
-        password: 'paloalto'
+    - name: add a more complex rule that uses security profiles
+      panos_security_rule:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        operation: 'add'
         rule_name: 'Allow HTTP w profile'
         log_start: false
         log_end: true
@@ -276,44 +285,29 @@ Examples
         spyware: 'default'
         url_filtering: 'default'
         wildfire_analysis: 'default'
-        commit: false
     
-    - name: deny all
-      panos_security_policy:
-        ip_address: '10.5.172.91'
-        username: 'admin'
-        password: 'paloalto'
-        rule_name: 'DenyAll'
-        log_start: true
-        log_end: true
-        action: 'deny'
-        rule_type: 'interzone'
-        commit: false
+    - name: delete a devicegroup security rule
+      panos_security_rule:
+        ip_address: '{{ ip_address }}'
+        api_key: '{{ api_key }}'
+        operation: 'delete'
+        rule_name: 'Allow telnet'
+        devicegroup: 'DC Firewalls'
     
-    # permit ssh to 1.1.1.1 using panorama and pushing the configuration to firewalls
-    # that are defined in 'DeviceGroupA' device group
-    - name: permit ssh to 1.1.1.1 through Panorama
-      panos_security_policy:
-        ip_address: '10.5.172.92'
-        password: 'paloalto'
-        rule_name: 'SSH permit'
-        description: 'SSH rule test'
-        from_zone: ['public']
-        to_zone: ['private']
-        source: ['any']
-        source_user: ['any']
-        destination: ['1.1.1.1']
-        category: ['any']
-        application: ['ssh']
-        service: ['application-default']
-        hip_profiles: ['any']
-        action: 'allow'
-        devicegroup: 'DeviceGroupA'
+    - name: find a specific security rule
+      panos_security_rule:
+        ip_address: '{{ ip_address }}'
+        password: '{{ password }}'
+        operation: 'find'
+        rule_name: 'Allow RDP to DCs'
+      register: result
+    - debug: msg='{{result.stdout_lines}}'
+    
 
 
 Notes
 -----
 
 .. note:: Checkmode is not supported.
-.. note:: Panorama is supported
+.. note:: Panorama is supported.
 

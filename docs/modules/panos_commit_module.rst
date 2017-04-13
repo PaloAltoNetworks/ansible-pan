@@ -22,7 +22,8 @@ the device. The new configuration will become active immediately.
 Requirements (on host that executes module)
 -------------------------------------------
 
-  * pan-python
+  * pan-python can be obtained from PyPi https://pypi.python.org/pypi/pan-python
+  * pandevice can be obtained from PyPi https://pypi.python.org/pypi/pandevice
 
 
 Options
@@ -39,41 +40,29 @@ Options
     <th class="head">comments</th>
     </tr>
             <tr>
-    <td>interval<br/><div style="font-size: small;"></div></td>
+    <td>devicegroup<br/><div style="font-size: small;"></div></td>
     <td>no</td>
-    <td>0.5</td>
+    <td></td>
         <td><ul></ul></td>
-        <td><div>interval for checking commit job</div></td></tr>
+        <td><div>The Panorama device group to be committed.</div></td></tr>
             <tr>
     <td>ip_address<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
         <td><ul></ul></td>
-        <td><div>IP address (or hostname) of PAN-OS device</div></td></tr>
+        <td><div>The IP address (or hostname) of the PAN-OS device or Panorama management console.</div></td></tr>
             <tr>
     <td>password<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
         <td><ul></ul></td>
-        <td><div>password for authentication</div></td></tr>
-            <tr>
-    <td>sync<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td>True</td>
-        <td><ul></ul></td>
-        <td><div>if commit should be synchronous</div></td></tr>
-            <tr>
-    <td>timeout<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td>None</td>
-        <td><ul></ul></td>
-        <td><div>timeout for commit job</div></td></tr>
+        <td><div>Password credentials to use for authentication.</div></td></tr>
             <tr>
     <td>username<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>admin</td>
         <td><ul></ul></td>
-        <td><div>username for authentication</div></td></tr>
+        <td><div>Username credentials to use for authentication.</div></td></tr>
         </table>
     </br>
 
@@ -84,11 +73,17 @@ Examples
 
  ::
 
-    # Commit candidate config on 192.168.1.1 in sync mode
-    - panos_commit:
-        ip_address: "192.168.1.1"
-        username: "admin"
-        password: "admin"
+    - name: commit candidate config on firewall
+      panos_commit:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+    
+    - name: commit candidate config on Panorama using api_key
+      panos_commit:
+        ip_address: '{{ ip_address }}'
+        api_key: '{{ api_key }}'
+        devicegroup: 'Cloud Edge'
 
 Return Values
 -------------
@@ -111,7 +106,7 @@ Common return values are documented here :doc:`common_return_values`, the follow
         <td> success status </td>
         <td align=center> success </td>
         <td align=center> string </td>
-        <td align=center> okey dokey </td>
+        <td align=center> Commit successful </td>
     </tr>
         
     </table>

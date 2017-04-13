@@ -78,7 +78,8 @@ Options
     <td>yes</td>
     <td></td>
         <td><ul></ul></td>
-        <td><div>Name of the zone for the interface. If the zone does not exist it is created but if the zone exists and it is not of the layer3 type the operation will fail.</div></td></tr>
+        <td><div>Name of the zone for the interface. If the zone does not exist it is created but if the zone exists and it is not of the layer3 type the operation will fail.
+</div></td></tr>
         </table>
     </br>
 

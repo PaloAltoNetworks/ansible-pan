@@ -1,0 +1,65 @@
+- name: Delete some objects on the firewall
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: Delete an address group on the firewall
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      addressgroup: 'test-address-group'
+      operation: 'delete'
+
+  - name: Delete an address object on the firewall
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      addressobject: 'test-address'
+      operation: 'delete'
+
+  - name: Delete another address object on the firewall
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      addressobject: 'test-range'
+      operation: 'delete'
+
+  - name: Delete a service group on the firewall
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      servicegroup: 'test-service-group'
+      operation: 'delete'
+
+  - name: Delete a service on the firewall
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      serviceobject: 'service-xyz'
+      operation: 'delete'
+
+  - name: Delete another service on the firewall
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      serviceobject: 'service-abc'
+      operation: 'delete'
+
+  - name: Delete a tag on the firewall
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      tag_name: 'Test'
+      operation: 'delete'
