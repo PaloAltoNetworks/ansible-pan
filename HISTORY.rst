@@ -4,6 +4,23 @@
 History
 =======
 
+V1.0.2
+------
+
+- Released: 2017-04-13
+
+Another major refactor in order to streamline the code.
+
+*Refactored modules
+
+* panos_address --> panos_object
+* panos_match_rule
+* panos_nat_policy --> panos_nat_rule
+* panos_query_rules
+* panos_security_policy --> panos_security_rule
+* panos_service --> panos_object
+
+
 V1.0.1
 ______
 
