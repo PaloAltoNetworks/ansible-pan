@@ -434,7 +434,7 @@ def main():
                             if destination_lower <= obj <= destination_upper:
                                 destination_ip_match = True
                         else:
-                            if source_ip == object_string:
+                            if destination_ip == object_string:
                                 destination_ip_match = True
                     if isinstance(obj, objects.AddressObject) and addr_in_obj(destination_ip, obj):
                         destination_ip_match = True
