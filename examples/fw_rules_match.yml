@@ -1,0 +1,23 @@
+---
+- name: Match firewall rules
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  tasks:
+  - name: Gather the credentials
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: Look for a match in firewall rulebase
+    panos_match_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      rule_type: 'security'
+      source_ip: '1.2.3.4'
+      destination_ip: '8.8.4.4'
+      destination_port: '8889'
+      protocol: '6'
+    register: result
+  - debug: msg='{{result.stdout_lines}}'

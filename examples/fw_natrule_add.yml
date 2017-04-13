@@ -1,0 +1,54 @@
+- name: Add a NAT rule to the firewall
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: Add the necessary service object to the firewall first
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      serviceobject: 'service-tcp-221'
+      protocol: 'tcp'
+      destination_port: '221'
+      description: 'SSH on port 221'
+      operation: 'add'
+
+  - name: Create dynamic NAT rule on the firewall
+    panos_nat_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      rule_name: 'Web SSH inbound'
+      source_zone: ['external']
+      destination_zone: 'external'
+      source_ip: ['any']
+      destination_ip: ['10.0.0.100']
+      service: 'service-tcp-221'
+      snat_type: 'dynamic-ip-and-port'
+      snat_interface: ['ethernet1/2']
+      dnat_address: '10.0.1.101'
+      dnat_port: '22'
+      operation: 'add'
+
+  - name: Create a static NAT rule on the firewall
+    panos_nat_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      rule_name: 'Static outbound'
+      source_zone: ['internal']
+      destination_zone: 'external'
+      source_ip: ['10.0.0.150']
+      destination_ip: ['any']
+      service: 'any'
+      snat_type: 'static-ip'
+      snat_interface: ['ethernet1/2']
+      snat_static_address: '9.8.7.6'
+      snat_bidirectional: 'true'
+      operation: 'add'

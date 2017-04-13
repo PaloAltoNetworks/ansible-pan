@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#  Copyright 2016 Palo Alto Networks, Inc
+#  Copyright 2017 Palo Alto Networks, Inc
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -14,6 +14,10 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'version': '2.4'}
+
 DOCUMENTATION = '''
 ---
 module: panos_commit
@@ -21,47 +25,43 @@ short_description: commit firewall's candidate configuration
 description:
     - PanOS module that will commit firewall's candidate configuration on
     - the device. The new configuration will become active immediately.
-author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
+author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer), Robert Hagen (@rnh556)"
 version_added: "2.3"
 requirements:
-    - pan-python
+    - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
+    - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
 options:
     ip_address:
         description:
-            - IP address (or hostname) of PAN-OS device
-        required: true
-    password:
-        description:
-            - password for authentication
+            - The IP address (or hostname) of the PAN-OS device or Panorama management console.
         required: true
     username:
         description:
-            - username for authentication
+            - Username credentials to use for authentication.
         required: false
         default: "admin"
-    interval:
+    password:
         description:
-            - interval for checking commit job
-        required: false
-        default: 0.5
-    timeout:
+            - Password credentials to use for authentication.
+        required: true
+    devicegroup:
         description:
-            - timeout for commit job
+            - The Panorama device group to be committed.
         required: false
-        default: None
-    sync:
-        description:
-            - if commit should be synchronous
-        required: false
-        default: true
 '''
 
 EXAMPLES = '''
-# Commit candidate config on 192.168.1.1 in sync mode
-- panos_commit:
-    ip_address: "192.168.1.1"
-    username: "admin"
-    password: "admin"
+- name: commit candidate config on firewall
+  panos_commit:
+    ip_address: '{{ ip_address }}'
+    username: '{{ username }}'
+    password: '{{ password }}'
+
+- name: commit candidate config on Panorama using api_key
+  panos_commit:
+    ip_address: '{{ ip_address }}'
+    api_key: '{{ api_key }}'
+    devicegroup: 'Cloud Edge'
 '''
 
 RETURN = '''
@@ -69,62 +69,80 @@ status:
     description: success status
     returned: success
     type: string
-    sample: "okey dokey"
+    sample: "Commit successful"
 '''
 
-ANSIBLE_METADATA = {'status': ['preview'],
-                    'supported_by': 'community',
-                    'version': '1.0'}
-
 from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.basic import get_exception
 
 try:
-    import pan.xapi
+    import pandevice
+    from pandevice import base
+    from pandevice import firewall
+    from pandevice import panorama
+
     HAS_LIB = True
 except ImportError:
     HAS_LIB = False
 
 
+def devicegroup_exists(device, devicegroup):
+    dev_grps = device.refresh_devices()
+    for grp in dev_grps:
+        if isinstance(grp, pandevice.panorama.DeviceGroup):
+            if grp.name == devicegroup:
+                return True
+    return False
+
+
+def do_commit(device, devicegroup):
+    try:
+        result = device.commit(sync=True, exception=True)
+        if isinstance(device, panorama.Panorama):
+            result = device.commit_all(sync=True, sync_all=True, exception=True, devicegroup=devicegroup)
+        return result
+    except:
+        return False
+
+
 def main():
     argument_spec = dict(
-        ip_address=dict(),
+        ip_address=dict(required=True),
         password=dict(no_log=True),
         username=dict(default='admin'),
-        interval=dict(default=0.5),
-        timeout=dict(),
-        sync=dict(type='bool', default=True)
+        api_key=dict(no_log=True),
+        devicegroup=dict()
     )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
-
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
+                           required_one_of=[['api_key', 'password']])
     if not HAS_LIB:
-        module.fail_json(msg='pan-python required for this module')
+        module.fail_json(msg='Missing required libraries.')
 
     ip_address = module.params["ip_address"]
-    if not ip_address:
-        module.fail_json(msg="ip_address should be specified")
     password = module.params["password"]
-    if not password:
-        module.fail_json(msg="password is required")
     username = module.params['username']
+    api_key = module.params['api_key']
+    devicegroup = module.params['devicegroup']
 
-    interval = module.params['interval']
-    timeout = module.params['timeout']
-    sync = module.params['sync']
+    # Create the device with the appropriate pandevice type
+    device = base.PanDevice.create_from_device(ip_address, username, password)
 
-    xapi = pan.xapi.PanXapi(
-        hostname=ip_address,
-        api_username=username,
-        api_password=password
-    )
+    # If Panorama, validate the devicegroup
+    if isinstance(device, panorama.Panorama):
+        if devicegroup_exists(device, devicegroup):
+            pass
+        else:
+            module.fail_json(
+                failed=1,
+                msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup
+            )
 
-    xapi.commit(
-        cmd="<commit></commit>",
-        sync=sync,
-        interval=interval,
-        timeout=timeout
-    )
+    # Commit the configs
+    if do_commit(device, devicegroup):
+        module.exit_json(changed=True, msg='Commit successful')
+    else:
+        module.fail_json(changed=False, msg='Commit failed')
 
-    module.exit_json(changed=True, msg="okey dokey")
 
 if __name__ == '__main__':
     main()

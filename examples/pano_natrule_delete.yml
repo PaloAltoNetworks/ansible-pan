@@ -1,0 +1,36 @@
+- name: Delete a NAT rules on Panorama
+  hosts: my-panorama
+  connection: local
+  gather_facts: False
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'panorama-secrets.yml'
+    no_log: 'yes'
+
+  - name: Delete the dynamic NAT rule on Panorama
+    panos_nat_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      rule_name: 'Web SSH inbound'
+      devicegroup: 'shared_services_11022'
+      operation: 'delete'
+
+  - name: Delete the static NAT rule on Panorama
+    panos_nat_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      rule_name: 'Static outbound'
+      devicegroup: 'shared_services_11022'
+      operation: 'delete'
+
+  - name: Clean up the service object on Panorama
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      serviceobject: 'service-tcp-221'
+      devicegroup: 'shared_services_11022'
+      operation: 'delete'
