@@ -1,0 +1,152 @@
+- name: Add some security rules to the firewall
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: Add an address object to the firewall
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      addressobject: 'host-1.2.3.4'
+      address: '1.2.3.4'
+      address_type: 'ip-netmask'
+      description: 'This is a test address object'
+      operation: 'add'
+
+  - name: Add another address object to the firewall
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      addressobject: 'range-192.168.100.100-200'
+      address: '192.168.100.100-192.168.100.200'
+      address_type: 'ip-range'
+      description: 'This is a another test address object'
+      operation: 'add'
+
+  - name: Add yet another address object to the firewall
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      addressobject: 'net-10.0.0.0-8'
+      address: '10.0.0.0/8'
+      address_type: 'ip-netmask'
+      description: 'This is a another test address object'
+      operation: 'add'
+
+  - name: Add an address group to the firewall
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      addressgroup: 'test-address-group'
+      static_value: ['host-1.2.3.4','range-192.168.100.100-200']
+      description: 'This is a test addressgroup'
+      operation: 'add'
+
+  - name: Add a service to the firewall
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      serviceobject: 'service-xyz'
+      protocol: 'tcp'
+      destination_port: '8889'
+      description: 'This is a test service object'
+      operation: 'add'
+
+  - name: Add another service to the firewall
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      serviceobject: 'service-abc'
+      protocol: 'tcp'
+      destination_port: '5000,5001,6000-7000'
+      description: 'This is a test service object'
+      operation: 'add'
+
+  - name: Add a service group to the firewall
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      servicegroup: 'test-service-group'
+      services: ['service-abc','service-xyz']
+      description: 'This is a test servicegroup'
+      operation: 'add'
+
+  - name: Add a tag to the firewall
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      tag_name: 'Test'
+      color: 'orange'
+      description: 'This is test tag'
+      operation: 'add'
+
+  - name: Add test rule 1 to the firewall
+    panos_security_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      operation: 'add'
+      rule_name: 'Ansible test 1'
+      description: 'An Ansible test rule'
+      source_zone: ['internal']
+      destination_zone: ['external']
+      source_ip: ['host-1.2.3.4']
+      source_user: ['any']
+      destination_ip: ['any']
+      category: ['any']
+      application: ['any']
+      service: ['service-xyz']
+      hip_profiles: ['any']
+      action: 'allow'
+
+  - name: Add test rule 2 to the firewall
+    panos_security_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      operation: 'add'
+      rule_name: 'Ansible test 2'
+      description: 'Another Ansible test rule'
+      source_zone: ['internal']
+      source_ip: ['range-192.168.100.100-200']
+      source_user: ['any']
+      hip_profiles: ['any']
+      destination_zone: ['external']
+      destination_ip: ['any']
+      category: ['any']
+      application: ['any']
+      service: ['service-abc']
+      action: 'allow'
+      group_profile: 'default'
+
+  - name: Add test rule 3 to the firewall
+    panos_security_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      operation: 'add'
+      rule_name: 'Ansible test 3'
+      description: 'Yet another Ansible test rule'
+      source_zone: ['internal']
+      source_ip: ['net-10.0.0.0-8']
+      source_user: ['any']
+      hip_profiles: ['any']
+      destination_zone: ['external']
+      destination_ip: ['any']
+      category: ['any']
+      application: ['any']
+      service: ['test-service-group']
+      action: 'allow'

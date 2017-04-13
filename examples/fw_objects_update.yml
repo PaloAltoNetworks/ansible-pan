@@ -1,0 +1,41 @@
+- name: Update some objects on the firewall
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: Update an object on the firewall
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      addressobject: 'test-address'
+      address: '192.168.99.89/25'
+      address_type: 'ip-netmask'
+      description: 'This is a test address object'
+      operation: 'update'
+
+  - name: Update a service on the firewall
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      serviceobject: 'service-xyz'
+      protocol: 'tcp'
+      destination_port: '9999'
+      description: 'This is a test service object'
+      operation: 'update'
+
+  - name: Update a tag on the firewall
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      tag_name: 'Test'
+      color: 'green'
+      description: 'This is test tag'
+      operation: 'update'

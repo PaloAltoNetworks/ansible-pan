@@ -1,0 +1,27 @@
+---
+- name: Query for rule match in Panorama
+  hosts: my-panorama
+  connection: local
+  gather_facts: False
+
+  tasks:
+  - name: Gather the credentials
+    include_vars: 'panorama-secrets.yml'
+    no_log: 'yes'
+
+  - name: Look for a match in Panorama devicegroup rulebase
+    panos_query_rules:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      source_zone: 'internal'
+      #source_ip: '1.2.3.4'
+      source_ip: '192.168.100.150'
+      #source_ip: '10.50.60.70'
+      destination_zone: 'external'
+      #destination_port: '8889'
+      #protocol: 'tcp'
+      #tag_name: 'Test'
+      devicegroup: 'shared_services_11022'
+    register: result
+  - debug: msg='{{result.stdout_lines}}'

@@ -1,0 +1,49 @@
+- name: Find some objects on the firewall
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: Find an address object on the firewall
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      addressobject: 'test-address'
+      operation: 'find'
+    register: result
+  - debug: msg='{{ result.stdout_lines }}'
+
+  - name: Find a service on the firewall
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      serviceobject: 'service-xyz'
+      operation: 'find'
+    register: result
+  - debug: msg='{{ result.stdout_lines }}'
+
+  - name: Find an address group on the firewall
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      addressgroup: 'test-address-group'
+      operation: 'find'
+    register: result
+  - debug: msg='{{ result.stdout_lines }}'
+
+  - name: Find a tag on the firewall
+    panos_object:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      tag_name: 'Test'
+      operation: 'find'
+    register: result
+  - debug: msg='{{ result.stdout_lines }}'
