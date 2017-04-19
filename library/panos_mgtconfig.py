@@ -20,8 +20,8 @@ module: panos_mgtconfig
 short_description: configure management settings of device
 description:
     - Configure management settings of device
-author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
-version_added: "2.3"
+author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer), Patrik Malinen (@pmalinen)"
+version_added: "2.4"
 requirements:
     - pan-python
 options:
@@ -40,22 +40,32 @@ options:
         default: "admin"
     dns_server_primary:
         description:
-            - address of primary DNS server
+            - IP address of primary DNS server
         required: false
         default: None
     dns_server_secondary:
         description:
-            - address of secondary DNS server
+            - IP address of secondary DNS server
         required: false
         default: None
     panorama_primary:
         description:
-            - address of primary Panorama server
+            - IP address (or hostname) of primary Panorama server
         required: false
         default: None
     panorama_secondary:
         description:
-            - address of secondary Panorama server
+            - IP address (or hostname) of secondary Panorama server
+        required: false
+        default: None
+    ntp_server_primary:
+        description:
+            - IP address (or hostname) of primary NTP server
+        required: false
+        default: None
+    ntp_server_secondary:
+        description:
+            - IP address (or hostname) of secondary NTP server
         required: false
         default: None
     commit:
@@ -74,6 +84,8 @@ EXAMPLES = '''
     dns_server_secondary: "1.1.1.2"
     panorama_primary: "1.1.1.3"
     panorama_secondary: "1.1.1.4"
+    ntp_server_primary: "1.1.1.5"
+    ntp_server_secondary: "1.1.1.6"
 '''
 
 RETURN='''
@@ -99,6 +111,8 @@ _XPATH_DNS_SERVERS = "/config/devices/entry[@name='localhost.localdomain']" +\
 _XPATH_PANORAMA_SERVERS = "/config" +\
                           "/devices/entry[@name='localhost.localdomain']" +\
                           "/deviceconfig/system"
+_XPATH_NTP_SERVERS = "/config/devices/entry[@name='localhost.localdomain']" +\
+                     "/deviceconfig/system/ntp-servers"
 
 
 def set_dns_server(xapi, new_dns_server, primary=True):
@@ -147,6 +161,30 @@ def set_panorama_server(xapi, new_panorama_server, primary=True):
     return True
 
 
+def set_ntp_server(xapi, new_ntp_server, primary=True):
+    if primary:
+        tag = "ntp-server-address"
+        xpath = _XPATH_NTP_SERVERS + "/primary-ntp-server/" + tag
+    else:
+        tag = "ntp-server-address"
+        xpath = _XPATH_NTP_SERVERS+"/secondary-ntp-server/"+tag
+
+    # check the current element value
+    xapi.get(xpath)
+    val = xapi.element_root.find(".//"+tag)
+    if val is not None:
+        # element exists
+        val = val.text
+    if val == new_ntp_server:
+        return False
+
+    element = "<%(tag)s>%(value)s</%(tag)s>" %\
+              dict(tag=tag, value=new_ntp_server)
+    xapi.edit(xpath, element)
+
+    return True
+
+
 def main():
     argument_spec = dict(
         ip_address=dict(required=True),
@@ -156,6 +194,8 @@ def main():
         dns_server_secondary=dict(),
         panorama_primary=dict(),
         panorama_secondary=dict(),
+        ntp_server_primary=dict(),
+        ntp_server_secondary=dict(),
         commit=dict(type='bool', default=True)
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
@@ -167,6 +207,8 @@ def main():
     username = module.params['username']
     dns_server_primary = module.params['dns_server_primary']
     dns_server_secondary = module.params['dns_server_secondary']
+    ntp_server_primary = module.params['ntp_server_primary']
+    ntp_server_secondary = module.params['ntp_server_secondary']
     panorama_primary = module.params['panorama_primary']
     panorama_secondary = module.params['panorama_secondary']
     commit = module.params['commit']
@@ -187,6 +229,10 @@ def main():
             changed |= set_panorama_server(xapi, panorama_primary, primary=True)
         if panorama_secondary is not None:
             changed |= set_panorama_server(xapi, panorama_secondary, primary=False)
+        if ntp_server_primary is not None:
+            changed |= set_ntp_server(xapi, ntp_server_primary, primary=True)
+        if ntp_server_secondary is not None:
+            changed |= set_ntp_server(xapi, ntp_server_secondary, primary=False)
 
         if changed and commit:
             xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
