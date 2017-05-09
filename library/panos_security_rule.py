@@ -461,7 +461,7 @@ def main():
         # If found, delete it
         if match and commit:
             try:
-                match.delete(commit)
+                match.delete()
             except PanXapiError:
                 exc = get_exception()
                 module.fail_json(msg=exc.message)
