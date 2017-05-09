@@ -53,6 +53,7 @@ options:
     operation:
         description:
             - The action to be taken.  Supported values are I(add)/I(update)/I(find)/I(delete).
+        default: 'add'
     rule_name:
         description:
             - Name of the security rule.
@@ -336,7 +337,7 @@ def create_security_rule(**kwargs):
     return security_rule
 
 
-def add_rule(rulebase, sec_rule):
+def add_rule(rulebase, sec_rule, commit):
     if rulebase:
         rulebase.add(sec_rule)
         sec_rule.create()
@@ -345,7 +346,7 @@ def add_rule(rulebase, sec_rule):
         return False
 
 
-def update_rule(rulebase, nat_rule):
+def update_rule(rulebase, nat_rule, commit):
     if rulebase:
         rulebase.add(nat_rule)
         nat_rule.apply()
@@ -360,7 +361,7 @@ def main():
         password=dict(no_log=True),
         username=dict(default='admin'),
         api_key=dict(no_log=True),
-        operation=dict(required=True, choices=['add','update','delete','find']),
+        operation=dict(default='add', choices=['add','update','delete','find']),
         rule_name=dict(required=True),
         description=dict(default=''),
         tag_name=dict(type='list'),
@@ -386,6 +387,7 @@ def main():
         rule_type=dict(default='universal'),
         action=dict(default='allow'),
         devicegroup=dict(),
+        commit=dict(type='bool', default=True)
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
                            required_one_of=[['api_key', 'password']])
@@ -423,6 +425,8 @@ def main():
     rule_type = module.params['rule_type']
     devicegroup = module.params['devicegroup']
 
+    commit = module.params['commit']
+
     # Create the device with the appropriate pandevice type
     device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
 
@@ -455,7 +459,7 @@ def main():
         # Search for the object
         match = find_rule(rulebase, rule_name)
         # If found, delete it
-        if match:
+        if match and commit:
             try:
                 match.delete()
             except PanXapiError:
@@ -498,7 +502,7 @@ def main():
                     rule_type=rule_type,
                     action=action
                 )
-                changed = add_rule(rulebase, new_rule)
+                changed = add_rule(rulebase, new_rule, commit)
             except PanXapiError:
                 exc = get_exception()
                 module.fail_json(msg=exc.message)
@@ -534,7 +538,7 @@ def main():
                     rule_type=rule_type,
                     action=action
                 )
-                changed = update_rule(rulebase, new_rule)
+                changed = update_rule(rulebase, new_rule, commit)
             except PanXapiError:
                 exc = get_exception()
                 module.fail_json(msg=exc.message)
