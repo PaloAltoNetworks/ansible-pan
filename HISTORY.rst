@@ -11,8 +11,8 @@ V1.0.4
 
 * Refactored modules
 
-* panos_restart is using PanDevice internally now and work with Panorama too
-
+* panos_restart refactored to use PanDevice internally; supports Panorama
+* panos_mgtconfig refactored to use PanDevice internally; added support for NTP servers config
 
 V1.0.3
 ------

@@ -17,62 +17,70 @@
 DOCUMENTATION = '''
 ---
 module: panos_mgtconfig
-short_description: configure management settings of device
+short_description: Module used to configure some of the device management.
 description:
-    - Configure management settings of device
+    - Configure management settings of device. Not all configuration options are configurable at this time.
 author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer), Patrik Malinen (@pmalinen)"
 version_added: "2.4"
 requirements:
-    - pan-python
+    - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
+    - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
+notes:
+    - Checkmode is not supported.
 options:
     ip_address:
         description:
-            - IP address (or hostname) of PAN-OS device
-        required: true
-    password:
-        description:
-            - password for authentication
+            - IP address (or hostname) of PAN-OS device being configured.
         required: true
     username:
         description:
-            - username for authentication
-        required: false
+            - Username credentials to use for auth unless I(api_key) is set.
         default: "admin"
+    password:
+        description:
+            - Password credentials to use for auth unless I(api_key) is set.
+        required: true
+    api_key:
+        description:
+            - API key that can be used instead of I(username)/I(password) credentials.
     dns_server_primary:
         description:
-            - IP address of primary DNS server
-        required: false
-        default: None
+            - IP address of primary DNS server.
     dns_server_secondary:
         description:
-            - IP address of secondary DNS server
-        required: false
-        default: None
+            - IP address of secondary DNS server.
     panorama_primary:
         description:
-            - IP address (or hostname) of primary Panorama server
-        required: false
-        default: None
+            - IP address (or hostname) of primary Panorama server.
     panorama_secondary:
         description:
-            - IP address (or hostname) of secondary Panorama server
-        required: false
-        default: None
+            - IP address (or hostname) of secondary Panorama server.
     ntp_server_primary:
         description:
-            - IP address (or hostname) of primary NTP server
-        required: false
-        default: None
+            - IP address (or hostname) of primary NTP server.
     ntp_server_secondary:
         description:
-            - IP address (or hostname) of secondary NTP server
-        required: false
-        default: None
+            - IP address (or hostname) of secondary NTP server.
+    timezone:
+        description:
+            - Device timezone.
+    login_banner:
+        description:
+            - Login banner text.
+    update_server:
+        description:
+            - IP or hostname of the update server.
+    hostname:
+        description:
+            - The hostname of the device.
+    domain:
+        description:
+            - The domain of the device
     commit:
         description:
-            - commit if changed
-        required: false
+            - Commit configuration if changed.
         default: true
+
 '''
 
 EXAMPLES = '''
@@ -102,85 +110,35 @@ from ansible.module_utils.basic import get_exception
 try:
     import pan.xapi
     from pan.xapi import PanXapiError
+    import pandevice
+    from pandevice import base
+    from pandevice import firewall
+    from pandevice import panorama
+    from pandevice.device import SystemSettings
     HAS_LIB = True
 except ImportError:
     HAS_LIB = False
 
-_XPATH_DNS_SERVERS = "/config/devices/entry[@name='localhost.localdomain']" +\
-                     "/deviceconfig/system/dns-setting/servers"
-_XPATH_PANORAMA_SERVERS = "/config" +\
-                          "/devices/entry[@name='localhost.localdomain']" +\
-                          "/deviceconfig/system"
-_XPATH_NTP_SERVERS = "/config/devices/entry[@name='localhost.localdomain']" +\
-                     "/deviceconfig/system/ntp-servers"
+
+def get_devicegroup(device, devicegroup):
+    dg_list = device.refresh_devices()
+    for group in dg_list:
+        if isinstance(group, pandevice.panorama.DeviceGroup):
+            if group.name == devicegroup:
+                return group
+    return False
 
 
-def set_dns_server(xapi, new_dns_server, primary=True):
+def set_ntp_server(system_settings, new_ntp_server, primary=True):
+    ntp = None
     if primary:
-        tag = "primary"
+        from pandevice.device import NTPServerPrimary
+        ntp = NTPServerPrimary(address=new_ntp_server)
     else:
-        tag = "secondary"
-    xpath = _XPATH_DNS_SERVERS+"/"+tag
+        from pandevice.device import NTPServerSecondary
+        ntp = NTPServerSecondary(address=new_ntp_server)
 
-    # check the current element value
-    xapi.get(xpath)
-    val = xapi.element_root.find(".//"+tag)
-    if val is not None:
-        # element exists
-        val = val.text
-    if val == new_dns_server:
-        return False
-
-    element = "<%(tag)s>%(value)s</%(tag)s>" %\
-              dict(tag=tag, value=new_dns_server)
-    xapi.edit(xpath, element)
-
-    return True
-
-
-def set_panorama_server(xapi, new_panorama_server, primary=True):
-    if primary:
-        tag = "panorama-server"
-    else:
-        tag = "panorama-server-2"
-    xpath = _XPATH_PANORAMA_SERVERS+"/"+tag
-
-    # check the current element value
-    xapi.get(xpath)
-    val = xapi.element_root.find(".//"+tag)
-    if val is not None:
-        # element exists
-        val = val.text
-    if val == new_panorama_server:
-        return False
-
-    element = "<%(tag)s>%(value)s</%(tag)s>" %\
-              dict(tag=tag, value=new_panorama_server)
-    xapi.edit(xpath, element)
-
-    return True
-
-
-def set_ntp_server(xapi, new_ntp_server, primary=True):
-    if primary:
-        tag = "ntp-server-address"
-        xpath = _XPATH_NTP_SERVERS + "/primary-ntp-server/" + tag
-    else:
-        tag = "ntp-server-address"
-        xpath = _XPATH_NTP_SERVERS+"/secondary-ntp-server/"+tag
-
-    # check the current element value
-    xapi.get(xpath)
-    val = xapi.element_root.find(".//"+tag)
-    if val is not None:
-        # element exists
-        val = val.text
-    if val == new_ntp_server:
-        return False
-
-    element = "<%(tag)s>%(value)s</%(tag)s>" %\
-              dict(tag=tag, value=new_ntp_server)
-    xapi.edit(xpath, element)
+    system_settings.add(ntp)
 
     return True
 
@@ -190,17 +148,25 @@ def main():
         ip_address=dict(required=True),
         password=dict(required=True, no_log=True),
         username=dict(default='admin'),
+        api_key=dict(no_log=True),
         dns_server_primary=dict(),
         dns_server_secondary=dict(),
         panorama_primary=dict(),
         panorama_secondary=dict(),
         ntp_server_primary=dict(),
         ntp_server_secondary=dict(),
+        timezone=dict(),
+        login_banner=dict(),
+        update_server=dict(),
+        hostname=dict(),
+        domain=dict(),
+        # devicegroup=dict(),
         commit=dict(type='bool', default=True)
     )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
+                           required_one_of=[['api_key', 'password']])
     if not HAS_LIB:
-        module.fail_json(msg='pan-python is required for this module')
+        module.fail_json(msg='Missing required libraries.')
 
     ip_address = module.params["ip_address"]
     password = module.params["password"]
@@ -212,30 +178,61 @@ def main():
     panorama_primary = module.params['panorama_primary']
     panorama_secondary = module.params['panorama_secondary']
     commit = module.params['commit']
+    api_key = module.params['api_key']
+    timezone = module.params['timezone']
+    login_banner = module.params['login_banner']
+    update_server = module.params['update_server']
+    hostname = module.params['hostname']
+    domain = module.params['hostname']
+    # devicegroup = module.params['devicegroup']
 
-    xapi = pan.xapi.PanXapi(
-        hostname=ip_address,
-        api_username=username,
-        api_password=password
-    )
+    # Create the device with the appropriate pandevice type
+    device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
+
+    # If Panorama, validate the devicegroup
+    # dev_group = None
+    # if devicegroup and isinstance(device, panorama.Panorama):
+    #     dev_group = get_devicegroup(device, devicegroup)
+    #     if dev_group:
+    #         device.add(dev_group)
+    #     else:
+    #         module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
 
     changed = False
     try:
-        if dns_server_primary is not None:
-            changed |= set_dns_server(xapi, dns_server_primary, primary=True)
-        if dns_server_secondary is not None:
-            changed |= set_dns_server(xapi, dns_server_secondary, primary=False)
-        if panorama_primary is not None:
-            changed |= set_panorama_server(xapi, panorama_primary, primary=True)
-        if panorama_secondary is not None:
-            changed |= set_panorama_server(xapi, panorama_secondary, primary=False)
-        if ntp_server_primary is not None:
-            changed |= set_ntp_server(xapi, ntp_server_primary, primary=True)
-        if ntp_server_secondary is not None:
-            changed |= set_ntp_server(xapi, ntp_server_secondary, primary=False)
+        ss = SystemSettings.refreshall(device)[0]
 
-        if changed and commit:
-            xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
+        if dns_server_primary is not None:
+            ss.dns_primary=dns_server_primary
+            changed = True
+        if dns_server_secondary is not None:
+            ss.dns_secondary = dns_server_secondary
+            changed = True
+        if panorama_primary is not None:
+            ss.panorama = panorama_primary
+            changed = True
+        if panorama_secondary is not None:
+            ss.panorama2 = panorama_secondary
+            changed = True
+        if ntp_server_primary is not None:
+            changed |= set_ntp_server(ss, ntp_server_primary, primary=True)
+        if ntp_server_secondary is not None:
+            changed |= set_ntp_server(ss, ntp_server_secondary, primary=False)
+        if login_banner:
+            ss.login_banner = login_banner
+        if timezone:
+            ss.timezone = timezone
+        if update_server:
+            ss.update_server = update_server
+        if hostname:
+            ss.hostname = hostname
+        if domain:
+            ss.domain = domain
+
+        if changed:
+            ss.apply()
+        if commit:
+            device.commit(sync=True)
     except PanXapiError:
         exc = get_exception()
         module.fail_json(msg=exc.message)

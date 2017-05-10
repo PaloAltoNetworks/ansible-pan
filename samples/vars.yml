@@ -1,0 +1,4 @@
+# vars.yml
+admin_username: "admin"
+admin_password: "admin"
+mgmt_ip: "fw2.local"
