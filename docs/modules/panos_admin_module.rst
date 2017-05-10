@@ -9,13 +9,13 @@ panos_admin - Add or modify PAN-OS user accounts password.
 
 .. contents::
    :local:
-   :depth: 1
+   :depth: 2
 
 
 Synopsis
 --------
 
-PanOS module that allows changes to the user account passwords by doing API calls to the Firewall using pan-api as the protocol.
+* PanOS module that allows changes to the user account passwords by doing API calls to the Firewall using pan-api as the protocol.
 
 
 Requirements (on host that executes module)
@@ -37,48 +37,41 @@ Options
     <th class="head">choices</th>
     <th class="head">comments</th>
     </tr>
-            <tr>
-    <td>admin_password<br/><div style="font-size: small;"></div></td>
+                <tr><td>admin_password<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
-        <td><ul></ul></td>
-        <td><div>password for admin user</div></td></tr>
-            <tr>
-    <td>admin_username<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>password for admin user</div>        </td></tr>
+                <tr><td>admin_username<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>admin</td>
-        <td><ul></ul></td>
-        <td><div>username for admin user</div></td></tr>
-            <tr>
-    <td>commit<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>username for admin user</div>        </td></tr>
+                <tr><td>commit<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>True</td>
-        <td><ul></ul></td>
-        <td><div>commit if changed</div></td></tr>
-            <tr>
-    <td>ip_address<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>commit if changed</div>        </td></tr>
+                <tr><td>ip_address<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
-        <td><ul></ul></td>
-        <td><div>IP address (or hostname) of PAN-OS device</div></td></tr>
-            <tr>
-    <td>password<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>IP address (or hostname) of PAN-OS device</div>        </td></tr>
+                <tr><td>password<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
-        <td><ul></ul></td>
-        <td><div>password for authentication</div></td></tr>
-            <tr>
-    <td>role<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>password for authentication</div>        </td></tr>
+                <tr><td>role<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td></td>
-        <td><ul></ul></td>
-        <td><div>role for admin user</div></td></tr>
-            <tr>
-    <td>username<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>role for admin user</div>        </td></tr>
+                <tr><td>username<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>admin</td>
-        <td><ul></ul></td>
-        <td><div>username for authentication</div></td></tr>
+        <td></td>
+        <td><div>username for authentication</div>        </td></tr>
         </table>
     </br>
 
@@ -127,3 +120,20 @@ Common return values are documented here :doc:`common_return_values`, the follow
     </br></br>
 
 
+
+
+Status
+~~~~~~
+
+This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+
+
+Support
+~~~~~~~
+
+This module is community maintained without core committer oversight.
+
+For more information on what this means please read :doc:`modules_support`
+
+
+For help in developing on modules, should you be so inclined, please read :doc:`community`, :doc:`dev_guide/developing_test_pr` and :doc:`dev_guide/developing_modules`.

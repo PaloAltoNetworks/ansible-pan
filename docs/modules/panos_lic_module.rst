@@ -9,15 +9,13 @@ panos_lic - apply authcode to a device/instance
 
 .. contents::
    :local:
-   :depth: 1
+   :depth: 2
 
 
 Synopsis
 --------
 
-Apply an authcode to a device.
-The authcode should have been previously registered on the Palo Alto Networks support portal.
-The device should have Internet access.
+* Apply an authcode to a device. The authcode should have been previously registered on the Palo Alto Networks support portal. The device should have Internet access.
 
 
 Requirements (on host that executes module)
@@ -39,36 +37,31 @@ Options
     <th class="head">choices</th>
     <th class="head">comments</th>
     </tr>
-            <tr>
-    <td>auth_code<br/><div style="font-size: small;"></div></td>
+                <tr><td>auth_code<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
-        <td><ul></ul></td>
-        <td><div>authcode to be applied</div></td></tr>
-            <tr>
-    <td>force<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>authcode to be applied</div>        </td></tr>
+                <tr><td>force<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>false</td>
-        <td><ul></ul></td>
-        <td><div>whether to apply authcode even if device is already licensed</div></td></tr>
-            <tr>
-    <td>ip_address<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>whether to apply authcode even if device is already licensed</div>        </td></tr>
+                <tr><td>ip_address<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
-        <td><ul></ul></td>
-        <td><div>IP address (or hostname) of PAN-OS device</div></td></tr>
-            <tr>
-    <td>password<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>IP address (or hostname) of PAN-OS device</div>        </td></tr>
+                <tr><td>password<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
-        <td><ul></ul></td>
-        <td><div>password for authentication</div></td></tr>
-            <tr>
-    <td>username<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>password for authentication</div>        </td></tr>
+                <tr><td>username<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>admin</td>
-        <td><ul></ul></td>
-        <td><div>username for authentication</div></td></tr>
+        <td></td>
+        <td><div>username for authentication</div>        </td></tr>
         </table>
     </br>
 
@@ -120,3 +113,20 @@ Common return values are documented here :doc:`common_return_values`, the follow
     </br></br>
 
 
+
+
+Status
+~~~~~~
+
+This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+
+
+Support
+~~~~~~~
+
+This module is community maintained without core committer oversight.
+
+For more information on what this means please read :doc:`modules_support`
+
+
+For help in developing on modules, should you be so inclined, please read :doc:`community`, :doc:`dev_guide/developing_test_pr` and :doc:`dev_guide/developing_modules`.

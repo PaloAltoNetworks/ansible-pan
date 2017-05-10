@@ -9,13 +9,13 @@ panos_interface - configure data-port network interface for DHCP
 
 .. contents::
    :local:
-   :depth: 1
+   :depth: 2
 
 
 Synopsis
 --------
 
-Configure data-port (DP) network interface for DHCP. By default DP interfaces are static.
+* Configure data-port (DP) network interface for DHCP. By default DP interfaces are static.
 
 
 Requirements (on host that executes module)
@@ -37,49 +37,42 @@ Options
     <th class="head">choices</th>
     <th class="head">comments</th>
     </tr>
-            <tr>
-    <td>commit<br/><div style="font-size: small;"></div></td>
+                <tr><td>commit<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>True</td>
-        <td><ul></ul></td>
-        <td><div>Commit if changed</div></td></tr>
-            <tr>
-    <td>create_default_route<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>Commit if changed</div>        </td></tr>
+                <tr><td>create_default_route<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>false</td>
-        <td><ul></ul></td>
-        <td><div>Whether or not to add default route with router learned via DHCP.</div></td></tr>
-            <tr>
-    <td>if_name<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>Whether or not to add default route with router learned via DHCP.</div>        </td></tr>
+                <tr><td>if_name<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
-        <td><ul></ul></td>
-        <td><div>Name of the interface to configure.</div></td></tr>
-            <tr>
-    <td>ip_address<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>Name of the interface to configure.</div>        </td></tr>
+                <tr><td>ip_address<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
-        <td><ul></ul></td>
-        <td><div>IP address (or hostname) of PAN-OS device being configured.</div></td></tr>
-            <tr>
-    <td>password<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>IP address (or hostname) of PAN-OS device being configured.</div>        </td></tr>
+                <tr><td>password<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
-        <td><ul></ul></td>
-        <td><div>Password credentials to use for auth.</div></td></tr>
-            <tr>
-    <td>username<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>Password credentials to use for auth.</div>        </td></tr>
+                <tr><td>username<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>admin</td>
-        <td><ul></ul></td>
-        <td><div>Username credentials to use for auth.</div></td></tr>
-            <tr>
-    <td>zone_name<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>Username credentials to use for auth.</div>        </td></tr>
+                <tr><td>zone_name<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
-        <td><ul></ul></td>
+        <td></td>
         <td><div>Name of the zone for the interface. If the zone does not exist it is created but if the zone exists and it is not of the layer3 type the operation will fail.
-</div></td></tr>
+    </div>        </td></tr>
         </table>
     </br>
 
@@ -100,3 +93,20 @@ Examples
 
 
 
+
+
+Status
+~~~~~~
+
+This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+
+
+Support
+~~~~~~~
+
+This module is community maintained without core committer oversight.
+
+For more information on what this means please read :doc:`modules_support`
+
+
+For help in developing on modules, should you be so inclined, please read :doc:`community`, :doc:`dev_guide/developing_test_pr` and :doc:`dev_guide/developing_modules`.
