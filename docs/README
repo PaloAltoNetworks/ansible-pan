@@ -1,0 +1,2 @@
+pip install ansible sphinx sphinx-autobuild
+sphinx-apidoc -o . ../library

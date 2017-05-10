@@ -9,13 +9,13 @@ panos_loadcfg - load configuration on PAN-OS device
 
 .. contents::
    :local:
-   :depth: 1
+   :depth: 2
 
 
 Synopsis
 --------
 
-Load configuration on PAN-OS device
+* Load configuration on PAN-OS device
 
 
 Requirements (on host that executes module)
@@ -37,36 +37,31 @@ Options
     <th class="head">choices</th>
     <th class="head">comments</th>
     </tr>
-            <tr>
-    <td>commit<br/><div style="font-size: small;"></div></td>
+                <tr><td>commit<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>True</td>
-        <td><ul></ul></td>
-        <td><div>commit if changed</div></td></tr>
-            <tr>
-    <td>file<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>commit if changed</div>        </td></tr>
+                <tr><td>file<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>None</td>
-        <td><ul></ul></td>
-        <td><div>configuration file to load</div></td></tr>
-            <tr>
-    <td>ip_address<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>configuration file to load</div>        </td></tr>
+                <tr><td>ip_address<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
-        <td><ul></ul></td>
-        <td><div>IP address (or hostname) of PAN-OS device</div></td></tr>
-            <tr>
-    <td>password<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>IP address (or hostname) of PAN-OS device</div>        </td></tr>
+                <tr><td>password<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
-        <td><ul></ul></td>
-        <td><div>password for authentication</div></td></tr>
-            <tr>
-    <td>username<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>password for authentication</div>        </td></tr>
+                <tr><td>username<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>admin</td>
-        <td><ul></ul></td>
-        <td><div>username for authentication</div></td></tr>
+        <td></td>
+        <td><div>username for authentication</div>        </td></tr>
         </table>
     </br>
 
@@ -93,3 +88,20 @@ Examples
 
 
 
+
+
+Status
+~~~~~~
+
+This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+
+
+Support
+~~~~~~~
+
+This module is community maintained without core committer oversight.
+
+For more information on what this means please read :doc:`modules_support`
+
+
+For help in developing on modules, should you be so inclined, please read :doc:`community`, :doc:`dev_guide/developing_test_pr` and :doc:`dev_guide/developing_modules`.

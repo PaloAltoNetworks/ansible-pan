@@ -8,315 +8,15 @@ panos_query_rules - search for security rules matching specific criteria
 
 .. contents::
    :local:
-   :depth: 1
+   :depth: 2
 
 
 Synopsis
 --------
 
-S
-e
-c
-u
-r
-i
-t
-y
- 
-p
-o
-l
-i
-c
-i
-e
-s
- 
-a
-l
-l
-o
-w
- 
-y
-o
-u
- 
-t
-o
- 
-e
-n
-f
-o
-r
-c
-e
- 
-r
-u
-l
-e
-s
- 
-a
-n
-d
- 
-t
-a
-k
-e
- 
-a
-c
-t
-i
-o
-n
-,
- 
-a
-n
-d
- 
-c
-a
-n
- 
-b
-e
- 
-a
-s
- 
-g
-e
-n
-e
-r
-a
-l
- 
-o
-r
- 
-s
-p
-e
-c
-i
-f
-i
-c
- 
-a
-s
- 
-n
-e
-e
-d
-e
-d
-.
- 
-T
-h
-e
- 
-p
-o
-l
-i
-c
-y
- 
-r
-u
-l
-e
-s
- 
-a
-r
-e
- 
-c
-o
-m
-p
-a
-r
-e
-d
- 
-a
-g
-a
-i
-n
-s
-t
- 
-t
-h
-e
- 
-i
-n
-c
-o
-m
-i
-n
-g
- 
-t
-r
-a
-f
-f
-i
-c
- 
-i
-n
- 
-s
-e
-q
-u
-e
-n
-c
-e
-,
- 
-a
-n
-d
- 
-b
-e
-c
-a
-u
-s
-e
- 
-t
-h
-e
- 
-f
-i
-r
-s
-t
- 
-r
-u
-l
-e
- 
-t
-h
-a
-t
- 
-m
-a
-t
-c
-h
-e
-s
- 
-t
-h
-e
- 
-t
-r
-a
-f
-f
-i
-c
- 
-i
-s
- 
-a
-p
-p
-l
-i
-e
-d
-,
- 
-t
-h
-e
- 
-m
-o
-r
-e
- 
-s
-p
-e
-c
-i
-f
-i
-c
- 
-r
-u
-l
-e
-s
- 
-m
-u
-s
-t
- 
-p
-r
-e
-c
-e
-d
-e
- 
-t
-h
-e
- 
-m
-o
-r
-e
- 
-g
-e
-n
-e
-r
-a
-l
- 
-o
-n
-e
-s
-.
-
+* Security policies allow you to enforce rules and take action, and can be as general or specific as needed.
+The policy rules are compared against the incoming traffic in sequence, and because the first rule that matches
+the traffic is applied, the more specific rules must precede the more general ones.
 
 
 
@@ -341,90 +41,76 @@ Options
     <th class="head">choices</th>
     <th class="head">comments</th>
     </tr>
-            <tr>
-    <td>api_key<br/><div style="font-size: small;"></div></td>
+                <tr><td>api_key<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td></td>
-        <td><ul></ul></td>
-        <td><div>API key that can be used instead of <em>username</em>/<em>password</em> credentials.</div></td></tr>
-            <tr>
-    <td>application<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>API key that can be used instead of <em>username</em>/<em>password</em> credentials.</div>        </td></tr>
+                <tr><td>application<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>None</td>
-        <td><ul></ul></td>
-        <td><div>Name of the application or application group to be queried.</div></td></tr>
-            <tr>
-    <td>destination_ip<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>Name of the application or application group to be queried.</div>        </td></tr>
+                <tr><td>destination_ip<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>None</td>
-        <td><ul></ul></td>
-        <td><div>The destination IP address to be queried.</div></td></tr>
-            <tr>
-    <td>destination_port<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>The destination IP address to be queried.</div>        </td></tr>
+                <tr><td>destination_port<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>None</td>
-        <td><ul></ul></td>
-        <td><div>The destination port to be queried.</div></td></tr>
-            <tr>
-    <td>destination_zone<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>The destination port to be queried.</div>        </td></tr>
+                <tr><td>destination_zone<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>None</td>
-        <td><ul></ul></td>
-        <td><div>Name of the destination security zone to be queried.</div></td></tr>
-            <tr>
-    <td>devicegroup<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>Name of the destination security zone to be queried.</div>        </td></tr>
+                <tr><td>devicegroup<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>None</td>
-        <td><ul></ul></td>
-        <td><div>The Panorama device group in which to conduct the query.</div></td></tr>
-            <tr>
-    <td>ip_address<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>The Panorama device group in which to conduct the query.</div>        </td></tr>
+                <tr><td>ip_address<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
-        <td><ul></ul></td>
-        <td><div>IP address (or hostname) of PAN-OS firewall or Panorama management console being queried.</div></td></tr>
-            <tr>
-    <td>password<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>IP address (or hostname) of PAN-OS firewall or Panorama management console being queried.</div>        </td></tr>
+                <tr><td>password<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
-        <td><ul></ul></td>
-        <td><div>Password credentials to use for authentication.</div></td></tr>
-            <tr>
-    <td>protocol<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>Password credentials to use for authentication.</div>        </td></tr>
+                <tr><td>protocol<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>None</td>
-        <td><ul></ul></td>
-        <td><div>The protocol used to be queried.  Must be either <em>tcp</em> or <em>udp</em>.</div></td></tr>
-            <tr>
-    <td>source_ip<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>The protocol used to be queried.  Must be either <em>tcp</em> or <em>udp</em>.</div>        </td></tr>
+                <tr><td>source_ip<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>None</td>
-        <td><ul></ul></td>
-        <td><div>The source IP address to be queried.</div></td></tr>
-            <tr>
-    <td>source_port<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>The source IP address to be queried.</div>        </td></tr>
+                <tr><td>source_port<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>None</td>
-        <td><ul></ul></td>
-        <td><div>The source port to be queried.</div></td></tr>
-            <tr>
-    <td>source_zone<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>The source port to be queried.</div>        </td></tr>
+                <tr><td>source_zone<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>None</td>
-        <td><ul></ul></td>
-        <td><div>Name of the source security zone to be queried.</div></td></tr>
-            <tr>
-    <td>tag_name<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>Name of the source security zone to be queried.</div>        </td></tr>
+                <tr><td>tag_name<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>None</td>
-        <td><ul></ul></td>
-        <td><div>Name of the rule tag to be queried.</div></td></tr>
-            <tr>
-    <td>username<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>Name of the rule tag to be queried.</div>        </td></tr>
+                <tr><td>username<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>admin</td>
-        <td><ul></ul></td>
-        <td><div>Username credentials to use for authentication.</div></td></tr>
+        <td></td>
+        <td><div>Username credentials to use for authentication.</div>        </td></tr>
         </table>
     </br>
 
@@ -464,6 +150,24 @@ Examples
 Notes
 -----
 
-.. note:: Checkmode is not supported.
-.. note:: Panorama is supported.
+.. note::
+    - Checkmode is not supported.
+    - Panorama is supported.
 
+
+
+Status
+~~~~~~
+
+This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+
+
+Support
+~~~~~~~
+
+This module is community maintained without core committer oversight.
+
+For more information on what this means please read :doc:`modules_support`
+
+
+For help in developing on modules, should you be so inclined, please read :doc:`community`, :doc:`dev_guide/developing_test_pr` and :doc:`dev_guide/developing_modules`.

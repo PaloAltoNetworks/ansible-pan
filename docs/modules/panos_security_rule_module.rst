@@ -9,15 +9,16 @@ panos_security_rule - Create security rule policy on PAN-OS devices or Panorama 
 
 .. contents::
    :local:
-   :depth: 1
+   :depth: 2
 
 
 Synopsis
 --------
 
-Security policies allow you to enforce rules and take action, and can be as general or specific as needed.
+* Security policies allow you to enforce rules and take action, and can be as general or specific as needed.
 The policy rules are compared against the incoming traffic in sequence, and because the first rule that matches
 the traffic is applied, the more specific rules must precede the more general ones.
+
 
 
 Requirements (on host that executes module)
@@ -40,186 +41,159 @@ Options
     <th class="head">choices</th>
     <th class="head">comments</th>
     </tr>
-            <tr>
-    <td>action<br/><div style="font-size: small;"></div></td>
+                <tr><td>action<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>allow</td>
-        <td><ul></ul></td>
-        <td><div>Action to apply once rules maches.</div></td></tr>
-            <tr>
-    <td>antivirus<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>Action to apply once rules maches.</div>        </td></tr>
+                <tr><td>antivirus<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>None</td>
-        <td><ul></ul></td>
-        <td><div>Name of the already defined antivirus profile.</div></td></tr>
-            <tr>
-    <td>api_key<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>Name of the already defined antivirus profile.</div>        </td></tr>
+                <tr><td>api_key<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td></td>
-        <td><ul></ul></td>
-        <td><div>API key that can be used instead of <em>username</em>/<em>password</em> credentials.</div></td></tr>
-            <tr>
-    <td>application<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>API key that can be used instead of <em>username</em>/<em>password</em> credentials.</div>        </td></tr>
+                <tr><td>application<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>any</td>
-        <td><ul></ul></td>
-        <td><div>List of applications.</div></td></tr>
-            <tr>
-    <td>commit<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>List of applications.</div>        </td></tr>
+                <tr><td>commit<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>True</td>
-        <td><ul></ul></td>
-        <td><div>Commit configuration if changed.</div></td></tr>
-            <tr>
-    <td>data_filtering<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>Commit configuration if changed.</div>        </td></tr>
+                <tr><td>data_filtering<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>None</td>
-        <td><ul></ul></td>
-        <td><div>Name of the already defined data_filtering profile.</div></td></tr>
-            <tr>
-    <td>description<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>Name of the already defined data_filtering profile.</div>        </td></tr>
+                <tr><td>description<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>None</td>
-        <td><ul></ul></td>
-        <td><div>Description for the security rule.</div></td></tr>
-            <tr>
-    <td>destination_ip<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>Description for the security rule.</div>        </td></tr>
+                <tr><td>destination_ip<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>any</td>
-        <td><ul></ul></td>
-        <td><div>List of destination addresses.</div></td></tr>
-            <tr>
-    <td>destination_zone<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>List of destination addresses.</div>        </td></tr>
+                <tr><td>destination_zone<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>any</td>
-        <td><ul></ul></td>
-        <td><div>List of destination zones.</div></td></tr>
-            <tr>
-    <td>devicegroup<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>List of destination zones.</div>        </td></tr>
+                <tr><td>devicegroup<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>None</td>
-        <td><ul></ul></td>
-        <td><div>Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama. If device group is not define we assume that we are contacting Firewall.</div></td></tr>
-            <tr>
-    <td>file_blocking<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama. If device group is not define we assume that we are contacting Firewall.
+    </div>        </td></tr>
+                <tr><td>file_blocking<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>None</td>
-        <td><ul></ul></td>
-        <td><div>Name of the already defined file_blocking profile.</div></td></tr>
-            <tr>
-    <td>group_profile<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>Name of the already defined file_blocking profile.</div>        </td></tr>
+                <tr><td>group_profile<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>None</td>
-        <td><ul></ul></td>
-        <td><div>Security profile group that is already defined in the system. This property supersedes antivirus, vulnerability, spyware, url_filtering, file_blocking, data_filtering, and wildfire_analysis properties.</div></td></tr>
-            <tr>
-    <td>hip_profiles<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>Security profile group that is already defined in the system. This property supersedes antivirus, vulnerability, spyware, url_filtering, file_blocking, data_filtering, and wildfire_analysis properties.
+    </div>        </td></tr>
+                <tr><td>hip_profiles<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>any</td>
-        <td><ul></ul></td>
-        <td><div>If you are using GlobalProtect with host information profile (HIP) enabled, you can also base the policy on information collected by GlobalProtect. For example, the user access level can be determined HIP that notifies the firewall about the user's local configuration.</div></td></tr>
-            <tr>
-    <td>ip_address<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>If you are using GlobalProtect with host information profile (HIP) enabled, you can also base the policy on information collected by GlobalProtect. For example, the user access level can be determined HIP that notifies the firewall about the user's local configuration.
+    </div>        </td></tr>
+                <tr><td>ip_address<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
-        <td><ul></ul></td>
-        <td><div>IP address (or hostname) of PAN-OS device being configured.</div></td></tr>
-            <tr>
-    <td>log_end<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>IP address (or hostname) of PAN-OS device being configured.</div>        </td></tr>
+                <tr><td>log_end<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>True</td>
-        <td><ul></ul></td>
-        <td><div>Whether to log at session end.</div></td></tr>
-            <tr>
-    <td>log_start<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>Whether to log at session end.</div>        </td></tr>
+                <tr><td>log_start<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td></td>
-        <td><ul></ul></td>
-        <td><div>Whether to log at session start.</div></td></tr>
-            <tr>
-    <td>operation<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>Whether to log at session start.</div>        </td></tr>
+                <tr><td>operation<br/><div style="font-size: small;"></div></td>
     <td>no</td>
-    <td></td>
-        <td><ul></ul></td>
-        <td><div>The action to be taken.  Supported values are <em>add</em>/<em>update</em>/<em>find</em>/<em>delete</em>.</div></td></tr>
-            <tr>
-    <td>password<br/><div style="font-size: small;"></div></td>
+    <td>add</td>
+        <td></td>
+        <td><div>The action to be taken.  Supported values are <em>add</em>/<em>update</em>/<em>find</em>/<em>delete</em>.</div>        </td></tr>
+                <tr><td>password<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
-        <td><ul></ul></td>
-        <td><div>Password credentials to use for auth unless <em>api_key</em> is set.</div></td></tr>
-            <tr>
-    <td>rule_name<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>Password credentials to use for auth unless <em>api_key</em> is set.</div>        </td></tr>
+                <tr><td>rule_name<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
-        <td><ul></ul></td>
-        <td><div>Name of the security rule.</div></td></tr>
-            <tr>
-    <td>rule_type<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>Name of the security rule.</div>        </td></tr>
+                <tr><td>rule_type<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>universal</td>
-        <td><ul></ul></td>
-        <td><div>Type of security rule (version 6.1 of PanOS and above).</div></td></tr>
-            <tr>
-    <td>service<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>Type of security rule (version 6.1 of PanOS and above).</div>        </td></tr>
+                <tr><td>service<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>application-default</td>
-        <td><ul></ul></td>
-        <td><div>List of services.</div></td></tr>
-            <tr>
-    <td>source_ip<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>List of services.</div>        </td></tr>
+                <tr><td>source_ip<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>any</td>
-        <td><ul></ul></td>
-        <td><div>List of source addresses.</div></td></tr>
-            <tr>
-    <td>source_user<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>List of source addresses.</div>        </td></tr>
+                <tr><td>source_user<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>any</td>
-        <td><ul></ul></td>
-        <td><div>Use users to enforce policy for individual users or a group of users.</div></td></tr>
-            <tr>
-    <td>source_zone<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>Use users to enforce policy for individual users or a group of users.</div>        </td></tr>
+                <tr><td>source_zone<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>any</td>
-        <td><ul></ul></td>
-        <td><div>List of source zones.</div></td></tr>
-            <tr>
-    <td>spyware<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>List of source zones.</div>        </td></tr>
+                <tr><td>spyware<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>None</td>
-        <td><ul></ul></td>
-        <td><div>Name of the already defined spyware profile.</div></td></tr>
-            <tr>
-    <td>tag_name<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>Name of the already defined spyware profile.</div>        </td></tr>
+                <tr><td>tag_name<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>None</td>
-        <td><ul></ul></td>
-        <td><div>Administrative tags that can be added to the rule. Note, tags must be already defined.</div></td></tr>
-            <tr>
-    <td>url_filtering<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>Administrative tags that can be added to the rule. Note, tags must be already defined.</div>        </td></tr>
+                <tr><td>url_filtering<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>None</td>
-        <td><ul></ul></td>
-        <td><div>Name of the already defined url_filtering profile.</div></td></tr>
-            <tr>
-    <td>username<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>Name of the already defined url_filtering profile.</div>        </td></tr>
+                <tr><td>username<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>admin</td>
-        <td><ul></ul></td>
-        <td><div>Username credentials to use for auth unless <em>api_key</em> is set.</div></td></tr>
-            <tr>
-    <td>vulnerability<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>Username credentials to use for auth unless <em>api_key</em> is set.</div>        </td></tr>
+                <tr><td>vulnerability<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>None</td>
-        <td><ul></ul></td>
-        <td><div>Name of the already defined vulnerability profile.</div></td></tr>
-            <tr>
-    <td>wildfire_analysis<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>Name of the already defined vulnerability profile.</div>        </td></tr>
+                <tr><td>wildfire_analysis<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>None</td>
-        <td><ul></ul></td>
-        <td><div>Name of the already defined wildfire_analysis profile.</div></td></tr>
+        <td></td>
+        <td><div>Name of the already defined wildfire_analysis profile.</div>        </td></tr>
         </table>
     </br>
 
@@ -308,6 +282,24 @@ Examples
 Notes
 -----
 
-.. note:: Checkmode is not supported.
-.. note:: Panorama is supported.
+.. note::
+    - Checkmode is not supported.
+    - Panorama is supported.
 
+
+
+Status
+~~~~~~
+
+This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+
+
+Support
+~~~~~~~
+
+This module is community maintained without core committer oversight.
+
+For more information on what this means please read :doc:`modules_support`
+
+
+For help in developing on modules, should you be so inclined, please read :doc:`community`, :doc:`dev_guide/developing_test_pr` and :doc:`dev_guide/developing_modules`.

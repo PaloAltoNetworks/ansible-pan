@@ -9,14 +9,13 @@ panos_check - check if PAN-OS device is ready for configuration
 
 .. contents::
    :local:
-   :depth: 1
+   :depth: 2
 
 
 Synopsis
 --------
 
-Check if PAN-OS device is ready for being configured (no pending jobs).
-The check could be done once or multiple times until the device is ready.
+* Check if PAN-OS device is ready for being configured (no pending jobs). The check could be done once or multiple times until the device is ready.
 
 
 Requirements (on host that executes module)
@@ -38,36 +37,31 @@ Options
     <th class="head">choices</th>
     <th class="head">comments</th>
     </tr>
-            <tr>
-    <td>interval<br/><div style="font-size: small;"></div></td>
+                <tr><td>interval<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>0</td>
-        <td><ul></ul></td>
-        <td><div>time waited between checks</div></td></tr>
-            <tr>
-    <td>ip_address<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>time waited between checks</div>        </td></tr>
+                <tr><td>ip_address<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
-        <td><ul></ul></td>
-        <td><div>IP address (or hostname) of PAN-OS device</div></td></tr>
-            <tr>
-    <td>password<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>IP address (or hostname) of PAN-OS device</div>        </td></tr>
+                <tr><td>password<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
-        <td><ul></ul></td>
-        <td><div>password for authentication</div></td></tr>
-            <tr>
-    <td>timeout<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>password for authentication</div>        </td></tr>
+                <tr><td>timeout<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>0</td>
-        <td><ul></ul></td>
-        <td><div>timeout of API calls</div></td></tr>
-            <tr>
-    <td>username<br/><div style="font-size: small;"></div></td>
+        <td></td>
+        <td><div>timeout of API calls</div>        </td></tr>
+                <tr><td>username<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>admin</td>
-        <td><ul></ul></td>
-        <td><div>username for authentication</div></td></tr>
+        <td></td>
+        <td><div>username for authentication</div>        </td></tr>
         </table>
     </br>
 
@@ -97,3 +91,20 @@ Examples
 
 
 
+
+
+Status
+~~~~~~
+
+This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+
+
+Support
+~~~~~~~
+
+This module is community maintained without core committer oversight.
+
+For more information on what this means please read :doc:`modules_support`
+
+
+For help in developing on modules, should you be so inclined, please read :doc:`community`, :doc:`dev_guide/developing_test_pr` and :doc:`dev_guide/developing_modules`.
