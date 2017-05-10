@@ -4,6 +4,18 @@
 History
 =======
 
+V1.0.4
+------
+
+- removed deprecated libraries
+
+
+V1.0.3
+------
+
+Minor release with documentation updates and few BUG fixes.
+
+
 V1.0.2
 ------
 
@@ -11,7 +23,7 @@ V1.0.2
 
 Another major refactor in order to streamline the code.
 
-*Refactored modules
+* Refactored modules
 
 * panos_address --> panos_object
 * panos_match_rule
