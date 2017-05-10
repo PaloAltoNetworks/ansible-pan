@@ -7,7 +7,11 @@ History
 V1.0.4
 ------
 
-- removed deprecated libraries
+- removed deprecated_libraries folder
+
+* Refactored modules
+
+* panos_restart is using PanDevice internally now and work with Panorama too
 
 
 V1.0.3

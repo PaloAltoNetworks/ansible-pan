@@ -17,34 +17,47 @@
 DOCUMENTATION = '''
 ---
 module: panos_restart
-short_description: restart a device
+short_description: Restart a device
 description:
-    - Restart a device
+    - Restart a device either through Panorama or going directly to a firewall.
 author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
 version_added: "2.3"
 requirements:
-    - pan-python
+    - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
+    - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
+notes:
+    - Checkmode is not supported.
+    - Panorama is supported.
 options:
     ip_address:
         description:
-            - IP address (or hostname) of PAN-OS device
-        required: true
-    password:
-        description:
-            - password for authentication
+            - IP address (or hostname) of PAN-OS device being configured.
         required: true
     username:
         description:
-            - username for authentication
-        required: false
+            - Username credentials to use for auth unless I(api_key) is set.
         default: "admin"
+    api_key:
+        description:
+            - API key that can be used instead of I(username)/I(password) credentials.
+    password:
+        description:
+            - Password credentials to use for auth unless I(api_key) is set.
+    api_key:
+        description:
+            - API key that can be used instead of I(username)/I(password) credentials.
+    devicegroup:
+        description: >
+            Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama.
+            If device group is not define we assume that we are contacting Firewall.
+        default: None
 '''
 
 EXAMPLES = '''
 - panos_restart:
-    ip_address: "192.168.1.1"
-    username: "admin"
-    password: "admin"
+    ip_address: '{{ ip_address }}'
+    username: '{{ username }}'
+    password: '{{ password }}'
 '''
 
 RETURN = '''
@@ -52,7 +65,7 @@ status:
     description: success status
     returned: success
     type: string
-    sample: "okey dokey"
+    sample: 'okey dokey'
 '''
 
 ANSIBLE_METADATA = {'status': ['preview'],
@@ -60,48 +73,66 @@ ANSIBLE_METADATA = {'status': ['preview'],
                     'version': '1.0'}
 
 from ansible.module_utils.basic import AnsibleModule
-import sys
+from ansible.module_utils.basic import get_exception
 
 try:
     import pan.xapi
+    from pan.xapi import PanXapiError
+    import pandevice
+    from pandevice import base
+    from pandevice import firewall
+    from pandevice import panorama
     HAS_LIB = True
 except ImportError:
     HAS_LIB = False
 
+
+def get_devicegroup(device, devicegroup):
+    dg_list = device.refresh_devices()
+    for group in dg_list:
+        if isinstance(group, pandevice.panorama.DeviceGroup):
+            if group.name == devicegroup:
+                return group
+    return False
+
+
 def main():
     argument_spec = dict(
-        ip_address=dict(),
+        ip_address=dict(required=True),
         password=dict(no_log=True),
-        username=dict(default='admin')
+        username=dict(default='admin'),
+        api_key=dict(no_log=True),
+        devicegroup=dict()
     )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
+                           required_one_of=[['api_key', 'password']])
 
     if not HAS_LIB:
-        module.fail_json(msg='pan-python required for this module')
+        module.fail_json(msg='Missing required libraries.')
 
     ip_address = module.params["ip_address"]
-    if not ip_address:
-        module.fail_json(msg="ip_address should be specified")
     password = module.params["password"]
-    if not password:
-        module.fail_json(msg="password is required")
     username = module.params['username']
+    api_key = module.params['api_key']
+    devicegroup = module.params['devicegroup']
 
-    xapi = pan.xapi.PanXapi(
-        hostname=ip_address,
-        api_username=username,
-        api_password=password
-    )
+    # Create the device with the appropriate pandevice type
+    device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
+
+    # If Panorama, validate the devicegroup
+    dev_group = None
+    if devicegroup and isinstance(device, panorama.Panorama):
+        dev_group = get_devicegroup(device, devicegroup)
+        if dev_group:
+            device.add(dev_group)
+        else:
+            module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
 
     try:
-        xapi.op(cmd="<request><restart><system></system></restart></request>")
-    except Exception:
-        x = sys.exc_info()[1]
-        if 'succeeded' in str(x):
-            module.exit_json(changed=True, msg=str(msg))
-        else:
-            module.fail_json(msg=x)
-            raise
+        device.restart()
+    except PanXapiError:
+        exc = get_exception()
+        module.fail_json(msg=exc.message)
 
     module.exit_json(changed=True, msg="okey dokey")
 
