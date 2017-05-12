@@ -16,14 +16,15 @@
 
 DOCUMENTATION = '''
 ---
-module: panos_dag
-short_description: create a dynamic address group
+module: panos_sag
+short_description: create a static address group
 description:
-    - Create a dynamic address group object in the firewall used for policy rules
-author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer), Vinay Venkataraghavan (@vinayvenkat)"
-version_added: "2.3"
+    - Create a static address group object in the firewall used for policy rules
+author: "Vinay Venkataraghavan @vinayvenkat"
+version_added: "2.4"
 requirements:
     - pan-python
+    - pan-device
 options:
     ip_address:
         description:
@@ -43,20 +44,15 @@ options:
     api_key:
         description:
             - API key that can be used instead of I(username)/I(password) credentials.
-    dag_name:
+    sag_name:
         description:
             - name of the dynamic address group
         required: true
         default: null
-    dag_match_filter:
+    static_match_filter:
         description:
-            - dynamic filter user by the dynamic address group
+            - Static filter user by the address group
         required: true
-        default: null
-    tag_name:
-        description:
-            - Add administrative tags to the DAG
-        required: false
         default: null
     devicegroup:
         description: >
@@ -64,30 +60,32 @@ options:
             If device group is not defined it is assumed that we are contacting a firewall.
         required: false
         default: None
-    operation:
+    description:
         description:
-            - The operation to perform
-        required: true
+            - The purpose / objective of the static Address Group
+        required: false
+        default: null
+    tags:
+        description:
+            - Tags to be associated with the address group
+        required: false
         default: null
     commit:
         description:
             - commit if changed
         required: false
         default: true
-    description:
-        description:
-            - The description of the object.
 '''
 
 EXAMPLES = '''
-- name: dag
-    panos_dag:
-        ip_address: "192.168.1.1"
-        password: "admin"
-        dag_name: "dag-1"
-        dag_match_filter: "'aws-tag.aws:cloudformation:logical-id.ServerInstance' and 'instanceState.running'"
-        description: 'Add / create dynamic address group to allow access to SaaS Applications'
-        operation: 'add'
+- name: sag
+  panos_sag:
+    ip_address: "192.168.1.1"
+    password: "admin"
+    sag_name: "sag-1"
+    static_value: ['test-addresses', ]
+    description: "A description for the static address group"
+    tags: ["tags to be associated with the group", ]
 '''
 
 RETURN = '''
@@ -98,31 +96,44 @@ ANSIBLE_METADATA = {'status': ['preview'],
                     'supported_by': 'community',
                     'version': '1.0'}
 
-from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.basic import AnsibleModule, get_exception
 
 try:
-    import pandevice
     from pandevice import base
     from pandevice import firewall
     from pandevice import panorama
     from pandevice import objects
-    import xmltodict
-    import json
-
     HAS_LIB = True
 except ImportError:
     HAS_LIB = False
 
+def find_object(device, dev_group, obj_name, obj_type):
+    # Get the firewall objects
+    obj_type.refreshall(device)
+    if isinstance(device, firewall.Firewall):
+        addr = device.find(obj_name, obj_type)
+        return addr
+    elif isinstance(device, panorama.Panorama):
+        addr = device.find(obj_name, obj_type)
+        if addr is None:
+            if dev_group:
+                device.add(dev_group)
+                obj_type.refreshall(dev_group)
+                addr = dev_group.find(obj_name, obj_type)
+        return addr
+    else:
+        return False
 
 def create_address_group_object(**kwargs):
     """
     Create an Address object
-
+    
+    :param kwargs: key word arguments to instantiate AddressGroup object
     @return False or ```objects.AddressObject```
     """
     ad_object = objects.AddressGroup(
         name=kwargs['address_gp_name'],
-        dynamic_value=kwargs['dynamic_value'],
+        static_value=kwargs['sag_match_filter'],
         description=kwargs['description'],
         tag=kwargs['tag_name']
     )
@@ -136,6 +147,10 @@ def add_address_group(device, dev_group, ag_object):
     """ 
     Create a new dynamic address group object on the 
     PAN FW.
+    
+    :param device: Firewall Handle
+    :param dev_group: Panorama device group
+    :ag_object: Address group object
     """
 
     if dev_group:
@@ -143,71 +158,53 @@ def add_address_group(device, dev_group, ag_object):
     else:
         device.add(ag_object)
 
-    ag_object.create()
-    return True
-
-def get_all_address_group(device):
-    """
-    Retrieve all the tag to IP address mappings
-    :param device: 
-    :return: 
-    """
     exc = None
     try:
-        ret = objects.AddressGroup.refreshall(device)
+        ag_object.create()
     except Exception, e:
         exc = get_exception()
 
     if exc:
         return (False, exc)
     else:
-        l = []
-        for item in ret:
-            l.append(item.name)
-        s = ",".join(l)
-        return (s, exc)
+        return (True, exc)
 
-def delete_address_group(device, group_name):
+def delete_address_group(device, dev_group, obj_name):
     """
-    Delete a specific address group 
     
     :param device: 
-    :param group_name: 
+    :param dev_group: 
+    :param ag_object: 
     :return: 
     """
+    static_obj = find_object(device, dev_group, obj_name, objects.AddressGroup)
+    # If found, delete it
 
-    exc = None
-    try:
-        ret = objects.AddressGroup.refreshall(device)
-    except Exception, e:
-        exc = get_exception()
-
-    if exc:
-        return (False, exc)
-    else:
-        l = []
-        for ag in ret:
-            if ag.name == group_name:
-                ag.delete()
+    if static_obj:
+        try:
+            static_obj.delete()
+        except Exception:
+            exc = get_exception()
+            return (False, exc)
         return (True, None)
+    else:
+        return (False, None)
 
 def main():
-
     argument_spec = dict(
         ip_address=dict(required=True),
         password=dict(required=True),
         username=dict(default='admin'),
         api_key=dict(no_log=True),
-        dag_match_filter=dict(type='str', default=None),
-        dag_name=dict(required=True),
-        tag_name=dict(type='list', required=False),
+        sag_match_filter=dict(type='list', required=False),
+        sag_name=dict(required=True),
         commit=dict(type='bool', default=True),
         devicegroup=dict(default=None),
         description=dict(default=None),
+        tags=dict(type='list', default=[]),
         operation=dict(type='str', required=True)
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
-
     if not HAS_LIB:
         module.fail_json(msg='pan-python is required for this module')
 
@@ -217,10 +214,10 @@ def main():
     api_key = module.params['api_key']
     operation = module.params['operation']
 
-    ag_object = create_address_group_object(address_gp_name=module.params.get('dag_name', None),
-                                            dynamic_value=module.params.get('dag_match_filter', None),
+    ag_object = create_address_group_object(address_gp_name=module.params.get('sag_name', None),
+                                            sag_match_filter=module.params.get('sag_match_filter', None),
                                             description=module.params.get('description', None),
-                                            tag_name=module.params.get('tag_names', None)
+                                            tag_name=module.params.get('tags', None)
                                             )
     commit = module.params['commit']
 
@@ -237,26 +234,26 @@ def main():
         else:
             module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
 
-    result = None
     if operation == 'add':
-        result = add_address_group(device, dev_group, ag_object)
-    elif operation == 'list':
-        result, exc = get_all_address_group(device)
-    elif operation == 'delete':
-        result, exc = delete_address_group(device, group_name=module.params.get('dag_name', None))
-    else:
-        module.fail_json(msg="Invalid option.")
+        result, exc = add_address_group(device, dev_group, ag_object)
 
-    commit_exc = None
-    if result and commit:
-        try:
-            device.commit(sync=True)
-        except Exception, e:
-            commit_exc = False
-    if commit_exc:
-        module.exit_json(changed=True, msg=commit_exc)
+        if result and commit:
+            try:
+                device.commit(sync=True)
+            except Exception, e:
+                module.fail_json(get_exception())
+
+    elif operation == 'delete':
+        obj_name = module.params.get('sag_name', None)
+        result, exc = delete_address_group(device, dev_group, obj_name)
+        if not result and exc:
+            module.fail_json(msg=exc.message)
+        elif not result:
+            module.fail_json(msg="Specified object not found.")
     else:
-        module.exit_json(changed=True, msg=result)
+        module.fail_json(changed=False, msg="Unsupported option.")
+
+    module.exit_json(changed=True, msg="Address Group Operation Completed.")
 
 
 if __name__ == '__main__':
