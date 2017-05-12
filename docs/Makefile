@@ -27,7 +27,7 @@ modules:
 	$(FORMATTER) -v -M ../library/ -o modules/ -T hacking/templates/ -t rst -I modules.rst
 
 cleanmodules:
-	@rm -rf modules library.rst modules.rst
+	@rm -rf modules library.rst
 
 #initmodules:
 #    $(SPHINXAPI) -o . ../library
