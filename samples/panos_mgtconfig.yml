@@ -22,4 +22,5 @@
         timezone: "US/Central"
         update_server: "update.me"
         login_banner: "Secure environment"
+#        devicegroup: "DeviceGroupA"
         commit: False

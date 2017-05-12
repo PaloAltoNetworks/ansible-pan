@@ -27,6 +27,7 @@ requirements:
     - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
 notes:
     - Checkmode is not supported.
+    - Panorama is supported
 options:
     ip_address:
         description:
@@ -76,6 +77,8 @@ options:
     domain:
         description:
             - The domain of the device
+    devicegroup:
+        description: Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama.
     commit:
         description:
             - Commit configuration if changed.
@@ -103,6 +106,10 @@ RETURN='''
 ANSIBLE_METADATA = {'status': ['preview'],
                     'supported_by': 'community',
                     'version': '1.0'}
+
+# import pydevd
+# pydevd.settrace('localhost', port=53879, stdoutToServer=True, stderrToServer=True)
+
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.basic import get_exception
@@ -160,7 +167,7 @@ def main():
         update_server=dict(),
         hostname=dict(),
         domain=dict(),
-        # devicegroup=dict(),
+        devicegroup=dict(),
         commit=dict(type='bool', default=True)
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
@@ -184,19 +191,19 @@ def main():
     update_server = module.params['update_server']
     hostname = module.params['hostname']
     domain = module.params['hostname']
-    # devicegroup = module.params['devicegroup']
+    devicegroup = module.params['devicegroup']
 
     # Create the device with the appropriate pandevice type
     device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
 
     # If Panorama, validate the devicegroup
-    # dev_group = None
-    # if devicegroup and isinstance(device, panorama.Panorama):
-    #     dev_group = get_devicegroup(device, devicegroup)
-    #     if dev_group:
-    #         device.add(dev_group)
-    #     else:
-    #         module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
+    dev_group = None
+    if devicegroup and isinstance(device, panorama.Panorama):
+        dev_group = get_devicegroup(device, devicegroup)
+        if dev_group:
+            device.add(dev_group)
+        else:
+            module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
 
     changed = False
     try:
