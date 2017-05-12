@@ -43,9 +43,6 @@ options:
     password:
         description:
             - Password credentials to use for auth unless I(api_key) is set.
-    api_key:
-        description:
-            - API key that can be used instead of I(username)/I(password) credentials.
     devicegroup:
         description: >
             Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama.
