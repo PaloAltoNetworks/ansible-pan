@@ -453,17 +453,18 @@ def main():
     category_names = [c for c in categories.keys() if not c.startswith('_')]
     category_names.sort()
 
+    # DISABLED AS WE DO NOT NEED CATEGORIES
     # Write master category list
-    category_list_path = os.path.join(options.output_dir, "modules_by_category.rst")
-    with open(category_list_path, "w") as category_list_file:
-        category_list_file.write("Module Index\n")
-        category_list_file.write("============\n")
-        category_list_file.write("\n\n")
-        category_list_file.write(".. toctree::\n")
-        category_list_file.write("   :maxdepth: 1\n\n")
-
-        for category in category_names:
-            category_list_file.write("   list_of_%s_modules\n" % category)
+    # category_list_path = os.path.join(options.output_dir, "modules_by_category.rst")
+    # with open(category_list_path, "w") as category_list_file:
+    #     category_list_file.write("Module Index\n")
+    #     category_list_file.write("============\n")
+    #     category_list_file.write("\n\n")
+    #     category_list_file.write(".. toctree::\n")
+    #     category_list_file.write("   :maxdepth: 1\n\n")
+    #
+    #     for category in category_names:
+    #         category_list_file.write("   list_of_%s_modules\n" % category)
 
     #
     # Import all the docs into memory
