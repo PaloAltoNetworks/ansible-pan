@@ -143,7 +143,7 @@ Examples
 Return Values
 -------------
 
-Common return values are documented here :doc:`common_return_values`, the following are the fields unique to this module:
+The following are the fields unique to this module:
 
 .. raw:: html
 
@@ -221,18 +221,5 @@ This module is flagged as **@{cur_state}@** which means that @{module_states[cur
 {% endfor %}
 {% endif %}
 
-{% if metadata.supported_by %}
-
-Support
-~~~~~~~
-
-@{ support[metadata.supported_by] }@
-
-For more information on what this means please read :doc:`modules_support`
-
 {% endif %}
 {% endif %}
-{% endif %}
-
-For help in developing on modules, should you be so inclined, please read :doc:`community`, :doc:`dev_guide/developing_test_pr` and :doc:`dev_guide/developing_modules`.
-
