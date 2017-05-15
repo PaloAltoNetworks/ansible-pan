@@ -59,9 +59,8 @@ options:
         required: false
         default: null
     devicegroup:
-        description: >
-            The name of the Panorama device group. The group must exist on Panorama.
-            If device group is not defined it is assumed that we are contacting a firewall.
+        description:
+            - The name of the Panorama device group. The group must exist on Panorama. If device group is not defined it is assumed that we are contacting a firewall.
         required: false
         default: None
     operation:

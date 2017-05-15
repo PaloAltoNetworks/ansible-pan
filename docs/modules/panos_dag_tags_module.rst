@@ -1,10 +1,10 @@
-.. _panos_check:
+.. _panos_dag_tags:
 
 
-panos_check
-+++++++++++
+panos_dag_tags
+++++++++++++++
 
-.. versionadded:: 2.3
+.. versionadded:: 2.4
 
 
 .. contents::
@@ -15,14 +15,14 @@ panos_check
 Synopsis
 --------
 
-* Check if PAN-OS device is ready for being configured (no pending jobs).
-* The check could be done once or multiple times until the device is ready.
+* Create the ip address to tag associations. Tags will in turn be used to create DAG's
 
 
 Requirements (on host that executes module)
 -------------------------------------------
 
   * pan-python
+  * pan-device
 
 
 Options
@@ -38,11 +38,16 @@ Options
     <th class="head">choices</th>
     <th class="head">comments</th>
     </tr>
-                <tr><td>interval<br/><div style="font-size: small;"></div></td>
+                <tr><td>commit<br/><div style="font-size: small;"></div></td>
     <td>no</td>
-    <td>0</td>
+    <td>True</td>
         <td></td>
-        <td><div>time waited between checks</div>        </td></tr>
+        <td><div>commit if changed</div>        </td></tr>
+                <tr><td>description<br/><div style="font-size: small;"></div></td>
+    <td>no</td>
+    <td></td>
+        <td></td>
+        <td><div>The purpose / objective of the static Address Group</div>        </td></tr>
                 <tr><td>ip_address<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
@@ -53,11 +58,6 @@ Options
     <td></td>
         <td></td>
         <td><div>password for authentication</div>        </td></tr>
-                <tr><td>timeout<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td>0</td>
-        <td></td>
-        <td><div>timeout of API calls</div>        </td></tr>
                 <tr><td>username<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>admin</td>
@@ -68,27 +68,7 @@ Options
 
 
 
-Examples
---------
 
- ::
-
-    # single check on 192.168.1.1 with credentials admin/admin
-    - name: check if ready
-      panos_check:
-        ip_address: "192.168.1.1"
-        password: "admin"
-    
-    # check for 10 times, every 30 seconds, if device 192.168.1.1
-    # is ready, using credentials admin/admin
-    - name: wait for reboot
-      panos_check:
-        ip_address: "192.168.1.1"
-        password: "admin"
-      register: result
-      until: not result|failed
-      retries: 10
-      delay: 30
 
 
 

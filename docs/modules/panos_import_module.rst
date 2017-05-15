@@ -1,8 +1,8 @@
 .. _panos_import:
 
 
-panos_import - import file on PAN-OS devices
-++++++++++++++++++++++++++++++++++++++++++++
+panos_import
+++++++++++++
 
 .. versionadded:: 2.3
 
@@ -97,13 +97,3 @@ Status
 
 This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
 
-
-Support
-~~~~~~~
-
-This module is community maintained without core committer oversight.
-
-For more information on what this means please read :doc:`modules_support`
-
-
-For help in developing on modules, should you be so inclined, please read :doc:`community`, :doc:`dev_guide/developing_test_pr` and :doc:`dev_guide/developing_modules`.

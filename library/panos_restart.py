@@ -44,9 +44,8 @@ options:
         description:
             - Password credentials to use for auth unless I(api_key) is set.
     devicegroup:
-        description: >
-            Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama.
-            If device group is not define we assume that we are contacting Firewall.
+        description:
+            - Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama. If device group is not define we assume that we are contacting Firewall.
         default: None
 '''
 

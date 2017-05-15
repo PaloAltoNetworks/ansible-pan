@@ -44,9 +44,8 @@ options:
             - Name of the interface to configure.
         required: true
     zone_name:
-        description: >
-            Name of the zone for the interface. If the zone does not exist it is created but if the zone exists and
-            it is not of the layer3 type the operation will fail.
+        description:
+            - Name of the zone for the interface. If the zone does not exist it is created but if the zone exists and it is not of the layer3 type the operation will fail.
         required: true
     create_default_route:
         description:

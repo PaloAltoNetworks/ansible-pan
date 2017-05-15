@@ -1,8 +1,8 @@
 .. _panos_query_rules:
 
 
-panos_query_rules - search for security rules matching specific criteria
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+panos_query_rules
++++++++++++++++++
 
 
 
@@ -14,10 +14,7 @@ panos_query_rules - search for security rules matching specific criteria
 Synopsis
 --------
 
-* Security policies allow you to enforce rules and take action, and can be as general or specific as needed.
-The policy rules are compared against the incoming traffic in sequence, and because the first rule that matches
-the traffic is applied, the more specific rules must precede the more general ones.
-
+* Security policies allow you to enforce rules and take action, and can be as general or specific as needed. The policy rules are compared against the incoming traffic in sequence, and because the first rule that matches the traffic is applied, the more specific rules must precede the more general ones.
 
 
 Requirements (on host that executes module)
@@ -161,13 +158,3 @@ Status
 
 This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
 
-
-Support
-~~~~~~~
-
-This module is community maintained without core committer oversight.
-
-For more information on what this means please read :doc:`modules_support`
-
-
-For help in developing on modules, should you be so inclined, please read :doc:`community`, :doc:`dev_guide/developing_test_pr` and :doc:`dev_guide/developing_modules`.

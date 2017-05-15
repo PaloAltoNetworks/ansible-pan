@@ -1,8 +1,8 @@
 .. _panos_restart:
 
 
-panos_restart - restart a device
-++++++++++++++++++++++++++++++++
+panos_restart
++++++++++++++
 
 .. versionadded:: 2.3
 
@@ -15,13 +15,14 @@ panos_restart - restart a device
 Synopsis
 --------
 
-* Restart a device
+* Restart a device either through Panorama or going directly to a firewall.
 
 
 Requirements (on host that executes module)
 -------------------------------------------
 
-  * pan-python
+  * pan-python can be obtained from PyPi https://pypi.python.org/pypi/pan-python
+  * pandevice can be obtained from PyPi https://pypi.python.org/pypi/pandevice
 
 
 Options
@@ -37,21 +38,31 @@ Options
     <th class="head">choices</th>
     <th class="head">comments</th>
     </tr>
+                <tr><td>api_key<br/><div style="font-size: small;"></div></td>
+    <td>no</td>
+    <td></td>
+        <td></td>
+        <td><div>API key that can be used instead of <em>username</em>/<em>password</em> credentials.</div>        </td></tr>
+                <tr><td>devicegroup<br/><div style="font-size: small;"></div></td>
+    <td>no</td>
+    <td>None</td>
+        <td></td>
+        <td><div>Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama. If device group is not define we assume that we are contacting Firewall.</div>        </td></tr>
                 <tr><td>ip_address<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
         <td></td>
-        <td><div>IP address (or hostname) of PAN-OS device</div>        </td></tr>
+        <td><div>IP address (or hostname) of PAN-OS device being configured.</div>        </td></tr>
                 <tr><td>password<br/><div style="font-size: small;"></div></td>
-    <td>yes</td>
+    <td>no</td>
     <td></td>
         <td></td>
-        <td><div>password for authentication</div>        </td></tr>
+        <td><div>Password credentials to use for auth unless <em>api_key</em> is set.</div>        </td></tr>
                 <tr><td>username<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>admin</td>
         <td></td>
-        <td><div>username for authentication</div>        </td></tr>
+        <td><div>Username credentials to use for auth unless <em>api_key</em> is set.</div>        </td></tr>
         </table>
     </br>
 
@@ -63,14 +74,14 @@ Examples
  ::
 
     - panos_restart:
-        ip_address: "192.168.1.1"
-        username: "admin"
-        password: "admin"
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
 
 Return Values
 -------------
 
-Common return values are documented here :doc:`common_return_values`, the following are the fields unique to this module:
+The following are the fields unique to this module:
 
 .. raw:: html
 
@@ -94,6 +105,12 @@ Common return values are documented here :doc:`common_return_values`, the follow
     </table>
     </br></br>
 
+Notes
+-----
+
+.. note::
+    - Checkmode is not supported.
+    - Panorama is supported.
 
 
 
@@ -102,13 +119,3 @@ Status
 
 This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
 
-
-Support
-~~~~~~~
-
-This module is community maintained without core committer oversight.
-
-For more information on what this means please read :doc:`modules_support`
-
-
-For help in developing on modules, should you be so inclined, please read :doc:`community`, :doc:`dev_guide/developing_test_pr` and :doc:`dev_guide/developing_modules`.

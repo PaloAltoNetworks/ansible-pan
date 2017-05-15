@@ -1,10 +1,10 @@
-.. _panos_dag:
+.. _panos_sag:
 
 
-panos_dag
+panos_sag
 +++++++++
 
-.. versionadded:: 2.3
+.. versionadded:: 2.4
 
 
 .. contents::
@@ -15,13 +15,14 @@ panos_dag
 Synopsis
 --------
 
-* Create a dynamic address group object in the firewall used for policy rules
+* Create a static address group object in the firewall used for policy rules.
 
 
 Requirements (on host that executes module)
 -------------------------------------------
 
   * pan-python
+  * pan-device
 
 
 Options
@@ -47,21 +48,11 @@ Options
     <td>True</td>
         <td></td>
         <td><div>commit if changed</div>        </td></tr>
-                <tr><td>dag_match_filter<br/><div style="font-size: small;"></div></td>
-    <td>yes</td>
-    <td></td>
-        <td></td>
-        <td><div>dynamic filter user by the dynamic address group</div>        </td></tr>
-                <tr><td>dag_name<br/><div style="font-size: small;"></div></td>
-    <td>yes</td>
-    <td></td>
-        <td></td>
-        <td><div>name of the dynamic address group</div>        </td></tr>
                 <tr><td>description<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td></td>
         <td></td>
-        <td><div>The description of the object.</div>        </td></tr>
+        <td><div>The purpose / objective of the static Address Group</div>        </td></tr>
                 <tr><td>devicegroup<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>None</td>
@@ -72,21 +63,26 @@ Options
     <td></td>
         <td></td>
         <td><div>IP address (or hostname) of PAN-OS device</div>        </td></tr>
-                <tr><td>operation<br/><div style="font-size: small;"></div></td>
-    <td>yes</td>
-    <td></td>
-        <td></td>
-        <td><div>The operation to perform</div>        </td></tr>
                 <tr><td>password<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
         <td></td>
         <td><div>password for authentication</div>        </td></tr>
-                <tr><td>tag_name<br/><div style="font-size: small;"></div></td>
+                <tr><td>sag_name<br/><div style="font-size: small;"></div></td>
+    <td>yes</td>
+    <td></td>
+        <td></td>
+        <td><div>name of the dynamic address group</div>        </td></tr>
+                <tr><td>static_match_filter<br/><div style="font-size: small;"></div></td>
+    <td>yes</td>
+    <td></td>
+        <td></td>
+        <td><div>Static filter user by the address group</div>        </td></tr>
+                <tr><td>tags<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td></td>
         <td></td>
-        <td><div>Add administrative tags to the DAG</div>        </td></tr>
+        <td><div>Tags to be associated with the address group</div>        </td></tr>
                 <tr><td>username<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>admin</td>
@@ -102,14 +98,14 @@ Examples
 
  ::
 
-    - name: dag
-        panos_dag:
-            ip_address: "192.168.1.1"
-            password: "admin"
-            dag_name: "dag-1"
-            dag_match_filter: "'aws-tag.aws:cloudformation:logical-id.ServerInstance' and 'instanceState.running'"
-            description: 'Add / create dynamic address group to allow access to SaaS Applications'
-            operation: 'add'
+    - name: sag
+      panos_sag:
+        ip_address: "192.168.1.1"
+        password: "admin"
+        sag_name: "sag-1"
+        static_value: ['test-addresses', ]
+        description: "A description for the static address group"
+        tags: ["tags to be associated with the group", ]
 
 
 

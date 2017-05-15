@@ -1,8 +1,8 @@
 .. _panos_admpwd:
 
 
-panos_admpwd - change admin password of PAN-OS device using SSH with SSH key
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+panos_admpwd
+++++++++++++
 
 .. versionadded:: 2.3
 
@@ -15,7 +15,8 @@ panos_admpwd - change admin password of PAN-OS device using SSH with SSH key
 Synopsis
 --------
 
-* Change the admin password of PAN-OS via SSH using a SSH key for authentication. Useful for AWS instances where the first login should be done via SSH.
+* Change the admin password of PAN-OS via SSH using a SSH key for authentication.
+* Useful for AWS instances where the first login should be done via SSH.
 
 
 Requirements (on host that executes module)
@@ -83,7 +84,7 @@ Examples
 Return Values
 -------------
 
-Common return values are documented here :doc:`common_return_values`, the following are the fields unique to this module:
+The following are the fields unique to this module:
 
 .. raw:: html
 
@@ -115,13 +116,3 @@ Status
 
 This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
 
-
-Support
-~~~~~~~
-
-This module is community maintained without core committer oversight.
-
-For more information on what this means please read :doc:`modules_support`
-
-
-For help in developing on modules, should you be so inclined, please read :doc:`community`, :doc:`dev_guide/developing_test_pr` and :doc:`dev_guide/developing_modules`.

@@ -17,9 +17,9 @@
 DOCUMENTATION = '''
 ---
 module: panos_sag
-short_description: create a static address group
+short_description: Create a static address group.
 description:
-    - Create a static address group object in the firewall used for policy rules
+    - Create a static address group object in the firewall used for policy rules.
 author: "Vinay Venkataraghavan @vinayvenkat"
 version_added: "2.4"
 requirements:
@@ -55,9 +55,8 @@ options:
         required: true
         default: null
     devicegroup:
-        description: >
-            The name of the Panorama device group. The group must exist on Panorama.
-            If device group is not defined it is assumed that we are contacting a firewall.
+        description:
+            - The name of the Panorama device group. The group must exist on Panorama. If device group is not defined it is assumed that we are contacting a firewall.
         required: false
         default: None
     description:

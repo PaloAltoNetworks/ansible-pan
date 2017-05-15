@@ -10,6 +10,7 @@ Modules list
    modules/panos_check_module.rst
    modules/panos_commit_module.rst
    modules/panos_dag_module.rst
+   modules/panos_dag_tags_module.rst
    modules/panos_import_module.rst
    modules/panos_interface_module.rst
    modules/panos_lic_module.rst
@@ -21,4 +22,5 @@ Modules list
    modules/panos_pg_module.rst
    modules/panos_query_rules_module.rst
    modules/panos_restart_module.rst
+   modules/panos_sag_module.rst
    modules/panos_security_rule_module.rst

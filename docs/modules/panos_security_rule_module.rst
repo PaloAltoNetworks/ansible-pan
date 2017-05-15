@@ -1,8 +1,8 @@
 .. _panos_security_rule:
 
 
-panos_security_rule - Create security rule policy on PAN-OS devices or Panorama management console.
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+panos_security_rule
++++++++++++++++++++
 
 .. versionadded:: 2.4
 
@@ -15,10 +15,7 @@ panos_security_rule - Create security rule policy on PAN-OS devices or Panorama 
 Synopsis
 --------
 
-* Security policies allow you to enforce rules and take action, and can be as general or specific as needed.
-The policy rules are compared against the incoming traffic in sequence, and because the first rule that matches
-the traffic is applied, the more specific rules must precede the more general ones.
-
+* Security policies allow you to enforce rules and take action, and can be as general or specific as needed. The policy rules are compared against the incoming traffic in sequence, and because the first rule that matches the traffic is applied, the more specific rules must precede the more general ones.
 
 
 Requirements (on host that executes module)
@@ -26,6 +23,7 @@ Requirements (on host that executes module)
 
   * pan-python can be obtained from PyPi https://pypi.python.org/pypi/pan-python
   * pandevice can be obtained from PyPi https://pypi.python.org/pypi/pandevice
+  * xmltodict
 
 
 Options
@@ -90,8 +88,7 @@ Options
     <td>no</td>
     <td>None</td>
         <td></td>
-        <td><div>Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama. If device group is not define we assume that we are contacting Firewall.
-    </div>        </td></tr>
+        <td><div>Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama. If device group is not define we assume that we are contacting Firewall.</div>        </td></tr>
                 <tr><td>file_blocking<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>None</td>
@@ -101,14 +98,12 @@ Options
     <td>no</td>
     <td>None</td>
         <td></td>
-        <td><div>Security profile group that is already defined in the system. This property supersedes antivirus, vulnerability, spyware, url_filtering, file_blocking, data_filtering, and wildfire_analysis properties.
-    </div>        </td></tr>
+        <td><div>Security profile group that is already defined in the system. This property supersedes antivirus, vulnerability, spyware, url_filtering, file_blocking, data_filtering, and wildfire_analysis properties.</div>        </td></tr>
                 <tr><td>hip_profiles<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>any</td>
         <td></td>
-        <td><div>If you are using GlobalProtect with host information profile (HIP) enabled, you can also base the policy on information collected by GlobalProtect. For example, the user access level can be determined HIP that notifies the firewall about the user's local configuration.
-    </div>        </td></tr>
+        <td><div>If you are using GlobalProtect with host information profile (HIP) enabled, you can also base the policy on information collected by GlobalProtect. For example, the user access level can be determined HIP that notifies the firewall about the user's local configuration.</div>        </td></tr>
                 <tr><td>ip_address<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
@@ -293,13 +288,3 @@ Status
 
 This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
 
-
-Support
-~~~~~~~
-
-This module is community maintained without core committer oversight.
-
-For more information on what this means please read :doc:`modules_support`
-
-
-For help in developing on modules, should you be so inclined, please read :doc:`community`, :doc:`dev_guide/developing_test_pr` and :doc:`dev_guide/developing_modules`.

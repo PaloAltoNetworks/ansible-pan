@@ -22,10 +22,8 @@ DOCUMENTATION = '''
 ---
 module: panos_match_rule
 short_description: Test for match against a security rule on PAN-OS devices or Panorama management console.
-description: >
-    Security policies allow you to enforce rules and take action, and can be as general or specific as needed.
-    The policy rules are compared against the incoming traffic in sequence, and because the first rule that matches
-    the traffic is applied, the more specific rules must precede the more general ones.
+description:
+    - Security policies allow you to enforce rules and take action, and can be as general or specific as needed. The policy rules are compared against the incoming traffic in sequence, and because the first rule that matches the traffic is applied, the more specific rules must precede the more general ones.
 author: "Robert Hagen (@rnh556)"
 version_added: "1.0"
 requirements:

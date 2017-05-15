@@ -1,8 +1,8 @@
 .. _panos_interface:
 
 
-panos_interface - configure data-port network interface for DHCP
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+panos_interface
++++++++++++++++
 
 .. versionadded:: 2.3
 
@@ -71,8 +71,7 @@ Options
     <td>yes</td>
     <td></td>
         <td></td>
-        <td><div>Name of the zone for the interface. If the zone does not exist it is created but if the zone exists and it is not of the layer3 type the operation will fail.
-    </div>        </td></tr>
+        <td><div>Name of the zone for the interface. If the zone does not exist it is created but if the zone exists and it is not of the layer3 type the operation will fail.</div>        </td></tr>
         </table>
     </br>
 
@@ -100,13 +99,3 @@ Status
 
 This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
 
-
-Support
-~~~~~~~
-
-This module is community maintained without core committer oversight.
-
-For more information on what this means please read :doc:`modules_support`
-
-
-For help in developing on modules, should you be so inclined, please read :doc:`community`, :doc:`dev_guide/developing_test_pr` and :doc:`dev_guide/developing_modules`.
