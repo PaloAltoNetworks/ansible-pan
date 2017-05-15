@@ -4,24 +4,29 @@
 History
 =======
 
-V1.0.5
-------
-
-- panos_sag: Added the ability to add / delete static address groups.
-- panos_dag: Converted the module to use pandevice
-             Also added the ability to perform create / delete / list
-- panos_dag_tags: A new module to create registered IP to tag associations
-                  Implemented the ability to create / delete / list IP to tag associations
-
 V1.0.4
 ------
 
-- removed deprecated_libraries folder
+- Released: ???
+- Status: In-development
 
-* Refactored modules
+*New modules*
+* panos_sag: Added the ability to add / delete static address groups.
+* panos_dag_tags: A new module to create registered IP to tag associations
+                  Implemented the ability to create / delete / list IP to tag associations
 
+*Refactored modules*
 * panos_restart refactored to use PanDevice internally; supports Panorama
 * panos_mgtconfig refactored to use PanDevice internally; added support for NTP servers config
+* panos_dag: Converted the module to use pandevice
+             Also added the ability to perform create / delete / list
+
+*Removed modules*
+None
+
+*Miscelanies*
+* removed deprecated_libraries folder
+
 
 V1.0.3
 ------

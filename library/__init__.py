@@ -13,4 +13,4 @@
 #  limitations under the License.
 
 __author__ = 'Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer), Vinay Venkataraghavan (@vinayvenkat)'
-__version__ = '1.0.3'
+__version__ = '1.0.4'
