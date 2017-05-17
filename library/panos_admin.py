@@ -28,29 +28,33 @@ description:
 author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
 version_added: "2.3"
 requirements:
-    - pan-python
+    - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
+notes:
+    - Checkmode is not supported.
 options:
     ip_address:
         description:
-            - IP address (or hostname) of PAN-OS device
-        required: true
-    password:
-        description:
-            - password for authentication
+            - IP address (or hostname) of PAN-OS device being configured.
         required: true
     username:
         description:
-            - username for authentication
-        required: false
+            - Username credentials to use for auth unless I(api_key) is set.
         default: "admin"
+    password:
+        description:
+            - Password credentials to use for auth unless I(api_key) is set.
+        required: true
+    api_key:
+        description:
+            - API key that can be used instead of I(username)/I(password) credentials.
     admin_username:
         description:
-            - username for admin user
+            - Username that needs password change.
         required: false
         default: "admin"
     admin_password:
         description:
-            - password for admin user
+            - New password for I(admin_username) user
         required: true
     role:
         description:
@@ -59,8 +63,7 @@ options:
         default: null
     commit:
         description:
-            - commit if changed
-        required: false
+            - Commit configuration if changed.
         default: true
 '''
 
@@ -154,39 +157,36 @@ def admin_set(xapi, module, admin_username, admin_password, role):
 
 def main():
     argument_spec = dict(
-        ip_address=dict(),
-        password=dict(no_log=True),
+        ip_address=dict(required=True),
+        password=dict(no_log=True, required=True),
         username=dict(default='admin'),
-        admin_username=dict(default='admin'),
-        admin_password=dict(no_log=True),
+        api_key=dict(no_log=True),
+        admin_username=dict(default='admin', required=True),
+        admin_password=dict(no_log=True, required=True),
         role=dict(),
         commit=dict(type='bool', default=True)
     )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
+                           required_one_of=[['api_key', 'password']])
 
     if not HAS_LIB:
-        module.fail_json(msg='pan-python required for this module')
+        module.fail_json(msg='Missing required libraries.')
 
     ip_address = module.params["ip_address"]
-    if not ip_address:
-        module.fail_json(msg="ip_address should be specified")
     password = module.params["password"]
-    if not password:
-        module.fail_json(msg="password is required")
     username = module.params['username']
+    api_key = module.params['api_key']
+    admin_username = module.params['admin_username']
+    admin_password = module.params['admin_password']
+    role = module.params['role']
+    commit = module.params['commit']
 
     xapi = pan.xapi.PanXapi(
         hostname=ip_address,
         api_username=username,
-        api_password=password
+        api_password=password,
+        api_key=api_key
     )
-
-    admin_username = module.params['admin_username']
-    if admin_username is None:
-        module.fail_json(msg="admin_username is required")
-    admin_password = module.params['admin_password']
-    role = module.params['role']
-    commit = module.params['commit']
 
     changed = admin_set(xapi, module, admin_username, admin_password, role)
 
