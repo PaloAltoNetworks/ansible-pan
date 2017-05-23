@@ -334,6 +334,8 @@ def create_security_rule(**kwargs):
 
 def add_rule(rulebase, sec_rule, commit):
     if rulebase:
+        if not commit:
+            return False
         rulebase.add(sec_rule)
         sec_rule.create()
         return True
@@ -343,6 +345,8 @@ def add_rule(rulebase, sec_rule, commit):
 
 def update_rule(rulebase, nat_rule, commit):
     if rulebase:
+        if not commit:
+            return False
         rulebase.add(nat_rule)
         nat_rule.apply()
         return True
@@ -454,9 +458,10 @@ def main():
         # Search for the object
         match = find_rule(rulebase, rule_name)
         # If found, delete it
-        if match and commit:
+        if match:
             try:
-                match.delete()
+                if commit:
+                    match.delete()
             except PanXapiError:
                 exc = get_exception()
                 module.fail_json(msg=exc.message)
