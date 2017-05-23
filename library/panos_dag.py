@@ -23,7 +23,9 @@ description:
 author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer), Vinay Venkataraghavan (@vinayvenkat)"
 version_added: "2.3"
 requirements:
-    - pan-python
+    - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
+    - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
+    - xmltodict can be obtained from PyPi U(https://pypi.python.org/pypi/xmltodict)
 options:
     ip_address:
         description:
@@ -65,7 +67,7 @@ options:
         default: None
     operation:
         description:
-            - The operation to perform
+            - The operation to perform Supported values are I(add)/I(list)/I(delete).
         required: true
         default: null
     commit:
@@ -98,8 +100,11 @@ ANSIBLE_METADATA = {'status': ['preview'],
                     'version': '1.0'}
 
 from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.basic import get_exception
 
 try:
+    import pan.xapi
+    from pan.xapi import PanXapiError
     import pandevice
     from pandevice import base
     from pandevice import firewall
@@ -208,7 +213,7 @@ def main():
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
 
     if not HAS_LIB:
-        module.fail_json(msg='pan-python is required for this module')
+        module.fail_json(msg='Missing required libraries.')
 
     ip_address = module.params["ip_address"]
     password = module.params["password"]
@@ -246,16 +251,14 @@ def main():
     else:
         module.fail_json(msg="Invalid option.")
 
-    commit_exc = None
     if result and commit:
         try:
             device.commit(sync=True)
-        except Exception, e:
-            commit_exc = False
-    if commit_exc:
-        module.exit_json(changed=True, msg=commit_exc)
-    else:
-        module.exit_json(changed=True, msg=result)
+        except PanXapiError:
+            exc = get_exception()
+            module.fail_json(msg=exc.message)
+
+    module.exit_json(changed=True, msg=result)
 
 
 if __name__ == '__main__':
