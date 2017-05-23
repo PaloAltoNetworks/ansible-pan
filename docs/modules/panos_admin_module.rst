@@ -21,7 +21,7 @@ Synopsis
 Requirements (on host that executes module)
 -------------------------------------------
 
-  * pan-python
+  * pan-python can be obtained from PyPi https://pypi.python.org/pypi/pan-python
 
 
 Options
@@ -41,27 +41,32 @@ Options
     <td>yes</td>
     <td></td>
         <td></td>
-        <td><div>password for admin user</div>        </td></tr>
+        <td><div>New password for <em>admin_username</em> user</div>        </td></tr>
                 <tr><td>admin_username<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>admin</td>
         <td></td>
-        <td><div>username for admin user</div>        </td></tr>
+        <td><div>Username that needs password change.</div>        </td></tr>
+                <tr><td>api_key<br/><div style="font-size: small;"></div></td>
+    <td>no</td>
+    <td></td>
+        <td></td>
+        <td><div>API key that can be used instead of <em>username</em>/<em>password</em> credentials.</div>        </td></tr>
                 <tr><td>commit<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>True</td>
         <td></td>
-        <td><div>commit if changed</div>        </td></tr>
+        <td><div>Commit configuration if changed.</div>        </td></tr>
                 <tr><td>ip_address<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
         <td></td>
-        <td><div>IP address (or hostname) of PAN-OS device</div>        </td></tr>
+        <td><div>IP address (or hostname) of PAN-OS device being configured.</div>        </td></tr>
                 <tr><td>password<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
         <td></td>
-        <td><div>password for authentication</div>        </td></tr>
+        <td><div>Password credentials to use for auth unless <em>api_key</em> is set.</div>        </td></tr>
                 <tr><td>role<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td></td>
@@ -71,7 +76,7 @@ Options
     <td>no</td>
     <td>admin</td>
         <td></td>
-        <td><div>username for authentication</div>        </td></tr>
+        <td><div>Username credentials to use for auth unless <em>api_key</em> is set.</div>        </td></tr>
         </table>
     </br>
 
@@ -119,6 +124,11 @@ The following are the fields unique to this module:
     </table>
     </br></br>
 
+Notes
+-----
+
+.. note::
+    - Checkmode is not supported.
 
 
 

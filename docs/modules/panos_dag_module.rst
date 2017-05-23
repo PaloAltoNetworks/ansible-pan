@@ -21,7 +21,9 @@ Synopsis
 Requirements (on host that executes module)
 -------------------------------------------
 
-  * pan-python
+  * pan-python can be obtained from PyPi https://pypi.python.org/pypi/pan-python
+  * pandevice can be obtained from PyPi https://pypi.python.org/pypi/pandevice
+  * xmltodict can be obtained from PyPi https://pypi.python.org/pypi/xmltodict
 
 
 Options
@@ -76,7 +78,7 @@ Options
     <td>yes</td>
     <td></td>
         <td></td>
-        <td><div>The operation to perform</div>        </td></tr>
+        <td><div>The operation to perform Supported values are <em>add</em>/<em>list</em>/<em>delete</em>.</div>        </td></tr>
                 <tr><td>password<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
