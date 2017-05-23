@@ -23,8 +23,9 @@ description:
 author: "Vinay Venkataraghavan @vinayvenkat"
 version_added: "2.4"
 requirements:
-    - pan-python
-    - pan-device
+    - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
+    - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
+    - xmltodict can be obtained from PyPi U(https://pypi.python.org/pypi/xmltodict)
 options:
     ip_address:
         description:
@@ -74,6 +75,11 @@ options:
             - commit if changed
         required: false
         default: true
+    operation:
+        description:
+            - The operation to perform Supported values are I(add)/I(list)/I(delete).
+        required: true
+        default: null
 '''
 
 EXAMPLES = '''
@@ -201,9 +207,10 @@ def main():
         devicegroup=dict(default=None),
         description=dict(default=None),
         tags=dict(type='list', default=[]),
-        operation=dict(type='str', required=True)
+        operation=dict(type='str', required=True, choices=['add', 'list', 'delete'])
     )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
+                           required_one_of=[['api_key', 'password']])
     if not HAS_LIB:
         module.fail_json(msg='pan-python is required for this module')
 

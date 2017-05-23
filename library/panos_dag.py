@@ -99,6 +99,7 @@ ANSIBLE_METADATA = {'status': ['preview'],
                     'supported_by': 'community',
                     'version': '1.0'}
 
+
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.basic import get_exception
 
@@ -208,9 +209,10 @@ def main():
         commit=dict(type='bool', default=True),
         devicegroup=dict(default=None),
         description=dict(default=None),
-        operation=dict(type='str', required=True)
+        operation=dict(type='str', required=True, choices=['add', 'list', 'delete'])
     )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
+                           required_one_of=[['api_key', 'password']])
 
     if not HAS_LIB:
         module.fail_json(msg='Missing required libraries.')
@@ -248,8 +250,6 @@ def main():
         result, exc = get_all_address_group(device)
     elif operation == 'delete':
         result, exc = delete_address_group(device, group_name=module.params.get('dag_name', None))
-    else:
-        module.fail_json(msg="Invalid option.")
 
     if result and commit:
         try:
