@@ -79,6 +79,11 @@ options:
             - type of source translation
         required: false
         default: None
+    snat_address_type:
+        description:
+            - type of source translation. Supported values are I(translated-address)/I(translated-address).
+        required: false
+        default: 'translated-address'
     snat_static_address:
         description:
             - Source NAT translated address. Used with Static-IP translation.
@@ -114,6 +119,10 @@ options:
             - dnat translated port
         required: false
         default: None
+    commit:
+        description:
+            - Commit configuration if changed.
+        default: true
 '''
 
 EXAMPLES = '''
@@ -143,6 +152,8 @@ ANSIBLE_METADATA = {'status': ['preview'],
                     'supported_by': 'community',
                     'version': '1.0'}
 
+# import pydevd
+# pydevd.settrace('localhost', port=60374, stdoutToServer=True, stderrToServer=True)
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.basic import get_exception
 
@@ -221,6 +232,7 @@ def create_nat_rule(**kwargs):
     # Source translation: Dynamic IP and port
     elif kwargs['snat_type'] in ['dynamic-ip-and-port']:
         nat_rule.source_translation_type = kwargs['snat_type']
+        nat_rule.source_translation_address_type = kwargs['snat_address_type']
         # Interface address?
         if kwargs['snat_interface']:
             nat_rule.source_translation_interface = kwargs['snat_interface']
@@ -285,14 +297,16 @@ def main():
         service=dict(default='any'),
         to_interface=dict(default='any'),
         snat_type=dict(choices=['static-ip','dynamic-ip-and-port','dynamic-ip']),
+        snat_address_type=dict(choices=['interface-address', 'translated-address'], default='interface-address'),
         snat_static_address=dict(),
         snat_dynamic_address=dict(type='list'),
-        snat_interface=dict(type='list'),
+        snat_interface=dict(),
         snat_interface_address=dict(),
         snat_bidirectional=dict(type='bool', default=False),
         dnat_address=dict(),
         dnat_port=dict(),
-        devicegroup=dict()
+        devicegroup=dict(),
+        commit=dict(type='bool', default=True)
     )
 
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
@@ -316,6 +330,7 @@ def main():
     to_interface = module.params['to_interface']
     nat_type = 'ipv4'
     snat_type = module.params['snat_type']
+    snat_address_type = module.params['snat_address_type']
     snat_static_address = module.params['snat_static_address']
     snat_dynamic_address = module.params['snat_dynamic_address']
     snat_interface = module.params['snat_interface']
@@ -324,6 +339,8 @@ def main():
     dnat_address = module.params['dnat_address']
     dnat_port = module.params['dnat_port']
     devicegroup = module.params['devicegroup']
+
+    commit = module.params['commit']
 
     # Create the device with the appropriate pandevice type
     device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
@@ -360,6 +377,8 @@ def main():
         if match:
             try:
                 match.delete()
+                if commit:
+                    device.commit(sync=True)
             except PanXapiError:
                 exc = get_exception()
                 module.fail_json(msg=exc.message)
@@ -391,6 +410,7 @@ def main():
                     to_interface=to_interface,
                     nat_type=nat_type,
                     snat_type=snat_type,
+                    snat_address_type = snat_address_type,
                     snat_static_address=snat_static_address,
                     snat_dynamic_address=snat_dynamic_address,
                     snat_interface=snat_interface,
@@ -400,6 +420,8 @@ def main():
                     dnat_port=dnat_port
                 )
                 changed = add_rule(rulebase, new_rule)
+                if changed and commit:
+                    device.commit(sync=True)
             except PanXapiError:
                 exc = get_exception()
                 module.fail_json(msg=exc.message)
@@ -421,6 +443,7 @@ def main():
                     to_interface=to_interface,
                     nat_type=nat_type,
                     snat_type=snat_type,
+                    snat_address_type=snat_address_type,
                     snat_static_address=snat_static_address,
                     snat_dynamic_address=snat_dynamic_address,
                     snat_interface=snat_interface,
@@ -430,6 +453,8 @@ def main():
                     dnat_port=dnat_port
                 )
                 changed = update_rule(rulebase, new_rule)
+                if changed and commit:
+                    device.commit(sync=True)
             except PanXapiError:
                 exc = get_exception()
                 module.fail_json(msg=exc.message)

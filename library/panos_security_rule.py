@@ -332,10 +332,8 @@ def create_security_rule(**kwargs):
     return security_rule
 
 
-def add_rule(rulebase, sec_rule, commit):
+def add_rule(rulebase, sec_rule):
     if rulebase:
-        if not commit:
-            return False
         rulebase.add(sec_rule)
         sec_rule.create()
         return True
@@ -343,10 +341,8 @@ def add_rule(rulebase, sec_rule, commit):
         return False
 
 
-def update_rule(rulebase, nat_rule, commit):
+def update_rule(rulebase, nat_rule):
     if rulebase:
-        if not commit:
-            return False
         rulebase.add(nat_rule)
         nat_rule.apply()
         return True
@@ -502,7 +498,9 @@ def main():
                     rule_type=rule_type,
                     action=action
                 )
-                changed = add_rule(rulebase, new_rule, commit)
+                changed = add_rule(rulebase, new_rule)
+                if changed and commit:
+                    device.commit(sync=True)
             except PanXapiError:
                 exc = get_exception()
                 module.fail_json(msg=exc.message)
@@ -538,7 +536,9 @@ def main():
                     rule_type=rule_type,
                     action=action
                 )
-                changed = update_rule(rulebase, new_rule, commit)
+                changed = update_rule(rulebase, new_rule)
+                if changed and commit:
+                    device.commit(sync=True)
             except PanXapiError:
                 exc = get_exception()
                 module.fail_json(msg=exc.message)
