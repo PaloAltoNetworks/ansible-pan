@@ -17,15 +17,30 @@ PANW PANOS Ansible modules are part of the default Ansible distribution which is
 
     https://github.com/ansible/ansible/tree/devel/lib/ansible/modules/network/panos
 
-It is also available as free **Apache 2.0** licensed code from Palo Alto Networks Github repo at:
+It is also available as free **Apache 2.0** licensed code from Palo Alto Networks Github repo. This repo usually contains
+the newest feature and bug fixes and it is synchronised with official RedHat Ansible repo every new Ansible release.
 
     https://github.com/PaloAltoNetworks/ansible-pan/
 
-Or as package downloaded from pypi
+Or as package installed from ansible-galaxy
 
-    pip install ansible-pan
+    ansible-galaxy install PaloAltoNetworks.paloaltonetworks
 
-.. <comment> <> (ansible-galaxy install paloaltonetworks.panos) </comment>
+.. <comment> <> (ansible-galaxy install paloaltonetworks.paloaltonetworks) </comment>
+
+
+Sample playbooks
+----------------
+
+Sample playbooks can be found within this repo under:
+
+    /examples
+    /samples
+
+More comprehensive playbooks can be found here:
+
+    https://github.com/PaloAltoNetworks/ansible-playbooks
+
 
 Documentation
 -------------
