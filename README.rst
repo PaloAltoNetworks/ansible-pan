@@ -8,6 +8,7 @@ are wrapped within the Ansible framework.
 
 - Free software: Apache 2.0 License
 - Documentation: http://panwansible.readthedocs.io/
+- PANW community supported live page: http://live.paloaltonetworks.com/ansible
 
 
 Installation
