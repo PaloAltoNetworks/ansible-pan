@@ -288,6 +288,25 @@ def find_rule(rulebase, rule_name):
     else:
         return False
 
+def rule_is_match(propose_rule, current_rule):
+
+    match_check = ['name', 'description', 'group_profile', 'antivirus', 'vulnerability'
+                   'spyware', 'url_filtering', 'file_blocking', 'data_filtering',
+                   'wildfire_analysis', 'type', 'action', 'tag', 'log_start', 'log_end']
+    list_check = ['tozone', 'fromzone', 'source', 'source_user', 'destination', 'category',
+                  'application', 'service', 'hip_profiles']
+
+    for check in match_check:
+        propose_check = getattr(propose_rule, check, None)
+        current_check = getattr(current_rule, check, None)
+        if propose_check != current_check:
+            return False
+    for check in list_check:
+        propose_check = getattr(propose_rule, check, [])
+        current_check = getattr(current_rule, check, [])
+        if set(propose_check) != set(current_check):
+            return False
+    return True
 
 def create_security_rule(**kwargs):
     security_rule = policies.SecurityRule(
@@ -466,38 +485,41 @@ def main():
         else:
             module.fail_json(msg='Rule \'%s\' not found. Is the name correct?' % rule_name)
     elif operation == "add":
+        new_rule = create_security_rule(
+            rule_name=rule_name,
+            description=description,
+            tag_name=tag_name,
+            source_zone=source_zone,
+            destination_zone=destination_zone,
+            source_ip=source_ip,
+            source_user=source_user,
+            destination_ip=destination_ip,
+            category=category,
+            application=application,
+            service=service,
+            hip_profiles=hip_profiles,
+            group_profile=group_profile,
+            antivirus=antivirus,
+            vulnerability=vulnerability,
+            spyware=spyware,
+            url_filtering=url_filtering,
+            file_blocking=file_blocking,
+            data_filtering=data_filtering,
+            wildfire_analysis=wildfire_analysis,
+            log_start=log_start,
+            log_end=log_end,
+            rule_type=rule_type,
+            action=action
+        )
         # Search for the rule. Fail if found.
         match = find_rule(rulebase, rule_name)
         if match:
-            module.fail_json(msg='Rule \'%s\' already exists. Use operation: \'update\' to change it.' % rule_name)
+            if rule_is_match(match, new_rule):
+                module.exit_json(changed=False, msg='Rule \'%s\' is already in place' % rule_name)
+            else:
+                module.fail_json(msg='Rule \'%s\' already exists. Use operation: \'update\' to change it.' % rule_name)
         else:
             try:
-                new_rule = create_security_rule(
-                    rule_name=rule_name,
-                    description=description,
-                    tag_name=tag_name,
-                    source_zone=source_zone,
-                    destination_zone=destination_zone,
-                    source_ip=source_ip,
-                    source_user=source_user,
-                    destination_ip=destination_ip,
-                    category=category,
-                    application=application,
-                    service=service,
-                    hip_profiles=hip_profiles,
-                    group_profile=group_profile,
-                    antivirus=antivirus,
-                    vulnerability=vulnerability,
-                    spyware=spyware,
-                    url_filtering=url_filtering,
-                    file_blocking=file_blocking,
-                    data_filtering=data_filtering,
-                    wildfire_analysis=wildfire_analysis,
-                    log_start=log_start,
-                    log_end=log_end,
-                    rule_type=rule_type,
-                    action=action
-                )
                 changed = add_rule(rulebase, new_rule)
                 if changed and commit:
                     device.commit(sync=True)
