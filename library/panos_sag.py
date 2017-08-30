@@ -56,8 +56,9 @@ options:
         required: true
         default: null
     devicegroup:
-        description:
-            - The name of the Panorama device group. The group must exist on Panorama. If device group is not defined it is assumed that we are contacting a firewall.
+        description: >
+            - The name of the Panorama device group. The group must exist on Panorama. If device group is not defined
+            it is assumed that we are contacting a firewall.
         required: false
         default: None
     description:
@@ -97,9 +98,9 @@ RETURN = '''
 # Default return values
 '''
 
-ANSIBLE_METADATA = {'status': ['preview'],
-                    'supported_by': 'community',
-                    'version': '1.0'}
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
 
 from ansible.module_utils.basic import AnsibleModule, get_exception
 
@@ -139,10 +140,11 @@ def find_object(device, dev_group, obj_name, obj_type):
     else:
         return False
 
+
 def create_address_group_object(**kwargs):
     """
     Create an Address object
-    
+
     :param kwargs: key word arguments to instantiate AddressGroup object
     @return False or ```objects.AddressObject```
     """
@@ -159,13 +161,13 @@ def create_address_group_object(**kwargs):
 
 
 def add_address_group(device, dev_group, ag_object):
-    """ 
-    Create a new dynamic address group object on the 
+    """
+    Create a new dynamic address group object on the
     PAN FW.
-    
+
     :param device: Firewall Handle
     :param dev_group: Panorama device group
-    :ag_object: Address group object
+    :param ag_object: Address group object
     """
 
     if dev_group:
@@ -176,21 +178,20 @@ def add_address_group(device, dev_group, ag_object):
     exc = None
     try:
         ag_object.create()
-    except Exception, e:
+    except Exception:
         exc = get_exception()
+        return False, exc
 
-    if exc:
-        return (False, exc)
-    else:
-        return (True, exc)
+    return True, exc
+
 
 def delete_address_group(device, dev_group, obj_name):
     """
-    
-    :param device: 
-    :param dev_group: 
-    :param ag_object: 
-    :return: 
+
+    :param device:
+    :param dev_group:
+    :param obj_name:
+    :return:
     """
     static_obj = find_object(device, dev_group, obj_name, objects.AddressGroup)
     # If found, delete it
@@ -200,15 +201,16 @@ def delete_address_group(device, dev_group, obj_name):
             static_obj.delete()
         except Exception:
             exc = get_exception()
-            return (False, exc)
-        return (True, None)
+            return False, exc
+        return True, None
     else:
-        return (False, None)
+        return False, None
+
 
 def main():
     argument_spec = dict(
         ip_address=dict(required=True),
-        password=dict(required=True),
+        password=dict(no_log=True),
         username=dict(default='admin'),
         api_key=dict(no_log=True),
         sag_match_filter=dict(type='list', required=False),
@@ -256,8 +258,9 @@ def main():
         if result and commit:
             try:
                 device.commit(sync=True)
-            except Exception, e:
-                module.fail_json(get_exception())
+            except Exception:
+                exc = get_exception()
+                module.fail_json(msg=exc.message)
 
     elif operation == 'delete':
         obj_name = module.params.get('sag_name', None)
