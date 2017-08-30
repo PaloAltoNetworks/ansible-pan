@@ -25,7 +25,9 @@ V1.0.4
 
 *Removed modules*
 
-None
+* panos_nat_policy (Use panos_nat_rule)
+* panos_nat_security_policy (use panos_security_rule)
+* panos_service (use panos_object)
 
 *Miscelanies*
 
