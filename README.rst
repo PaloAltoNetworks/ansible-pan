@@ -36,8 +36,7 @@ Sample playbooks
 Sample playbooks can be found within this repo under::
 
     /examples
-    /samples
-    (e.g. /samples/panos_dag.yml)
+    (e.g. /samples/fw_dag.yml)
     
 More comprehensive playbooks can be found here:
 
