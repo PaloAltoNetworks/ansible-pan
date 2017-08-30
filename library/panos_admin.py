@@ -158,10 +158,10 @@ def admin_set(xapi, module, admin_username, admin_password, role):
 def main():
     argument_spec = dict(
         ip_address=dict(required=True),
-        password=dict(no_log=True, required=True),
+        password=dict(no_log=True),
         username=dict(default='admin'),
         api_key=dict(no_log=True),
-        admin_username=dict(default='admin', required=True),
+        admin_username=dict(default='admin'),
         admin_password=dict(no_log=True, required=True),
         role=dict(),
         commit=dict(type='bool', default=True)
