@@ -14,6 +14,10 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'metadata_version': '1.1'}
+
 DOCUMENTATION = '''
 ---
 module: panos_lic
@@ -73,11 +77,6 @@ serialnumber:
     type: string
     sample: 007200004214
 '''
-
-
-ANSIBLE_METADATA = {'status': ['preview'],
-                    'supported_by': 'community',
-                    'version': '1.0'}
 
 from ansible.module_utils.basic import AnsibleModule
 

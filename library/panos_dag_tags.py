@@ -17,7 +17,7 @@
 DOCUMENTATION = '''
 ---
 module: panos_dag_tags
-short_description: Create tags for DAG's
+short_description: Create tags for DAG's on PAN-OS devices.
 description:
     - Create the ip address to tag associations. Tags will in turn be used to create DAG's
 author: "Vinay Venkataraghavan @vinayvenkat"
@@ -36,6 +36,9 @@ options:
             - password for authentication
         required: true
         default: null
+    api_key:
+        description:
+            - API key that can be used instead of I(username)/I(password) credentials.
     username:
         description:
             - username for authentication
