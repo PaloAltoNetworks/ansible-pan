@@ -1,5 +1,0 @@
-[firewall]
-my-firewall ip_address=fw.local
-
-[panorama]
-my-panorama ip_address=pano.local

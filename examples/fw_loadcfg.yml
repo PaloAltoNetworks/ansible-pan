@@ -1,4 +1,4 @@
-- name: Load already imported configuration
+- name: Load named snapshot
   hosts: my-firewall
   connection: local
   gather_facts: False
@@ -7,16 +7,16 @@
     - role: PaloAltoNetworks.paloaltonetworks
 
   vars:
-    config_file: "/Users/ibojer/SourceCode/ansible-pan/samples/running-config_sample.xml"
+    named_snapshot: "running-config_sample.xml"
 
   tasks:
   - name: Grab the credentials from ansible-vault
     include_vars: 'firewall-secrets.yml'
     no_log: 'yes'
 
-  - name: Load already imported configuration
+  - name: Load already imported named configuration {{ named_snapshot }} but do not commit
     panos_loadcfg:
       ip_address: "{{ ip_address }}"
       username: "{{ username }}"
       password: "{{ password }}"
-      file: "config_file"
+      file: "{{ named_snapshot }}"
