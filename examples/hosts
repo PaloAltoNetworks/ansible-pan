@@ -1,5 +1,5 @@
 [firewall]
-my-firewall ip_address=192.168.55.10
+my-firewall ip_address=fw.local
 
 [panorama]
-my-panorama ip_address=192.168.55.5
+my-panorama ip_address=pano.local

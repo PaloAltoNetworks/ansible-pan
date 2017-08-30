@@ -1,9 +1,0 @@
-- hosts: localhost
-  connection: local
-
-  tasks:
-    - name: Restart panos device
-      panos_restart:
-        ip_address: "fw2.local"
-        username: "admin"
-        password: "admin"

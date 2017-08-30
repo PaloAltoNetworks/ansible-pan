@@ -1,0 +1,33 @@
+- name: Set basic FW mgmt plumbing
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+
+  vars:
+    new_password: 'paloalto'
+    key_filename: '/Users/ibojer/1/test'
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: set dns, ntp, and panorama but don't commit
+    panos_mgtconfig:
+      ip_address: "{{ ip_address }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+      dns_server_primary: "1.1.1.1"
+      dns_server_secondary: "1.1.1.2"
+      panorama_primary: "1.1.1.3"
+      panorama_secondary: "1.1.1.4"
+      ntp_server_primary: "1.1.1.5"
+      ntp_server_secondary: "1.1.1.6"
+      timezone: "US/Central"
+      update_server: "update.me"
+      login_banner: "Secure environment"
+#        devicegroup: "DeviceGroupA"
+      commit: False

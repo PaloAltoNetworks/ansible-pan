@@ -30,6 +30,7 @@ None
 *Miscelanies*
 
 * removed deprecated_libraries folder
+* moved all sammples from samples/ into examples/
 
 
 V1.0.3

@@ -1,0 +1,23 @@
+- name: Set admin password
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+
+  vars:
+    new_password: 'paloalto'
+    key_filename: '/Users/ibojer/1/test'
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: Change user password using ssh protocol
+    panos_admpwd:
+      ip_address: '{{ ip_address }}'
+      password: '{{ password }}'
+      newpassword: '{{ new_password }}'
+      key_filename: '{{ key_filename }}'

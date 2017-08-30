@@ -1,8 +1,0 @@
-- hosts: localhost
-  connection: local
-  tasks:
-    - name: commit running configuration on the firewall
-      panos_commit:
-        ip_address: "10.5.175.144"
-        username: "admin"
-        password: "admin"

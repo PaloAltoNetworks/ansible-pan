@@ -1,0 +1,24 @@
+- name: Configure eth1/1 as DHCP
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+
+  vars:
+    zone_name: "tap_zone"
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: configure ethernet1/3
+    panos_interface:
+      ip_address: '{{ ip_address }}'
+      password: '{{ password }}'
+      if_name: "ethernet1/3"
+      zone_name: '{{ tap_zone }}'
+      create_default_route: "yes"
+      commit: False

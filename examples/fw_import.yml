@@ -1,0 +1,23 @@
+- name: Import configuration file into PAN-OS
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+
+  vars:
+    config_file: "/Users/ibojer/SourceCode/ansible-pan/samples/running-config_sample.xml"
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: import configuration file into PAN-OS
+    panos_import:
+      ip_address: "{{ ip_address }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+      file: "{{ config_file }}"
+      category: "configuration"
