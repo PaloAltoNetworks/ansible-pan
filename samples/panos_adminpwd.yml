@@ -1,9 +1,0 @@
-- hosts: localhost
-  connection: local
-  tasks:
-    - name: change user password using ssh protocol
-      panos_admpwd:
-        ip_address: "10.5.175.144"
-        username: "test_key"
-        newpassword: "admin"
-        key_filename: "/Users/ibojer/1/test"

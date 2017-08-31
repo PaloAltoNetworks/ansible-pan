@@ -103,12 +103,9 @@ RETURN='''
 # Default return values
 '''
 
-ANSIBLE_METADATA = {'status': ['preview'],
-                    'supported_by': 'community',
-                    'version': '1.0'}
-
-# import pydevd
-# pydevd.settrace('localhost', port=53879, stdoutToServer=True, stderrToServer=True)
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
 
 
 from ansible.module_utils.basic import AnsibleModule

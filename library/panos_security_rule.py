@@ -14,16 +14,19 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-ANSIBLE_METADATA = {'status': ['preview'],
-                    'supported_by': 'community',
-                    'version': '1.0'}
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
 
 DOCUMENTATION = '''
 ---
 module: panos_security_rule
 short_description: Create security rule policy on PAN-OS devices or Panorama management console.
-description:
-    - Security policies allow you to enforce rules and take action, and can be as general or specific as needed. The policy rules are compared against the incoming traffic in sequence, and because the first rule that matches the traffic is applied, the more specific rules must precede the more general ones.
+description: >
+    - Security policies allow you to enforce rules and take action, and can be as general or specific as needed. The
+    policy rules are compared against the incoming traffic in sequence, and because the first rule that matches the
+    traffic is applied, the more specific rules must precede the more general ones.
 author: "Ivan Bojer (@ivanbojer), Robert Hagen (@rnh556)"
 version_added: "2.4"
 requirements:
@@ -86,8 +89,10 @@ options:
             - Use users to enforce policy for individual users or a group of users.
         default: "any"
     hip_profiles:
-        description:
-            - If you are using GlobalProtect with host information profile (HIP) enabled, you can also base the policy on information collected by GlobalProtect. For example, the user access level can be determined HIP that notifies the firewall about the user's local configuration.
+        description: >
+            - If you are using GlobalProtect with host information profile (HIP) enabled, you can also base the policy
+            on information collected by GlobalProtect. For example, the user access level can be determined HIP that
+            notifies the firewall about the user's local configuration.
         default: "any"
     destination_ip:
         description:
@@ -114,8 +119,9 @@ options:
             - Action to apply once rules maches.
         default: "allow"
     group_profile:
-        description:
-            - Security profile group that is already defined in the system. This property supersedes antivirus, vulnerability, spyware, url_filtering, file_blocking, data_filtering, and wildfire_analysis properties.
+        description: >
+            - Security profile group that is already defined in the system. This property supersedes antivirus,
+            vulnerability, spyware, url_filtering, file_blocking, data_filtering, and wildfire_analysis properties.
         default: None
     antivirus:
         description:
@@ -146,8 +152,9 @@ options:
             - Name of the already defined wildfire_analysis profile.
         default: None
     devicegroup:
-        description:
-            - Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama. If device group is not define we assume that we are contacting Firewall.
+        description: >
+            - Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama.
+            If device group is not define we assume that we are contacting Firewall.
         default: None
     commit:
         description:
@@ -288,6 +295,26 @@ def find_rule(rulebase, rule_name):
     else:
         return False
 
+def rule_is_match(propose_rule, current_rule):
+
+    match_check = ['name', 'description', 'group_profile', 'antivirus', 'vulnerability'
+                   'spyware', 'url_filtering', 'file_blocking', 'data_filtering',
+                   'wildfire_analysis', 'type', 'action', 'tag', 'log_start', 'log_end']
+    list_check = ['tozone', 'fromzone', 'source', 'source_user', 'destination', 'category',
+                  'application', 'service', 'hip_profiles']
+
+    for check in match_check:
+        propose_check = getattr(propose_rule, check, None)
+        current_check = getattr(current_rule, check, None)
+        if propose_check != current_check:
+            return False
+    for check in list_check:
+        propose_check = getattr(propose_rule, check, [])
+        current_check = getattr(current_rule, check, [])
+        if set(propose_check) != set(current_check):
+            return False
+    return True
+
 
 def create_security_rule(**kwargs):
     security_rule = policies.SecurityRule(
@@ -356,7 +383,7 @@ def main():
         password=dict(no_log=True),
         username=dict(default='admin'),
         api_key=dict(no_log=True),
-        operation=dict(default='add', choices=['add','update','delete','find']),
+        operation=dict(default='add', choices=['add', 'update', 'delete', 'find']),
         rule_name=dict(required=True),
         description=dict(default=''),
         tag_name=dict(type='list'),
@@ -466,38 +493,41 @@ def main():
         else:
             module.fail_json(msg='Rule \'%s\' not found. Is the name correct?' % rule_name)
     elif operation == "add":
+        new_rule = create_security_rule(
+            rule_name=rule_name,
+            description=description,
+            tag_name=tag_name,
+            source_zone=source_zone,
+            destination_zone=destination_zone,
+            source_ip=source_ip,
+            source_user=source_user,
+            destination_ip=destination_ip,
+            category=category,
+            application=application,
+            service=service,
+            hip_profiles=hip_profiles,
+            group_profile=group_profile,
+            antivirus=antivirus,
+            vulnerability=vulnerability,
+            spyware=spyware,
+            url_filtering=url_filtering,
+            file_blocking=file_blocking,
+            data_filtering=data_filtering,
+            wildfire_analysis=wildfire_analysis,
+            log_start=log_start,
+            log_end=log_end,
+            rule_type=rule_type,
+            action=action
+        )
         # Search for the rule. Fail if found.
         match = find_rule(rulebase, rule_name)
         if match:
-            module.fail_json(msg='Rule \'%s\' already exists. Use operation: \'update\' to change it.' % rule_name)
+            if rule_is_match(match, new_rule):
+                module.exit_json(changed=False, msg='Rule \'%s\' is already in place' % rule_name)
+            else:
+                module.fail_json(msg='Rule \'%s\' already exists. Use operation: \'update\' to change it.' % rule_name)
         else:
             try:
-                new_rule = create_security_rule(
-                    rule_name=rule_name,
-                    description=description,
-                    tag_name=tag_name,
-                    source_zone=source_zone,
-                    destination_zone=destination_zone,
-                    source_ip=source_ip,
-                    source_user=source_user,
-                    destination_ip=destination_ip,
-                    category=category,
-                    application=application,
-                    service=service,
-                    hip_profiles=hip_profiles,
-                    group_profile=group_profile,
-                    antivirus=antivirus,
-                    vulnerability=vulnerability,
-                    spyware=spyware,
-                    url_filtering=url_filtering,
-                    file_blocking=file_blocking,
-                    data_filtering=data_filtering,
-                    wildfire_analysis=wildfire_analysis,
-                    log_start=log_start,
-                    log_end=log_end,
-                    rule_type=rule_type,
-                    action=action
-                )
                 changed = add_rule(rulebase, new_rule)
                 if changed and commit:
                     device.commit(sync=True)

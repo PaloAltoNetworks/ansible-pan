@@ -1,5 +1,0 @@
-[firewall]
-my-firewall ip_address=192.168.55.10
-
-[panorama]
-my-panorama ip_address=192.168.55.5

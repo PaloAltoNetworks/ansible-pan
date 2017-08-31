@@ -14,9 +14,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-ANSIBLE_METADATA = {'status': ['preview'],
-                    'supported_by': 'community',
-                    'version': '2.4'}
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
@@ -71,6 +71,7 @@ status:
     type: string
     sample: "Commit successful"
 '''
+
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.basic import get_exception

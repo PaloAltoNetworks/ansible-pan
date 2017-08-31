@@ -7,14 +7,16 @@ History
 V1.0.4
 ------
 
-- Released: ???
-- Status: In-development
+- Released: 2017-08-31
+- Status: Released
 
 *New modules*
 
 * panos_sag: Added the ability to add / delete static address groups.
 * panos_dag_tags: A new module to create registered IP to tag associations
                   Implemented the ability to create / delete / list IP to tag associations
+* panos_security_rule
+* panos_nat_rule
 
 *Refactored modules*
 
@@ -25,11 +27,15 @@ V1.0.4
 
 *Removed modules*
 
-None
+* panos_nat_policy (Use panos_nat_rule)
+* panos_nat_security_policy (use panos_security_rule)
+* panos_service (use panos_object)
 
 *Miscelanies*
 
 * removed deprecated_libraries folder
+* consolidated all samples from samples/ into examples/
+* synchronized repo with core Ansible distribution
 
 
 V1.0.3

@@ -1,7 +1,7 @@
 .. _examples:
 
 ========
-Snippets
+Examples
 ========
 
 Add security policy to Firewall or Panorama
@@ -14,6 +14,9 @@ Add security policy to Firewall or Panorama
 .. include:: ../examples/fw_secrule_add.yml
     :literal:
 
+Panorama
+--------
+
 .. include:: ../examples/pano_secrule_add.yml
     :literal:
 
@@ -25,19 +28,22 @@ Address service object
 .. include:: ../examples/fw_objects_add.yml
     :literal:
 
-Set admin password
-==================
+Change admin password
+=====================
 
     PanOS module that allows changes to the user account passwords by doing
-      API calls to the Firewall using pan-api as the protocol.
+    API calls to the Firewall using pan-api as the protocol.
 
-.. include:: ../samples/panos_admin.yml
+.. include:: ../examples/fw_admin.yml
     :literal:
 
 Change admin password (SSH)
 ===========================
 
-.. include:: ../samples/panos_adminpwd.yml
+    Change admin password of PAN-OS device using SSH with SSH key. This is used in particular when NGFW is deployed in
+    the cloud (such as AWS).
+
+.. include:: ../examples/fw_adminpwd.yml
     :literal:
 
 Generates self-signed certificate
@@ -46,7 +52,7 @@ Generates self-signed certificate
     This module generates a self-signed certificate that can be used by GlobalProtect client, SSL connector, or
     otherwise. Root certificate must be preset on the system first. This module depends on paramiko for ssh.
 
-.. include:: ../samples/panos_cert_gen_ssh.yml
+.. include:: ../examples/fw_cert_gen_ssh.yml
     :literal:
 
 Check if FW is ready
@@ -55,7 +61,7 @@ Check if FW is ready
     Check if PAN-OS device is ready for being configured (no pending jobs). The check could be done
     once or multiple times until the device is ready.
 
-.. include:: ../samples/panos_check.yml
+.. include:: ../examples/fw_check.yml
     :literal:
 
 Dynamic address group (DAG)
@@ -63,7 +69,7 @@ Dynamic address group (DAG)
 
     Create a dynamic address group object in the firewall used for policy rules.
 
-.. include:: ../samples/panos_dag.yml
+.. include:: ../examples/fw_dag.yml
     :literal:
 
 Import configuration
@@ -71,7 +77,7 @@ Import configuration
 
     Import file into PAN-OS device.
 
-.. include:: ../samples/panos_import.yml
+.. include:: ../examples/fw_import.yml
     :literal:
 
 DHCP on DataPort
@@ -79,16 +85,7 @@ DHCP on DataPort
 
     Configure data-port (DP) network interface for DHCP. By default DP interfaces are static.
 
-.. include:: ../samples/panos_interface.yml
-    :literal:
-
-Apply authcode to device
-========================
-
-    Apply an authcode to a device. The authcode should have been previously registered on the
-    Palo Alto Networks support portal. The device should have Internet access.
-
-.. include:: ../samples/panos_lic.yml
+.. include:: ../examples/fw_interface.yml
     :literal:
 
 Load configuration

@@ -1,0 +1,26 @@
+- name: Load already imported configuration
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+
+  vars:
+    cn: "1.1.1.1"
+    friendly_name: "test123"
+    signed_by: "root-ca"
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: generate self signed certificate
+    panos_cert_gen_ssh:
+      ip_address: "{{ ip_address }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+      cert_cn: "{{ cn }}"
+      cert_friendly_name: "{{ friendly_name }}"
+      signed_by: "{{ signed_by }}"

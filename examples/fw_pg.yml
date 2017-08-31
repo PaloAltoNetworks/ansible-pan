@@ -1,0 +1,33 @@
+- name: Setup security profile group
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+
+  vars:
+    pg_name: "pg-custom"
+    virus: "default"
+    spyware: "default"
+    vulnerability: "default"
+    url_filtering: "default"
+    wildfire: "default"
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: Setup security profile group
+    panos_pg:
+      ip_address: "{{ ip_address }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+      pg_name: "{{ pg_name }}"
+      virus: "{{ virus }}"
+      spyware: "{{ spyware }}"
+      vulnerability: "{{ vulnerability }}"
+      url_filtering: "{{ url_filtering }}"
+      wildfire: "{{ wildfire }}"
+      commit: False

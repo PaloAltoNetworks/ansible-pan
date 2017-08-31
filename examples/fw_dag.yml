@@ -1,19 +1,26 @@
-- hosts: localhost
+- name: Set admin password
+  hosts: my-firewall
   connection: local
+  gather_facts: False
 
   roles:
     - role: PaloAltoNetworks.paloaltonetworks
 
+  vars:
+    ip_to_register: "10.10.10.10"
+    tag_names: ["workday3", "office3", "box3"]
+    dag_name: "dag-6"
+    dag_match_filter: "'workday3' and 'box3'"
+
   tasks:
-    - name: include variables (free-form)
-      include_vars: vars.yml
-      no_log: 'yes'
-      tags: "vars"
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
 
     - name: Create the tags to map IP addresses
       panos_dag_tags:
-        ip_address: "{{ mgmt_ip }}"
-        password: "{{ admin_password }}"
+        ip_address: "{{ ip_address }}"
+        password: "{{ password }}"
         ip_to_register: "{{ ip_to_register }}"
         tag_names: "{{ tag_names }}"
         description: "Tags to allow certain IP's to access various SaaS Applications"
@@ -22,8 +29,8 @@
 
     - name: List the IP address to tag mapping
       panos_dag_tags:
-        ip_address: "{{ mgmt_ip }}"
-        password: "{{ admin_password }}"
+        ip_address: "{{ ip_address }}"
+        password: "{{ password }}"
         tag_names: "{{ tag_names }}"
         description: "List the IP address to tag mapping"
         operation: 'list'
@@ -31,8 +38,8 @@
 
     - name: Unregister an IP address from a tag mapping
       panos_dag_tags:
-        ip_address: "{{ mgmt_ip }}"
-        password: "{{ admin_password }}"
+        ip_address: "{{ ip_address }}"
+        password: "{{ password }}"
         ip_to_register: "{{ ip_to_register }}"
         tag_names: "{{ tag_names }}"
         description: "Unregister IP address from tag mappings"
@@ -41,8 +48,8 @@
 
     - name: Create dynamic address groups on PAN FW 
       panos_dag:
-        ip_address: "{{ mgmt_ip }}"
-        password: "{{ admin_password }}"
+        ip_address: "{{ ip_address }}"
+        password: "{{ password }}"
         dag_name: "{{ dag_name }}"
         dag_match_filter: "{{ dag_match_filter }}"
         description: 'Add / create dynamic address group to allow access to SaaS Applications'
@@ -51,8 +58,8 @@
 
     - name: List all dynamic address groups configured on the PAN FW
       panos_dag:
-        ip_address: "{{ mgmt_ip }}"
-        password: "{{ admin_password }}"
+        ip_address: "{{ ip_address }}"
+        password: "{{ password }}"
         dag_name: "{{ dag_name }}"
         description: 'List Dynamic Address Groups from the PAN FW'
         operation: 'list'
@@ -60,8 +67,8 @@
 
     - name: Delete a dynamic address group on the PAN FW
       panos_dag:
-        ip_address: "{{ mgmt_ip }}"
-        password: "{{ admin_password }}"
+        ip_address: "{{ ip_address }}"
+        password: "{{ password }}"
         dag_name: "{{ dag_name }}"
         description: 'This is used to delete Dynamic Address Groups from the PAN FW'
         operation: 'delete'

@@ -11,3 +11,6 @@ MANIFEST
 ansible_pan.egg-info/
 build/
 dist/
+
+# Runtime files
+*.retry

@@ -17,7 +17,7 @@
 DOCUMENTATION = '''
 ---
 module: panos_dag_tags
-short_description: Create tags for DAG's
+short_description: Create tags for DAG's on PAN-OS devices.
 description:
     - Create the ip address to tag associations. Tags will in turn be used to create DAG's
 author: "Vinay Venkataraghavan @vinayvenkat"
@@ -36,6 +36,9 @@ options:
             - password for authentication
         required: true
         default: null
+    api_key:
+        description:
+            - API key that can be used instead of I(username)/I(password) credentials.
     username:
         description:
             - username for authentication
@@ -58,9 +61,9 @@ RETURN = '''
 # Default return values
 '''
 
-ANSIBLE_METADATA = {'status': ['preview'],
-                    'supported_by': 'community',
-                    'version': '1.0'}
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
 
 from ansible.module_utils.basic import AnsibleModule, get_exception
 
@@ -73,6 +76,16 @@ try:
     HAS_LIB = True
 except ImportError:
     HAS_LIB = False
+
+
+def get_devicegroup(device, devicegroup):
+    dg_list = device.refresh_devices()
+    for group in dg_list:
+        if isinstance(group, panorama.DeviceGroup):
+            if group.name == devicegroup:
+                return group
+    return False
+
 
 def register_ip_to_tag_map(device, ip_addresses, tag):
     """
