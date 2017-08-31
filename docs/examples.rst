@@ -1,7 +1,7 @@
 .. _examples:
 
 ========
-Snippets
+Examples
 ========
 
 Add security policy to Firewall or Panorama
@@ -14,6 +14,9 @@ Add security policy to Firewall or Panorama
 .. include:: ../examples/fw_secrule_add.yml
     :literal:
 
+Panorama
+--------
+
 .. include:: ../examples/pano_secrule_add.yml
     :literal:
 
@@ -25,17 +28,20 @@ Address service object
 .. include:: ../examples/fw_objects_add.yml
     :literal:
 
-Set admin password
-==================
+Change admin password
+=====================
 
     PanOS module that allows changes to the user account passwords by doing
-      API calls to the Firewall using pan-api as the protocol.
+    API calls to the Firewall using pan-api as the protocol.
 
 .. include:: ../examples/fw_admin.yml
     :literal:
 
 Change admin password (SSH)
 ===========================
+
+    Change admin password of PAN-OS device using SSH with SSH key. This is used in particular when NGFW is deployed in
+    the cloud (such as AWS).
 
 .. include:: ../examples/fw_adminpwd.yml
     :literal:
@@ -80,15 +86,6 @@ DHCP on DataPort
     Configure data-port (DP) network interface for DHCP. By default DP interfaces are static.
 
 .. include:: ../examples/fw_interface.yml
-    :literal:
-
-Apply authcode to device
-========================
-
-    Apply an authcode to a device. The authcode should have been previously registered on the
-    Palo Alto Networks support portal. The device should have Internet access.
-
-.. include:: ../examples/fw_lic.yml
     :literal:
 
 Load configuration
