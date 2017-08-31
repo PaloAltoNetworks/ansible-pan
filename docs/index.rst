@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Palo Alto Networks Ansible documentation!
-==========================\\=============
+=========================================
 
 .. toctree::
    :maxdepth: 2
