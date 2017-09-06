@@ -2,9 +2,9 @@
 Palo Alto Networks Ansible modules
 ==================================
 
-The Palo Alto Networks Ansible modules project is a collection of Ansible modules to automate configuration and
-operational tasks on Palo Alto Networks *Next Generation Firewalls*. The underlying protocol uses API calls that
-are wrapped within the Ansible framework.
+A collection of Ansible modules that automate configuration and operational tasks on Palo Alto Networks
+Next Generation Firewalls – both physical and virtualized form factor. The underlying protocol uses API calls
+that are wrapped within the Ansible framework.
 
 - Free software: Apache 2.0 License
 - Documentation: http://panwansible.readthedocs.io/
