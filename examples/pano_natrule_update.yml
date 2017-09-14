@@ -3,6 +3,9 @@
   connection: local
   gather_facts: False
 
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+
   tasks:
   - name: Grab the credentials from ansible-vault
     include_vars: 'panorama-secrets.yml'

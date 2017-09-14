@@ -4,6 +4,9 @@
   connection: local
   gather_facts: False
 
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+
   tasks:
   - name: Gather the credentials
     include_vars: 'panorama-secrets.yml'
