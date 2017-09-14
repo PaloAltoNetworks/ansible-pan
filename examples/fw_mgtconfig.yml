@@ -6,6 +6,9 @@
   roles:
     - role: PaloAltoNetworks.paloaltonetworks
 
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+
   vars:
     dns_server_primary: "1.1.1.1"
     dns_server_secondary: "1.1.1.2"
