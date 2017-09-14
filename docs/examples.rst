@@ -20,16 +20,39 @@ Panorama
 .. include:: ../examples/pano_secrule_add.yml
     :literal:
 
-Address service object
-=============================
+Add NAT policy to Firewall or Panorama
+======================================
+
+    If you define Layer 3 interfaces on the firewall, you can configure a Network Address Translation (NAT) policy to
+    specify whether source or destination IP addresses and ports are converted between public and private addresses and
+    ports. For example, private source addresses can be translated to public addresses on traffic sent from an
+    internal (trusted) zone to a public (untrusted) zone. NAT is also supported on virtual wire interfaces.
+
+.. include:: ../examples/fw_natrule_add.yml
+    :literal:
+
+Panorama
+--------
+
+.. include:: ../examples/pano_natrule_add.yml
+    :literal:
+
+Add address service object
+==========================
 
     Create address service object of different types [IP Range, FQDN, or IP Netmask].
 
 .. include:: ../examples/fw_objects_add.yml
     :literal:
 
-Change admin password
-=====================
+Panorama
+--------
+
+.. include:: ../examples/pano_objects_add.yml
+    :literal:
+
+Change firewall admin password
+==============================
 
     PanOS module that allows changes to the user account passwords by doing
     API calls to the Firewall using pan-api as the protocol.
@@ -37,8 +60,8 @@ Change admin password
 .. include:: ../examples/fw_admin.yml
     :literal:
 
-Change admin password (SSH)
-===========================
+Change firewall admin password using SSH
+========================================
 
     Change admin password of PAN-OS device using SSH with SSH key. This is used in particular when NGFW is deployed in
     the cloud (such as AWS).
@@ -91,58 +114,73 @@ DHCP on DataPort
 Load configuration
 ==================
 
-- This is example playbook that imports and loads firewall configuration to a list of firewalls:
+- This is example playbook that imports and loads firewall configuration from a configuration file
 
 ::
 
     ---
     - name: import config
-      hosts: gp-portals
+      hosts: my-firewall
       connection: local
       gather_facts: False
+
       vars:
-        cfg_file: gp-portal-empty.xml
+        cfg_file: candidate-template-empty.xml
 
       tasks:
+      - name: Grab the credentials from ansible-vault
+        include_vars: 'firewall-secrets.yml'
+        no_log: 'yes'
+
       - name: wait for SSH (timeout 10min)
-        wait_for: port=22 host="{{inventory_hostname}}" search_regex=SSH timeout=600
+        wait_for: port=22 host='{{ ip_address }}' search_regex=SSH timeout=600
+
       - name: checking if device ready
         panos_check:
-          ip_address: "{{inventory_hostname}}"
-          password: "{{password}}"
+          ip_address: '{{ ip_address }}'
+          username: '{{ username }}'
+          password: '{{ password }}'
         register: result
         until: not result|failed
         retries: 10
         delay: 10
+
       - name: import configuration
         panos_import:
-          ip_address: "{{inventory_hostname}}"
-          password: "{{password}}"
-          file: "{{cfg_file}}"
-          category: "configuration"
+          ip_address: '{{ ip_address }}'
+          username: '{{ username }}'
+          password: '{{ password }}'
+          file: '{{cfg_file}}'
+          category: 'configuration'
         register: result
+
       - name: load configuration
         panos_loadcfg:
-          ip_address: "{{inventory_hostname}}"
-          password: "{{password}}"
-          file: "{{result.filename}}"
+          ip_address: '{{ ip_address }}'
+          username: '{{ username }}'
+          password: '{{ password }}'
+          file: '{{result.filename}}'
           commit: False
+
       - name: set admin password
         panos_admin:
-          ip_address: "{{inventory_hostname}}"
-          password: "{{password}}"
+          ip_address: '{{ ip_address }}'
+          password: '{{ password }}'
           admin_username: admin
-          admin_password: "{{password}}"
+          admin_password: '{{password}}'
           commit: False
+
       - name: commit
         panos_commit:
-          ip_address: "{{inventory_hostname}}"
-          password: "{{password}}"
+          ip_address: '{{ ip_address }}'
+          username: '{{ username }}'
+          password: '{{ password }}'
           sync: False
       - name: waiting for commit
         panos_check:
-          ip_address: "{{inventory_hostname}}"
-          password: "{{password}}"
+          ip_address: '{{ ip_address }}'
+          username: '{{ username }}'
+          password: '{{ password }}'
         register: result
         until: not result|failed
         retries: 10
