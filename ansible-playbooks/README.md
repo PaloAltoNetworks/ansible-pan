@@ -25,4 +25,3 @@ The structure of the folders is as following:
 
 ##### More examples:
 https://github.com/PaloAltoNetworks/ansible-pan/tree/master/examples
-https://github.com/PaloAltoNetworks/ansible-pan/tree/master/samples
