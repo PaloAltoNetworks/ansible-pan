@@ -1,0 +1,2 @@
+[firewall]
+my-firewall mgmt_ip=fw2.local

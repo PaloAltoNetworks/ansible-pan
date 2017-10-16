@@ -1,0 +1,12 @@
+# vars.yml 
+
+# PANW FW 8.0.0
+ami_id: "ami-7e8a9107"
+# ec2_access_key: "DEFINED IN .bashrc"
+# ec2_secret_key: "DEFINED IN .bashrc"
+region: us-west-2
+key_name: "aws"
+key_filename: "/Users/ibojer/.ssh/aws.pem"
+admin_username: "admin"
+admin_password: "admin"
+mgmt_ip: "fw2.local"

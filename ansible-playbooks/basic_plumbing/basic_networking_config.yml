@@ -1,0 +1,79 @@
+# FILENAME
+# basic_networking_config.yml
+#
+# DESCRIPTION
+# Example playbook that will configure basic networking and set default password for the admin user. In particular this
+# script will:
+# - update admin password with new password using SSH
+# - create layer 3 trust and untrust zones
+# - configure eth1/1 with DHCP and add it to untrust zone
+# - configure eth1/2 with DHCP and add it to trust zone
+# - set primary DNS server to Google's 8.8.8.8
+# - set NTP servers to 0.us.pool.ntp.org and 1.us.pool.ntp.org
+#
+# The first call uses SSH protocol with private key. This is a typical example of what user has to do in order to
+# provision FW in AWS.
+#
+# REQUIREMENTS
+# pip install ansible
+# ansible-galaxy install PaloAltoNetworks.paloaltonetworks
+#
+# STEPS
+# update vars.yml with your own credentials/settings
+#
+# Good practice: The var files are provided in cleartext. They should be edited and encrypred using:
+# ansible-vault encrypt firewall-secrets.yml 
+#
+# EXECUTE
+# ansible-playbook basic_networking_config.yml
+---
+- hosts: localhost
+  connection: local
+
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+
+  tasks: 
+    - name: include variables (free-form)
+      include_vars: vars.yml  
+      no_log: 'yes'
+
+    - name: change user password using ssh protocol
+      panos_admpwd:
+        ip_address: "{{ mgmt_ip }}"
+        username: "{{admin_username}}"
+        newpassword: "{{admin_password}}"
+        key_filename: "{{key_name}}"
+
+    - name: configure ethernet1/1
+      panos_interface:
+        ip_address: "{{mgmt_ip}}"
+        username: "{{admin_username}}"
+        password: "{{admin_password}}"
+        ip_address: "{{mgmt_ip}}"
+        if_name: "ethernet1/1"
+        zone_name: "untrust"
+        create_default_route: "yes"
+        commit: False
+
+    - name: configure ethernet1/2
+      panos_interface:
+        ip_address: "{{mgmt_ip}}"
+        username: "{{admin_username}}"
+        password: "{{admin_password}}"
+        if_name: "ethernet1/2"
+        zone_name: "trust"
+        create_default_route: "yes"
+        commit: False
+
+    - name: set dns and ntp
+      panos_mgtconfig:
+        ip_address: "{{mgmt_ip}}"
+        username: "{{admin_username}}"
+        password: "{{admin_password}}"
+        dns_server_primary: "8.8.8.8"
+        ntp_server_primary: "0.us.pool.ntp.org"
+        ntp_server_secondary: "1.us.pool.ntp.org"
+        timezone: "US/Pacific"
+        login_banner: "Secure environment"
+        commit: True

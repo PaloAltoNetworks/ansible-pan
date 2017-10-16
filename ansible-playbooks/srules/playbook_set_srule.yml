@@ -1,0 +1,48 @@
+# FILENAME
+# playbook_set_rule.yml
+#
+# DESCRIPTION
+# Example playbook that will connect to the firewall using credentials provided in the vars.yml and set a simple security rule.
+#
+# REQUIREMENTS
+# pip install ansible
+# ansible-galaxy install PaloAltoNetworks.paloaltonetworks
+#
+# STEPS
+# update vars.yml with your own credentials/settings
+#
+# Good practice: The var files are provided in cleartext. They should be edited and encrypred using:
+# ansible-vault encrypt firewall-secrets.yml 
+#
+# EXECUTE
+# ansible-playbook playbook_set_srule.yml
+---
+- hosts: localhost
+  connection: local
+
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+
+  tasks: 
+    - name: include variables (free-form)
+      include_vars: vars.yml  
+      no_log: 'yes'
+
+    # permit ssh to 1.1.1.1
+    - name: permit ssh to 1.1.1.1
+      panos_security_rule:
+        ip_address: "{{ mgmt_ip }}"
+        password: "{{admin_password}}"
+        rule_name: 'SSH permit'
+        description: 'SSH rule test'
+        source_zone: ['untrust']
+        destination_zone: ['trust']
+        source_ip: ['any']
+        source_user: ['any']
+        destination_ip: ['1.1.1.1']
+        category: ['any']
+        application: ['ssh']
+        service: ['application-default']
+        hip_profiles: ['any']
+        action: 'allow'
+        commit: false

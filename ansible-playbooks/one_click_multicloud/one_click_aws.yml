@@ -1,0 +1,155 @@
+# FILENAME
+# one_click_aws.yml
+#
+# DESCRIPTION
+# Sample playbook used in conjuction with terraform one_click deployment scenario in AWS
+# https://github.com/PaloAltoNetworks/terraform-templates/one_click_multicloud
+#
+# REQUIREMENTS
+# see https://github.com/PaloAltoNetworks/terraform-templates/one_click_multicloud/README.md
+---
+- hosts: localhost
+  connection: local
+  gather_facts: False
+
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+
+  tasks:
+    # Use a template from a URL
+    - name: create a global service for TCP 221
+      panos_object:
+        ip_address: "{{ mgmt_ip }}"
+        username: "{{ admin_username }}"
+        password: "{{admin_password}}"
+        operation: 'add'
+        serviceobject: 'service-tcp-221'
+        destination_port: '221'
+        protocol: 'tcp'
+        description: 'ssh on 221'
+    - name: NAT rule for Web SSH
+      panos_nat_rule:
+        ip_address: "{{ mgmt_ip }}"
+        username: "{{ admin_username }}"
+        password: "{{admin_password}}"
+        operation: 'add'
+        rule_name: "WebSSH"
+        source_zone: ["external"]
+        destination_zone: "external"
+        source_ip: ["any"]
+        destination_ip: ["10.0.0.100"]
+        service: "service-tcp-221"
+        snat_type: "dynamic-ip-and-port"
+        snat_interface: "ethernet1/2"
+        dnat_address: "10.0.1.101"
+        dnat_port: "22"
+        commit: "False"
+    - name: Wordpress NAT
+      panos_nat_rule:
+        ip_address: "{{ mgmt_ip }}"
+        username: "{{ admin_username }}"
+        password: "{{admin_password}}"
+        operation: 'add'
+        rule_name: "WPNAT"
+        source_zone: ["external"]
+        destination_zone: "external"
+        source_ip: ["any"]
+        destination_ip: ["10.0.0.100"]
+        service: "service-http"
+        snat_type: "dynamic-ip-and-port"
+        snat_interface: "ethernet1/2"
+        dnat_address: "10.0.1.101"
+        dnat_port: "80"
+        commit: "False"
+    - name: Outbound NAT
+      panos_nat_rule:
+        ip_address: "{{ mgmt_ip }}"
+        username: "{{ admin_username }}"
+        password: "{{admin_password}}"
+        operation: 'add'
+        rule_name: "NATAllOut"
+        source_zone: ["web"]
+        destination_zone: "external"
+        source_ip: ["any"]
+        destination_ip: ["any"]
+        snat_type: "dynamic-ip-and-port"
+        snat_interface: "ethernet1/1"
+        commit: "False"
+    - name: delete allow all rule 
+      panos_security_rule:
+        ip_address: "{{ mgmt_ip }}"
+        username: "{{ admin_username }}"
+        password: "{{admin_password}}"
+        operation: 'delete'
+        rule_name: 'allow-out-all'
+        application: 'any'
+        description: 'allow all outbound'
+        source_zone: ['web']
+        destination_zone: ['external']
+        action: 'allow'
+        commit: "True"
+    - name: add a rule to allow HTTP
+      panos_security_rule:
+        ip_address: "{{ mgmt_ip }}"
+        username: "{{ admin_username }}"
+        password: "{{admin_password}}"
+        operation: 'add'
+        rule_name: 'Web traffic'
+        application: 'web-browsing'
+        description: 'Allow HTTP traffic'
+        source_zone: ['external']
+        destination_zone: ['web']
+        action: 'allow'
+        commit: "False"
+    - name: SSH Inbound
+      panos_security_rule:
+        ip_address: "{{ mgmt_ip }}"
+        username: "{{ admin_username }}"
+        password: "{{admin_password}}"
+        operation: 'add'
+        rule_name: 'SSH traffic'
+        application: ['ping','ssh']
+        description: 'Allow SSH traffic'
+        source_zone: ['external']
+        destination_zone: ['web']
+        action: 'allow'
+        commit: "False"
+    - name: SSH 221 Inbound
+      panos_security_rule:
+        ip_address: "{{ mgmt_ip }}"
+        username: "{{ admin_username }}"
+        password: "{{admin_password}}"
+        operation: 'add'
+        rule_name: 'SSH 221 traffic'
+        application: ['ping','ssh']
+        service: 'service-tcp-221'
+        description: 'Allow SSH traffic'
+        source_zone: ['external']
+        destination_zone: ['web']
+        action: 'allow'
+        commit: "False"
+    - name: allow all rule 
+      panos_security_rule:
+        ip_address: "{{ mgmt_ip }}"
+        username: "{{ admin_username }}"
+        password: "{{admin_password}}"
+        operation: 'add'
+        rule_name: 'allow-out-all'
+        application: 'any'
+        description: 'allow all outbound'
+        source_zone: ['web']
+        destination_zone: ['external']
+        action: 'allow'
+        commit: "False"
+    - name: Log default deny
+      panos_security_rule:
+        ip_address: "{{ mgmt_ip }}"
+        username: "{{ admin_username }}"
+        password: "{{admin_password}}"
+        operation: 'add'
+        rule_name: 'Log default deny'
+        description: 'Allow SSH traffic'
+        source_zone: ['external']
+        destination_zone: ['web']
+        action: 'deny'
+        commit: "True"

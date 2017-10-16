@@ -1,0 +1,9 @@
+This script can be invoked like:
+
+rm -rf /tmp/ansible-pull
+watch -n 5 "ansible-pull -o -d /tmp/ansible-pull -U https://github.com/ivanbojer/ansible-pull.git"
+
+Update the script with your own configuration and make sure that your own
+repository is specified. The only file needed for the default configuration is
+file named 'local.yml'. 
+

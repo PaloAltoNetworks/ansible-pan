@@ -1,0 +1,169 @@
+# FILENAME
+# provision_fw_w_webserver.yml
+#
+# DESCRIPTION
+# Example playbook that will instantiate VM-Series firewall in front of NGINX Ubuntu webserver
+# setting up appropriate NAT and security rules.
+#
+# REQUIREMENTS
+# pip install boto3
+# pip install botocore
+# pip install ansible
+# ansible-galaxy install PaloAltoNetworks.paloaltonetworks
+#
+# STEPS
+# update vars.yml with your own credentials/settings
+#
+# Good practice: The var files are provided in cleartext. They should be edited and encrypred using:
+# ansible-vault encrypt firewall-secrets.yml
+#
+# EXECUTE
+# ansible-playbook provision_fw_w_webserver.yml
+---
+- hosts: localhost
+  connection: local
+  gather_facts: False
+
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+
+  tasks:
+    - name: include variables (free-form)
+      include_vars: vars.yml
+      no_log: 'yes'
+
+    # Use a template from a URL
+    - name: launch ansible cloudformation example
+      cloudformation:
+        stack_name: "ansible-PANWwWeb"
+        state: present
+        region: "{{ region }}"
+        disable_rollback: true
+        template_url: https://s3-us-west-2.amazonaws.com/pantemplates/VM-Series-BYOL-w-webserver.json
+      args:
+        template_parameters:
+          SSHKeyName: "{{ key_name }}"
+        tags:
+          Stack: ansible-cloudformation
+      register: cloudformation
+    - name: FirewallManagementEIP
+      debug:
+         msg: "{{ cloudformation.stack_outputs.FirewallManagementEIP }}"
+    - name: FirewallPublicDataInterface
+      debug:
+         msg: "{{ cloudformation.stack_outputs.FirewallPublicDataInterface }}"
+    - name: WebServerPublicIP
+      debug:
+         msg: "{{ cloudformation.stack_outputs.WebServerIP }}"
+    - name: wait for SSH prompt (timeout 10min)
+      wait_for: port=22 host="{{ cloudformation.stack_outputs.FirewallManagementEIP }}" timeout=600
+    - name: set admin password
+      panos_admpwd: ip_address="{{ cloudformation.stack_outputs.FirewallManagementEIP }}" key_filename="{{key_filename}}" newpassword="{{admin_password}}"
+      register: result
+      until: not result | failed
+      retries: 10
+      delay: 30
+    - name: configure ethernet1/1 for DHCP
+      panos_interface:
+        ip_address: "{{ cloudformation.stack_outputs.FirewallManagementEIP }}"
+        password: "{{admin_password}}"
+        if_name: "ethernet1/1"
+        zone_name: "untrust"
+        create_default_route: "yes"
+        commit: False
+    - name: configure ethernet1/2 for DHCP
+      panos_interface:
+        ip_address: "{{ cloudformation.stack_outputs.FirewallManagementEIP }}"
+        password: "{{admin_password}}"
+        if_name: "ethernet1/2"
+        zone_name: "trust"
+        create_default_route: "no"
+        commit: False
+    - name: create a global service for TCP 22
+      panos_object:
+        ip_address: "{{ cloudformation.stack_outputs.FirewallManagementEIP }}"
+        password: "{{admin_password}}"
+        operation: 'add'
+        serviceobject: 'ssh-22'
+        destination_port: '22'
+        protocol: 'tcp'
+        description: 'ssh on 22'
+    - name: create a global service for TCP 10000
+      panos_object:
+        ip_address: "{{ cloudformation.stack_outputs.FirewallManagementEIP }}"
+        password: "{{admin_password}}"
+        operation: 'add'
+        serviceobject: 'service-http-10000'
+        destination_port: '10000'
+        protocol: 'tcp'
+        description: 'http on 10000'
+    - name: Create NAT rule for Web server
+      panos_nat_rule:
+        ip_address: "{{ cloudformation.stack_outputs.FirewallManagementEIP }}"
+        password: "{{admin_password}}"
+        operation: 'add'
+        rule_name: "NATWeb"
+        source_zone: ["untrust"]
+        destination_zone: "untrust"
+        source_ip: ["any"]
+        destination_ip: ["10.0.0.100"]
+        service: "service-http"
+        snat_type: "dynamic-ip-and-port"
+        snat_interface: "ethernet1/2"
+        dnat_address: "10.0.1.101"
+        dnat_port: "80"
+        commit: "False"
+    - name: Create NAT rule for SSH
+      panos_nat_rule:
+        ip_address: "{{ cloudformation.stack_outputs.FirewallManagementEIP }}"
+        password: "{{admin_password}}"
+        operation: 'add'
+        rule_name: "NATSSH"
+        source_zone: ["untrust"]
+        destination_zone: "untrust"
+        source_ip: ["any"]
+        destination_ip: ["10.0.0.100"]
+        service: "ssh-22"
+        snat_type: "dynamic-ip-and-port"
+        snat_interface: "ethernet1/2"
+        dnat_address: "10.0.1.101"
+        dnat_port: "22"
+        commit: "False"
+    - name: NAT All out
+      panos_nat_rule:
+        ip_address: "{{ cloudformation.stack_outputs.FirewallManagementEIP }}"
+        password: "{{admin_password}}"
+        operation: 'add'
+        rule_name: "NATAllOut"
+        source_zone: ["trust"]
+        destination_zone: "untrust"
+        source_ip: ["any"]
+        destination_ip: ["any"]
+        snat_type: "dynamic-ip-and-port"
+        snat_interface: "ethernet1/1"
+        commit: "False"
+    - name: add a rule to allow HTTP
+      panos_security_rule:
+        ip_address: "{{ cloudformation.stack_outputs.FirewallManagementEIP }}"
+        password: "{{admin_password}}"
+        operation: 'add'
+        rule_name: 'Web traffic'
+        service: 'service-http'
+        description: 'Allow HTTP traffic'
+        source_zone: ['untrust']
+        destination_zone: ['trust']
+        action: 'allow'
+        commit: "False"
+    - name: add a rule to allow SSH
+      panos_security_rule:
+        ip_address: "{{ cloudformation.stack_outputs.FirewallManagementEIP }}"
+        password: "{{admin_password}}"
+        operation: 'add'
+        rule_name: 'SSH traffic'
+        service: 'ssh-22'
+        description: 'Allow SSH traffic'
+        source_zone: ['untrust']
+        destination_zone: ['trust']
+        action: 'allow'
+        commit: "True"
+
