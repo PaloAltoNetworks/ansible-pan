@@ -154,7 +154,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'supported_by': 'community'}
 
 
-from ansible.module_utils.basic import get_exception
+from ansible.module_utils.basic import get_exception, AnsibleModule
 
 try:
     import pan.xapi
