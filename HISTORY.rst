@@ -4,6 +4,24 @@
 History
 =======
 
+V1.0.5
+------
+- Released: TBD
+- Status: In-development
+
+*New modules*
+
+* panos_op: OP commands module that allows execution of the arbitrary op commands on the PANOS devices
+
+*Refactored modules*
+N/A
+
+*Removed modules*
+N/A
+
+*Miscelanies*
+N/A
+
 V1.0.4
 ------
 
