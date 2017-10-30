@@ -60,7 +60,7 @@ EXAMPLES = '''
     ip_address: '{{ ip_address }}'
     username: '{{ username }}'
     password: '{{ password }}'
-    cmd: 'show interfaces \"all\"'
+    cmd: 'show interfaces all'
 
 - name: show system info
   panos_object:
@@ -84,9 +84,8 @@ stdout_xml:
     sample: "<response status=success><result><system><hostname>fw2</hostname>"
 '''
 
-
-
 from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.basic import get_exception
 
 try:
     import pan.xapi
@@ -124,12 +123,29 @@ def main():
 
     # Create the device with the appropriate pandevice type
     device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
-    xml_output = device.op(cmd, xml=True)
 
-    # we don't change things. Mainly read-only.
     changed = False
-    o = xmltodict.parse(xml_output)
-    json_output = json.dumps(o)
+    try:
+        xml_output = device.op(cmd, xml=True)
+        changed = True
+    except PanXapiError:
+        exc = get_exception()
+
+        if 'non NULL value' in exc.message:
+            #rewrap and call again
+            cmd_array = cmd.split()
+            cmd_array_len = len(cmd_array)
+            cmd_array[cmd_array_len-1] = '\"' + cmd_array[cmd_array_len-1] + '\"'
+            cmd2 = ' '.join(cmd_array)
+            try:
+                xml_output = device.op(cmd2, xml=True)
+                changed = True
+            except PanXapiError:
+                exc = get_exception()
+                module.fail_json(msg=exc.message)
+
+    obj_dict = xmltodict.parse(xml_output)
+    json_output = json.dumps(obj_dict)
 
     module.exit_json(changed=changed, msg="Done", stdout=json_output, stdout_xml=xml_output)
 

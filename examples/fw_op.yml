@@ -10,23 +10,25 @@
   - include_vars: 'firewall-secrets.yml'
     no_log: 'yes'
 
-  - name: Show all interfaces (Note that in this example keyword 'all' needs to be quoted as it is parameter.
+  - name: Show all interfaces using ('show interface all')
     panos_op:
       ip_address: '{{ ip_address }}'
       password: '{{ password }}'
-      cmd: "show interface \"all\""
+      cmd: "show interface all"
     register: result
 
-  - debug: msg='{{ result.stdout }}'
+  - name: returned output in the default JSON format
+    debug: msg='{{ result.stdout }}'
 
-  - name: Show system info
+  - name: returned output in the XML format
+    debug: msg='{{ result.stdout_xml }}'
+
+  - name: Show system info op command
     panos_op:
       ip_address: '{{ ip_address }}'
       password: '{{ password }}'
       cmd: 'show system info'
     register: result
-
-  - debug: msg='{{ result.stdout }}'
 
   - name: returned output in the XML format
     debug: msg='{{ result.stdout_xml }}'
