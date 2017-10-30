@@ -22,6 +22,9 @@ N/A
 *Miscelanies*
 N/A
 
+* closed issues *
+#36 https://github.com/PaloAltoNetworks/ansible-pan/issues/36
+
 V1.0.4
 ------
 
