@@ -107,7 +107,6 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'}
 
-
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.basic import get_exception
 
@@ -224,14 +223,19 @@ def main():
             changed |= set_ntp_server(ss, ntp_server_secondary, primary=False)
         if login_banner:
             ss.login_banner = login_banner
+            changed = True
         if timezone:
             ss.timezone = timezone
+            changed = True
         if update_server:
             ss.update_server = update_server
+            changed = True
         if hostname:
             ss.hostname = hostname
+            changed = True
         if domain:
             ss.domain = domain
+            changed = True
 
         if changed:
             ss.apply()
