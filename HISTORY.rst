@@ -6,8 +6,8 @@ History
 
 V1.0.5
 ------
-- Released: TBD
-- Status: In-development
+- Released: 2017-12-20
+- Status: Released
 
 *New modules*
 
