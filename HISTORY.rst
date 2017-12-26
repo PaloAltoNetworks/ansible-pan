@@ -19,7 +19,7 @@ N/A
 *Removed modules*
 N/A
 
-*Miscelanies*
+*Miscellanies*
 N/A
 
 * closed issues *
@@ -52,7 +52,7 @@ V1.0.4
 * panos_nat_security_policy (use panos_security_rule)
 * panos_service (use panos_object)
 
-*Miscelanies*
+*Miscellanies*
 
 * removed deprecated_libraries folder
 * consolidated all samples from samples/ into examples/
