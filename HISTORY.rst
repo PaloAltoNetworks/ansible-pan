@@ -4,14 +4,13 @@
 History
 =======
 
-V1.0.5
-------
+V1.0.5.1
+--------
 - Released: 2017-12-20
 - Status: Released
 
 *New modules*
-
-* panos_op: OP commands module that allows execution of the arbitrary op commands on the PANOS devices
+N/A
 
 *Refactored modules*
 N/A
@@ -23,7 +22,7 @@ N/A
 N/A
 
 * closed issues *
-#36 https://github.com/PaloAltoNetworks/ansible-pan/issues/36
+N/A
 
 V1.0.4
 ------
