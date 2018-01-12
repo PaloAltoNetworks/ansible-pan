@@ -19,6 +19,7 @@ Modules list
    modules/panos_mgtconfig_module.rst
    modules/panos_nat_rule_module.rst
    modules/panos_object_module.rst
+   modules/panos_op_module.rst
    modules/panos_pg_module.rst
    modules/panos_query_rules_module.rst
    modules/panos_restart_module.rst
