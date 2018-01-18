@@ -4,6 +4,11 @@
 History
 =======
 
+V1.0.6
+------
+- Released: TBD
+- Status: In-development
+
 V1.0.5.1
 --------
 - Released: 2017-12-20
