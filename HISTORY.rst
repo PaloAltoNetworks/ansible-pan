@@ -27,7 +27,8 @@ N/A
 N/A
 
 * closed issues *
-N/A
+
+#36 https://github.com/PaloAltoNetworks/ansible-pan/issues/36
 
 V1.0.4
 ------

@@ -42,7 +42,7 @@ Options
     <td>yes</td>
     <td></td>
         <td></td>
-        <td><div>Certificate CN (common name) embeded in the certificate signature.</div>        </td></tr>
+        <td><div>Certificate CN (common name) embedded in the certificate signature.</div>        </td></tr>
                 <tr><td>cert_friendly_name<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
@@ -93,6 +93,11 @@ Examples
         signed_by: "root-ca"
 
 
+Notes
+-----
+
+.. note::
+    - Checkmode is not supported.
 
 
 
