@@ -88,7 +88,8 @@ Options
     <td>no</td>
     <td>None</td>
         <td></td>
-        <td><div>Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama. If device group is not define we assume that we are contacting Firewall.</div>        </td></tr>
+        <td><div>- Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama. If device group is not define we assume that we are contacting Firewall.
+    </div>        </td></tr>
                 <tr><td>file_blocking<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>None</td>
@@ -98,12 +99,14 @@ Options
     <td>no</td>
     <td>None</td>
         <td></td>
-        <td><div>Security profile group that is already defined in the system. This property supersedes antivirus, vulnerability, spyware, url_filtering, file_blocking, data_filtering, and wildfire_analysis properties.</div>        </td></tr>
+        <td><div>- Security profile group that is already defined in the system. This property supersedes antivirus, vulnerability, spyware, url_filtering, file_blocking, data_filtering, and wildfire_analysis properties.
+    </div>        </td></tr>
                 <tr><td>hip_profiles<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>any</td>
         <td></td>
-        <td><div>If you are using GlobalProtect with host information profile (HIP) enabled, you can also base the policy on information collected by GlobalProtect. For example, the user access level can be determined HIP that notifies the firewall about the user's local configuration.</div>        </td></tr>
+        <td><div>- If you are using GlobalProtect with host information profile (HIP) enabled, you can also base the policy on information collected by GlobalProtect. For example, the user access level can be determined HIP that notifies the firewall about the user's local configuration.
+    </div>        </td></tr>
                 <tr><td>ip_address<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>

@@ -58,7 +58,8 @@ Options
     <td>no</td>
     <td>None</td>
         <td></td>
-        <td><div>The name of the Panorama device group. The group must exist on Panorama. If device group is not defined it is assumed that we are contacting a firewall.</div>        </td></tr>
+        <td><div>- The name of the Panorama device group. The group must exist on Panorama. If device group is not defined it is assumed that we are contacting a firewall.
+    </div>        </td></tr>
                 <tr><td>ip_address<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>

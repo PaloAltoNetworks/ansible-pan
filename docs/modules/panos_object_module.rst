@@ -4,6 +4,7 @@
 panos_object
 ++++++++++++
 
+.. versionadded:: 2.4
 
 
 .. contents::
@@ -66,7 +67,8 @@ Options
     <td>no</td>
     <td></td>
         <td></td>
-        <td><div>The color of the tag object.  Valid values are <em>red, green, blue, yellow, copper, orange, purple, gray, light green, cyan, light gray, blue gray, lime, black, gold, and brown</em>.</div>        </td></tr>
+        <td><div>- The color of the tag object.  Valid values are <em>red, green, blue, yellow, copper, orange, purple, gray, light green, cyan, light gray, blue gray, lime, black, gold, and brown</em>.
+    </div>        </td></tr>
                 <tr><td>description<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td></td>
@@ -81,7 +83,8 @@ Options
     <td>no</td>
     <td>None</td>
         <td></td>
-        <td><div>The name of the Panorama device group. The group must exist on Panorama. If device group is not defined it is assumed that we are contacting a firewall.</div>        </td></tr>
+        <td><div>- The name of the Panorama device group. The group must exist on Panorama. If device group is not defined it is assumed that we are contacting a firewall.
+    </div>        </td></tr>
                 <tr><td>dynamic_value<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td></td>

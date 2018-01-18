@@ -43,6 +43,11 @@ Options
     <td></td>
         <td></td>
         <td><div>API key that can be used instead of <em>username</em>/<em>password</em> credentials.</div>        </td></tr>
+                <tr><td>commit<br/><div style="font-size: small;"></div></td>
+    <td>no</td>
+    <td>True</td>
+        <td></td>
+        <td><div>Commit configuration if changed.</div>        </td></tr>
                 <tr><td>destination_ip<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>[u'any']</td>
@@ -88,6 +93,11 @@ Options
     <td>any</td>
         <td></td>
         <td><div>service</div>        </td></tr>
+                <tr><td>snat_address_type<br/><div style="font-size: small;"></div></td>
+    <td>no</td>
+    <td>translated-address</td>
+        <td></td>
+        <td><div>type of source translation. Supported values are <em>translated-address</em>/<em>translated-address</em>.</div>        </td></tr>
                 <tr><td>snat_bidirectional<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>false</td>
