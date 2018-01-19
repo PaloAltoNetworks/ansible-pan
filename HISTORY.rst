@@ -9,13 +9,14 @@ V1.0.6
 - Released: TBD
 - Status: In-development
 
-V1.0.5.1
---------
+V1.0.5
+------
 - Released: 2017-12-20
 - Status: Released
 
 *New modules*
-N/A
+
+* panos_op: OP commands module that allows execution of the arbitrary op commands on the PANOS devices
 
 *Refactored modules*
 N/A
