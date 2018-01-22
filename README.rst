@@ -62,6 +62,5 @@ Using Spinx::
     $ cd docs
     $ make html
     
-
 .. <comment> bla
 
