@@ -11,17 +11,23 @@ V1.0.6
 
 *New modules*
 
+N/A
+
 *Removed modules*
+
+N/A
 
 *Miscellanies*
 
 - Synchronized repository with RedHat Ansible official repo. Added missing modules:
     panos_op.py (under review)
-.. panos_dag_tags.py,
-   panos_match_rule.py
-   panos_query_rules.py
+    panos_dag_tags.py (under review)
+    panos_match_rule.py (under review)
+    panos_query_rules.py (under review)
 
 *Closed issues*
+
+N/A
 
 V1.0.5
 ------
