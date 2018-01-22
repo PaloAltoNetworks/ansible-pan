@@ -62,5 +62,5 @@ Using Spinx::
     $ cd docs
     $ make html
     
-.. <comment> this is test from original
+.. <comment> bla
 
