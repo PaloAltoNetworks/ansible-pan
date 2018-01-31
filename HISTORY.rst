@@ -4,6 +4,25 @@
 History
 =======
 
+V1.0.6
+------
+- Released: TBD
+- Status: In-development
+
+*New modules*
+
+*Removed modules*
+
+*Miscellanies*
+
+- Synchronized repository with RedHat Ansible official repo. Added missing modules:
+    panos_op.py (under review)
+.. panos_dag_tags.py,
+   panos_match_rule.py
+   panos_query_rules.py
+
+*Closed issues*
+
 V1.0.5
 ------
 - Released: 2017-12-20
@@ -14,15 +33,18 @@ V1.0.5
 * panos_op: OP commands module that allows execution of the arbitrary op commands on the PANOS devices
 
 *Refactored modules*
+
 N/A
 
 *Removed modules*
+
 N/A
 
 *Miscellanies*
+
 N/A
 
-* closed issues *
+*Closed issues*
 
 #36 https://github.com/PaloAltoNetworks/ansible-pan/issues/36
 

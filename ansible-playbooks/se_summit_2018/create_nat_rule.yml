@@ -1,0 +1,77 @@
+# FILENAME
+# create_nat_rule.yml
+#
+# DESCRIPTION
+# Sample playbook used for AWS Automation webinar
+#
+# REQUIREMENTS
+# pip install ansible
+# ansible-galaxy install PaloAltoNetworks.paloaltonetworks
+# create vars.yml and configure with your credentials (vars-sample.yml file provided)
+#
+# EXECUTE
+# ansible-playbook create_nat_rule.yml
+---
+- hosts: localhost
+  connection: local
+  gather_facts: False
+
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+
+  tasks:
+    - name: include variables (free-form)
+      include_vars: vars.yml
+      no_log: 'yes'
+
+    - name: NAT rule for Web SSH
+      panos_nat_rule:
+        ip_address: "{{ mgmt_ip }}"
+        username: "{{ admin_username }}"
+        password: "{{admin_password}}"
+        operation: 'add'
+        rule_name: "WebSSH"
+        source_zone: ["untrust"]
+        destination_zone: "untrust"
+        source_ip: ["any"]
+        destination_ip: ["10.0.0.100"]
+        service: "service-tcp-221"
+        snat_type: "dynamic-ip-and-port"
+        snat_interface: "ethernet1/2"
+        dnat_address: "10.0.1.101"
+        dnat_port: "22"
+        commit: "False"
+
+    - name: Wordpress NAT
+      panos_nat_rule:
+        ip_address: "{{ mgmt_ip }}"
+        username: "{{ admin_username }}"
+        password: "{{admin_password}}"
+        operation: 'add'
+        rule_name: "WPNAT"
+        source_zone: ["untrust"]
+        destination_zone: "untrust"
+        source_ip: ["any"]
+        destination_ip: ["10.0.0.100"]
+        service: "service-http"
+        snat_type: "dynamic-ip-and-port"
+        snat_interface: "ethernet1/2"
+        dnat_address: "10.0.1.101"
+        dnat_port: "80"
+        commit: "False"
+
+    - name: Outbound NAT
+      panos_nat_rule:
+        ip_address: "{{ mgmt_ip }}"
+        username: "{{ admin_username }}"
+        password: "{{admin_password}}"
+        operation: 'add'
+        rule_name: "NATAllOut"
+        source_zone: ["trust"]
+        destination_zone: "untrust"
+        source_ip: ["any"]
+        destination_ip: ["any"]
+        snat_type: "dynamic-ip-and-port"
+        snat_interface: "ethernet1/1"
+        commit: "False"
+

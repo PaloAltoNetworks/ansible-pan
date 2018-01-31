@@ -36,11 +36,11 @@ Sample playbooks
 Sample playbooks can be found within this repo under::
 
     /examples
-    (e.g. /samples/fw_dag.yml)
+    (e.g. /examples/fw_dag.yml)
     
-More comprehensive playbooks can be found here:
+More comprehensive playbooks can be found under:
 
-    https://github.com/PaloAltoNetworks/ansible-playbooks
+    ansible-playbooks/
 
 
 Documentation
@@ -62,3 +62,5 @@ Using Spinx::
     $ cd docs
     $ make html
     
+.. <comment> this is test from original
+
