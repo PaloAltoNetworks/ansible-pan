@@ -1,0 +1,32 @@
+# FILENAME
+# setup_password.yml
+#
+# DESCRIPTION
+# Sample playbook used for SE Summit 2018 
+#
+# REQUIREMENTS
+# pip install ansible
+# ansible-galaxy install PaloAltoNetworks.paloaltonetworks
+# create vars.yml and configure with your credentials (vars-sample.yml file provided)
+#
+# EXECUTE
+# ansible-playbook setup_password.yml
+---
+- hosts: localhost
+  connection: local
+  gather_facts: False
+
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+
+  tasks:
+    - name: include variables (free-form)
+      include_vars: vars.yml
+      no_log: 'yes'
+
+    - name: change user password using ssh protocol
+      panos_admpwd:
+        ip_address: "{{ mgmt_ip }}"
+        username: "{{admin_username}}"
+        newpassword: "{{admin_password}}"
+        key_filename: "{{key_name}}"

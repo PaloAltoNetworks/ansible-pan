@@ -1,0 +1,5 @@
+# vars.yml
+admin_username: "admin"
+admin_password: "admin"
+mgmt_ip: "34.214.143.159"
+key_name: "./vv-pan-aws-oregon.pem"
