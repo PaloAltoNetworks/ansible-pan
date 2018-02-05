@@ -20,10 +20,10 @@ N/A
 *Miscellanies*
 
 - Synchronized repository with RedHat Ansible official repo. Added missing modules:
-    panos_op.py (under review)
-    panos_dag_tags.py (under review)
+    panos_op.py
+    panos_dag_tags.py
+    panos_query_rules.py
     panos_match_rule.py (under review)
-    panos_query_rules.py (under review)
 
 *Closed issues*
 
