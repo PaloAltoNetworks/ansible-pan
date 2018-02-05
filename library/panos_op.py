@@ -22,8 +22,7 @@ DOCUMENTATION = '''
 ---
 module: panos_op
 short_description: execute arbitrary OP commands on PANW devices (e.g. show interface all)
-description:
-    - This module will allow user to pass and execute any supported OP command on the PANW device.
+description: This module will allow user to pass and execute any supported OP command on the PANW device.
 author: "Ivan Bojer (@ivanbojer)"
 version_added: "2.5"
 requirements:
@@ -133,10 +132,10 @@ def main():
         exc = get_exception()
 
         if 'non NULL value' in exc.message:
-            #rewrap and call again
+            # rewrap and call again
             cmd_array = cmd.split()
             cmd_array_len = len(cmd_array)
-            cmd_array[cmd_array_len-1] = '\"' + cmd_array[cmd_array_len-1] + '\"'
+            cmd_array[cmd_array_len - 1] = '\"' + cmd_array[cmd_array_len - 1] + '\"'
             cmd2 = ' '.join(cmd_array)
             try:
                 xml_output = device.op(cmd2, xml=True)
