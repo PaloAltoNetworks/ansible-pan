@@ -6,8 +6,8 @@ History
 
 V1.0.6
 ------
-- Released: TBD
-- Status: In-development
+- Released: 2018-2-6
+- Status: Released
 
 *New modules*
 
@@ -27,9 +27,8 @@ N/A
 
 *Closed issues*
 
-    https://github.com/PaloAltoNetworks/ansible-pan/issues/52
-
-    https://github.com/PaloAltoNetworks/ansible-pan/issues/46
+    - https://github.com/PaloAltoNetworks/ansible-pan/issues/52
+    - https://github.com/PaloAltoNetworks/ansible-pan/issues/46
 
 V1.0.5
 ------
