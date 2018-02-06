@@ -23,7 +23,7 @@ N/A
     panos_op.py
     panos_dag_tags.py
     panos_query_rules.py
-    panos_match_rule.py (under review)
+    panos_match_rule.py
 
 *Closed issues*
 
