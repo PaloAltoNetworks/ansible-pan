@@ -20,14 +20,15 @@ N/A
 *Miscellanies*
 
 - Synchronized repository with RedHat Ansible official repo. Added missing modules:
-    panos_op.py
-    panos_dag_tags.py
-    panos_query_rules.py
-    panos_match_rule.py
+    - panos_op.py
+    - panos_dag_tags.py
+    - panos_query_rules.py
+    - panos_match_rule.py
 
 *Closed issues*
 
     https://github.com/PaloAltoNetworks/ansible-pan/issues/52
+
     https://github.com/PaloAltoNetworks/ansible-pan/issues/46
 
 V1.0.5
