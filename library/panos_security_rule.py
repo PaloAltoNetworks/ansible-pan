@@ -98,6 +98,10 @@ options:
         description:
             - List of destination addresses.
         default: "any"
+    position:
+        description:
+            - Forces a position of the rule
+        default: "last"
     application:
         description:
             - List of applications.
@@ -295,6 +299,7 @@ def find_rule(rulebase, rule_name):
     else:
         return False
 
+
 def rule_is_match(propose_rule, current_rule):
 
     match_check = ['name', 'description', 'group_profile', 'antivirus', 'vulnerability'
@@ -359,7 +364,7 @@ def create_security_rule(**kwargs):
     return security_rule
 
 
-def add_rule(rulebase, sec_rule):
+def add_rule(rulebase, sec_rule, position):
     if rulebase:
         rulebase.add(sec_rule)
         sec_rule.create()
@@ -368,7 +373,7 @@ def add_rule(rulebase, sec_rule):
         return False
 
 
-def update_rule(rulebase, nat_rule):
+def update_rule(rulebase, nat_rule, position):
     if rulebase:
         rulebase.add(nat_rule)
         nat_rule.apply()
@@ -409,7 +414,8 @@ def main():
         rule_type=dict(default='universal'),
         action=dict(default='allow'),
         devicegroup=dict(),
-        commit=dict(type='bool', default=True)
+        commit=dict(type='bool', default=True),
+        position=dict(default='last')
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
                            required_one_of=[['api_key', 'password']])
@@ -446,6 +452,7 @@ def main():
     wildfire_analysis = module.params['wildfire_analysis']
     rule_type = module.params['rule_type']
     devicegroup = module.params['devicegroup']
+    position = module.params['position']
 
     commit = module.params['commit']
 

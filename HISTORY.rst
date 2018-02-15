@@ -4,6 +4,19 @@
 History
 =======
 
+V1.0.7
+------
+- Released: In-development
+- Status:   In-development
+
+*New modules*
+
+*Removed modules*
+
+*Miscellanies*
+
+*Closed issues*
+
 V1.0.6
 ------
 - Released: 2018-2-6
