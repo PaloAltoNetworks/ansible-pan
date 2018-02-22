@@ -44,6 +44,10 @@ options:
         description:
             - Password credentials to use for authentication.
         required: true
+    api_key:
+        description:
+            - API key that can be used instead of I(username)/I(password) credentials.
+    required: false
     devicegroup:
         description:
             - The Panorama device group to be committed.
