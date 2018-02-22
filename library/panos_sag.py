@@ -52,7 +52,7 @@ options:
         default: null
     static_match_filter:
         description:
-            - Static filter user by the address group
+            - Static filter used by the address group
         required: true
         default: null
     devicegroup:
@@ -184,6 +184,26 @@ def add_address_group(device, dev_group, ag_object):
 
     return True, exc
 
+def get_all_address_group(device):
+    """
+    Retrieve all the tag to IP address mappings
+    :param device:
+    :return:
+    """
+    exc = None
+    try:
+        ret = objects.AddressGroup.refreshall(device)
+    except Exception, e:
+        exc = get_exception()
+
+    if exc:
+        return (False, exc)
+    else:
+        l = []
+        for item in ret:
+            l.append(item.name)
+        s = ",".join(l)
+    return (s, exc)
 
 def delete_address_group(device, dev_group, obj_name):
     """
@@ -261,7 +281,13 @@ def main():
             except Exception:
                 exc = get_exception()
                 module.fail_json(msg=exc.message)
+    elif operation == 'list':
+        result, exc = get_all_address_group(device)
 
+        if not exc:
+            module.exit_json(msg=result)
+        else:
+            module.fail_json(msg=exc.message)
     elif operation == 'delete':
         obj_name = module.params.get('sag_name', None)
         result, exc = delete_address_group(device, dev_group, obj_name)
