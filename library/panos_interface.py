@@ -264,8 +264,8 @@ def main():
     # Get the firewall / panorama auth.
     auth = (
         module.params['ip_address'],
-        module.params['password'],
         module.params['username'],
+        module.params['password'],
         module.params['api_key'],
     )
 
@@ -303,6 +303,7 @@ def main():
 
     # Open the connection to the PANOS device.
     con = base.PanDevice.create_from_device(*auth)
+    # con = base.PanDevice.create_from_device( module.params['ip_address'], module.params['username'], module.params['password'], module.params['api_key'])
 
     # Set vsys if firewall, device group if panorama.
     parent = con

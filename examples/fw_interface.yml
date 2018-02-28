@@ -3,11 +3,8 @@
   connection: local
   gather_facts: False
 
-  roles:
-    - role: PaloAltoNetworks.paloaltonetworks
-
-  vars:
-    zone_name: "tap_zone"
+#  roles:
+#    - role: PaloAltoNetworks.paloaltonetworks
 
   tasks:
   - name: Grab the credentials from ansible-vault
@@ -15,30 +12,38 @@
     no_log: 'yes'
 
   # Create ethernet1/1 as DHCP.
-  - name: enable DHCP client on ethernet1/1 in zone public
+  - name: enable DHCP client on ethernet1/1 in zone external
     panos_interface:
       ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
       password: '{{ password }}'
       if_name: "ethernet1/1"
-      zone_name: "public"
+      zone_name: "external"
       create_default_route: "yes"
+      operation: "update"
+      commit: False
 
-  # Update ethernet1/2 with a static IP address in zone dmz.
-  - name: ethernet1/2 as static in zone dmz
+  # Update ethernet1/2 with a static IP address in zone internal.
+  - name: ethernet1/2 as static in zone internal
     panos_interface:
       ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
       password: '{{ password }}'
       if_name: "ethernet1/2"
       mode: "layer3"
       ip: ["10.1.1.1/24"]
       enable_dhcp: false
-      zone_name: "dmz"
+      zone_name: "internal"
+      operation: "update"
+      commit: False
 
   - name: configure ethernet1/3
     panos_interface:
       ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
       password: '{{ password }}'
       if_name: "ethernet1/3"
-      zone_name: '{{ tap_zone }}'
+      zone_name: "tap_zone"
       create_default_route: "yes"
+      operation: "update"
       commit: False
