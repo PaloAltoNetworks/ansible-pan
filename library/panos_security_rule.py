@@ -535,7 +535,7 @@ def main():
                 module.fail_json(msg='Rule \'%s\' already exists. Use operation: \'update\' to change it.' % rule_name)
         else:
             try:
-                changed = add_rule(rulebase, new_rule)
+                changed = add_rule(rulebase, new_rule, position)
                 if changed and commit:
                     device.commit(sync=True)
             except PanXapiError:
@@ -573,7 +573,7 @@ def main():
                     rule_type=rule_type,
                     action=action
                 )
-                changed = update_rule(rulebase, new_rule)
+                changed = update_rule(rulebase, new_rule, position)
                 if changed and commit:
                     device.commit(sync=True)
             except PanXapiError:
