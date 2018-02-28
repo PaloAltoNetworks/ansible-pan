@@ -4,6 +4,23 @@
 History
 =======
 
+V1.0.7
+------
+- Released: N/A
+- Status: In Development
+
+*New modules*
+
+N/A
+
+*Removed modules*
+
+N/A
+
+*Refactored modules*
+
+* panos_interface: Added full support of ethernet interfaces
+
 V1.0.6
 ------
 - Released: 2018-2-6
