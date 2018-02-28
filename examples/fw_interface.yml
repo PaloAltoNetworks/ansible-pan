@@ -14,6 +14,26 @@
     include_vars: 'firewall-secrets.yml'
     no_log: 'yes'
 
+  # Create ethernet1/1 as DHCP.
+  - name: enable DHCP client on ethernet1/1 in zone public
+    panos_interface:
+      ip_address: '{{ ip_address }}'
+      password: '{{ password }}'
+      if_name: "ethernet1/1"
+      zone_name: "public"
+      create_default_route: "yes"
+
+  # Update ethernet1/2 with a static IP address in zone dmz.
+  - name: ethernet1/2 as static in zone dmz
+    panos_interface:
+      ip_address: '{{ ip_address }}'
+      password: '{{ password }}'
+      if_name: "ethernet1/2"
+      mode: "layer3"
+      ip: ["10.1.1.1/24"]
+      enable_dhcp: false
+      zone_name: "dmz"
+
   - name: configure ethernet1/3
     panos_interface:
       ip_address: '{{ ip_address }}'
