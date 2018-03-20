@@ -19,7 +19,13 @@ N/A
 
 *Refactored modules*
 
-* panos_interface: Added full support of ethernet interfaces
+- panos_interface: Added full support for static configuration of ethernet interfaces
+    - https://github.com/PaloAltoNetworks/ansible-pan/pull/61
+
+*Miscellanies*
+
+- Add functionality to list static address groups https://github.com/PaloAltoNetworks/ansible-pan/pull/64
+- Pass api_key to pandevice https://github.com/PaloAltoNetworks/ansible-pan/pull/63
 
 V1.0.6
 ------
