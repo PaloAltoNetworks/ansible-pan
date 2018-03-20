@@ -1,0 +1,38 @@
+# FILENAME
+# create_service.yml
+#
+# DESCRIPTION
+# Sample playbook used for AWS Automation webinar
+#
+# REQUIREMENTS
+# pip install ansible
+# ansible-galaxy install PaloAltoNetworks.paloaltonetworks
+# create vars.yml and configure with your credentials (vars-sample.yml file provided)
+#
+# EXECUTE
+# ansible-playbook create_service.yml
+---
+- hosts: localhost
+  connection: local
+  gather_facts: False
+
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+
+  tasks:
+    - name: include variables (free-form)
+      include_vars: vars.yml
+      no_log: 'yes'
+
+    # Use a template from a URL
+    - name: create a global service for TCP 221
+      panos_object:
+        ip_address: "{{ mgmt_ip }}"
+        username: "{{ admin_username }}"
+        password: "{{admin_password}}"
+        operation: 'add'
+        serviceobject: 'service-tcp-221'
+        destination_port: '221'
+        protocol: 'tcp'
+        description: 'ssh on 221'
+
