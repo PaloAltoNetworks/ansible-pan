@@ -39,6 +39,12 @@ Options
     <th class="head">choices</th>
     <th class="head">comments</th>
     </tr>
+                <tr><td>api_key<br/><div style="font-size: small;"></div></td>
+    <td>no</td>
+    <td></td>
+        <td></td>
+        <td><div>API key that can be used instead of <em>username</em>/<em>password</em> credentials.</div>        </td></tr>
+    </tr>
                 <tr><td>devicegroup<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td></td>
