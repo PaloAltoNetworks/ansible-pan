@@ -44,6 +44,10 @@ options:
         description:
             - Password credentials to use for authentication.
         required: true
+    api_key:
+        description:
+            - API key that can be used instead of I(username)/I(password) credentials.
+    required: false
     devicegroup:
         description:
             - The Panorama device group to be committed.
@@ -126,7 +130,7 @@ def main():
     devicegroup = module.params['devicegroup']
 
     # Create the device with the appropriate pandevice type
-    device = base.PanDevice.create_from_device(ip_address, username, password)
+    device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
 
     # If Panorama, validate the devicegroup
     if isinstance(device, panorama.Panorama):
