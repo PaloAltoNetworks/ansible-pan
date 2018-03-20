@@ -1,5 +1,5 @@
 # vars.yml
 admin_username: "admin"
-admin_password: "paloalto"
+admin_password: "admin"
 mgmt_ip: "10.8.202.117"
 key_name: "./my-key.pem"
