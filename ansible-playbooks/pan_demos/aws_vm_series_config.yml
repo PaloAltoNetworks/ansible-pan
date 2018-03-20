@@ -34,6 +34,7 @@
         ntp_server_secondary: "1.us.pool.ntp.org"
         timezone: "US/Pacific"
         login_banner: "Secure environment"
+        devicegroup: "cap_one_dg"
         commit: True
 
     # Use a template from a URL
@@ -47,6 +48,7 @@
         destination_port: '221'
         protocol: 'tcp'
         description: 'ssh on 221'
+        devicegroup: "cap_one_dg"
 
     - name: NAT rule for Web SSH
       panos_nat_rule:
@@ -64,6 +66,7 @@
         snat_interface: "ethernet1/2"
         dnat_address: "10.0.1.101"
         dnat_port: "22"
+        devicegroup: "cap_one_dg"
         commit: "False"
 
     - name: Wordpress NAT
@@ -82,6 +85,7 @@
         snat_interface: "ethernet1/2"
         dnat_address: "10.0.1.101"
         dnat_port: "80"
+        devicegroup: "cap_one_dg"
         commit: "False"
 
     - name: Outbound NAT
@@ -97,6 +101,7 @@
         destination_ip: ["any"]
         snat_type: "dynamic-ip-and-port"
         snat_interface: "ethernet1/1"
+        devicegroup: "cap_one_dg"
         commit: "False"
 
     - name: add a rule to allow HTTP
@@ -111,6 +116,7 @@
         source_zone: ['untrust']
         destination_zone: ['trust']
         action: 'allow'
+        devicegroup: "cap_one_dg"
         commit: "False"
 
     - name: SSH Inbound
@@ -125,6 +131,7 @@
         source_zone: ['untrust']
         destination_zone: ['trust']
         action: 'allow'
+        devicegroup: "cap_one_dg"
         commit: "False"
 
     - name: SSH 221 Inbound
@@ -140,6 +147,7 @@
         source_zone: ['untrust']
         destination_zone: ['trust']
         action: 'allow'
+        devicegroup: "cap_one_dg"
         commit: "False"
 
     - name: allow all rule 
@@ -154,6 +162,7 @@
         source_zone: ['trust']
         destination_zone: ['untrust']
         action: 'allow'
+        devicegroup: "cap_one_dg"
         commit: "False"
 
     - name: Log default deny
@@ -166,5 +175,6 @@
         description: 'Allow SSH traffic'
         source_zone: ['untrust']
         destination_zone: ['trust']
+        devicegroup: "cap_one_dg"
         action: 'deny'
         commit: "True"
