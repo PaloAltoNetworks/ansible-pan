@@ -45,7 +45,7 @@
         password: "{{admin_password}}"
         operation: 'update'
         serviceobject: 'service-tcp-221'
-        destination_port: '222'
+        destination_port: '223'
         protocol: 'tcp'
         description: 'ssh on 221'
         devicegroup: "cap_one_dg"
@@ -60,7 +60,7 @@
         source_zone: ["untrust"]
         destination_zone: "untrust"
         source_ip: ["any"]
-        destination_ip: ["10.0.0.102"]
+        destination_ip: ["10.0.0.103"]
         service: "service-tcp-221"
         snat_type: "dynamic-ip-and-port"
         snat_interface: "ethernet1/2"
@@ -83,7 +83,7 @@
         service: "service-http"
         snat_type: "dynamic-ip-and-port"
         snat_interface: "ethernet1/2"
-        dnat_address: "10.0.1.101"
+        dnat_address: "10.0.1.103"
         dnat_port: "80"
         devicegroup: "cap_one_dg"
         commit: "False"
