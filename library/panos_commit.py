@@ -76,7 +76,6 @@ status:
     sample: "Commit successful"
 '''
 
-
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.basic import get_exception
 
@@ -102,9 +101,10 @@ def devicegroup_exists(device, devicegroup):
 
 def do_commit(device, devicegroup):
     try:
-        result = device.commit(sync=True, exception=True)
         if isinstance(device, panorama.Panorama):
             result = device.commit_all(sync=True, sync_all=True, exception=True, devicegroup=devicegroup)
+        else:
+            result = device.commit(sync=True, exception=True)
         return result
     except:
         return False
