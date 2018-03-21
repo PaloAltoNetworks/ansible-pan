@@ -178,3 +178,10 @@
         devicegroup: "cap_one_dg"
         action: 'deny'
         commit: "True"
+
+    - name: Commit Panorama Settings to Devices
+      panos_commit:
+        ip_address: "{{ mgmt_ip }}"
+        username: "{{ admin_username }}"
+        password: "{{admin_password}}"
+        devicegroup: "cap_one_dg"
