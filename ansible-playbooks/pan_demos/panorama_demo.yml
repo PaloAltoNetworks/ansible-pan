@@ -45,7 +45,7 @@
         password: "{{admin_password}}"
         operation: 'update'
         serviceobject: 'service-tcp-221'
-        destination_port: '221'
+        destination_port: '222'
         protocol: 'tcp'
         description: 'ssh on 221'
         devicegroup: "cap_one_dg"
@@ -60,7 +60,7 @@
         source_zone: ["untrust"]
         destination_zone: "untrust"
         source_ip: ["any"]
-        destination_ip: ["10.0.0.100"]
+        destination_ip: ["10.0.0.102"]
         service: "service-tcp-221"
         snat_type: "dynamic-ip-and-port"
         snat_interface: "ethernet1/2"
@@ -141,7 +141,7 @@
         password: "{{admin_password}}"
         operation: 'update'
         rule_name: 'SSH 221 traffic'
-        application: ['ping','ssh']
+        application: ['ssh']
         service: 'service-tcp-221'
         description: 'Allow SSH traffic'
         source_zone: ['untrust']
