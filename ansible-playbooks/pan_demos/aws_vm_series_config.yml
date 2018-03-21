@@ -1,0 +1,180 @@
+# FILENAME
+# aws_webinar_sample.yml
+#
+# DESCRIPTION
+# Sample playbook used for AWS Automation webinar
+#
+# REQUIREMENTS
+# pip install ansible
+# ansible-galaxy install PaloAltoNetworks.paloaltonetworks
+# create vars.yml and configure with your credentials (vars-sample.yml file provided)
+#
+# EXECUTE
+# ansible-playbook aws_webinar_sample.yml
+---
+- hosts: localhost
+  connection: local
+  gather_facts: False
+
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+
+  tasks:
+    - name: include variables (free-form)
+      include_vars: vars.yml
+      no_log: 'yes'
+
+    - name: set dns and ntp
+      panos_mgtconfig:
+        ip_address: "{{mgmt_ip}}"
+        username: "{{admin_username}}"
+        password: "{{admin_password}}"
+        dns_server_primary: "8.8.8.8"
+        ntp_server_primary: "0.us.pool.ntp.org"
+        ntp_server_secondary: "1.us.pool.ntp.org"
+        timezone: "US/Pacific"
+        login_banner: "Secure environment"
+        devicegroup: "cap_one_dg"
+        commit: True
+
+    # Use a template from a URL
+    - name: create a global service for TCP 221
+      panos_object:
+        ip_address: "{{ mgmt_ip }}"
+        username: "{{ admin_username }}"
+        password: "{{admin_password}}"
+        operation: 'add'
+        serviceobject: 'service-tcp-221'
+        destination_port: '221'
+        protocol: 'tcp'
+        description: 'ssh on 221'
+        devicegroup: "cap_one_dg"
+
+    - name: NAT rule for Web SSH
+      panos_nat_rule:
+        ip_address: "{{ mgmt_ip }}"
+        username: "{{ admin_username }}"
+        password: "{{admin_password}}"
+        operation: 'add'
+        rule_name: "WebSSH"
+        source_zone: ["untrust"]
+        destination_zone: "untrust"
+        source_ip: ["any"]
+        destination_ip: ["10.0.0.100"]
+        service: "service-tcp-221"
+        snat_type: "dynamic-ip-and-port"
+        snat_interface: "ethernet1/2"
+        dnat_address: "10.0.1.101"
+        dnat_port: "22"
+        devicegroup: "cap_one_dg"
+        commit: "False"
+
+    - name: Wordpress NAT
+      panos_nat_rule:
+        ip_address: "{{ mgmt_ip }}"
+        username: "{{ admin_username }}"
+        password: "{{admin_password}}"
+        operation: 'add'
+        rule_name: "WPNAT"
+        source_zone: ["untrust"]
+        destination_zone: "untrust"
+        source_ip: ["any"]
+        destination_ip: ["10.0.0.100"]
+        service: "service-http"
+        snat_type: "dynamic-ip-and-port"
+        snat_interface: "ethernet1/2"
+        dnat_address: "10.0.1.101"
+        dnat_port: "80"
+        devicegroup: "cap_one_dg"
+        commit: "False"
+
+    - name: Outbound NAT
+      panos_nat_rule:
+        ip_address: "{{ mgmt_ip }}"
+        username: "{{ admin_username }}"
+        password: "{{admin_password}}"
+        operation: 'add'
+        rule_name: "NATAllOut"
+        source_zone: ["trust"]
+        destination_zone: "untrust"
+        source_ip: ["any"]
+        destination_ip: ["any"]
+        snat_type: "dynamic-ip-and-port"
+        snat_interface: "ethernet1/1"
+        devicegroup: "cap_one_dg"
+        commit: "False"
+
+    - name: add a rule to allow HTTP
+      panos_security_rule:
+        ip_address: "{{ mgmt_ip }}"
+        username: "{{ admin_username }}"
+        password: "{{admin_password}}"
+        operation: 'add'
+        rule_name: 'Web traffic'
+        application: 'web-browsing'
+        description: 'Allow HTTP traffic'
+        source_zone: ['untrust']
+        destination_zone: ['trust']
+        action: 'allow'
+        devicegroup: "cap_one_dg"
+        commit: "False"
+
+    - name: SSH Inbound
+      panos_security_rule:
+        ip_address: "{{ mgmt_ip }}"
+        username: "{{ admin_username }}"
+        password: "{{admin_password}}"
+        operation: 'add'
+        rule_name: 'SSH traffic'
+        application: ['ping','ssh']
+        description: 'Allow SSH traffic'
+        source_zone: ['untrust']
+        destination_zone: ['trust']
+        action: 'allow'
+        devicegroup: "cap_one_dg"
+        commit: "False"
+
+    - name: SSH 221 Inbound
+      panos_security_rule:
+        ip_address: "{{ mgmt_ip }}"
+        username: "{{ admin_username }}"
+        password: "{{admin_password}}"
+        operation: 'add'
+        rule_name: 'SSH 221 traffic'
+        application: ['ping','ssh']
+        service: 'service-tcp-221'
+        description: 'Allow SSH traffic'
+        source_zone: ['untrust']
+        destination_zone: ['trust']
+        action: 'allow'
+        devicegroup: "cap_one_dg"
+        commit: "False"
+
+    - name: allow all rule 
+      panos_security_rule:
+        ip_address: "{{ mgmt_ip }}"
+        username: "{{ admin_username }}"
+        password: "{{admin_password}}"
+        operation: 'add'
+        rule_name: 'allow-out-all'
+        application: 'any'
+        description: 'allow all outbound'
+        source_zone: ['trust']
+        destination_zone: ['untrust']
+        action: 'allow'
+        devicegroup: "cap_one_dg"
+        commit: "False"
+
+    - name: Log default deny
+      panos_security_rule:
+        ip_address: "{{ mgmt_ip }}"
+        username: "{{ admin_username }}"
+        password: "{{admin_password}}"
+        operation: 'add'
+        rule_name: 'Log default deny'
+        description: 'Allow SSH traffic'
+        source_zone: ['untrust']
+        destination_zone: ['trust']
+        devicegroup: "cap_one_dg"
+        action: 'deny'
+        commit: "True"
