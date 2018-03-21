@@ -47,7 +47,7 @@ options:
     api_key:
         description:
             - API key that can be used instead of I(username)/I(password) credentials.
-    required: false
+        required: false
     devicegroup:
         description:
             - The Panorama device group to be committed.
@@ -65,7 +65,7 @@ EXAMPLES = '''
   panos_commit:
     ip_address: '{{ ip_address }}'
     api_key: '{{ api_key }}'
-    devicegroup: 'Cloud Edge'
+    devicegroup: 'Cloud-Edge'
 '''
 
 RETURN = '''
