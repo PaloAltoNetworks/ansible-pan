@@ -156,6 +156,12 @@ options:
             - Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama.
             If device group is not define we assume that we are contacting Firewall.
         default: None
+    before:
+        description:
+            - If operation is I(add) or I(update), place the resulting rule before the one named this in the rule base.
+    after:
+        description:
+            - If operation is I(add) or I(update), place the resulting rule after the one named this in the rule base.
     commit:
         description:
             - Commit configuration if changed.
@@ -295,6 +301,7 @@ def find_rule(rulebase, rule_name):
     else:
         return False
 
+
 def rule_is_match(propose_rule, current_rule):
 
     match_check = ['name', 'description', 'group_profile', 'antivirus', 'vulnerability'
@@ -377,6 +384,27 @@ def update_rule(rulebase, nat_rule):
         return False
 
 
+def find_rule_index(rulebase, rule_name):
+    if rulebase:
+        for num, child in enumerate(rulebase.children):
+            if rule_name == child.name:
+                return num
+    return -1
+
+
+def insert_rule(rulebase, new_rule, existing_rule, after=True):
+    index = find_rule_index(rulebase, existing_rule)
+
+    if index >= 0:
+        if after:
+            index = index + 1
+        rulebase.insert(index, new_rule)
+        new_rule.create()
+        rulebase.apply()
+        return True
+    return False
+
+
 def main():
     argument_spec = dict(
         ip_address=dict(required=True),
@@ -409,6 +437,8 @@ def main():
         rule_type=dict(default='universal'),
         action=dict(default='allow'),
         devicegroup=dict(),
+        before=dict(),
+        after=dict(),
         commit=dict(type='bool', default=True)
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
@@ -446,6 +476,8 @@ def main():
     wildfire_analysis = module.params['wildfire_analysis']
     rule_type = module.params['rule_type']
     devicegroup = module.params['devicegroup']
+    before = module.params['before']
+    after = module.params['after']
 
     commit = module.params['commit']
 
@@ -519,6 +551,10 @@ def main():
             rule_type=rule_type,
             action=action
         )
+
+        if before and after:
+            module.fail_json(msg='Can\'t use both \'before\' and \'after\' parameters.')
+
         # Search for the rule. Fail if found.
         match = find_rule(rulebase, rule_name)
         if match:
@@ -528,7 +564,13 @@ def main():
                 module.fail_json(msg='Rule \'%s\' already exists. Use operation: \'update\' to change it.' % rule_name)
         else:
             try:
-                changed = add_rule(rulebase, new_rule)
+                if before:
+                    changed = insert_rule(rulebase, new_rule, before, after=False)
+                elif after:
+                    changed = insert_rule(rulebase, new_rule, after)
+                else:
+                    changed = add_rule(rulebase, new_rule)
+
                 if changed and commit:
                     device.commit(sync=True)
             except PanXapiError:
