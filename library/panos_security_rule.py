@@ -158,10 +158,10 @@ options:
         default: None
     before:
         description:
-            - If operation is I(add) or I(update), place the resulting rule before the one named this in the rule base.
+            - If operation is I(add), place the resulting rule before the one named this in the rule base.
     after:
         description:
-            - If operation is I(add) or I(update), place the resulting rule after the one named this in the rule base.
+            - If operation is I(add), place the resulting rule after the one named this in the rule base.
     commit:
         description:
             - Commit configuration if changed.
@@ -241,6 +241,25 @@ EXAMPLES = '''
     rule_name: 'Allow RDP to DCs'
   register: result
 - debug: msg='{{result.stdout_lines}}'
+
+- name: add an SSH inbound rule to devicegroup
+  panos_security_rule:
+    ip_address: '{{ ip_address }}'
+    username: '{{ username }}'
+    password: '{{ password }}'
+    operation: 'add'
+    rule_name: 'SSH permit'
+    description: 'SSH rule test'
+    source_zone: ['untrust']
+    destination_zone: ['trust']
+    source_ip: ['any']
+    source_user: ['any']
+    destination_ip: ['1.1.1.1']
+    category: ['any']
+    application: ['ssh']
+    service: ['application-default']
+    action: 'allow'
+    before: 'Prod-Legacy 1'
 
 '''
 
