@@ -156,12 +156,15 @@ options:
             - Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama.
             If device group is not define we assume that we are contacting Firewall.
         default: None
-    before:
+    location:
         description:
-            - If operation is I(add), place the resulting rule before the one named this in the rule base.
-    after:
+            - Position to place the created rule in the rule base.  Supported values are
+              I(top)/I(bottom)/I(before)/I(after).
+    existing_rule:
         description:
-            - If operation is I(add), place the resulting rule after the one named this in the rule base.
+            - If 'location' is set to 'before' or 'after', this option specifies an existing
+              rule name.  The new rule will be created in the specified position relative to this
+              rule.  If 'location' is set to 'before' or 'after', this option is required.
     commit:
         description:
             - Commit configuration if changed.
@@ -242,7 +245,7 @@ EXAMPLES = '''
   register: result
 - debug: msg='{{result.stdout_lines}}'
 
-- name: add an SSH inbound rule to devicegroup
+- name: add a rule at a specific location in the rulebase
   panos_security_rule:
     ip_address: '{{ ip_address }}'
     username: '{{ username }}'
@@ -259,7 +262,8 @@ EXAMPLES = '''
     application: ['ssh']
     service: ['application-default']
     action: 'allow'
-    before: 'Prod-Legacy 1'
+    location: 'before'
+    existing_rule: 'Prod-Legacy 1'
 
 '''
 
@@ -385,13 +389,21 @@ def create_security_rule(**kwargs):
     return security_rule
 
 
-def add_rule(rulebase, sec_rule):
+def find_rule_index(rulebase, rule_name):
     if rulebase:
-        rulebase.add(sec_rule)
-        sec_rule.create()
+        for num, child in enumerate(rulebase.children):
+            if rule_name == child.name:
+                return num
+    return -1
+
+
+def insert_rule_at_index(rulebase, new_rule, index):
+    if rulebase:
+        rulebase.insert(index, new_rule)
+        new_rule.create()
+        rulebase.apply()
         return True
-    else:
-        return False
+    return False
 
 
 def update_rule(rulebase, nat_rule):
@@ -401,27 +413,6 @@ def update_rule(rulebase, nat_rule):
         return True
     else:
         return False
-
-
-def find_rule_index(rulebase, rule_name):
-    if rulebase:
-        for num, child in enumerate(rulebase.children):
-            if rule_name == child.name:
-                return num
-    return -1
-
-
-def insert_rule(rulebase, new_rule, existing_rule, after=True):
-    index = find_rule_index(rulebase, existing_rule)
-
-    if index >= 0:
-        if after:
-            index = index + 1
-        rulebase.insert(index, new_rule)
-        new_rule.create()
-        rulebase.apply()
-        return True
-    return False
 
 
 def main():
@@ -456,8 +447,8 @@ def main():
         rule_type=dict(default='universal'),
         action=dict(default='allow'),
         devicegroup=dict(),
-        before=dict(),
-        after=dict(),
+        location=dict(default='bottom', choices=['top', 'bottom', 'before', 'after']),
+        existing_rule=dict(default=''),
         commit=dict(type='bool', default=True)
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
@@ -495,8 +486,8 @@ def main():
     wildfire_analysis = module.params['wildfire_analysis']
     rule_type = module.params['rule_type']
     devicegroup = module.params['devicegroup']
-    before = module.params['before']
-    after = module.params['after']
+    location = module.params['location']
+    existing_rule = module.params['existing_rule']
 
     commit = module.params['commit']
 
@@ -571,9 +562,6 @@ def main():
             action=action
         )
 
-        if before and after:
-            module.fail_json(msg='Can\'t use both \'before\' and \'after\' parameters.')
-
         # Search for the rule. Fail if found.
         match = find_rule(rulebase, rule_name)
         if match:
@@ -583,12 +571,25 @@ def main():
                 module.fail_json(msg='Rule \'%s\' already exists. Use operation: \'update\' to change it.' % rule_name)
         else:
             try:
-                if before:
-                    changed = insert_rule(rulebase, new_rule, before, after=False)
-                elif after:
-                    changed = insert_rule(rulebase, new_rule, after)
-                else:
-                    changed = add_rule(rulebase, new_rule)
+                if ((location == 'before') or (location == 'after')) and (existing_rule == ''):
+                    module.fail_json(msg='\'existing_rule\' must be specified if location is \'before\' or \'after\'.')
+
+                # Default is to add the rule at the bottom.
+                new_rule_index = len(rulebase.children)
+
+                if (location == 'before') or (location == 'after'):
+                    new_rule_index = find_rule_index(rulebase, existing_rule)
+
+                    if new_rule_index < 0:
+                        module.fail_json(msg='Existing rule \'%s\' does not exist.' % existing_rule)
+
+                    if location == 'after':
+                        new_rule_index = new_rule_index + 1
+
+                elif location == 'top':
+                    new_rule_index = 0
+
+                changed = insert_rule_at_index(rulebase, new_rule, new_rule_index)
 
                 if changed and commit:
                     device.commit(sync=True)

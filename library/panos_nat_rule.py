@@ -120,6 +120,15 @@ options:
             - dnat translated port
         required: false
         default: None
+    location:
+        description:
+            - Position to place the created rule in the rule base.  Supported values are
+              I(top)/I(bottom)/I(before)/I(after).
+    existing_rule:
+        description:
+            - If 'location' is set to 'before' or 'after', this option specifies an existing
+              rule name.  The new rule will be created in the specified position relative to this
+              rule.  If 'location' is set to 'before' or 'after', this option is required.
     commit:
         description:
             - Commit configuration if changed.
@@ -262,13 +271,21 @@ def create_nat_rule(**kwargs):
     return nat_rule
 
 
-def add_rule(rulebase, nat_rule):
+def find_rule_index(rulebase, rule_name):
     if rulebase:
-        rulebase.add(nat_rule)
-        nat_rule.create()
+        for num, child in enumerate(rulebase.children):
+            if rule_name == child.name:
+                return num
+    return -1
+
+
+def insert_rule_at_index(rulebase, new_rule, index):
+    if rulebase:
+        rulebase.insert(index, new_rule)
+        new_rule.create()
+        rulebase.apply()
         return True
-    else:
-        return False
+    return False
 
 
 def update_rule(rulebase, nat_rule):
@@ -306,6 +323,8 @@ def main():
         dnat_address=dict(),
         dnat_port=dict(),
         devicegroup=dict(),
+        location=dict(default='bottom', choices=['top', 'bottom', 'before', 'after']),
+        existing_rule=dict(default=''),
         commit=dict(type='bool', default=True)
     )
 
@@ -339,6 +358,8 @@ def main():
     dnat_address = module.params['dnat_address']
     dnat_port = module.params['dnat_port']
     devicegroup = module.params['devicegroup']
+    location = module.params['location']
+    existing_rule = module.params['existing_rule']
 
     commit = module.params['commit']
 
@@ -419,7 +440,27 @@ def main():
                     dnat_address=dnat_address,
                     dnat_port=dnat_port
                 )
-                changed = add_rule(rulebase, new_rule)
+
+                if ((location == 'before') or (location == 'after')) and (existing_rule == ''):
+                    module.fail_json(msg='\'existing_rule\' must be specified if location is \'before\' or \'after\'.')
+
+                # Default is to add the rule at the bottom.
+                new_rule_index = len(rulebase.children)
+
+                if (location == 'before') or (location == 'after'):
+                    new_rule_index = find_rule_index(rulebase, existing_rule)
+
+                    if new_rule_index < 0:
+                        module.fail_json(msg='Existing rule \'%s\' does not exist.' % existing_rule)
+
+                    if location == 'after':
+                        new_rule_index = new_rule_index + 1
+
+                elif location == 'top':
+                    new_rule_index = 0
+
+                changed = insert_rule_at_index(rulebase, new_rule, new_rule_index)
+
                 if changed and commit:
                     device.commit(sync=True)
             except PanXapiError:
