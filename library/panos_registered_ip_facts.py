@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#  Copyright 2016 Palo Alto Networks, Inc
+#  Copyright 2018 Palo Alto Networks, Inc
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ DOCUMENTATION = '''
 module: panos_registered_ip_facts
 short_description: Retrieve facts about registered IPs on PAN-OS devices.
 description:
-    - Retrieves facts about registered IPs on PAN-OS devices.
+    - Retrieves tag information about registered IPs on PAN-OS devices.
 author: "Michael Richardson (@mrichardson03)"
 version_added: "2.5"
 requirements:

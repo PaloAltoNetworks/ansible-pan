@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#  Copyright 2016 Palo Alto Networks, Inc
+#  Copyright 2018 Palo Alto Networks, Inc
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -20,10 +20,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = '''
 ---
-module: panos_register_ip
-short_description: Create tags for DAG's on PAN-OS devices.
+module: panos_registered_ip
+short_description: Register IP addresses for use with dynamic address groups on PAN-OS devices.
 description:
-    - Create the ip address to tag associations. Tags will in turn be used to create DAG's
+    - Registers tags for IP addresses that can be used to build dynamic address groups.
 author: "Michael Richardson (@mrichardson03)"
 version_added: "2.5"
 requirements:
