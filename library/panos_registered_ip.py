@@ -168,7 +168,7 @@ def main():
                 device.userid.unregister(registered_ip, tags=tag_names)
                 changed = True
 
-        results = device.userid.get_registered_ip(tags=tag_names)
+        results = device.userid.get_registered_ip(registered_ip)
 
     except PanXapiError:
         module.fail_json(msg=get_exception())
