@@ -57,11 +57,11 @@ options:
         default: 'static'
     static_value:
         description:
-            - List of address objects to be included in the group.
+            - List of address objects to be included in the group.  Required if type is 'static'.
         type: list
     dynamic_value:
         description:
-            - Registered IP tags for a dynamic address group.
+            - Registered IP tags for a dynamic address group.  Required if type is 'dynamic'.
         type: string
     description:
         description:
@@ -113,7 +113,11 @@ def main():
         password=dict(no_log=True),
         api_key=dict(no_log=True),
         name=dict(type='str', required=True),
-
+        type=dict(default='static', choices=['static', 'dynamic']),
+        static_value=dict(type='list'),
+        dynamic_value=dict(type='str'),
+        description=dict(type='str'),
+        tag=dict(type='list'),
         state=dict(default='present', choices=['present', 'absent'])
     )
 
@@ -127,17 +131,48 @@ def main():
     password = module.params['password']
     api_key = module.params['api_key']
     name = module.params['name']
-
+    type = module.params['type']
+    static_value = module.params['static_value']
+    dynamic_value = module.params['dynamic_value']
+    description = module.params['description']
+    tag = module.params['tag']
     state = module.params['state']
 
     changed = False
 
     try:
         device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
-        objects.AddressObject.refreshall(device)
+        objects.AddressGroup.refreshall(device)
 
         if state == 'present':
-            pass
+            existing_obj = device.find(name, objects.AddressGroup)
+
+            if type == 'static':
+                if not static_value:
+                    module.fail_json(msg='Must specify \'static_value\' if \'type\' is \'static\''
+                                         'and \'state\' is \'present.')
+
+                new_obj = objects.AddressGroup(name, static_value=static_value,
+                                               description=description, tag=tag)
+
+            elif type == 'dynamic':
+                new_obj = objects.AddressGroup(name, dynamic_value=dynamic_value,
+                                               description=description, tag=tag)
+
+            if not existing_obj:
+                device.add(new_obj)
+                new_obj.create()
+                changed = True
+            elif not existing_obj.equal(new_obj):
+                if type == 'static':
+                    existing_obj.static_value = static_value
+                elif type == 'dynamic':
+                    existing_obj.dynamic_value = dynamic_value
+
+                existing_obj.description = description
+                existing_obj.tag = tag
+                existing_obj.apply()
+                changed = True
 
         elif state == 'absent':
             pass
