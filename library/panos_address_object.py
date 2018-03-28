@@ -52,7 +52,7 @@ options:
         required: true
     value:
         description:
-            - IP address, IP range, or FQDN for the object.
+            - IP address, IP range, or FQDN for the object.  Must specify if state is I(present).
         required: true
     type:
         description:
