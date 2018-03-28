@@ -51,10 +51,11 @@ options:
         description:
             - IP address to register.
         required: true
-    tag_names:
+    tag:
         description:
             - List of tags that the IP address will be registered to.
         required: true
+        type: list
     state:
         description:
             - Create or remove registered IP address.
@@ -69,7 +70,7 @@ EXAMPLES = '''
     username: '{{ fw_username }}'
     password: '{{ fw_password }}'
     registered_ip: '1.1.1.1'
-    tag_names: ['First_Tag']
+    tag: ['First_Tag']
     state: 'present'
 
 - name: Add 'First_Tag' tag to 1.1.1.2
@@ -78,7 +79,7 @@ EXAMPLES = '''
     username: '{{ fw_username }}'
     password: '{{ fw_password }}'
     registered_ip: '1.1.1.2'
-    tag_names: ['First_Tag']
+    tag: ['First_Tag']
     state: 'present'
 
 - name: Add 'Second_Tag' tag to 1.1.1.1
@@ -87,7 +88,7 @@ EXAMPLES = '''
     username: '{{ fw_username }}'
     password: '{{ fw_password }}'
     registered_ip: '1.1.1.1'
-    tag_names: ['Second_Tag']
+    tag: ['Second_Tag']
     state: 'present'
 
 - name: Remove 'Second_Tag' from 1.1.1.1
@@ -96,7 +97,7 @@ EXAMPLES = '''
     username: '{{ fw_username }}'
     password: '{{ fw_password }}'
     registered_ip: '1.1.1.1'
-    tag_names: ['Second_Tag']
+    tag: ['Second_Tag']
     state: 'absent'
 
 - name: Remove 'First_Tag' from 1.1.1.2 (will unregister entirely)
@@ -105,7 +106,7 @@ EXAMPLES = '''
     username: '{{ fw_username }}'
     password: '{{ fw_password }}'
     registered_ip: '1.1.1.2'
-    tag_names: ['First_Tag']
+    tag: ['First_Tag']
     state: 'absent'
 '''
 
@@ -136,7 +137,7 @@ def main():
         password=dict(no_log=True),
         api_key=dict(no_log=True),
         registered_ip=dict(type='str', required=True),
-        tag_names=dict(type='list', required=True),
+        tag=dict(type='list', required=True),
         state=dict(default='present', choices=['present', 'absent'])
     )
 
@@ -149,26 +150,26 @@ def main():
     password = module.params['password']
     api_key = module.params['api_key']
     registered_ip = module.params['registered_ip']
-    tag_names = module.params['tag_names']
+    tag = module.params['tag']
     state = module.params['state']
 
     changed = False
 
     try:
         device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
-        registered_ips = device.userid.get_registered_ip(tags=tag_names)
+        registered_ips = device.userid.get_registered_ip(tags=tag)
 
         if state == 'present':
             if registered_ip not in registered_ips:
-                device.userid.register(registered_ip, tags=tag_names)
+                device.userid.register(registered_ip, tags=tag)
                 changed = True
 
         elif state == 'absent':
             if registered_ip in registered_ips:
-                device.userid.unregister(registered_ip, tags=tag_names)
+                device.userid.unregister(registered_ip, tags=tag)
                 changed = True
 
-        results = device.userid.get_registered_ip(tags=tag_names)
+        results = device.userid.get_registered_ip(tags=tag)
 
     except PanXapiError:
         module.fail_json(msg=get_exception())
