@@ -72,6 +72,47 @@ options:
         default: 'present'
 '''
 
+EXAMPLES = '''
+- name: Create object 'Test-One'
+  panos_address_object:
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    name: 'Test-One'
+    value: '1.1.1.1'
+    description: 'Description One'
+    tag: ['Prod']
+
+- name: Create object 'Test-Two'
+  panos_address_object:
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    name: 'Test-Two'
+    type: 'ip-range'
+    value: '1.1.1.1-2.2.2.2'
+    description: 'Description Two'
+    tag: ['SI']
+
+- name: Create object 'Test-Three'
+  panos_address_object:
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    name: 'Test-Three'
+    type: 'fqdn'
+    value: 'foo.bar.baz'
+    description: 'Description Three'
+
+- name: Delete object 'Test-Two'
+  panos_address_object:
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    name: 'Test-Two'
+    state: 'absent'
+'''
+
 RETURN = '''
 # Default return values
 '''
