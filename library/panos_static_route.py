@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#  Copyright 2017 Palo Alto Networks, Inc
+#  Copyright 2018 Palo Alto Networks, Inc
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ DOCUMENTATION = '''
 module: panos_static_route
 short_description: Create static routes on PAN-OS devices.
 description:
-    - Create address objects on PAN-OS devices.
+    - Create static routes on PAN-OS devices.
 author: "Michael Richardson (@mrichardson03)"
 version_added: "2.5"
 requirements:
