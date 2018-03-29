@@ -54,6 +54,7 @@ options:
         description:
             - Protocol of the service.
         choices: ['tcp', 'udp']
+        default: 'tcp'
     source_port:
         description
             - Source port of the service object.
@@ -74,7 +75,32 @@ options:
 '''
 
 EXAMPLES = '''
+- name: Create service object 'ssh-tcp-22'
+  panos_service_object:
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    name: 'ssh-tcp-22'
+    destination_port: '22'
+    description: 'SSH on tcp/22'
+    tag: ['Prod']
 
+- name: Create service object 'mysql-tcp-3306'
+  panos_service_object:
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    name: 'mysql-tcp-3306'
+    destination_port: '3306'
+    description: 'MySQL on tcp/3306'
+
+- name: Delete service object 'mysql-tcp-3306'
+  panos_service_object:
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    name: 'mysql-tcp-3306'
+    state: 'absent'
 '''
 
 RETURN = '''
@@ -110,7 +136,11 @@ def main():
         password=dict(no_log=True),
         api_key=dict(no_log=True),
         name=dict(type='str', required=True),
-
+        protocol=dict(default='tcp', choices=['tcp', 'udp']),
+        source_port=dict(type='str'),
+        destination_port=dict(type='str'),
+        description=dict(type='str'),
+        tag=dict(type='list'),
         state=dict(default='present', choices=['present', 'absent'])
     )
 
@@ -124,20 +154,48 @@ def main():
     password = module.params['password']
     api_key = module.params['api_key']
     name = module.params['name']
-
+    protocol = module.params['protocol']
+    source_port = module.params['source_port']
+    destination_port = module.params['destination_port']
+    description = module.params['description']
+    tag = module.params['tag']
     state = module.params['state']
 
     changed = False
 
     try:
         device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
-        objects.AddressObject.refreshall(device)
+        objects.ServiceObject.refreshall(device)
 
         if state == 'present':
-            pass
+            if not destination_port:
+                module.fail_json(msg='Must specify \'destination_port\' if \'state\' is '
+                                     '\'present\'.')
+
+            existing_obj = device.find(name, objects.ServiceObject)
+            new_obj = objects.ServiceObject(name=name, protocol=protocol, source_port=source_port,
+                                            destination_port=destination_port,
+                                            description=description, tag=tag)
+
+            if not existing_obj:
+                device.add(new_obj)
+                new_obj.create()
+                changed = True
+            elif not existing_obj.equal(new_obj):
+                existing_obj.protocol = protocol
+                existing_obj.source_port = source_port
+                existing_obj.destination_port = destination_port
+                existing_obj.description = description
+                existing_obj.tag = tag
+                existing_obj.apply()
+                changed = True
 
         elif state == 'absent':
-            pass
+            existing_obj = device.find(name, objects.ServiceObject)
+
+            if existing_obj:
+                existing_obj.delete()
+                changed = True
 
     except PanDeviceError as e:
         module.fail_json(msg=e.message)
