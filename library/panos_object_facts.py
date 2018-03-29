@@ -48,20 +48,44 @@ options:
             - API key to be used instead of I(username) and I(password).
     name:
         description:
-            - Name of address object to create.
+            - Name of object to retrieve.
         required: true
-    state:
+    type:
         description:
-            - Create or remove address object.
-        choices: ['present', 'absent']
-        default: 'present'
+            - Type of object to retrieve.
+        choices: ['address', 'address-group', 'service', 'service-group', 'tag']
+        default: 'address'
+        required: true
+'''
+
+EXAMPLES = '''
+- name: Retrieve address group object 'Prod'
+  panos_object_facts:
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    name: 'Prod'
+    type: 'address-group'
+  register: result
+
+- name: Retrieve service group object 'Prod-Services'
+  panos_object_facts:
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    name: 'Prod-Services'
+    type: 'service-group'
+  register: result
 '''
 
 RETURN = '''
-# Default return values
+results:
+    description: Dict containing object attributes.  Empty if object is not found.
+    returned: always
+    type: dict
 '''
 
-from ansible.module_utils.basic import AnsibleModule, get_exception
+from ansible.module_utils.basic import AnsibleModule
 
 try:
     from pandevice import base
@@ -73,6 +97,12 @@ try:
     HAS_LIB = True
 except ImportError:
     HAS_LIB = False
+
+
+COLOR_NAMES = [
+    'red', 'green', 'blue', 'yellow', 'copper', 'orange', 'purple', 'gray', 'light green',
+    'cyan', 'light gray', 'blue gray', 'lime', 'black', 'gold', 'brown'
+]
 
 
 def find_object(device, obj_name, obj_type):
@@ -90,12 +120,12 @@ def main():
         username=dict(default='admin'),
         password=dict(no_log=True),
         api_key=dict(no_log=True),
-        object_type=dict(
+        name=dict(type='str', required=True),
+        type=dict(
             type='str',
             choices=['address', 'address-group', 'service', 'service-group', 'tag'],
             required=True
-        ),
-        name=dict(type='str', required=True)
+        )
     )
 
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
@@ -106,7 +136,7 @@ def main():
     username = module.params['username']
     password = module.params['password']
     api_key = module.params['api_key']
-    object_type = module.params['object_type']
+    type = module.params['type']
     name = module.params['name']
 
     results = {}
@@ -117,21 +147,26 @@ def main():
         obj = None
         obj_type = None
 
-        if object_type == 'address':
+        if type == 'address':
             obj_type = objects.AddressObject
-        elif object_type == 'address-group':
+        elif type == 'address-group':
             obj_type = objects.AddressGroup
-        elif object_type == 'service':
+        elif type == 'service':
             obj_type = objects.ServiceObject
-        elif object_type == 'service-group':
+        elif type == 'service-group':
             obj_type = objects.ServiceGroup
-        elif object_type == 'tag':
+        elif type == 'tag':
             obj_type = objects.Tag
 
         obj = find_object(device, name, obj_type)
 
         if obj:
             results = xmltodict.parse(obj.element_str())
+
+            # If the object type was a tag, convert the color id back into the name.
+            if type == 'tag':
+                color_index = int(results['entry']['color'][5:]) - 1
+                results['entry']['color'] = COLOR_NAMES[color_index]
 
         module.exit_json(changed=False, results=results)
 
