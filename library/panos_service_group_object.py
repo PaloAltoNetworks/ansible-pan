@@ -52,11 +52,14 @@ options:
         required: true
     value:
         description:
-            - List of service objects to be included in the group.
+            - List of service objects to be included in the group.  Must specify if state is
+              present.
         type: list
+        required: true
     tag:
         description:
             - List of tags for this service group.
+        type: list
     state:
         description:
             - Create or remove service group object.
@@ -65,7 +68,21 @@ options:
 '''
 
 EXAMPLES = '''
+- name: Create service group 'Prod-Services'
+  panos_service_group_object: 
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    name: 'Prod-Services'
+    value: ['ssh-tcp-22', 'mysql-tcp-3306']
 
+- name: Delete service group 'Prod-Services'
+  panos_service_group_object:
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    name: 'Prod-Services'
+    state: 'absent'
 '''
 
 RETURN = '''
@@ -101,7 +118,8 @@ def main():
         password=dict(no_log=True),
         api_key=dict(no_log=True),
         name=dict(type='str', required=True),
-
+        value=dict(type='list'),
+        tag=dict(type='list'),
         state=dict(default='present', choices=['present', 'absent'])
     )
 
@@ -115,20 +133,39 @@ def main():
     password = module.params['password']
     api_key = module.params['api_key']
     name = module.params['name']
-
+    value = module.params['value']
+    tag = module.params['tag']
     state = module.params['state']
 
     changed = False
 
     try:
         device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
-        objects.AddressObject.refreshall(device)
+        objects.ServiceGroup.refreshall(device)
 
         if state == 'present':
-            pass
+            if not value:
+                module.fail_json(msg='Must specify \'value\' if \'state\' is \'present\'.')
+
+            existing_obj = device.find(name, objects.ServiceGroup)
+            new_obj = objects.ServiceGroup(name=name, value=value, tag=tag)
+
+            if not existing_obj:
+                device.add(new_obj)
+                new_obj.create()
+                changed = True
+            elif not existing_obj.equal(new_obj):
+                existing_obj.value = value
+                existing_obj.tag = tag
+                existing_obj.apply()
+                changed = True
 
         elif state == 'absent':
-            pass
+            existing_obj = device.find(name, objects.ServiceGroup)
+
+            if existing_obj:
+                existing_obj.delete()
+                changed = True
 
     except PanDeviceError as e:
         module.fail_json(msg=e.message)
