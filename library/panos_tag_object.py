@@ -67,7 +67,22 @@ options:
 '''
 
 EXAMPLES = '''
+- name: Create tag object 'Prod'
+  panos_tag_object:
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    name: 'Prod'
+    color: 'red'
+    comments: 'Prod Environment'
 
+- name: Remove tag object 'Prod'
+  panos_tag_object:
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    name: 'Prod'
+    state: 'absent'
 '''
 
 RETURN = '''
@@ -87,6 +102,12 @@ except ImportError:
     HAS_LIB = False
 
 
+COLOR_NAMES = [
+    'red', 'green', 'blue', 'yellow', 'copper', 'orange', 'purple', 'gray', 'light green',
+    'cyan', 'light gray', 'blue gray', 'lime', 'black', 'gold', 'brown'
+]
+
+
 def find_object(device, obj_name, obj_type):
     obj_type.refreshall(device)
 
@@ -103,7 +124,8 @@ def main():
         password=dict(no_log=True),
         api_key=dict(no_log=True),
         name=dict(type='str', required=True),
-
+        color=dict(choices=COLOR_NAMES),
+        comments=dict(type='str'),
         state=dict(default='present', choices=['present', 'absent'])
     )
 
@@ -117,20 +139,37 @@ def main():
     password = module.params['password']
     api_key = module.params['api_key']
     name = module.params['name']
-
+    color = module.params['color']
+    comments = module.params['comments']
     state = module.params['state']
 
     changed = False
 
     try:
         device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
-        objects.AddressObject.refreshall(device)
+        objects.Tag.refreshall(device)
 
         if state == 'present':
-            pass
+            existing_obj = device.find(name, objects.Tag)
+            color_id = objects.Tag.color_code(color) if color else None
+            new_obj = objects.Tag(name=name, color=color_id, comments=comments)
+
+            if not existing_obj:
+                device.add(new_obj)
+                new_obj.create()
+                changed = True
+            elif not existing_obj.equal(new_obj):
+                existing_obj.color = objects.Tag.color_code(color)
+                existing_obj.comments = comments
+                existing_obj.apply()
+                changed = True
 
         elif state == 'absent':
-            pass
+            existing_obj = device.find(name, objects.Tag)
+
+            if existing_obj:
+                existing_obj.delete()
+                changed = True
 
     except PanDeviceError as e:
         module.fail_json(msg=e.message)
