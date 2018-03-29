@@ -77,7 +77,32 @@ options:
 '''
 
 EXAMPLES = '''
+- name: Create object group 'Prod'
+  panos_address_group_object:
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    name: 'Prod'
+    static_value: ['Test-One', 'Test-Three']
+    tag: ['Prod']
 
+- name: Create object group 'SI'
+  panos_address_group_object:
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    name: 'SI'
+    type: 'dynamic'
+    dynamic_value: "'SI_Instances'"
+    tag: ['SI']
+
+- name: Delete object group 'SI'
+  panos_address_group_object:
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    name: 'SI'
+    state: 'absent'
 '''
 
 RETURN = '''
@@ -149,13 +174,17 @@ def main():
 
             if type == 'static':
                 if not static_value:
-                    module.fail_json(msg='Must specify \'static_value\' if \'type\' is \'static\''
+                    module.fail_json(msg='Must specify \'static_value\' if \'type\' is \'static\' '
                                          'and \'state\' is \'present.')
 
                 new_obj = objects.AddressGroup(name, static_value=static_value,
                                                description=description, tag=tag)
 
             elif type == 'dynamic':
+                if not dynamic_value:
+                    module.fail_json(msg='Must specify \'dynamic_value\' if \'type\' is '
+                                         '\'dynamic\' and \'state\' is \'present\'.')
+
                 new_obj = objects.AddressGroup(name, dynamic_value=dynamic_value,
                                                description=description, tag=tag)
 
@@ -175,7 +204,11 @@ def main():
                 changed = True
 
         elif state == 'absent':
-            pass
+            existing_obj = device.find(name, objects.AddressGroup)
+
+            if existing_obj:
+                existing_obj.delete()
+                changed = True
 
     except PanDeviceError as e:
         module.fail_json(msg=e.message)
