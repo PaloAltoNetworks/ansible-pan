@@ -59,6 +59,9 @@ options:
     comments:
         description:
             - Comments for the tag.
+    device_group:
+        description:
+            - If I(ip_address) is a Panorama device, create tag in this device group.
     state:
         description:
             - Create or remove tag object.
@@ -95,6 +98,7 @@ try:
     from pandevice import base
     from pandevice import firewall
     from pandevice import objects
+    from pandevice import panorama
     from pandevice.errors import PanDeviceError
 
     HAS_LIB = True
@@ -108,13 +112,46 @@ COLOR_NAMES = [
 ]
 
 
-def find_object(device, obj_name, obj_type):
+def add_object(device, obj, device_group=None):
+    if isinstance(device, firewall.Firewall):
+        return device.add(obj)
+    elif isinstance(device, panorama.Panorama):
+        if device_group:
+            return get_devicegroup(device, device_group).add(obj)
+        else:
+            return device.add(obj)
+
+    return None
+
+
+def find_object(device, obj_name, obj_type, device_group=None):
     obj_type.refreshall(device)
 
     if isinstance(device, firewall.Firewall):
         return device.find(obj_name, obj_type)
-    else:
-        return None
+    elif isinstance(device, panorama.Panorama):
+        if device_group:
+            dg = get_devicegroup(device, device_group)
+            device.add(dg)
+            obj_type.refreshall(dg)
+            return dg.find(obj_name, obj_type)
+        else:
+            return device.find(obj_name, obj_type)
+
+    return None
+
+
+def get_devicegroup(device, device_group):
+
+    if isinstance(device, panorama.Panorama):
+        dgs = device.refresh_devices()
+
+        for dg in dgs:
+            if isinstance(dg, panorama.DeviceGroup):
+                if dg.name == device_group:
+                    return dg
+
+    return None
 
 
 def main():
@@ -126,6 +163,7 @@ def main():
         name=dict(type='str', required=True),
         color=dict(choices=COLOR_NAMES),
         comments=dict(type='str'),
+        device_group=dict(type='str'),
         state=dict(default='present', choices=['present', 'absent'])
     )
 
@@ -141,21 +179,25 @@ def main():
     name = module.params['name']
     color = module.params['color']
     comments = module.params['comments']
+    device_group = module.params['device_group']
     state = module.params['state']
 
     changed = False
 
     try:
         device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
-        objects.Tag.refreshall(device)
+
+        if device_group:
+            if not get_devicegroup(device, device_group):
+                module.fail_json(msg='Could not find {} device group.'.format(device_group))
 
         if state == 'present':
-            existing_obj = device.find(name, objects.Tag)
+            existing_obj = find_object(device, name, objects.Tag, device_group)
             color_id = objects.Tag.color_code(color) if color else None
             new_obj = objects.Tag(name=name, color=color_id, comments=comments)
 
             if not existing_obj:
-                device.add(new_obj)
+                add_object(device, new_obj, device_group)
                 new_obj.create()
                 changed = True
             elif not existing_obj.equal(new_obj):
@@ -165,7 +207,7 @@ def main():
                 changed = True
 
         elif state == 'absent':
-            existing_obj = device.find(name, objects.Tag)
+            existing_obj = find_object(device, name, objects.Tag, device_group)
 
             if existing_obj:
                 existing_obj.delete()

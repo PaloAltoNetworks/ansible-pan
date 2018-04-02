@@ -65,6 +65,9 @@ options:
     tag:
         description:
             - List of tags to add to this address object.
+    device_group:
+        description:
+            - If I(ip_address) is a Panorama device, create object in this device group.
     state:
         description:
             - Create or remove address object.
@@ -123,6 +126,7 @@ try:
     from pandevice import base
     from pandevice import firewall
     from pandevice import objects
+    from pandevice import panorama
     from pandevice.errors import PanDeviceError
 
     HAS_LIB = True
@@ -130,13 +134,46 @@ except ImportError:
     HAS_LIB = False
 
 
-def find_object(device, obj_name, obj_type):
+def add_object(device, obj, device_group=None):
+    if isinstance(device, firewall.Firewall):
+        return device.add(obj)
+    elif isinstance(device, panorama.Panorama):
+        if device_group:
+            return get_devicegroup(device, device_group).add(obj)
+        else:
+            return device.add(obj)
+
+    return None
+
+
+def find_object(device, obj_name, obj_type, device_group=None):
     obj_type.refreshall(device)
 
     if isinstance(device, firewall.Firewall):
         return device.find(obj_name, obj_type)
-    else:
-        return None
+    elif isinstance(device, panorama.Panorama):
+        if device_group:
+            dg = get_devicegroup(device, device_group)
+            device.add(dg)
+            obj_type.refreshall(dg)
+            return dg.find(obj_name, obj_type)
+        else:
+            return device.find(obj_name, obj_type)
+
+    return None
+
+
+def get_devicegroup(device, device_group):
+
+    if isinstance(device, panorama.Panorama):
+        dgs = device.refresh_devices()
+
+        for dg in dgs:
+            if isinstance(dg, panorama.DeviceGroup):
+                if dg.name == device_group:
+                    return dg
+
+    return None
 
 
 def main():
@@ -150,6 +187,7 @@ def main():
         type=dict(default='ip-netmask', choices=['ip-netmask', 'ip-range', 'fqdn']),
         description=dict(type='str'),
         tag=dict(type='list'),
+        device_group=dict(type='str'),
         state=dict(default='present', choices=['present', 'absent'])
     )
 
@@ -167,23 +205,27 @@ def main():
     type = module.params['type']
     description = module.params['description']
     tag = module.params['tag']
+    device_group = module.params['device_group']
     state = module.params['state']
 
     changed = False
 
     try:
         device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
-        objects.AddressObject.refreshall(device)
+
+        if device_group:
+            if not get_devicegroup(device, device_group):
+                module.fail_json(msg='Could not find {} device group.'.format(device_group))
 
         if state == 'present':
             if not value:
                 module.fail_json(msg='Must specify \'value\' if state is \'present\'.')
 
-            existing_obj = device.find(name, objects.AddressObject)
+            existing_obj = find_object(device, name, objects.AddressObject, device_group)
             new_obj = objects.AddressObject(name, value, type=type, description=description, tag=tag)
 
             if not existing_obj:
-                device.add(new_obj)
+                add_object(device, new_obj, device_group)
                 new_obj.create()
                 changed = True
             elif not existing_obj.equal(new_obj):
@@ -195,7 +237,7 @@ def main():
                 changed = True
 
         elif state == 'absent':
-            existing_obj = device.find(name, objects.AddressObject)
+            existing_obj = find_object(device, name, objects.AddressObject, device_group)
 
             if existing_obj:
                 existing_obj.delete()
