@@ -86,17 +86,22 @@ results:
 '''
 
 from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.network.panos import PanOSAnsibleModule
 
 try:
-    from pandevice import base
-    from pandevice import firewall
     from pandevice import objects
     from pandevice.errors import PanDeviceError
+
+    HAS_PANOS_LIB = True
+except ImportError:
+    HAS_PANOS_LIB = False
+
+try:
     import xmltodict
 
-    HAS_LIB = True
+    HAS_XMLTODICT_LIB = True
 except ImportError:
-    HAS_LIB = False
+    HAS_XMLTODICT_LIB = False
 
 
 COLOR_NAMES = [
@@ -104,46 +109,29 @@ COLOR_NAMES = [
     'cyan', 'light gray', 'blue gray', 'lime', 'black', 'gold', 'brown'
 ]
 
-
-def find_object(device, obj_name, obj_type):
-    obj_type.refreshall(device)
-
-    if isinstance(device, firewall.Firewall):
-        return device.find(obj_name, obj_type)
-    else:
-        return None
+PANOS_OBJECT_FACTS_ARGSPEC = {
+    'name': dict(type='str', required=True),
+    'type': dict(
+        choices=['address', 'address-group', 'service', 'service-group', 'tag'],
+        required=True
+    ),
+    'device_group': dict(type='str')
+}
 
 
 def main():
-    argument_spec = dict(
-        ip_address=dict(required=True),
-        username=dict(default='admin'),
-        password=dict(no_log=True),
-        api_key=dict(no_log=True),
-        name=dict(type='str', required=True),
-        type=dict(
-            type='str',
-            choices=['address', 'address-group', 'service', 'service-group', 'tag'],
-            required=True
-        )
-    )
+    module = PanOSAnsibleModule(argument_spec=PANOS_OBJECT_FACTS_ARGSPEC)
 
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
-    if not HAS_LIB:
-        module.fail_json(msg='pan-python and pandevice are required for this module.')
-
-    ip_address = module.params['ip_address']
-    username = module.params['username']
-    password = module.params['password']
-    api_key = module.params['api_key']
     type = module.params['type']
     name = module.params['name']
+    device_group = module.params['device_group']
 
     results = {}
 
-    try:
-        device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
+    if not HAS_XMLTODICT_LIB:
+        module.fail_json(msg='xmltodict is required for this module.')
 
+    try:
         obj = None
         obj_type = None
 
@@ -158,7 +146,10 @@ def main():
         elif type == 'tag':
             obj_type = objects.Tag
 
-        obj = find_object(device, name, obj_type)
+        if device_group:
+            module.device_group = device_group
+
+        obj = module.find_object(name, obj_type)
 
         if obj:
             results = xmltodict.parse(obj.element_str())
