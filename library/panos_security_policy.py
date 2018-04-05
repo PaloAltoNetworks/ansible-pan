@@ -87,6 +87,11 @@ options:
             - Action to take.  Note: not all options are available on all PAN-OS versions.
         choices: ['deny', 'allow', 'drop', 'reset-client', 'reset-server', 'reset-both']
         default: 'allow'
+    icmp_unreachable:
+        description:
+            - Whether to send ICMP unreachable responses for drop actions.
+        type: bool
+        default: False
     log_setting:
         description:
             - Log forwarding profile.
@@ -233,6 +238,7 @@ PANOS_SECURITY_POLICY_ARGSPEC = {
         choices=['deny', 'allow', 'drop', 'reset-client', 'reset-server', 'reset-both'],
         default='allow'
     ),
+    'icmp_unreachable': dict(type='bool', default=False),
     'log_setting': dict(type='string'),
     'log_start': dict(type='bool', default=False),
     'log_end': dict(type='bool', default=True),
@@ -256,7 +262,7 @@ PANOS_SECURITY_POLICY_ARGSPEC = {
     'location': dict(choices=['top', 'bottom', 'before', 'after']),
     'existing_rule': dict(type='str'),
     'device_group': dict(type='str'),
-    'panorama_loc': dict(default='pre', choices=['pre', 'post']),
+    'panorama_loc': dict(choices=['pre', 'post']),
     'state': dict(default='present', choices=['present', 'absent', 'disabled'])
 }
 
@@ -342,8 +348,8 @@ def main():
             )
 
             # ICMP Unreachable only applies if we're dropping the traffic or sending resets.
-            if action in ['drop', 'reset-client', 'reset-server', 'reset-both']:
-                new_obj.icmp_unreachable = module.params['icmp_unreachable']
+            # if action in ['drop', 'reset-client', 'reset-server', 'reset-both']:
+            #     new_obj.icmp_unreachable = module.params['icmp_unreachable']
 
             # Target and negate target only apply if we're talking to Panorama.
             if device_group:
