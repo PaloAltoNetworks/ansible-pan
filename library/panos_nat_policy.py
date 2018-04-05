@@ -227,7 +227,7 @@ PANOS_NAT_POLICY_ARGSPEC = {
     'location': dict(default='bottom', choices=['top', 'bottom', 'before', 'after']),
     'existing_rule': dict(type='str'),
     'device_group': dict(type='str'),
-    'panorama_loc': dict(default='pre', choices=['pre', 'post']),
+    'panorama_loc': dict(choices=['pre', 'post']),
     'state': dict(default='present', choices=['present', 'absent', 'disabled'])
 }
 
