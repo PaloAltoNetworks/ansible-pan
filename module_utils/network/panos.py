@@ -127,7 +127,7 @@ class PanOSAnsibleModule(AnsibleModule):
 
     @device_group.setter
     def device_group(self, dg_name):
-        """ 
+        """
         Sets the device group to work with, and also validates that it exists.
         :param dg_name: Name of a Panorama device group.
         """
@@ -155,7 +155,10 @@ class PanOSAnsibleModule(AnsibleModule):
                 self.device.add(self._rulebase)
             elif isinstance(self.device, panorama.Panorama):
                 self._rulebase = policies.PreRulebase()
-                self.device_group.add(self._rulebase)
+                if self.device_group:
+                    self.device_group.add(self._rulebase)
+                else:
+                    self.device.add(self._rulebase)
 
             policies.SecurityRule.refreshall(self._rulebase)
             policies.NatRule.refreshall(self._rulebase)
@@ -187,7 +190,7 @@ class PanOSAnsibleModule(AnsibleModule):
                         one.
         :returns: Boolean if an object was created or modified.
         """
-        existing_obj = self._find_object(obj_name, obj_type)
+        existing_obj = self.find_object(obj_name, obj_type)
 
         if not existing_obj:
             self._add_object(new_obj)
@@ -201,6 +204,27 @@ class PanOSAnsibleModule(AnsibleModule):
 
         return False
 
+    def find_object(self, obj_name, obj_type):
+        """
+        Finds an object.
+        :param obj_name: Name of object to find.
+        :param obj_type: Type of object to find.
+        :returns: Object, or None if the object is not found.
+        """
+        obj_type.refreshall(self.device)
+
+        if isinstance(self.device, firewall.Firewall):
+            return self.device.find(obj_name, obj_type)
+        elif isinstance(self.device, panorama.Panorama):
+            if self.device_group:
+                self.device.add(self.device_group)
+                obj_type.refreshall(self.device_group)
+                return self.device_group.find(obj_name, obj_type)
+            else:
+                return self.device.find(obj_name, obj_type)
+
+        return None
+
     def delete_object(self, obj_name, obj_type):
         """
         Deletes an object, if it exists.
@@ -208,7 +232,7 @@ class PanOSAnsibleModule(AnsibleModule):
         :param obj_type: Type of object to delete.
         :returns: Boolean if an object was deleted.
         """
-        existing_obj = self._find_object(obj_name, obj_type)
+        existing_obj = self.find_object(obj_name, obj_type)
 
         if existing_obj:
             existing_obj.delete()
@@ -292,6 +316,15 @@ class PanOSAnsibleModule(AnsibleModule):
         else:
             return False
 
+    def find_rule(self, rule_name, rule_type):
+        """
+        Finds a rule in the current rulebase.
+        :param rule_name: Name of rule to find.
+        :param rule_type: Type of rule to find.
+        :returns: Rule, or None if the rule is not found.
+        """
+        return self.rulebase.find(rule_name, rule_type)
+
     def disable_rule(self, rule_name, rule_type):
         """
         Disables a rule, if it exists.
@@ -316,21 +349,6 @@ class PanOSAnsibleModule(AnsibleModule):
                 return self.device_group.add(obj)
             else:
                 return self.device.add(obj)
-
-    def _find_object(self, obj_name, obj_type):
-        obj_type.refreshall(self.device)
-
-        if isinstance(self.device, firewall.Firewall):
-            return self.device.find(obj_name, obj_type)
-        elif isinstance(self.device, panorama.Panorama):
-            if self.device_group:
-                self.device.add(self.device_group)
-                obj_type.refreshall(self.device_group)
-                return self.device_group.find(obj_name, obj_type)
-            else:
-                return self.device.find(obj_name, obj_type)
-
-        return None
 
     def _get_rule_index(self, rulebase, rule_name):
         if rulebase:
