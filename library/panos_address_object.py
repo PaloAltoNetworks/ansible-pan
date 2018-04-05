@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#  Copyright 2017 Palo Alto Networks, Inc
+#  Copyright 2018 Palo Alto Networks, Inc
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -30,7 +30,8 @@ requirements:
     - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
 notes:
-    - Panorama is not supported.
+    - Panorama is supported.
+    - Check mode is not supported.
 options:
     ip_address:
         description:
@@ -120,86 +121,40 @@ RETURN = '''
 # Default return values
 '''
 
-from ansible.module_utils.basic import AnsibleModule
-
 try:
-    from pandevice import base
-    from pandevice import firewall
     from pandevice import objects
-    from pandevice import panorama
     from pandevice.errors import PanDeviceError
 
-    HAS_LIB = True
+    HAS_PANOS_LIB = True
 except ImportError:
-    HAS_LIB = False
+    HAS_PANOS_LIB = False
+
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.network.panos import PanOSAnsibleModule
 
 
-def add_object(device, obj, device_group=None):
-    if isinstance(device, firewall.Firewall):
-        return device.add(obj)
-    elif isinstance(device, panorama.Panorama):
-        if device_group:
-            return get_devicegroup(device, device_group).add(obj)
-        else:
-            return device.add(obj)
+PANOS_ADDRESS_OBJECT_ARGSPEC = {
+    'name': dict(type='str', required=True),
+    'value': dict(type='str'),
+    'type': dict(default='ip-netmask', choices=['ip-netmask', 'ip-range', 'fqdn']),
+    'description': dict(type='str'),
+    'tag': dict(type='list'),
+    'device_group': dict(type='str'),
+    'state': dict(default='present', choices=['present', 'absent'])
+}
 
-    return None
-
-
-def find_object(device, obj_name, obj_type, device_group=None):
-    obj_type.refreshall(device)
-
-    if isinstance(device, firewall.Firewall):
-        return device.find(obj_name, obj_type)
-    elif isinstance(device, panorama.Panorama):
-        if device_group:
-            dg = get_devicegroup(device, device_group)
-            device.add(dg)
-            obj_type.refreshall(dg)
-            return dg.find(obj_name, obj_type)
-        else:
-            return device.find(obj_name, obj_type)
-
-    return None
-
-
-def get_devicegroup(device, device_group):
-
-    if isinstance(device, panorama.Panorama):
-        dgs = device.refresh_devices()
-
-        for dg in dgs:
-            if isinstance(dg, panorama.DeviceGroup):
-                if dg.name == device_group:
-                    return dg
-
-    return None
+PANOS_ADDRESS_OBJECT_REQUIRED_IF_ARGS = [
+    # If 'state' is 'present', require 'value'.
+    ['state', 'present', ['value']]
+]
 
 
 def main():
-    argument_spec = dict(
-        ip_address=dict(required=True),
-        username=dict(default='admin'),
-        password=dict(no_log=True),
-        api_key=dict(no_log=True),
-        name=dict(type='str', required=True),
-        value=dict(type='str'),
-        type=dict(default='ip-netmask', choices=['ip-netmask', 'ip-range', 'fqdn']),
-        description=dict(type='str'),
-        tag=dict(type='list'),
-        device_group=dict(type='str'),
-        state=dict(default='present', choices=['present', 'absent'])
+    module = PanOSAnsibleModule(
+        argument_spec=PANOS_ADDRESS_OBJECT_ARGSPEC,
+        required_if=PANOS_ADDRESS_OBJECT_REQUIRED_IF_ARGS
     )
 
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
-
-    if not HAS_LIB:
-        module.fail_json(msg='pan-python and pandevice are required for this module.')
-
-    ip_address = module.params['ip_address']
-    username = module.params['username']
-    password = module.params['password']
-    api_key = module.params['api_key']
     name = module.params['name']
     value = module.params['value']
     type = module.params['type']
@@ -211,38 +166,17 @@ def main():
     changed = False
 
     try:
-        device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
-
         if device_group:
-            if not get_devicegroup(device, device_group):
-                module.fail_json(msg='Could not find {} device group.'.format(device_group))
+            module.device_group = device_group
 
         if state == 'present':
-            if not value:
-                module.fail_json(msg='Must specify \'value\' if state is \'present\'.')
-
-            existing_obj = find_object(device, name, objects.AddressObject, device_group)
-            new_obj = objects.AddressObject(name, value, type=type, description=description, tag=tag)
-
-            if not existing_obj:
-                add_object(device, new_obj, device_group)
-                new_obj.create()
-                changed = True
-            elif not existing_obj.equal(new_obj):
-                existing_obj.value = value
-                existing_obj.type = type
-                existing_obj.description = description
-                existing_obj.tag = tag
-                existing_obj.apply()
-                changed = True
+            new_obj = objects.AddressObject(
+                name, value, type=type, description=description, tag=tag
+            )
+            changed = module.create_or_update_object(name, objects.AddressObject, new_obj)
 
         elif state == 'absent':
-            existing_obj = find_object(device, name, objects.AddressObject, device_group)
-
-            if existing_obj:
-                existing_obj.delete()
-                changed = True
-
+            changed = module.delete_object(name, objects.AddressObject)
     except PanDeviceError as e:
         module.fail_json(msg=e.message)
 

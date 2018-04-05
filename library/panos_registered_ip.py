@@ -120,35 +120,25 @@ results:
 '''
 
 from ansible.module_utils.basic import AnsibleModule, get_exception
+from ansible.module_utils.network.panos import PanOSAnsibleModule
 
 try:
-    from pandevice import base
-    from pan.xapi import PanXapiError
+    from pandevice.errors import PanDeviceError
 
-    HAS_LIB = True
+    HAS_PANOS_LIB = True
 except ImportError:
-    HAS_LIB = False
+    HAS_PANOS_LIB = False
+
+PANOS_REGISTERED_IP_ARGSPEC = {
+    'registered_ip': dict(type='str', required=True),
+    'tag': dict(type='list', required=True),
+    'state': dict(default='present', choices=['present', 'absent'])
+}
 
 
 def main():
-    argument_spec = dict(
-        ip_address=dict(required=True),
-        username=dict(default='admin'),
-        password=dict(no_log=True),
-        api_key=dict(no_log=True),
-        registered_ip=dict(type='str', required=True),
-        tag=dict(type='list', required=True),
-        state=dict(default='present', choices=['present', 'absent'])
-    )
+    module = PanOSAnsibleModule(argument_spec=PANOS_REGISTERED_IP_ARGSPEC)
 
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
-    if not HAS_LIB:
-        module.fail_json(msg='pan-python and pandevice are required for this module.')
-
-    ip_address = module.params['ip_address']
-    username = module.params['username']
-    password = module.params['password']
-    api_key = module.params['api_key']
     registered_ip = module.params['registered_ip']
     tag = module.params['tag']
     state = module.params['state']
@@ -156,7 +146,7 @@ def main():
     changed = False
 
     try:
-        device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
+        device = module.device
         registered_ips = device.userid.get_registered_ip(tags=tag)
 
         if state == 'present':
@@ -171,8 +161,8 @@ def main():
 
         results = device.userid.get_registered_ip(tags=tag)
 
-    except PanXapiError:
-        module.fail_json(msg=get_exception())
+    except PanDeviceError as e:
+        module.fail_json(msg=e.message)
 
     module.exit_json(changed=changed, results=results)
 

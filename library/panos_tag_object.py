@@ -30,7 +30,8 @@ requirements:
     - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
 notes:
-    - Panorama is not supported.
+    - Panorama is supported.
+    - Check mode is not supported.
 options:
     ip_address:
         description:
@@ -92,90 +93,34 @@ RETURN = '''
 # Default return values
 '''
 
-from ansible.module_utils.basic import AnsibleModule
-
 try:
-    from pandevice import base
-    from pandevice import firewall
     from pandevice import objects
-    from pandevice import panorama
     from pandevice.errors import PanDeviceError
 
-    HAS_LIB = True
+    HAS_PANOS_LIB = True
 except ImportError:
-    HAS_LIB = False
+    HAS_PANOS_LIB = False
 
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.network.panos import PanOSAnsibleModule
 
 COLOR_NAMES = [
     'red', 'green', 'blue', 'yellow', 'copper', 'orange', 'purple', 'gray', 'light green',
     'cyan', 'light gray', 'blue gray', 'lime', 'black', 'gold', 'brown'
 ]
 
-
-def add_object(device, obj, device_group=None):
-    if isinstance(device, firewall.Firewall):
-        return device.add(obj)
-    elif isinstance(device, panorama.Panorama):
-        if device_group:
-            return get_devicegroup(device, device_group).add(obj)
-        else:
-            return device.add(obj)
-
-    return None
-
-
-def find_object(device, obj_name, obj_type, device_group=None):
-    obj_type.refreshall(device)
-
-    if isinstance(device, firewall.Firewall):
-        return device.find(obj_name, obj_type)
-    elif isinstance(device, panorama.Panorama):
-        if device_group:
-            dg = get_devicegroup(device, device_group)
-            device.add(dg)
-            obj_type.refreshall(dg)
-            return dg.find(obj_name, obj_type)
-        else:
-            return device.find(obj_name, obj_type)
-
-    return None
-
-
-def get_devicegroup(device, device_group):
-
-    if isinstance(device, panorama.Panorama):
-        dgs = device.refresh_devices()
-
-        for dg in dgs:
-            if isinstance(dg, panorama.DeviceGroup):
-                if dg.name == device_group:
-                    return dg
-
-    return None
+PANOS_TAG_OBJECT_ARGSPEC = {
+    'name': dict(type='str', required=True),
+    'color': dict(choices=COLOR_NAMES),
+    'comments': dict(type='str'),
+    'device_group': dict(type='str'),
+    'state': dict(default='present', choices=['present', 'absent'])
+}
 
 
 def main():
-    argument_spec = dict(
-        ip_address=dict(required=True),
-        username=dict(default='admin'),
-        password=dict(no_log=True),
-        api_key=dict(no_log=True),
-        name=dict(type='str', required=True),
-        color=dict(choices=COLOR_NAMES),
-        comments=dict(type='str'),
-        device_group=dict(type='str'),
-        state=dict(default='present', choices=['present', 'absent'])
-    )
+    module = PanOSAnsibleModule(argument_spec=PANOS_TAG_OBJECT_ARGSPEC)
 
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
-
-    if not HAS_LIB:
-        module.fail_json(msg='pan-python and pandevice are required for this module.')
-
-    ip_address = module.params['ip_address']
-    username = module.params['username']
-    password = module.params['password']
-    api_key = module.params['api_key']
     name = module.params['name']
     color = module.params['color']
     comments = module.params['comments']
@@ -185,33 +130,17 @@ def main():
     changed = False
 
     try:
-        device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
-
         if device_group:
-            if not get_devicegroup(device, device_group):
-                module.fail_json(msg='Could not find {} device group.'.format(device_group))
+            module.device_group = device_group
 
         if state == 'present':
-            existing_obj = find_object(device, name, objects.Tag, device_group)
             color_id = objects.Tag.color_code(color) if color else None
             new_obj = objects.Tag(name=name, color=color_id, comments=comments)
 
-            if not existing_obj:
-                add_object(device, new_obj, device_group)
-                new_obj.create()
-                changed = True
-            elif not existing_obj.equal(new_obj):
-                existing_obj.color = objects.Tag.color_code(color)
-                existing_obj.comments = comments
-                existing_obj.apply()
-                changed = True
+            changed = module.create_or_update_object(name, objects.Tag, new_obj)
 
         elif state == 'absent':
-            existing_obj = find_object(device, name, objects.Tag, device_group)
-
-            if existing_obj:
-                existing_obj.delete()
-                changed = True
+            changed = module.delete_object(name, objects.Tag)
 
     except PanDeviceError as e:
         module.fail_json(msg=e.message)

@@ -30,7 +30,7 @@ requirements:
     - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
 notes:
-    - Panorama is not supported.
+    - Panorama is supported.
 options:
     ip_address:
         description:
@@ -183,6 +183,16 @@ options:
             - If 'location' is set to 'before' or 'after', this option specifies an existing
               rule name.  The new rule will be created in the specified position relative to this
               rule.  If 'location' is set to 'before' or 'after', this option is required.
+    device_group:
+        description:
+            - If I(ip_address) is a Panorama device, create policy in this device group.
+        type: str
+    panorama_loc:
+        description:
+            - If I(ip_address) is a Panorama device and I(device_group) is specified, create
+              policy in either the pre or post rules.
+        choices: ['pre', 'post']
+        default: 'pre'
     state:
         description:
             - Create, remove, or disable security policy.
@@ -198,90 +208,82 @@ RETURN = '''
 # Default return values
 '''
 
-from ansible.module_utils.basic import AnsibleModule
-
 try:
-    from pandevice import base
-    from pandevice import firewall
     from pandevice import policies
     from pandevice.errors import PanDeviceError
 
-    HAS_LIB = True
+    HAS_PANOS_LIB = True
 except ImportError:
-    HAS_LIB = False
+    HAS_PANOS_LIB = False
+
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.network.panos import PanOSAnsibleModule
 
 
-def get_rulebase(device, devicegroup=None):
-    if isinstance(device, firewall.Firewall):
-        rulebase = policies.Rulebase()
-        device.add(rulebase)
-    else:
-        return None
+PANOS_SECURITY_POLICY_ARGSPEC = {
+    'name': dict(type='str', required=True),
+    'fromzone': dict(type='list'),
+    'tozone': dict(type='list'),
+    'source': dict(type='list', default=['any']),
+    'destination': dict(type='list', default=['any']),
+    'application': dict(type='list', default=['any']),
+    'service': dict(type='list', default=['application-default']),
+    'category': dict(type='list'),
+    'action': dict(
+        choices=['deny', 'allow', 'drop', 'reset-client', 'reset-server', 'reset-both'],
+        default='allow'
+    ),
+    'log_setting': dict(type='string'),
+    'log_start': dict(type='bool', default=False),
+    'log_end': dict(type='bool', default=True),
+    'description': dict(type='str'),
+    'type': dict(choices=['universal', 'interzone', 'intrazone'], default='universal'),
+    'negate_source': dict(type='bool', default=False),
+    'negate_destination': dict(type='bool', default=False),
+    'schedule': dict(type='str'),
+    'disable_server_response_inspection': dict(type='bool', default=False),
+    'group': dict(type='str'),
+    'virus': dict(type='str'),
+    'spyware': dict(type='str'),
+    'vulnerability': dict(type='str'),
+    'url_filtering': dict(type='str'),
+    'file_blocking': dict(type='str'),
+    'wildfire_analysis': dict(type='str'),
+    'data_filtering': dict(type='str'),
+    'negate_target': dict(type='bool', default=False),
+    'target': dict(type='list'),
+    'tag': dict(type='list'),
+    'location': dict(choices=['top', 'bottom', 'before', 'after']),
+    'existing_rule': dict(type='str'),
+    'device_group': dict(type='str'),
+    'panorama_loc': dict(default='pre', choices=['pre', 'post']),
+    'state': dict(default='present', choices=['present', 'absent', 'disabled'])
+}
 
-    policies.SecurityRule.refreshall(rulebase)
-    return rulebase
+PANOS_SECURITY_POLICY_REQUIRED_IF_ARGS = [
+    # If 'state' is 'present', require 'fromzone' and 'tozone'.
+    ['state', 'present', ['fromzone', 'tozone']],
 
+    # If 'location' is 'before', require 'existing_rule'.
+    ['location', 'before', ['existing_rule']],
 
-def find_rule_index(rulebase, rule_name):
-    if rulebase:
-        for num, child in enumerate(rulebase.children):
-            if rule_name == child.name:
-                return num
-    return -1
+    # If 'location' is 'after', require 'existing_rule'.
+    ['location', 'after', ['existing_rule']],
+
+    # If 'panorama_loc' is 'pre', require 'device_group'.
+    ['panorama_loc', 'pre', ['device_group']],
+
+    # If 'panorama_loc' is 'post', require 'device_group'.
+    ['panorama_loc', 'post', ['device_group']]
+]
 
 
 def main():
-    argument_spec = dict(
-        ip_address=dict(required=True),
-        username=dict(default='admin'),
-        password=dict(no_log=True),
-        api_key=dict(no_log=True),
-        name=dict(type='str', required=True),
-        fromzone=dict(type='list'),
-        tozone=dict(type='list'),
-        source=dict(type='list', default=['any']),
-        destination=dict(type='list', default=['any']),
-        application=dict(type='list', default=['any']),
-        service=dict(type='list', default=['application-default']),
-        category=dict(type='list'),
-        action=dict(
-            choices=['deny', 'allow', 'drop', 'reset-client', 'reset-server', 'reset-both'],
-            default='allow'
-        ),
-        log_setting=dict(type='string'),
-        log_start=dict(type='bool', default=False),
-        log_end=dict(type='bool', default=True),
-        description=dict(type='str'),
-        type=dict(choices=['universal', 'interzone', 'intrazone'], default='universal'),
-        negate_source=dict(type='bool', default=False),
-        negate_destination=dict(type='bool', default=False),
-        schedule=dict(type='str'),
-        disable_server_response_inspection=dict(type='bool', default=False),
-        group=dict(type='str'),
-        virus=dict(type='str'),
-        spyware=dict(type='str'),
-        vulnerability=dict(type='str'),
-        url_filtering=dict(type='str'),
-        file_blocking=dict(type='str'),
-        wildfire_analysis=dict(type='str'),
-        data_filtering=dict(type='str'),
-        negate_target=dict(type='bool', default=False),
-        target=dict(type='list'),
-        tag=dict(type='list'),
-        location=dict(choices=['top', 'bottom', 'before', 'after']),
-        existing_rule=dict(type='str'),
-        state=dict(default='present', choices=['present', 'absent', 'disabled'])
+    module = PanOSAnsibleModule(
+        argument_spec=PANOS_SECURITY_POLICY_ARGSPEC,
+        required_if=PANOS_SECURITY_POLICY_REQUIRED_IF_ARGS
     )
 
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
-
-    if not HAS_LIB:
-        module.fail_json(msg='pan-python and pandevice are required for this module.')
-
-    ip_address = module.params['ip_address']
-    username = module.params['username']
-    password = module.params['password']
-    api_key = module.params['api_key']
     name = module.params['name']
     fromzone = module.params['fromzone']
     tozone = module.params['tozone']
@@ -313,20 +315,19 @@ def main():
     tag = module.params['tag']
     location = module.params['location']
     existing_rule = module.params['existing_rule']
+    device_group = module.params['device_group']
     state = module.params['state']
 
     changed = False
 
     try:
-        device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
-        rulebase = get_rulebase(device)
-        existing_obj = rulebase.find(name, policies.SecurityRule)
+        if device_group:
+            module.device_group = device_group
+
+            if module.params['panorama_loc'] == 'post':
+                module.rulebase = policies.PostRulebase
 
         if state == 'present':
-            if not fromzone or not tozone:
-                module.fail_json(msg='Must specify \'fromzone\' and \'tozone\' if \'state\' is \''
-                                 'present\'.')
-
             new_obj = policies.SecurityRule(
                 name=name, fromzone=fromzone, tozone=tozone, source=source,
                 destination=destination, application=application, service=service,
@@ -340,59 +341,25 @@ def main():
                 tag=tag
             )
 
-            # TODO: icmp_unreachable special handling
+            # ICMP Unreachable only applies if we're dropping the traffic or sending resets.
+            if action in ['drop', 'reset-client', 'reset-server', 'reset-both']:
+                new_obj.icmp_unreachable = module.params['icmp_unreachable']
 
-            # TODO: negate_target and target special handling (Panorama)
+            # Target and negate target only apply if we're talking to Panorama.
+            if device_group:
+                new_obj.negate_target = module.params['negate_target']
+                new_obj.target = module.params['target']
 
-            if ((location == 'before') or (location == 'after')) and not existing_rule:
-                module.fail_json(msg='Must specify \'existing_rule\' if \'location\' is '
-                                 '\'before\' or \'after\'.')
+            changed = module.create_or_update_rule(
+                name, policies.SecurityRule, new_obj, location=location,
+                existing_rule_name=existing_rule
+            )
 
-            # Default is to add the rule at the bottom of the rulebase.
-            new_rule_index = len(rulebase.children)
+        elif state == 'absent':
+            changed = module.delete_rule(name, policies.SecurityRule)
 
-            if (location == 'before') or (location == 'after'):
-                new_rule_index = find_rule_index(rulebase, existing_rule)
-
-                if new_rule_index < 0:
-                    module.fail_json(msg='Existing rule \'%s\' does not exist.' % existing_rule)
-
-                if location == 'after':
-                    new_rule_index = new_rule_index + 1
-
-            elif location == 'top':
-                new_rule_index = 0
-
-            if not existing_obj:
-                rulebase.insert(new_rule_index, new_obj)
-                new_obj.create()
-                rulebase.apply()
-                changed = True
-
-            elif not existing_obj.equal(new_obj):
-                for param in new_obj._params:
-                    setattr(existing_obj, param.name, getattr(new_obj, param.name))
-                existing_obj.apply()
-                rulebase.apply()
-                changed = True
-
-            # If we need to change the rule positioning for any reason, do it here.
-            if location and new_rule_index != find_rule_index(rulebase, new_obj.name):
-                rulebase.insert(new_rule_index, new_obj)
-                new_obj.create()
-                existing_obj.delete()
-                rulebase.apply()
-                changed = True
-
-        elif state == 'absent' and existing_obj:
-            existing_obj.delete()
-            rulebase.apply()
-            changed = True
-
-        elif state == 'disabled' and existing_obj:
-            existing_obj.disabled = True
-            existing_obj.apply()
-            changed = True
+        elif state == 'disabled':
+            changed = module.disable_rule(name, policies.SecurityRule)
 
     except PanDeviceError as e:
         module.fail_json(msg=e.message)
