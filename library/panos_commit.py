@@ -21,10 +21,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 DOCUMENTATION = '''
 ---
 module: panos_commit
-short_description: commit firewall's candidate configuration
+short_description: Commit a PAN-OS device's candidate configuration.
 description:
-    - PanOS module that will commit firewall's candidate configuration on
-    - the device. The new configuration will become active immediately.
+    - Module that will commit the candidate configuration of a PAN-OS device.
+      The new configuration will become active immediately.
 author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer), Robert Hagen (@rnh556)"
 version_added: "2.3"
 requirements:
@@ -33,25 +33,24 @@ requirements:
 options:
     ip_address:
         description:
-            - The IP address (or hostname) of the PAN-OS device or Panorama management console.
+            - IP address or hostname of PAN-OS device.
         required: true
     username:
         description:
-            - Username credentials to use for authentication.
-        required: false
-        default: "admin"
+            - Username for authentication for PAN-OS device.  Optional if I(api_key) is used.
+        default: 'admin'
     password:
         description:
-            - Password credentials to use for authentication.
-        required: true
+            - Password for authentication for PAN-OS device.  Optional if I(api_key) is used.
     api_key:
         description:
-            - API key that can be used instead of I(username)/I(password) credentials.
-        required: false
-    devicegroup:
+            - API key to be used instead of I(username) and I(password).
+    device_group:
         description:
-            - The Panorama device group to be committed.
-        required: false
+            - If I(ip_address) is a Panorama device, perform a commit-all to the devices in this
+              device group in addition to commiting to Panorama.
+        type: str
+        aliases: ['devicegroup']
 '''
 
 EXAMPLES = '''
@@ -65,88 +64,91 @@ EXAMPLES = '''
   panos_commit:
     ip_address: '{{ ip_address }}'
     api_key: '{{ api_key }}'
-    devicegroup: 'Cloud-Edge'
+    device_group: 'Cloud-Edge'
 '''
 
 RETURN = '''
-status:
-    description: success status
-    returned: success
-    type: string
-    sample: "Commit successful"
+# Default return values
 '''
-
-from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.basic import get_exception
-
 try:
-    import pandevice
-    from pandevice import base
     from pandevice import firewall
     from pandevice import panorama
+    from pandevice.errors import PanDeviceError, PanCommitNotNeeded
 
-    HAS_LIB = True
+    HAS_PANOS_LIB = True
 except ImportError:
-    HAS_LIB = False
+    HAS_PANOS_LIB = False
 
 
-def devicegroup_exists(device, devicegroup):
-    dev_grps = device.refresh_devices()
-    for grp in dev_grps:
-        if isinstance(grp, pandevice.panorama.DeviceGroup):
-            if grp.name == devicegroup:
-                return True
-    return False
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.network.panos import PanOSAnsibleModule
 
 
-def do_commit(device, devicegroup):
-    try:
-        if isinstance(device, panorama.Panorama):
-            result = device.commit_all(sync=True, sync_all=True, exception=True, devicegroup=devicegroup)
-        else:
-            result = device.commit(sync=True, exception=True)
-        return result
-    except:
-        return False
+PANOS_COMMIT_ARGSPEC = {
+    'device_group': dict(type='str', aliases=['devicegroup'])
+}
+
+
+def check_commit_result(module, result):
+    if result['result'] == 'FAIL':
+        if 'xml' in result:
+            result.pop('xml')
+
+        module.fail_json(msg='Commit failed', result=result)
 
 
 def main():
-    argument_spec = dict(
-        ip_address=dict(required=True),
-        password=dict(no_log=True),
-        username=dict(default='admin'),
-        api_key=dict(no_log=True),
-        devicegroup=dict()
-    )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
-                           required_one_of=[['api_key', 'password']])
-    if not HAS_LIB:
-        module.fail_json(msg='Missing required libraries.')
+    module = PanOSAnsibleModule(argument_spec=PANOS_COMMIT_ARGSPEC)
 
-    ip_address = module.params["ip_address"]
-    password = module.params["password"]
-    username = module.params['username']
-    api_key = module.params['api_key']
-    devicegroup = module.params['devicegroup']
+    device_group = module.params['device_group']
 
-    # Create the device with the appropriate pandevice type
-    device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
+    changed = False
+    results = []
 
-    # If Panorama, validate the devicegroup
-    if isinstance(device, panorama.Panorama):
-        if devicegroup_exists(device, devicegroup):
-            pass
-        else:
-            module.fail_json(
-                failed=1,
-                msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup
-            )
+    try:
+        if device_group:
+            module.device_group = device_group
 
-    # Commit the configs
-    if do_commit(device, devicegroup):
-        module.exit_json(changed=True, msg='Commit successful')
-    else:
-        module.fail_json(changed=False, msg='Commit failed')
+        if isinstance(module.device, firewall.Firewall):
+            result = module.device.commit(sync=True)
+
+            if result:
+                check_commit_result(module, result)
+
+                changed = True
+                results.append(result)
+
+        elif isinstance(module.device, panorama.Panorama):
+            # Panorama commit is two potential steps, one to Panorama itself, and one to the
+            # device group.
+            result = module.device.commit(sync=True)
+
+            if result:
+                check_commit_result(module, result)
+
+                changed = True
+                results.append(result)
+
+            if module.device_group:
+                result = module.device.commit_all(
+                    sync=True, sync_all=True, devicegroup=device_group
+                )
+
+                if result:
+                    check_commit_result(module, result)
+
+                    changed = True
+                    results.append(result)
+
+        # Clean XML out of results becasue Ansible doesn't like it.
+        for result in results:
+            if 'xml' in result:
+                result.pop('xml')
+
+    except PanDeviceError as e:
+        module.fail_json(msg=e.message)
+
+    module.exit_json(changed=changed, result=results)
 
 
 if __name__ == '__main__':
