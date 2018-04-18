@@ -1,0 +1,41 @@
+- name: Demonstrate how to use userif module to register / unregister userid
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  #roles:
+  #  - role: PaloAltoNetworks.paloaltonetworks
+
+  tasks:
+  - include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: register username ivanb to 10.0.1.101
+    panos_userid:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      operation: 'login'
+      userid: 'ACMECORP\ivanb'
+      register_ip: '10.0.1.101'
+
+  - name: register username bob to 10.0.1.102
+    panos_userid:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      operation: 'login'
+      userid: 'ACMECORP\bob'
+      register_ip: '10.0.1.102'
+
+  - name: deregister username bob from 10.0.1.102
+    panos_userid:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      operation: 'logout'
+      userid: 'ACMECORP\bob'
+      register_ip: '10.0.1.102'
+
+  - name: check registration through CLI
+    debug: msg='Operation done, loging to FW CLI and execute \'show user ip-user-mapping all\''

@@ -11,7 +11,7 @@ V1.0.7
 
 *New modules*
 
-N/A
+* panos_userid: added ability to (un)register userid with ip address
 
 *Removed modules*
 
