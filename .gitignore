@@ -16,3 +16,4 @@ dist/
 # Runtime files
 *.retry
 examples/firewall-secrets.yml
+*.swp
