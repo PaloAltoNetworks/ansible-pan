@@ -44,6 +44,10 @@ options:
         description:
             - Password credentials to use for authentication.
         required: true
+    api_key:
+        description:
+            - API key that can be used instead of I(username)/I(password) credentials.
+        required: false
     devicegroup:
         description:
             - The Panorama device group to be committed.
@@ -61,7 +65,7 @@ EXAMPLES = '''
   panos_commit:
     ip_address: '{{ ip_address }}'
     api_key: '{{ api_key }}'
-    devicegroup: 'Cloud Edge'
+    devicegroup: 'Cloud-Edge'
 '''
 
 RETURN = '''
@@ -71,7 +75,6 @@ status:
     type: string
     sample: "Commit successful"
 '''
-
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.basic import get_exception
@@ -98,9 +101,10 @@ def devicegroup_exists(device, devicegroup):
 
 def do_commit(device, devicegroup):
     try:
-        result = device.commit(sync=True, exception=True)
         if isinstance(device, panorama.Panorama):
             result = device.commit_all(sync=True, sync_all=True, exception=True, devicegroup=devicegroup)
+        else:
+            result = device.commit(sync=True, exception=True)
         return result
     except:
         return False
@@ -126,7 +130,7 @@ def main():
     devicegroup = module.params['devicegroup']
 
     # Create the device with the appropriate pandevice type
-    device = base.PanDevice.create_from_device(ip_address, username, password)
+    device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
 
     # If Panorama, validate the devicegroup
     if isinstance(device, panorama.Panorama):

@@ -11,11 +11,21 @@ V1.0.7
 
 *New modules*
 
+* panos_userid: added ability to (un)register userid with ip address
+
 *Removed modules*
+
+N/A
+
+*Refactored modules*
+
+- panos_interface: Added full support for static configuration of ethernet interfaces
+    - https://github.com/PaloAltoNetworks/ansible-pan/pull/61
 
 *Miscellanies*
 
-*Closed issues*
+- Add functionality to list static address groups https://github.com/PaloAltoNetworks/ansible-pan/pull/64
+- Pass api_key to pandevice https://github.com/PaloAltoNetworks/ansible-pan/pull/63
 
 V1.0.6
 ------
