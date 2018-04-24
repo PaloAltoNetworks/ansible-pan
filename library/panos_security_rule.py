@@ -246,6 +246,9 @@ RETURN = '''
 # Default return values
 '''
 
+# import pydevd
+# pydevd.settrace('localhost', port=61279, stdoutToServer=True, stderrToServer=True)
+
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.basic import get_exception
 
@@ -287,6 +290,7 @@ def get_rulebase(device, devicegroup):
         dg.add(rulebase)
     else:
         return False
+
     policies.SecurityRule.refreshall(rulebase)
     return rulebase
 
@@ -366,17 +370,23 @@ def create_security_rule(**kwargs):
 
 def add_rule(rulebase, sec_rule, position):
     if rulebase:
-        rulebase.add(sec_rule)
+        if not position:
+            rulebase.add(sec_rule)
+        else:
+            rulebase.insert(position, sec_rule)
+
         sec_rule.create()
+        rulebase.apply()
+
         return True
     else:
         return False
 
 
-def update_rule(rulebase, nat_rule, position):
+def update_rule(rulebase, updated_rule, position):
     if rulebase:
-        rulebase.add(nat_rule)
-        nat_rule.apply()
+        rulebase.add(updated_rule)
+        updated_rule.apply()
         return True
     else:
         return False
@@ -415,7 +425,7 @@ def main():
         action=dict(default='allow'),
         devicegroup=dict(),
         commit=dict(type='bool', default=True),
-        position=dict(default='last')
+        position=dict(type='int')
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
                            required_one_of=[['api_key', 'password']])
@@ -547,7 +557,7 @@ def main():
         match = find_rule(rulebase, rule_name)
         if match:
             try:
-                new_rule = create_security_rule(
+                updated_rule = create_security_rule(
                     rule_name=rule_name,
                     description=description,
                     tag_name=tag_name,
@@ -573,7 +583,7 @@ def main():
                     rule_type=rule_type,
                     action=action
                 )
-                changed = update_rule(rulebase, new_rule, position)
+                changed = update_rule(rulebase, updated_rule, position)
                 if changed and commit:
                     device.commit(sync=True)
             except PanXapiError:
