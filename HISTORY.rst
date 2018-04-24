@@ -21,12 +21,14 @@ N/A
 
 - panos_interface: Added full support for static configuration of ethernet interfaces
     - https://github.com/PaloAltoNetworks/ansible-pan/pull/61
-
-*Miscellanies*
-
-- Add functionality to list static address groups https://github.com/PaloAltoNetworks/ansible-pan/pull/64
-- Pass api_key to pandevice https://github.com/PaloAltoNetworks/ansible-pan/pull/63
-- panos_security_rule: Security Policy position/order https://github.com/PaloAltoNetworks/ansible-pan/issues/14
+- Add functionality to list static address groups
+    - https://github.com/PaloAltoNetworks/ansible-pan/pull/64
+- Pass api_key to pandevice
+    - https://github.com/PaloAltoNetworks/ansible-pan/pull/63
+- panos_security_rule: Security Policy position/order
+    - https://github.com/PaloAltoNetworks/ansible-pan/issues/14
+- panos_security_rule: unable to add security policies in Post rule
+    - https://github.com/PaloAltoNetworks/ansible-pan/issues/38
 
 V1.0.6
 ------

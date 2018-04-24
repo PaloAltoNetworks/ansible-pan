@@ -101,6 +101,10 @@ options:
     position:
         description:
             - Forces a position of the rule. Use '0' for top. Don't specify one if appending the rule to the end.
+    panorama_post_rule:
+        description:
+            - If the security rule is applied against panorama, set this to True in order to inject it into post rule.
+        default: False
     application:
         description:
             - List of applications.
@@ -295,7 +299,7 @@ def get_devicegroup(device, devicegroup):
     return False
 
 
-def get_rulebase(device, devicegroup):
+def get_rulebase(device, devicegroup, is_post_rule):
     # Build the rulebase
     if isinstance(device, pandevice.firewall.Firewall):
         rulebase = pandevice.policies.Rulebase()
@@ -303,7 +307,11 @@ def get_rulebase(device, devicegroup):
     elif isinstance(device, pandevice.panorama.Panorama):
         dg = panorama.DeviceGroup(devicegroup)
         device.add(dg)
-        rulebase = policies.PreRulebase()
+        if is_post_rule:
+            rulebase = policies.PostRulebase()
+        else:
+            rulebase = policies.PreRulebase()
+
         dg.add(rulebase)
     else:
         return False
@@ -446,7 +454,8 @@ def main():
         action=dict(default='allow'),
         devicegroup=dict(),
         commit=dict(type='bool', default=True),
-        position=dict(type='int')
+        position=dict(type='int'),
+        is_post_rule=dict(type='bool', default=False)
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
                            required_one_of=[['api_key', 'password']])
@@ -484,6 +493,7 @@ def main():
     rule_type = module.params['rule_type']
     devicegroup = module.params['devicegroup']
     position = module.params['position']
+    is_post_rule = module.params['is_post_rule']
 
     commit = module.params['commit']
 
@@ -500,7 +510,7 @@ def main():
             module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
 
     # Get the rulebase
-    rulebase = get_rulebase(device, dev_group)
+    rulebase = get_rulebase(device, dev_group, is_post_rule)
 
     # Which action shall we take on the object?
     if operation == "find":
