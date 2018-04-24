@@ -30,6 +30,9 @@ N/A
 - panos_security_rule: unable to add security policies in Post rule
     - https://github.com/PaloAltoNetworks/ansible-pan/issues/38
 
+*Miscellanies*
+- https://github.com/PaloAltoNetworks/ansible-pan/pull/78
+
 V1.0.6
 ------
 - Released: 2018-2-6
