@@ -100,8 +100,7 @@ options:
         default: "any"
     position:
         description:
-            - Forces a position of the rule
-        default: "last"
+            - Forces a position of the rule. Use '0' for top. Don't specify one if appending the rule to the end.
     application:
         description:
             - List of applications.
@@ -240,14 +239,32 @@ EXAMPLES = '''
   register: result
 - debug: msg='{{result.stdout_lines}}'
 
+- name: Add test rule 4 to the firewall in position 1!!
+    panos_security_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      operation: 'add'
+      position: '1'
+      rule_name: 'Ansible test 4'
+      description: 'Another Ansible test rule'
+      source_zone: ['internal']
+      source_ip: ['192.168.100.101']
+      source_user: ['any']
+      hip_profiles: ['any']
+      destination_zone: ['external']
+      destination_ip: ['any']
+      category: ['any']
+      application: ['any']
+      service: ['service-https']
+      action: 'allow'
+      commit: 'False'
 '''
 
 RETURN = '''
 # Default return values
 '''
 
-# import pydevd
-# pydevd.settrace('localhost', port=61279, stdoutToServer=True, stderrToServer=True)
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.basic import get_exception
@@ -370,12 +387,11 @@ def create_security_rule(**kwargs):
 
 def add_rule(rulebase, sec_rule, position):
     if rulebase:
-        if not position:
+        if position is None:
             rulebase.add(sec_rule)
         else:
             rulebase.insert(position, sec_rule)
 
-        sec_rule.create()
         rulebase.apply()
 
         return True
@@ -385,8 +401,13 @@ def add_rule(rulebase, sec_rule, position):
 
 def update_rule(rulebase, updated_rule, position):
     if rulebase:
-        rulebase.add(updated_rule)
-        updated_rule.apply()
+        if position is None:
+            rulebase.add(updated_rule)
+            updated_rule.apply()
+        else:
+            rulebase.insert(position, updated_rule)
+            rulebase.apply()
+
         return True
     else:
         return False

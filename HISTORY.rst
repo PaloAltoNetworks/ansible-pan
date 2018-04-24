@@ -26,6 +26,7 @@ N/A
 
 - Add functionality to list static address groups https://github.com/PaloAltoNetworks/ansible-pan/pull/64
 - Pass api_key to pandevice https://github.com/PaloAltoNetworks/ansible-pan/pull/63
+- panos_security_rule: Security Policy position/order https://github.com/PaloAltoNetworks/ansible-pan/issues/14
 
 V1.0.6
 ------
