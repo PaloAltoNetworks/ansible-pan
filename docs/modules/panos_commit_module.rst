@@ -44,7 +44,6 @@ Options
     <td></td>
         <td></td>
         <td><div>API key that can be used instead of <em>username</em>/<em>password</em> credentials.</div>        </td></tr>
-    </tr>
                 <tr><td>devicegroup<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td></td>
@@ -85,7 +84,7 @@ Examples
       panos_commit:
         ip_address: '{{ ip_address }}'
         api_key: '{{ api_key }}'
-        devicegroup: 'Cloud Edge'
+        devicegroup: 'Cloud-Edge'
 
 Return Values
 -------------

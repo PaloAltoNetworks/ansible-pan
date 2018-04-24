@@ -25,3 +25,4 @@ Modules list
    modules/panos_restart_module.rst
    modules/panos_sag_module.rst
    modules/panos_security_rule_module.rst
+   modules/panos_userid_module.rst
