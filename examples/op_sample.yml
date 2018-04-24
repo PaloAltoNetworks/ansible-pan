@@ -1,0 +1,34 @@
+- name: Demonstrate how to use OP module to execute various op commands on PANW device
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+
+  tasks:
+  - include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: Show all interfaces using ('show interface all')
+    panos_op:
+      ip_address: '{{ ip_address }}'
+      password: '{{ password }}'
+      cmd: "show interface all"
+    register: result
+
+  - name: returned output in the default JSON format
+    debug: msg='{{ result.stdout }}'
+
+  - name: returned output in the XML format
+    debug: msg='{{ result.stdout_xml }}'
+
+  - name: Show system info op command
+    panos_op:
+      ip_address: '{{ ip_address }}'
+      password: '{{ password }}'
+      cmd: 'show system info'
+    register: result
+
+  - name: returned output in the XML format
+    debug: msg='{{ result.stdout_xml }}'
