@@ -98,6 +98,9 @@ options:
         description:
             - List of destination addresses.
         default: "any"
+    position:
+        description:
+            - Forces a position of the rule. Use '0' for top. Don't specify one if appending the rule to the end.
     application:
         description:
             - List of applications.
@@ -236,6 +239,27 @@ EXAMPLES = '''
   register: result
 - debug: msg='{{result.stdout_lines}}'
 
+- name: Add test rule 4 to the firewall in position 1!!
+    panos_security_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      operation: 'add'
+      position: '1'
+      rule_name: 'Ansible test 4'
+      description: 'Another Ansible test rule'
+      source_zone: ['internal']
+      source_ip: ['192.168.100.101']
+      source_user: ['any']
+      hip_profiles: ['any']
+      destination_zone: ['external']
+      destination_ip: ['any']
+      category: ['any']
+      application: ['any']
+      service: ['service-https']
+      action: 'allow'
+      commit: 'False'
+
 - name: disable a specific security rule
   panos_security_rule:
     ip_address: '{{ ip_address }}'
@@ -243,12 +267,12 @@ EXAMPLES = '''
     password: '{{ password }}'
     operation: 'disable'
     rule_name: 'Prod-Legacy 1'
-
 '''
 
 RETURN = '''
 # Default return values
 '''
+
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.basic import get_exception
@@ -291,6 +315,7 @@ def get_rulebase(device, devicegroup):
         dg.add(rulebase)
     else:
         return False
+
     policies.SecurityRule.refreshall(rulebase)
     return rulebase
 
@@ -302,6 +327,7 @@ def find_rule(rulebase, rule_name):
         return rule
     else:
         return False
+
 
 def rule_is_match(propose_rule, current_rule):
 
@@ -367,19 +393,29 @@ def create_security_rule(**kwargs):
     return security_rule
 
 
-def add_rule(rulebase, sec_rule):
+def add_rule(rulebase, sec_rule, position):
     if rulebase:
-        rulebase.add(sec_rule)
-        sec_rule.create()
+        if position is None:
+            rulebase.add(sec_rule)
+        else:
+            rulebase.insert(position, sec_rule)
+
+        rulebase.apply()
+
         return True
     else:
         return False
 
 
-def update_rule(rulebase, nat_rule):
+def update_rule(rulebase, updated_rule, position):
     if rulebase:
-        rulebase.add(nat_rule)
-        nat_rule.apply()
+        if position is None:
+            rulebase.add(updated_rule)
+            updated_rule.apply()
+        else:
+            rulebase.insert(position, updated_rule)
+            rulebase.apply()
+
         return True
     else:
         return False
@@ -417,7 +453,8 @@ def main():
         rule_type=dict(default='universal'),
         action=dict(default='allow'),
         devicegroup=dict(),
-        commit=dict(type='bool', default=True)
+        commit=dict(type='bool', default=True),
+        position=dict(type='int')
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
                            required_one_of=[['api_key', 'password']])
@@ -454,6 +491,7 @@ def main():
     wildfire_analysis = module.params['wildfire_analysis']
     rule_type = module.params['rule_type']
     devicegroup = module.params['devicegroup']
+    position = module.params['position']
 
     commit = module.params['commit']
 
@@ -536,7 +574,7 @@ def main():
                 module.fail_json(msg='Rule \'%s\' already exists. Use operation: \'update\' to change it.' % rule_name)
         else:
             try:
-                changed = add_rule(rulebase, new_rule)
+                changed = add_rule(rulebase, new_rule, position)
                 if changed and commit:
                     device.commit(sync=True)
             except PanXapiError:
@@ -548,7 +586,7 @@ def main():
         match = find_rule(rulebase, rule_name)
         if match:
             try:
-                new_rule = create_security_rule(
+                updated_rule = create_security_rule(
                     rule_name=rule_name,
                     description=description,
                     tag_name=tag_name,
@@ -574,7 +612,7 @@ def main():
                     rule_type=rule_type,
                     action=action
                 )
-                changed = update_rule(rulebase, new_rule)
+                changed = update_rule(rulebase, updated_rule, position)
                 if changed and commit:
                     device.commit(sync=True)
             except PanXapiError:

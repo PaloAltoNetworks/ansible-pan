@@ -50,3 +50,24 @@
       service: ['service-https']
       action: 'allow'
       commit: 'False'
+
+  - name: update test rule 2 position to 1st in group
+    panos_security_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      operation: 'update'
+      position: '1'
+      rule_name: 'Ansible test 2'
+      description: 'Another Ansible test rule'
+      source_zone: ['internal']
+      source_ip: ['192.168.100.100']
+      source_user: ['any']
+      hip_profiles: ['any']
+      destination_zone: ['external']
+      destination_ip: ['any']
+      category: ['any']
+      application: ['any']
+      service: ['service-https']
+      action: 'allow'
+      commit: 'False'
