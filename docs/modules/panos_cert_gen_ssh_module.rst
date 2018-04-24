@@ -73,6 +73,11 @@ Options
     <td></td>
         <td></td>
         <td><div>Undersigning authority (CA) that MUST already be presents on the device.</div>        </td></tr>
+                <tr><td>username<br/><div style="font-size: small;"></div></td>
+    <td>no</td>
+    <td>admin</td>
+        <td></td>
+        <td><div>User name to use for auth. Default is admin.</div>        </td></tr>
         </table>
     </br>
 
@@ -87,6 +92,7 @@ Examples
     - name: generate self signed certificate
       panos_cert_gen_ssh:
         ip_address: "192.168.1.1"
+        username: "admin"
         password: "paloalto"
         cert_cn: "1.1.1.1"
         cert_friendly_name: "test123"

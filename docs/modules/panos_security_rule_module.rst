@@ -127,11 +127,21 @@ Options
     <td>add</td>
         <td></td>
         <td><div>The action to be taken.  Supported values are <em>add</em>/<em>update</em>/<em>find</em>/<em>delete</em>.</div>        </td></tr>
+                <tr><td>panorama_post_rule<br/><div style="font-size: small;"></div></td>
+    <td>no</td>
+    <td></td>
+        <td></td>
+        <td><div>If the security rule is applied against panorama, set this to True in order to inject it into post rule.</div>        </td></tr>
                 <tr><td>password<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
         <td></td>
         <td><div>Password credentials to use for auth unless <em>api_key</em> is set.</div>        </td></tr>
+                <tr><td>position<br/><div style="font-size: small;"></div></td>
+    <td>no</td>
+    <td></td>
+        <td></td>
+        <td><div>Forces a position of the rule. Use '0' for top. Don't specify one if appending the rule to the end.</div>        </td></tr>
                 <tr><td>rule_name<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
@@ -275,6 +285,26 @@ Examples
       register: result
     - debug: msg='{{result.stdout_lines}}'
     
+    - name: Add test rule 4 to the firewall in position 1!!
+        panos_security_rule:
+          ip_address: '{{ ip_address }}'
+          username: '{{ username }}'
+          password: '{{ password }}'
+          operation: 'add'
+          position: '1'
+          rule_name: 'Ansible test 4'
+          description: 'Another Ansible test rule'
+          source_zone: ['internal']
+          source_ip: ['192.168.100.101']
+          source_user: ['any']
+          hip_profiles: ['any']
+          destination_zone: ['external']
+          destination_ip: ['any']
+          category: ['any']
+          application: ['any']
+          service: ['service-https']
+          action: 'allow'
+          commit: 'False'
 
 
 Notes
