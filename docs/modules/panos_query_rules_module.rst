@@ -4,6 +4,7 @@
 panos_query_rules
 +++++++++++++++++
 
+.. versionadded:: 2.5
 
 
 .. contents::

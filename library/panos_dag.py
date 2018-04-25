@@ -200,7 +200,7 @@ def main():
 
     argument_spec = dict(
         ip_address=dict(required=True),
-        password=dict(required=True),
+        password=dict(no_log=True, required=True),
         username=dict(default='admin'),
         api_key=dict(no_log=True),
         dag_match_filter=dict(type='str', default=None),

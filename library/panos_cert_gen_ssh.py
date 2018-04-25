@@ -38,6 +38,11 @@ options:
             - Location of the filename that is used for the auth. Either I(key_filename) or I(password) is required.
         required: true
         default: null
+    username:
+        description:
+            - User name to use for auth. Default is admin.
+        required: false
+        default: "admin"
     password:
         description:
             - Password credentials to use for auth. Either I(key_filename) or I(password) is required.
@@ -70,6 +75,7 @@ EXAMPLES = '''
 - name: generate self signed certificate
   panos_cert_gen_ssh:
     ip_address: "192.168.1.1"
+    username: "admin"
     password: "paloalto"
     cert_cn: "1.1.1.1"
     cert_friendly_name: "test123"
@@ -114,7 +120,7 @@ def wait_with_timeout(module, shell, prompt, timeout=60):
     return result
 
 
-def generate_cert(module, ip_address, key_filename, password,
+def generate_cert(module, ip_address, username, key_filename, password,
                   cert_cn, cert_friendly_name, signed_by, rsa_nbits ):
     stdout = ""
 
@@ -125,9 +131,9 @@ def generate_cert(module, ip_address, key_filename, password,
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
     if not key_filename:
-        client.connect(ip_address, username="admin", password=password)
+        client.connect(ip_address, username=username, password=password)
     else:
-        client.connect(ip_address, username="admin", key_filename=key_filename)
+        client.connect(ip_address, username=username, key_filename=key_filename)
 
     shell = client.invoke_shell()
     # wait for the shell to start
@@ -158,6 +164,7 @@ def generate_cert(module, ip_address, key_filename, password,
 def main():
     argument_spec = dict(
         ip_address=dict(required=True),
+        username=dict(default='admin'),
         key_filename=dict(),
         password=dict(no_log=True),
         cert_cn=dict(required=True),
@@ -172,6 +179,7 @@ def main():
         module.fail_json(msg='paramiko is required for this module')
 
     ip_address = module.params["ip_address"]
+    username = module.params["username"]
     key_filename = module.params["key_filename"]
     password = module.params["password"]
     cert_cn = module.params["cert_cn"]
@@ -182,6 +190,7 @@ def main():
     try:
         stdout = generate_cert(module,
                                ip_address,
+                               username,
                                key_filename,
                                password,
                                cert_cn,
