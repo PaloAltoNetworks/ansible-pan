@@ -54,7 +54,7 @@ options:
             - API key that can be used instead of I(username)/I(password) credentials.
     operation:
         description:
-            - The action to be taken.  Supported values are I(add)/I(update)/I(find)/I(delete)/I(disable).
+            - The action to be taken.  Supported values are I(add)/I(update)/I(find)/I(delete).
         default: 'add'
     rule_name:
         description:
@@ -98,13 +98,6 @@ options:
         description:
             - List of destination addresses.
         default: "any"
-    position:
-        description:
-            - Forces a position of the rule. Use '0' for top. Don't specify one if appending the rule to the end.
-    panorama_post_rule:
-        description:
-            - If the security rule is applied against panorama, set this to True in order to inject it into post rule.
-        default: False
     application:
         description:
             - List of applications.
@@ -163,6 +156,15 @@ options:
             - Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama.
             If device group is not define we assume that we are contacting Firewall.
         default: None
+    location:
+        description:
+            - Position to place the created rule in the rule base.  Supported values are
+              I(top)/I(bottom)/I(before)/I(after).
+    existing_rule:
+        description:
+            - If 'location' is set to 'before' or 'after', this option specifies an existing
+              rule name.  The new rule will be created in the specified position relative to this
+              rule.  If 'location' is set to 'before' or 'after', this option is required.
     commit:
         description:
             - Commit configuration if changed.
@@ -243,40 +245,31 @@ EXAMPLES = '''
   register: result
 - debug: msg='{{result.stdout_lines}}'
 
-- name: Add test rule 4 to the firewall in position 1!!
-    panos_security_rule:
-      ip_address: '{{ ip_address }}'
-      username: '{{ username }}'
-      password: '{{ password }}'
-      operation: 'add'
-      position: '1'
-      rule_name: 'Ansible test 4'
-      description: 'Another Ansible test rule'
-      source_zone: ['internal']
-      source_ip: ['192.168.100.101']
-      source_user: ['any']
-      hip_profiles: ['any']
-      destination_zone: ['external']
-      destination_ip: ['any']
-      category: ['any']
-      application: ['any']
-      service: ['service-https']
-      action: 'allow'
-      commit: 'False'
-
-- name: disable a specific security rule
+- name: add a rule at a specific location in the rulebase
   panos_security_rule:
     ip_address: '{{ ip_address }}'
     username: '{{ username }}'
     password: '{{ password }}'
-    operation: 'disable'
-    rule_name: 'Prod-Legacy 1'
+    operation: 'add'
+    rule_name: 'SSH permit'
+    description: 'SSH rule test'
+    source_zone: ['untrust']
+    destination_zone: ['trust']
+    source_ip: ['any']
+    source_user: ['any']
+    destination_ip: ['1.1.1.1']
+    category: ['any']
+    application: ['ssh']
+    service: ['application-default']
+    action: 'allow'
+    location: 'before'
+    existing_rule: 'Prod-Legacy 1'
+
 '''
 
 RETURN = '''
 # Default return values
 '''
-
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.basic import get_exception
@@ -307,7 +300,7 @@ def get_devicegroup(device, devicegroup):
     return False
 
 
-def get_rulebase(device, devicegroup, is_post_rule):
+def get_rulebase(device, devicegroup):
     # Build the rulebase
     if isinstance(device, pandevice.firewall.Firewall):
         rulebase = pandevice.policies.Rulebase()
@@ -315,15 +308,10 @@ def get_rulebase(device, devicegroup, is_post_rule):
     elif isinstance(device, pandevice.panorama.Panorama):
         dg = panorama.DeviceGroup(devicegroup)
         device.add(dg)
-        if is_post_rule:
-            rulebase = policies.PostRulebase()
-        else:
-            rulebase = policies.PreRulebase()
-
+        rulebase = policies.PreRulebase()
         dg.add(rulebase)
     else:
         return False
-
     policies.SecurityRule.refreshall(rulebase)
     return rulebase
 
@@ -401,29 +389,27 @@ def create_security_rule(**kwargs):
     return security_rule
 
 
-def add_rule(rulebase, sec_rule, position):
+def find_rule_index(rulebase, rule_name):
     if rulebase:
-        if position is None:
-            rulebase.add(sec_rule)
-        else:
-            rulebase.insert(position, sec_rule)
+        for num, child in enumerate(rulebase.children):
+            if rule_name == child.name:
+                return num
+    return -1
 
+
+def insert_rule_at_index(rulebase, new_rule, index):
+    if rulebase:
+        rulebase.insert(index, new_rule)
+        new_rule.create()
         rulebase.apply()
-
         return True
-    else:
-        return False
+    return False
 
 
-def update_rule(rulebase, updated_rule, position):
+def update_rule(rulebase, nat_rule):
     if rulebase:
-        if position is None:
-            rulebase.add(updated_rule)
-            updated_rule.apply()
-        else:
-            rulebase.insert(position, updated_rule)
-            rulebase.apply()
-
+        rulebase.add(nat_rule)
+        nat_rule.apply()
         return True
     else:
         return False
@@ -435,7 +421,7 @@ def main():
         password=dict(no_log=True),
         username=dict(default='admin'),
         api_key=dict(no_log=True),
-        operation=dict(default='add', choices=['add', 'update', 'delete', 'find', 'disable']),
+        operation=dict(default='add', choices=['add', 'update', 'delete', 'find']),
         rule_name=dict(required=True),
         description=dict(default=''),
         tag_name=dict(type='list'),
@@ -461,9 +447,9 @@ def main():
         rule_type=dict(default='universal'),
         action=dict(default='allow'),
         devicegroup=dict(),
-        commit=dict(type='bool', default=True),
-        position=dict(type='int'),
-        is_post_rule=dict(type='bool', default=False)
+        location=dict(default='bottom', choices=['top', 'bottom', 'before', 'after']),
+        existing_rule=dict(default=''),
+        commit=dict(type='bool', default=True)
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
                            required_one_of=[['api_key', 'password']])
@@ -500,8 +486,8 @@ def main():
     wildfire_analysis = module.params['wildfire_analysis']
     rule_type = module.params['rule_type']
     devicegroup = module.params['devicegroup']
-    position = module.params['position']
-    is_post_rule = module.params['is_post_rule']
+    location = module.params['location']
+    existing_rule = module.params['existing_rule']
 
     commit = module.params['commit']
 
@@ -518,7 +504,7 @@ def main():
             module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
 
     # Get the rulebase
-    rulebase = get_rulebase(device, dev_group, is_post_rule)
+    rulebase = get_rulebase(device, dev_group)
 
     # Which action shall we take on the object?
     if operation == "find":
@@ -575,6 +561,7 @@ def main():
             rule_type=rule_type,
             action=action
         )
+
         # Search for the rule. Fail if found.
         match = find_rule(rulebase, rule_name)
         if match:
@@ -584,7 +571,26 @@ def main():
                 module.fail_json(msg='Rule \'%s\' already exists. Use operation: \'update\' to change it.' % rule_name)
         else:
             try:
-                changed = add_rule(rulebase, new_rule, position)
+                if ((location == 'before') or (location == 'after')) and (existing_rule == ''):
+                    module.fail_json(msg='\'existing_rule\' must be specified if location is \'before\' or \'after\'.')
+
+                # Default is to add the rule at the bottom.
+                new_rule_index = len(rulebase.children)
+
+                if (location == 'before') or (location == 'after'):
+                    new_rule_index = find_rule_index(rulebase, existing_rule)
+
+                    if new_rule_index < 0:
+                        module.fail_json(msg='Existing rule \'%s\' does not exist.' % existing_rule)
+
+                    if location == 'after':
+                        new_rule_index = new_rule_index + 1
+
+                elif location == 'top':
+                    new_rule_index = 0
+
+                changed = insert_rule_at_index(rulebase, new_rule, new_rule_index)
+
                 if changed and commit:
                     device.commit(sync=True)
             except PanXapiError:
@@ -596,7 +602,7 @@ def main():
         match = find_rule(rulebase, rule_name)
         if match:
             try:
-                updated_rule = create_security_rule(
+                new_rule = create_security_rule(
                     rule_name=rule_name,
                     description=description,
                     tag_name=tag_name,
@@ -622,7 +628,7 @@ def main():
                     rule_type=rule_type,
                     action=action
                 )
-                changed = update_rule(rulebase, updated_rule, position)
+                changed = update_rule(rulebase, new_rule)
                 if changed and commit:
                     device.commit(sync=True)
             except PanXapiError:
@@ -631,21 +637,6 @@ def main():
             module.exit_json(changed=changed, msg='Rule \'%s\' successfully updated' % rule_name)
         else:
             module.fail_json(msg='Rule \'%s\' does not exist. Use operation: \'add\' to add it.' % rule_name)
-    elif operation == 'disable':
-        # Search for the rule, disable if found.
-        match = find_rule(rulebase, rule_name)
-        if match:
-            try:
-                match.disabled = True
-                changed = update_rule(rulebase, match)
-                if changed and commit:
-                    device.commit(sync=True)
-            except PanXapiError:
-                exc = get_exception()
-                module.fail_json(msg=exc.message)
-            module.exit_json(changed=changed, msg='Rule \'%s\' successfully disabled.' % rule_name)
-        else:
-            module.fail_json(msg='Rule \'%s\' does not exist.' % rule_name)
 
 
 if __name__ == '__main__':

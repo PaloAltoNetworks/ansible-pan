@@ -51,23 +51,22 @@
       action: 'allow'
       commit: 'False'
 
-  - name: Add test rule 4 to the firewall in position 1!!
+  - name: add a rule at a specific location in the rulebase
     panos_security_rule:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
       password: '{{ password }}'
       operation: 'add'
-      position: '1'
-      rule_name: 'Ansible test 4'
-      description: 'Another Ansible test rule'
+      rule_name: 'SSH permit'
+      description: 'SSH rule test'
       source_zone: ['internal']
-      source_ip: ['192.168.100.101']
-      source_user: ['any']
-      hip_profiles: ['any']
       destination_zone: ['external']
-      destination_ip: ['any']
+      source_ip: ['any']
+      source_user: ['any']
+      destination_ip: ['1.1.1.1']
       category: ['any']
-      application: ['any']
-      service: ['service-https']
+      application: ['ssh']
+      service: ['application-default']
       action: 'allow'
-      commit: 'False'
+      location: 'before'
+      existing_rule: 'Ansible test 2'
