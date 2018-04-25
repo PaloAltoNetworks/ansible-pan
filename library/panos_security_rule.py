@@ -27,7 +27,7 @@ description: >
     - Security policies allow you to enforce rules and take action, and can be as general or specific as needed. The
     policy rules are compared against the incoming traffic in sequence, and because the first rule that matches the
     traffic is applied, the more specific rules must precede the more general ones.
-author: "Ivan Bojer (@ivanbojer), Robert Hagen (@rnh556)"
+author: "Ivan Bojer (@ivanbojer), Robert Hagen (@rnh556), Michael Richardson (@mrichardson03)"
 version_added: "2.4"
 requirements:
     - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
@@ -265,6 +265,13 @@ EXAMPLES = '''
     location: 'before'
     existing_rule: 'Prod-Legacy 1'
 
+- name: disable a specific security rule
+  panos_security_rule:
+    ip_address: '{{ ip_address }}'
+    username: '{{ username }}'
+    password: '{{ password }}'
+    operation: 'disable'
+    rule_name: 'Prod-Legacy 1'
 '''
 
 RETURN = '''

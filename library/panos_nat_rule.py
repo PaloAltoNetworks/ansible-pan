@@ -21,7 +21,7 @@ short_description: create a policy NAT rule
 description: >
     - Create a policy nat rule. Keep in mind that we can either end up configuring source NAT, destination NAT, or
     both. Instead of splitting it into two we will make a fair attempt to determine which one the user wants.
-author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer), Robert Hagen (@rnh556)"
+author: "Luigi Mori (@jtschichold),Ivan Bojer (@ivanbojer),Robert Hagen (@rnh556),Michael Richardson (@mrichardson03)"
 version_added: "2.4"
 requirements:
     - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
