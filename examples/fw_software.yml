@@ -1,0 +1,19 @@
+- name: Demonstrate how to upgrade software on the firewall
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+
+  tasks:
+  - include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: Install PAN-OS 7.1.16 and restart
+    panos_software:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      version: '7.1.16'
+      restart: true
