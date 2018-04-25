@@ -11,7 +11,7 @@ V1.0.7
 
 *New modules*
 
-N/A
+- panos_software: Upgrade and downgrade PAN-OS on firewalls and Panorama.
 
 *Removed modules*
 

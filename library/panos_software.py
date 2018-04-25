@@ -25,12 +25,13 @@ short_description: Install specific release of PAN-OS.
 description:
     - Install specific release of PAN-OS.
 author: "Michael Richardson (@mrichardson03)"
-version_added: "2.5"
+version_added: "2.6"
 requirements:
     - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
 notes:
     - Checkmode is not supported.
+    - Panorama is supported.
 options:
     ip_address:
         description:
