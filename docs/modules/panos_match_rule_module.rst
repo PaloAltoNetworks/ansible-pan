@@ -4,6 +4,7 @@
 panos_match_rule
 ++++++++++++++++
 
+.. versionadded:: 2.5
 
 
 .. contents::
@@ -14,7 +15,7 @@ panos_match_rule
 Synopsis
 --------
 
-* Security policies allow you to enforce rules and take action, and can be as general or specific as needed. The policy rules are compared against the incoming traffic in sequence, and because the first rule that matches the traffic is applied, the more specific rules must precede the more general ones.
+* Security policies allow you to enforce rules and take action, and can be as general or specific as needed.
 
 
 Requirements (on host that executes module)
@@ -47,8 +48,13 @@ Options
     <td></td>
         <td></td>
         <td><div>The application.</div>        </td></tr>
+                <tr><td>category<br/><div style="font-size: small;"></div></td>
+    <td>no</td>
+    <td></td>
+        <td></td>
+        <td><div>URL category</div>        </td></tr>
                 <tr><td>destination_ip<br/><div style="font-size: small;"></div></td>
-    <td>yes</td>
+    <td>no</td>
     <td></td>
         <td></td>
         <td><div>The destination IP address.</div>        </td></tr>
@@ -73,10 +79,10 @@ Options
         <td></td>
         <td><div>Password credentials to use for auth unless <em>api_key</em> is set.</div>        </td></tr>
                 <tr><td>protocol<br/><div style="font-size: small;"></div></td>
-    <td>yes</td>
+    <td>no</td>
     <td></td>
         <td></td>
-        <td><div>The IP protocol number [1-255].</div>        </td></tr>
+        <td><div>The IP protocol number from 1 to 255.</div>        </td></tr>
                 <tr><td>rule_type<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>security</td>
@@ -87,6 +93,11 @@ Options
     <td></td>
         <td></td>
         <td><div>The source IP address.</div>        </td></tr>
+                <tr><td>source_port<br/><div style="font-size: small;"></div></td>
+    <td>no</td>
+    <td></td>
+        <td></td>
+        <td><div>The source port.</div>        </td></tr>
                 <tr><td>source_user<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td></td>
@@ -107,6 +118,11 @@ Options
     <td>admin</td>
         <td></td>
         <td><div>Username credentials to use for auth unless <em>api_key</em> is set.</div>        </td></tr>
+                <tr><td>vsys_id<br/><div style="font-size: small;"></div></td>
+    <td>yes</td>
+    <td>vsys1</td>
+        <td></td>
+        <td><div>ID of the VSYS object.</div>        </td></tr>
         </table>
     </br>
 
@@ -190,6 +206,7 @@ Examples
         protocol: '6'
       register: result
     - debug: msg='{{result.stdout_lines}}'
+    
 
 
 Notes
