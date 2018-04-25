@@ -12,6 +12,7 @@ V1.0.7
 *New modules*
 
 * panos_userid: added ability to (un)register userid with ip address
+* panos_static_route: ability to manipulate static routing tables
 
 *Removed modules*
 
