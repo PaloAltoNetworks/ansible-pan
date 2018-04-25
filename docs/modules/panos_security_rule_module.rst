@@ -126,7 +126,7 @@ Options
     <td>no</td>
     <td>add</td>
         <td></td>
-        <td><div>The action to be taken.  Supported values are <em>add</em>/<em>update</em>/<em>find</em>/<em>delete</em>.</div>        </td></tr>
+        <td><div>The action to be taken.  Supported values are <em>add</em>/<em>update</em>/<em>find</em>/<em>delete</em>/<em>disable</em>.</div>        </td></tr>
                 <tr><td>panorama_post_rule<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td></td>
@@ -305,6 +305,14 @@ Examples
           service: ['service-https']
           action: 'allow'
           commit: 'False'
+    
+    - name: disable a specific security rule
+      panos_security_rule:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        operation: 'disable'
+        rule_name: 'Prod-Legacy 1'
 
 
 Notes

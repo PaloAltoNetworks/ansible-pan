@@ -77,7 +77,7 @@ Options
     <td>no</td>
     <td></td>
         <td></td>
-        <td><div>The action to be taken.  Supported values are <em>add</em>/<em>update</em>/<em>find</em>/<em>delete</em>.</div>        </td></tr>
+        <td><div>The action to be taken.  Supported values are <em>add</em>/<em>update</em>/<em>find</em>/<em>delete</em>/<em>disable</em>.</div>        </td></tr>
                 <tr><td>password<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
@@ -169,6 +169,14 @@ Examples
           snat_interface: "ethernet1/2"
           dnat_address: "10.0.1.101"
           dnat_port: "22"
+    
+      - name: disable a specific security rule
+        panos_nat_rule:
+          ip_address: '{{ ip_address }}'
+          username: '{{ username }}'
+          password: '{{ password }}'
+          operation: 'disable'
+          rule_name: 'Prod-Legacy 1'
 
 
 Notes
