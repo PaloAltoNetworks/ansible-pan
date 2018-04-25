@@ -47,7 +47,7 @@ options:
             - API key that can be used instead of I(username)/I(password) credentials.
     operation:
         description:
-            - The action to be taken.  Supported values are I(add)/I(update)/I(find)/I(delete).
+            - The action to be taken.  Supported values are I(add)/I(update)/I(find)/I(delete)/I(disable).
     rule_name:
         description:
             - name of the SNAT rule
@@ -143,6 +143,14 @@ EXAMPLES = '''
       snat_interface: "ethernet1/2"
       dnat_address: "10.0.1.101"
       dnat_port: "22"
+
+  - name: disable a specific security rule
+    panos_nat_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      operation: 'disable'
+      rule_name: 'Prod-Legacy 1'
 '''
 
 RETURN = '''
@@ -286,7 +294,7 @@ def main():
         username=dict(default='admin'),
         password=dict(required=True, no_log=True),
         api_key=dict(no_log=True),
-        operation=dict(required=True, choices=['add', 'update', 'delete', 'find']),
+        operation=dict(required=True, choices=['add', 'update', 'delete', 'find', 'disable']),
         rule_name=dict(required=True),
         description=dict(),
         tag_name=dict(),
@@ -461,6 +469,21 @@ def main():
             module.exit_json(changed=changed, msg='Rule \'%s\' successfully updated.' % rule_name)
         else:
             module.fail_json(msg='Rule \'%s\' does not exist. Use operation: \'add\' to add it.' % rule_name)
+    elif operation == 'disable':
+        # Search for the rule, disable if found.
+        match = find_rule(rulebase, rule_name)
+        if match:
+            try:
+                match.disabled = True
+                changed = update_rule(rulebase, match)
+                if changed and commit:
+                    device.commit(sync=True)
+            except PanXapiError:
+                exc = get_exception()
+                module.fail_json(msg=exc.message)
+            module.exit_json(changed=changed, msg='Rule \'%s\' successfully disabled.' % rule_name)
+        else:
+            module.fail_json(msg='Rule \'%s\' does not exist.' % rule_name)
 
 
 if __name__ == '__main__':
