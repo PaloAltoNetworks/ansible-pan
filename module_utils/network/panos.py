@@ -22,8 +22,6 @@ try:
 
     from pandevice.errors import PanDeviceError
 
-    import pan.xapi
-
     HAS_PANOS_LIB = True
 except ImportError:
     HAS_PANOS_LIB = False
@@ -356,5 +354,3 @@ class PanOSAnsibleModule(AnsibleModule):
                 if rule_name == child.name:
                     return num
         return -1
-
-

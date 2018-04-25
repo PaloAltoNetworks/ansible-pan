@@ -120,7 +120,11 @@ results:
 '''
 
 from ansible.module_utils.basic import AnsibleModule, get_exception
-from ansible.module_utils.network.panos import PanOSAnsibleModule
+
+try:
+    from module_utils.network.panos import PanOSAnsibleModule
+except ImportError:
+    from ansible.module_utils.network.panos import PanOSAnsibleModule
 
 try:
     from pandevice.errors import PanDeviceError

@@ -1,0 +1,12 @@
+sudo: required
+language: python
+
+install:
+  - travis_retry sudo apt-get update
+  - travis_retry sudo apt-get -y install libffi-dev libssl-dev
+  - travis_retry pip install --upgrade setuptools pip
+  - travis_retry pip install cffi
+  - travis_retry pip install --upgrade -r requirements.test.txt
+
+script:
+  - tox

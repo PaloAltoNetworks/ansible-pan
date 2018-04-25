@@ -1,0 +1,15 @@
+paramiko
+pandevice
+pan-python
+git+https://github.com/ansible/ansible.git
+xmltodict
+
+pep8
+pyflakes
+virtualenvwrapper
+voluptuous
+mock
+pytest
+pytest-cov
+pytest-xdist
+flake8

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#  Copyright 2017 Palo Alto Networks, Inc
+#  Copyright 2018 Palo Alto Networks, Inc
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -21,437 +21,433 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 DOCUMENTATION = '''
 ---
 module: panos_object
-short_description: create/read/update/delete object in PAN-OS or Panorama
-description: >
-    - Policy objects form the match criteria for policy rules and many other functions in PAN-OS. These may include
-    address object, address groups, service objects, service groups, and tag.
-author: "Bob Hagen (@rnh556)"
-version_added: "2.4"
+short_description: Create objects on PAN-OS devices.
+description:
+    - Create objects on PAN-OS devices.
+author: "Michael Richardson (@mrichardson03)"
+version_added: "2.6"
 requirements:
     - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
 notes:
-    - Checkmode is not supported.
     - Panorama is supported.
+    - Check mode is not supported.
 options:
     ip_address:
         description:
-            - IP address (or hostname) of PAN-OS device or Panorama management console being configured.
+            - IP address or hostname of PAN-OS device.
         required: true
     username:
         description:
-            - Username credentials to use for authentication.
-        required: false
-        default: "admin"
+            - Username for authentication for PAN-OS device.  Optional if I(api_key) is used.
+        default: 'admin'
     password:
         description:
-            - Password credentials to use for authentication.
-        required: true
+            - Password for authentication for PAN-OS device.  Optional if I(api_key) is used.
     api_key:
         description:
-            - API key that can be used instead of I(username)/I(password) credentials.
-    operation:
+            - API key to be used instead of I(username) and I(password).
+    object_type:
         description:
-            - The operation to be performed.  Supported values are I(add)/I(delete)/I(find).
+            - Type of object to create.
+        choices: ['address', 'address-group', 'service', 'service-group', 'tag']
         required: true
-    addressobject:
+    name:
         description:
-            - The name of the address object.
-    address:
+            - Name of object to create.
+        required: true
+    address_value:
         description:
-            - The IP address of the host or network in CIDR notation.
+            - If I(object_type) is I(address), this is the IP address, IP range, or FQDN for the
+              object.  Required if state is I(present).
     address_type:
         description:
-            - The type of address object definition.  Valid types are I(ip-netmask) and I(ip-range).
-    addressgroup:
+            - If I(object_type) is I(address), this is the type of address object.
+        choices: ['ip-netmask', 'ip-range', 'fqdn']
+        default: 'ip-netmask'
+    address_group_type:
         description:
-            - A static group of address objects or dynamic address group.
+            - If I(object_type) is I(address_group), this is whether the group is static or
+              dynamic.
+        choices: ['static', 'dynamic']
+        default: 'static'
     static_value:
         description:
-            - A group of address objects to be used in an addressgroup definition.
+            - List of address objects to be included in the group.  Required if 
+              I(address_group_type) is 'static'.
+        type: list
     dynamic_value:
         description:
-            - The filter match criteria to be used in a dynamic addressgroup definition.
-    serviceobject:
-        description:
-            - The name of the service object.
-    source_port:
-        description:
-            - The source port to be used in a service object definition.
-    destination_port:
-        description:
-            - The destination port to be used in a service object definition.
+            - Registered IP tags for a dynamic address group.  Required if I(address_group_type)
+              is 'dynamic'.
+        type: string
     protocol:
         description:
-            - The IP protocol to be used in a service object definition.  Valid values are I(tcp) or I(udp).
-    servicegroup:
+            - If I(object_type) is I(service), this is the protocol of the service.
+        choices: ['tcp', 'udp']
+        default: 'tcp'
+    source_port:
+        description
+            - If I(object_type) is I(service), this is the source port of the service object.
+    destination_port:
         description:
-            - A group of service objects.
-    services:
+            - If I(object_type) is I(service), this is the destination port of the service 
+              object.  Required if state is I(present).
+    service_group_value:
         description:
-            - The group of service objects used in a servicegroup definition.
+            - If I(object_type) is I(service-group), this is the list of service objects to be 
+              included in the group.  Required if I(state) is 'present'.
+        type: list
+        required: true
+    color:
+        description:
+            - If I(object_type) is I(tag), this is the color for the tag.
+        choices: ['red', 'green', 'blue', 'yellow', 'copper', 'orange', 'purple', 'gray',
+                  'light green', 'cyan', 'light gray', 'blue gray', 'lime', 'black', 'gold',
+                  'brown']
+    comments:
+        description:
+            - If I(object_type) is I(tag), this is comments for the tag.
     description:
         description:
-            - The description of the object.
-    tag_name:
+            - Descriptive name for this object.
+    tag:
         description:
-            - The name of an object or rule tag.
-    color:
-        description: >
-            - The color of the tag object.  Valid values are I(red, green, blue, yellow, copper, orange, purple, gray,
-            light green, cyan, light gray, blue gray, lime, black, gold, and brown).
-    devicegroup:
-        description: >
-            - The name of the Panorama device group. The group must exist on Panorama. If device group is not defined it
-            is assumed that we are contacting a firewall.
-        required: false
-        default: None
+            - List of tags to add to this object.
+    device_group:
+        description:
+            - If I(ip_address) is a Panorama device, create object in this device group.
+    state:
+        description:
+            - Create or remove object.
+        choices: ['present', 'absent']
+        default: 'present'
 '''
 
 EXAMPLES = '''
-- name: search for shared address object
+- name: Create object 'Test-One'
   panos_object:
-    ip_address: '{{ ip_address }}'
-    username: '{{ username }}'
-    password: '{{ password }}'
-    operation: 'find'
-    address: 'DevNet'
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    object_type: 'address'
+    name: 'Test-One'
+    address_value: '1.1.1.1'
+    description: 'Description One'
+    tag: ['Prod']
 
-- name: create an address group in devicegroup using API key
+- name: Create object 'Test-Two'
   panos_object:
-    ip_address: '{{ ip_address }}'
-    api_key: '{{ api_key }}'
-    operation: 'add'
-    addressgroup: 'Prod_DB_Svrs'
-    static_value: ['prod-db1', 'prod-db2', 'prod-db3']
-    description: 'Production DMZ database servers'
-    tag_name: 'DMZ'
-    devicegroup: 'DMZ Firewalls'
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    object_type: 'address'
+    name: 'Test-Two'
+    address_type: 'ip-range'
+    address_value: '1.1.1.1-2.2.2.2'
+    description: 'Description Two'
+    tag: ['SI']
 
-- name: create a global service for TCP 3306
+- name: Create object 'Test-Three'
   panos_object:
-    ip_address: '{{ ip_address }}'
-    api_key: '{{ api_key }}'
-    operation: 'add'
-    serviceobject: 'mysql-3306'
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    object_type: 'address'
+    name: 'Test-Three'
+    address_type: 'fqdn'
+    address_value: 'foo.bar.baz'
+    description: 'Description Three'
+
+- name: Delete object 'Test-Two'
+  panos_object:
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    object_type: 'address'
+    name: 'Test-Two'
+    state: 'absent'
+
+- name: Create object group 'Prod'
+  panos_object:
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    object_type: 'address-group'
+    name: 'Prod'
+    static_value: ['Test-One', 'Test-Three']
+    tag: ['Prod']
+
+- name: Create object group 'SI'
+  panos_object:
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    object_type: 'address-group'
+    name: 'SI'
+    type: 'dynamic'
+    dynamic_value: "'SI_Instances'"
+    tag: ['SI']
+
+- name: Delete object group 'SI'
+  panos_object:
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    object_type: 'address-group'
+    name: 'SI'
+    state: 'absent'
+
+- name: Create service object 'ssh-tcp-22'
+  panos_object:
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    object_type: 'service'
+    name: 'ssh-tcp-22'
+    destination_port: '22'
+    description: 'SSH on tcp/22'
+    tag: ['Prod']
+
+- name: Create service object 'mysql-tcp-3306'
+  panos_object:
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    object_type: 'service'
+    name: 'mysql-tcp-3306'
     destination_port: '3306'
-    protocol: 'tcp'
     description: 'MySQL on tcp/3306'
 
-- name: create a global tag
+- name: Delete service object 'mysql-tcp-3306'
   panos_object:
-    ip_address: '{{ ip_address }}'
-    username: '{{ username }}'
-    password: '{{ password }}'
-    operation: 'add'
-    tag_name: 'ProjectX'
-    color: 'yellow'
-    description: 'Associated with Project X'
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    object_type: 'service'
+    name: 'mysql-tcp-3306'
+    state: 'absent'
 
-- name: delete an address object from a devicegroup using API key
+- name: Create service group 'Prod-Services'
+  panos_object: 
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    object_type: 'service-group'
+    name: 'Prod-Services'
+    value: ['ssh-tcp-22', 'mysql-tcp-3306']
+
+- name: Delete service group 'Prod-Services'
+  panos_service_group_object:
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    object_type: 'service-group'
+    name: 'Prod-Services'
+    state: 'absent'
+
+- name: Create tag object 'Prod'
   panos_object:
-    ip_address: '{{ ip_address }}'
-    api_key: '{{ api_key }}'
-    operation: 'delete'
-    addressobject: 'Win2K test'
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    object_type: 'tag'
+    name: 'Prod'
+    color: 'red'
+    comments: 'Prod Environment'
+
+- name: Remove tag object 'Prod'
+  panos_tag_object:
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    object_type: 'tag'
+    name: 'Prod'
+    state: 'absent'
 '''
 
 RETURN = '''
 # Default return values
 '''
 
+try:
+    from pandevice import objects
+    from pandevice.errors import PanDeviceError
+
+    HAS_PANOS_LIB = True
+except ImportError:
+    HAS_PANOS_LIB = False
+
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.basic import get_exception
 
 try:
-    import pan.xapi
-    from pan.xapi import PanXapiError
-    import pandevice
-    from pandevice import base
-    from pandevice import firewall
-    from pandevice import panorama
-    from pandevice import objects
-    import xmltodict
-    import json
-
-    HAS_LIB = True
+    from module_utils.network.panos import PanOSAnsibleModule
 except ImportError:
-    HAS_LIB = False
+    from ansible.module_utils.network.panos import PanOSAnsibleModule
 
+COLOR_NAMES = [
+    'red', 'green', 'blue', 'yellow', 'copper', 'orange', 'purple', 'gray', 'light green',
+    'cyan', 'light gray', 'blue gray', 'lime', 'black', 'gold', 'brown'
+]
 
-def get_devicegroup(device, devicegroup):
-    dg_list = device.refresh_devices()
-    for group in dg_list:
-        if isinstance(group, pandevice.panorama.DeviceGroup):
-            if group.name == devicegroup:
-                return group
-    return False
+PANOS_ADDRESS_OBJECT_ARGSPEC = {
+    'name': dict(type='str', required=True),
+    'object_type': dict(
+        choices=['address', 'address-group', 'service', 'service-group', 'tag'],
+        required=True
+    ),
 
+    'address_value': dict(type='str'),
+    'address_type': dict(default='ip-netmask', choices=['ip-netmask', 'ip-range', 'fqdn']),
 
-def find_object(device, dev_group, obj_name, obj_type):
-    # Get the firewall objects
-    obj_type.refreshall(device)
-    if isinstance(device, pandevice.firewall.Firewall):
-        addr = device.find(obj_name, obj_type)
-        return addr
-    elif isinstance(device, pandevice.panorama.Panorama):
-        addr = device.find(obj_name, obj_type)
-        if addr is None:
-            if dev_group:
-                device.add(dev_group)
-                obj_type.refreshall(dev_group)
-                addr = dev_group.find(obj_name, obj_type)
-        return addr
-    else:
-        return False
+    'address_group_type': dict(default='static', choices=['static', 'dynamic']),
+    'static_value': dict(type='list'),
+    'dynamic_value': dict(type='str'),
 
+    'protocol': dict(default='tcp', choices=['tcp', 'udp']),
+    'source_port': dict(type='str'),
+    'destination_port': dict(type='str'),
 
-def create_object(**kwargs):
-    if kwargs['addressobject']:
-        newobject = objects.AddressObject(
-            name=kwargs['addressobject'],
-            value=kwargs['address'],
-            type=kwargs['address_type'],
-            description=kwargs['description'],
-            tag=kwargs['tag_name']
-        )
-        if newobject.type and newobject.value:
-            return newobject
-        else:
-            return False
-    elif kwargs['addressgroup']:
-        newobject = objects.AddressGroup(
-            name=kwargs['addressgroup'],
-            static_value=kwargs['static_value'],
-            dynamic_value=kwargs['dynamic_value'],
-            description=kwargs['description'],
-            tag=kwargs['tag_name']
-        )
-        if newobject.static_value or newobject.dynamic_value:
-            return newobject
-        else:
-            return False
-    elif kwargs['serviceobject']:
-        newobject = objects.ServiceObject(
-            name=kwargs['serviceobject'],
-            protocol=kwargs['protocol'],
-            source_port=kwargs['source_port'],
-            destination_port=kwargs['destination_port'],
-            tag=kwargs['tag_name']
-        )
-        if newobject.protocol and newobject.destination_port:
-            return newobject
-        else:
-            return False
-    elif kwargs['servicegroup']:
-        newobject = objects.ServiceGroup(
-            name=kwargs['servicegroup'],
-            value=kwargs['services'],
-            tag=kwargs['tag_name']
-        )
-        if newobject.value:
-            return newobject
-        else:
-            return False
-    elif kwargs['tag_name']:
-        newobject = objects.Tag(
-            name=kwargs['tag_name'],
-            color=kwargs['color'],
-            comments=kwargs['description']
-        )
-        if newobject.name:
-            return newobject
-        else:
-            return False
-    else:
-        return False
+    'service_group_value': dict(type='list'),
 
+    'color': dict(choices=COLOR_NAMES),
+    'comments': dict(type='str'),
 
-def add_object(device, dev_group, new_object):
-    if dev_group:
-        dev_group.add(new_object)
-    else:
-        device.add(new_object)
-    new_object.create()
-    return True
+    'description': dict(type='str'),
+    'tag': dict(type='list'),
+    'device_group': dict(type='str'),
+    'state': dict(default='present', choices=['present', 'absent'])
+}
+
+PANOS_OBJECT_REQUIRED_IF_COMPLEX_ARGSPEC = [
+    # If 'state' is 'present' and 'object_type' is 'address', require 'address_value'.
+    [{'state': 'present', 'object_type': 'address'}, ['address_value']],
+
+    # If 'state' is 'present', 'object_type' is 'address-group', and 'address_group_type' is
+    # 'static', require 'static_value'.
+    [
+        {'state': 'present', 'object_type': 'address-group', 'address_group_type': 'static'},
+        ['static_value']
+    ],
+
+    # If 'state' is 'present', 'object_type' is 'address-group', and 'address_group_type' is
+    # 'dynamic', require 'dynamic_value'.
+    [
+        {'state': 'present', 'object_type': 'address-group', 'address_group_type': 'dynamic'},
+        ['dynamic_value']
+    ],
+
+    # If 'state' is 'present' and 'object_type' is 'service', require 'destination_port'.
+    [{'state': 'present', 'object_type': 'service'}, ['destination_port']],
+
+    [{'state': 'present', 'object_type': 'service-group'}, ['service_group_value']]
+]
 
 
 def main():
-    argument_spec = dict(
-        ip_address=dict(required=True),
-        password=dict(no_log=True),
-        username=dict(default='admin'),
-        api_key=dict(no_log=True),
-        operation=dict(required=True, choices=['add', 'update', 'delete', 'find']),
-        addressobject=dict(default=None),
-        addressgroup=dict(default=None),
-        serviceobject=dict(default=None),
-        servicegroup=dict(default=None),
-        address=dict(default=None),
-        address_type=dict(default='ip-netmask', choices=['ip-netmask', 'ip-range', 'fqdn']),
-        static_value=dict(type='list', default=None),
-        dynamic_value=dict(default=None),
-        protocol=dict(default=None, choices=['tcp', 'udp']),
-        source_port=dict(default=None),
-        destination_port=dict(default=None),
-        services=dict(type='list', default=None),
-        description=dict(default=None),
-        tag_name=dict(default=None),
-        color=dict(default=None, choices=['red', 'green', 'blue', 'yellow', 'copper', 'orange', 'purple',
-                                          'gray', 'light green', 'cyan', 'light gray', 'blue gray',
-                                          'lime', 'black', 'gold', 'brown']),
-        devicegroup=dict(default=None)
+    module = PanOSAnsibleModule(
+        argument_spec=PANOS_ADDRESS_OBJECT_ARGSPEC
     )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
-                           required_one_of=[['api_key', 'password']],
-                           mutually_exclusive=[['addressobject', 'addressgroup',
-                                                'serviceobject', 'servicegroup',
-                                                'tag_name']]
-                           )
-    if not HAS_LIB:
-        module.fail_json(msg='Missing required libraries.')
 
-    ip_address = module.params["ip_address"]
-    password = module.params["password"]
-    username = module.params['username']
-    api_key = module.params['api_key']
-    operation = module.params['operation']
-    addressobject = module.params['addressobject']
-    addressgroup = module.params['addressgroup']
-    serviceobject = module.params['serviceobject']
-    servicegroup = module.params['servicegroup']
-    address = module.params['address']
+    name = module.params['name']
+    object_type = module.params['object_type']
+
+    address_value = module.params['address_value']
     address_type = module.params['address_type']
+
+    address_group_type = module.params['address_group_type']
     static_value = module.params['static_value']
     dynamic_value = module.params['dynamic_value']
+
     protocol = module.params['protocol']
     source_port = module.params['source_port']
     destination_port = module.params['destination_port']
-    services = module.params['services']
-    description = module.params['description']
-    tag_name = module.params['tag_name']
+
+    service_group_value = module.params['service_group_value']
+
     color = module.params['color']
-    devicegroup = module.params['devicegroup']
+    comments = module.params['comments']
 
-    # Create the device with the appropriate pandevice type
-    device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
+    description = module.params['description']
+    tag = module.params['tag']
+    device_group = module.params['device_group']
+    state = module.params['state']
 
-    # If Panorama, validate the devicegroup
-    dev_group = None
-    if devicegroup and isinstance(device, panorama.Panorama):
-        dev_group = get_devicegroup(device, devicegroup)
-        if dev_group:
-            device.add(dev_group)
-        else:
-            module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
+    changed = False
 
-    # What type of object are we talking about?
-    if addressobject:
-        obj_name = addressobject
-        obj_type = objects.AddressObject
-    elif addressgroup:
-        obj_name = addressgroup
-        obj_type = objects.AddressGroup
-    elif serviceobject:
-        obj_name = serviceobject
-        obj_type = objects.ServiceObject
-    elif servicegroup:
-        obj_name = servicegroup
-        obj_type = objects.ServiceGroup
-    elif tag_name:
-        obj_name = tag_name
-        obj_type = objects.Tag
-    else:
-        module.fail_json(msg='No object type defined!')
+    for (param_dict, requirements) in PANOS_OBJECT_REQUIRED_IF_COMPLEX_ARGSPEC:
+        and_op = False
+        criteria = []
+        for key in sorted(param_dict.keys()):
+            if module.params[key] and module.params[key] == param_dict[key]:
+                and_op = True
+            else:
+                and_op = False
+                break
+            criteria.append('\'%s\' is \'%s\'' % (key, param_dict[key]))
+        if and_op == True:
+            missing = []
+            for requirement in requirements:
+                if not module.params[requirement] or module.params[requirement] == '':
+                    missing.append(requirement)
+            if len(missing) > 0:
+                module.fail_json(msg='%s but the following are missing: %s' % 
+                    ((', '.join(criteria)), (', '.join(missing))))
 
-    # Which operation shall we perform on the object?
-    if operation == "find":
-        # Search for the object
-        match = find_object(device, dev_group, obj_name, obj_type)
+    try:
+        if device_group:
+            module.device_group = device_group
 
-        # If found, format and return the result
-        if match:
-            match_dict = xmltodict.parse(match.element_str())
-            module.exit_json(
-                stdout_lines=json.dumps(match_dict, indent=2),
-                msg='Object matched'
-            )
-        else:
-            module.fail_json(msg='Object \'%s\' not found. Is the name correct?' % obj_name)
-    elif operation == "delete":
-        # Search for the object
-        match = find_object(device, dev_group, obj_name, obj_type)
+        obj_type = None
 
-        # If found, delete it
-        if match:
-            try:
-                match.delete()
-            except PanXapiError:
-                exc = get_exception()
-                module.fail_json(msg=exc.message)
+        if object_type == 'address':
+            obj_type = objects.AddressObject
+        elif object_type == 'address-group':
+            obj_type = objects.AddressGroup
+        elif object_type == 'service':
+            obj_type = objects.ServiceObject
+        elif object_type == 'service-group':
+            obj_type = objects.ServiceGroup
+        elif object_type == 'tag':
+            obj_type = objects.Tag
 
-            module.exit_json(changed=True, msg='Object \'%s\' successfully deleted' % obj_name)
-        else:
-            module.fail_json(msg='Object \'%s\' not found. Is the name correct?' % obj_name)
-    elif operation == "add":
-        # Search for the object. Fail if found.
-        match = find_object(device, dev_group, obj_name, obj_type)
-        if match:
-            module.fail_json(msg='Object \'%s\' already exists. Use operation: \'update\' to change it.' % obj_name)
-        else:
-            try:
-                new_object = create_object(
-                    addressobject=addressobject,
-                    addressgroup=addressgroup,
-                    serviceobject=serviceobject,
-                    servicegroup=servicegroup,
-                    address=address,
-                    address_type=address_type,
-                    static_value=static_value,
-                    dynamic_value=dynamic_value,
-                    protocol=protocol,
-                    source_port=source_port,
-                    destination_port=destination_port,
-                    services=services,
-                    description=description,
-                    tag_name=tag_name,
-                    color=color
+        if state == 'present':
+            new_obj = None
+
+            if object_type == 'address':
+                new_obj = objects.AddressObject(
+                    name, address_value, type=address_type, description=description, tag=tag
                 )
-                changed = add_object(device, dev_group, new_object)
-            except PanXapiError:
-                exc = get_exception()
-                module.fail_json(msg=exc.message)
-        module.exit_json(changed=changed, msg='Object \'%s\' successfully added' % obj_name)
-    elif operation == "update":
-        # Search for the object. Update if found.
-        match = find_object(device, dev_group, obj_name, obj_type)
-        if match:
-            try:
-                new_object = create_object(
-                    addressobject=addressobject,
-                    addressgroup=addressgroup,
-                    serviceobject=serviceobject,
-                    servicegroup=servicegroup,
-                    address=address,
-                    address_type=address_type,
-                    static_value=static_value,
-                    dynamic_value=dynamic_value,
-                    protocol=protocol,
-                    source_port=source_port,
-                    destination_port=destination_port,
-                    services=services,
-                    description=description,
-                    tag_name=tag_name,
-                    color=color
+            elif object_type == 'address-group' and address_group_type == 'static':
+                new_obj = objects.AddressGroup(
+                    name, static_value=static_value, description=description, tag=tag
                 )
-                changed = add_object(device, dev_group, new_object)
-            except PanXapiError:
-                exc = get_exception()
-                module.fail_json(msg=exc.message)
-            module.exit_json(changed=changed, msg='Object \'%s\' successfully updated.' % obj_name)
-        else:
-            module.fail_json(msg='Object \'%s\' does not exist. Use operation: \'add\' to add it.' % obj_name)
+            elif object_type == 'address-group' and address_group_type == 'dynamic':
+                new_obj = objects.AddressGroup(
+                    name, dynamic_value=dynamic_value, description=description, tag=tag
+                )
+            elif object_type == 'service':
+                new_obj = objects.ServiceObject(
+                    name=name, protocol=protocol, source_port=source_port,
+                    destination_port=destination_port, description=description, tag=tag
+                )
+            elif object_type == 'service-group':
+                new_obj = objects.ServiceGroup(name=name, value=service_group_value, tag=tag)
+            elif object_type == 'tag':
+                color_id = objects.Tag.color_code(color) if color else None
+                new_obj = objects.Tag(name=name, color=color_id, comments=comments)
+
+            changed = module.create_or_update_object(name, obj_type, new_obj)
+
+        elif state == 'absent':
+            changed = module.delete_object(name, obj_type)
+
+    except PanDeviceError as e:
+        module.fail_json(msg=e.message)
+
+    module.exit_json(changed=changed)
 
 
 if __name__ == '__main__':
     main()
+
