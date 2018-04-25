@@ -8,6 +8,7 @@ pep8
 pyflakes
 virtualenvwrapper
 voluptuous
+tox
 mock
 pytest
 pytest-cov
