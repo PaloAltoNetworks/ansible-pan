@@ -84,8 +84,6 @@ stdout_xml:
     sample: "<response status=success><result><system><hostname>fw2</hostname>"
 '''
 
-import pydevd
-pydevd.settrace('localhost', port=55067, stdoutToServer=True, stderrToServer=True)
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.basic import get_exception
