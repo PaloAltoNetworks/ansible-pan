@@ -84,6 +84,9 @@ stdout_xml:
     sample: "<response status=success><result><system><hostname>fw2</hostname>"
 '''
 
+import pydevd
+pydevd.settrace('localhost', port=55067, stdoutToServer=True, stderrToServer=True)
+
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.basic import get_exception
 
@@ -125,6 +128,7 @@ def main():
     device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
 
     changed = False
+    xml_output = []
     try:
         xml_output = device.op(cmd, xml=True)
         changed = True
@@ -143,6 +147,8 @@ def main():
             except PanXapiError:
                 exc = get_exception()
                 module.fail_json(msg=exc.message)
+        else:
+            module.fail_json(msg=exc.message)
 
     obj_dict = xmltodict.parse(xml_output)
     json_output = json.dumps(obj_dict)
