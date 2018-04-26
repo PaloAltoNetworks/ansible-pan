@@ -73,7 +73,7 @@ options:
 
 EXAMPLES = '''
 - name: Create service group 'Prod-Services'
-  panos_service_group_object: 
+  panos_service_group_object:
     ip_address: '{{ fw_ip_address }}'
     username: '{{ fw_username }}'
     password: '{{ fw_password }}'
@@ -101,7 +101,6 @@ try:
 except ImportError:
     HAS_PANOS_LIB = False
 
-from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.network.panos import PanOSAnsibleModule
 
 

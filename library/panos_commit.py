@@ -73,16 +73,13 @@ RETURN = '''
 try:
     from pandevice import firewall
     from pandevice import panorama
-    from pandevice.errors import PanDeviceError, PanCommitNotNeeded
+    from pandevice.errors import PanDeviceError
 
     HAS_PANOS_LIB = True
 except ImportError:
     HAS_PANOS_LIB = False
 
-
-from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.network.panos import PanOSAnsibleModule
-
 
 PANOS_COMMIT_ARGSPEC = {
     'device_group': dict(type='str', aliases=['devicegroup'])

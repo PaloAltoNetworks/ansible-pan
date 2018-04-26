@@ -119,7 +119,6 @@ try:
 except ImportError:
     HAS_PANOS_LIB = False
 
-from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.network.panos import PanOSAnsibleModule
 
 
