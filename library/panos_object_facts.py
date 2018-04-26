@@ -85,7 +85,6 @@ results:
     type: dict
 '''
 
-from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.network.panos import PanOSAnsibleModule
 
 try:

@@ -76,7 +76,6 @@ results:
     sample: { '1.1.1.1': ['First_Tag', 'Second_Tag'] }
 '''
 
-from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.network.panos import PanOSAnsibleModule
 
 try:

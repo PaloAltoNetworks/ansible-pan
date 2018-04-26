@@ -73,7 +73,7 @@ options:
         default: 'static'
     static_value:
         description:
-            - List of address objects to be included in the group.  Required if 
+            - List of address objects to be included in the group.  Required if
               I(address_group_type) is 'static'.
         type: list
     dynamic_value:
@@ -91,11 +91,11 @@ options:
             - If I(object_type) is I(service), this is the source port of the service object.
     destination_port:
         description:
-            - If I(object_type) is I(service), this is the destination port of the service 
+            - If I(object_type) is I(service), this is the destination port of the service
               object.  Required if state is I(present).
     service_group_value:
         description:
-            - If I(object_type) is I(service-group), this is the list of service objects to be 
+            - If I(object_type) is I(service-group), this is the list of service objects to be
               included in the group.  Required if I(state) is 'present'.
         type: list
         required: true
@@ -229,7 +229,7 @@ EXAMPLES = '''
     state: 'absent'
 
 - name: Create service group 'Prod-Services'
-  panos_object: 
+  panos_object:
     ip_address: '{{ fw_ip_address }}'
     username: '{{ fw_username }}'
     password: '{{ fw_password }}'
@@ -277,8 +277,6 @@ try:
     HAS_PANOS_LIB = True
 except ImportError:
     HAS_PANOS_LIB = False
-
-from ansible.module_utils.basic import AnsibleModule
 
 try:
     from module_utils.network.panos import PanOSAnsibleModule
@@ -385,14 +383,17 @@ def main():
                 and_op = False
                 break
             criteria.append('\'%s\' is \'%s\'' % (key, param_dict[key]))
-        if and_op == True:
+        if and_op:
             missing = []
             for requirement in requirements:
                 if not module.params[requirement] or module.params[requirement] == '':
                     missing.append(requirement)
             if len(missing) > 0:
-                module.fail_json(msg='%s but the following are missing: %s' % 
-                    ((', '.join(criteria)), (', '.join(missing))))
+                module.fail_json(
+                    msg='%s but the following are missing: %s' % (
+                        (', '.join(criteria)), (', '.join(missing))
+                    )
+                )
 
     try:
         if device_group:
@@ -450,4 +451,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

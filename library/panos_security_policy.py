@@ -221,9 +221,7 @@ try:
 except ImportError:
     HAS_PANOS_LIB = False
 
-from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.network.panos import PanOSAnsibleModule
-
 
 PANOS_SECURITY_POLICY_ARGSPEC = {
     'name': dict(type='str', required=True),
@@ -353,8 +351,8 @@ def main():
 
             # Target and negate target only apply if we're talking to Panorama.
             if device_group:
-                new_obj.negate_target = module.params['negate_target']
-                new_obj.target = module.params['target']
+                new_obj.negate_target = negate_target
+                new_obj.target = target
 
             changed = module.create_or_update_rule(
                 name, policies.SecurityRule, new_obj, location=location,
