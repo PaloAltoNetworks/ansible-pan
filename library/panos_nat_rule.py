@@ -24,8 +24,8 @@ module: panos_nat_rules
 short_description: Create NAT rules on PAN-OS devices.
 description:
     - Create NAT rules on PAN-OS devices.
-author: "Michael Richardson (@mrichardson03)"
-version_added: "2.6"
+author: "Luigi Mori (@jtschichold),Ivan Bojer (@ivanbojer),Robert Hagen (@rnh556),Michael Richardson (@mrichardson03)"
+version_added: "2.4"
 requirements:
     - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
@@ -180,7 +180,17 @@ options:
 '''
 
 EXAMPLES = '''
-
+- name: Create Outbound NAT rule
+  panos_nat_rule:
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    name: 'Outbound'
+    fromzone: ['trust']
+    tozone: ['untrust']
+    source_translation_type: 'dynamic-ip-and-port'
+    source_translation_address_type: 'translated-address'
+    source_translation_translated_addresses: ['10.0.0.1']
 '''
 
 RETURN = '''

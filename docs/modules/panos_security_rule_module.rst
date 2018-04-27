@@ -90,6 +90,11 @@ Options
         <td></td>
         <td><div>- Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama. If device group is not define we assume that we are contacting Firewall.
     </div>        </td></tr>
+                <tr><td>existing_rule<br/><div style="font-size: small;"></div></td>
+    <td>no</td>
+    <td></td>
+        <td></td>
+        <td><div>If 'location' is set to 'before' or 'after', this option specifies an existing rule name.  The new rule will be created in the specified position relative to this rule.  If 'location' is set to 'before' or 'after', this option is required.</div>        </td></tr>
                 <tr><td>file_blocking<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>None</td>
@@ -112,6 +117,11 @@ Options
     <td></td>
         <td></td>
         <td><div>IP address (or hostname) of PAN-OS device being configured.</div>        </td></tr>
+                <tr><td>location<br/><div style="font-size: small;"></div></td>
+    <td>no</td>
+    <td></td>
+        <td></td>
+        <td><div>Position to place the created rule in the rule base.  Supported values are <em>top</em>/<em>bottom</em>/<em>before</em>/<em>after</em>.</div>        </td></tr>
                 <tr><td>log_end<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>True</td>
@@ -127,21 +137,11 @@ Options
     <td>add</td>
         <td></td>
         <td><div>The action to be taken.  Supported values are <em>add</em>/<em>update</em>/<em>find</em>/<em>delete</em>.</div>        </td></tr>
-                <tr><td>panorama_post_rule<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-        <td></td>
-        <td><div>If the security rule is applied against panorama, set this to True in order to inject it into post rule.</div>        </td></tr>
                 <tr><td>password<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
         <td></td>
         <td><div>Password credentials to use for auth unless <em>api_key</em> is set.</div>        </td></tr>
-                <tr><td>position<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-        <td></td>
-        <td><div>Forces a position of the rule. Use '0' for top. Don't specify one if appending the rule to the end.</div>        </td></tr>
                 <tr><td>rule_name<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
@@ -285,26 +285,33 @@ Examples
       register: result
     - debug: msg='{{result.stdout_lines}}'
     
-    - name: Add test rule 4 to the firewall in position 1!!
-        panos_security_rule:
-          ip_address: '{{ ip_address }}'
-          username: '{{ username }}'
-          password: '{{ password }}'
-          operation: 'add'
-          position: '1'
-          rule_name: 'Ansible test 4'
-          description: 'Another Ansible test rule'
-          source_zone: ['internal']
-          source_ip: ['192.168.100.101']
-          source_user: ['any']
-          hip_profiles: ['any']
-          destination_zone: ['external']
-          destination_ip: ['any']
-          category: ['any']
-          application: ['any']
-          service: ['service-https']
-          action: 'allow'
-          commit: 'False'
+    - name: add a rule at a specific location in the rulebase
+      panos_security_rule:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        operation: 'add'
+        rule_name: 'SSH permit'
+        description: 'SSH rule test'
+        source_zone: ['untrust']
+        destination_zone: ['trust']
+        source_ip: ['any']
+        source_user: ['any']
+        destination_ip: ['1.1.1.1']
+        category: ['any']
+        application: ['ssh']
+        service: ['application-default']
+        action: 'allow'
+        location: 'before'
+        existing_rule: 'Prod-Legacy 1'
+    
+    - name: disable a specific security rule
+      panos_security_rule:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        operation: 'disable'
+        rule_name: 'Prod-Legacy 1'
 
 
 Notes

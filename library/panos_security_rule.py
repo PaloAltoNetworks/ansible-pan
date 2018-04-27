@@ -24,8 +24,8 @@ module: panos_security_rule
 short_description: Create security rules on PAN-OS devices.
 description:
     - Create security rules on PAN-OS devices.
-author: "Michael Richardson (@mrichardson03)"
-version_added: "2.6"
+author: "Ivan Bojer (@ivanbojer), Robert Hagen (@rnh556), Michael Richardson (@mrichardson03)"
+version_added: "2.4"
 requirements:
     - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
@@ -206,7 +206,20 @@ options:
 '''
 
 EXAMPLES = '''
-
+- name: Create Prod SSH Inbound policy
+  panos_security_policy:
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    name: 'Prod SSH Inbound'
+    fromzone: ['untrust']
+    tozone: ['trust']
+    source: ['any']
+    destination: 'Prod-Instances'
+    application: ['ssh']
+    service: ['application-default']
+    action: 'allow'
+    tag: ['Prod']
 '''
 
 RETURN = '''
