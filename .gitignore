@@ -18,3 +18,5 @@ dist/
 examples/firewall-secrets.yml
 examples/panorama-secrets.yml
 *.swp
+
+.pytest_cache
