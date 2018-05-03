@@ -254,9 +254,11 @@ def create_object(**kwargs):
         else:
             return False
     elif kwargs['tag_name']:
+        t = objects.Tag
+        c = t.color_code(kwargs['color'])
         newobject = objects.Tag(
             name=kwargs['tag_name'],
-            color=kwargs['color'],
+            color=c,
             comments=kwargs['description']
         )
         if newobject.name:

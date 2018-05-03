@@ -35,6 +35,7 @@ N/A
 
 *Miscellanies*
 - https://github.com/PaloAltoNetworks/ansible-pan/pull/78
+- https://github.com/PaloAltoNetworks/ansible-pan/issues/22
 
 V1.0.6
 ------
