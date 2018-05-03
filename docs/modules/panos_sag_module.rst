@@ -84,7 +84,7 @@ Options
     <td>yes</td>
     <td></td>
         <td></td>
-        <td><div>Static filter user by the address group</div>        </td></tr>
+        <td><div>Static filter used by the address group</div>        </td></tr>
                 <tr><td>tags<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td></td>

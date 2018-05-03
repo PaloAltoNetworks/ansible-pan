@@ -1,10 +1,10 @@
-.. _panos_commit:
+.. _panos_software:
 
 
-panos_commit
-++++++++++++
+panos_software
+++++++++++++++
 
-.. versionadded:: 2.3
+.. versionadded:: 2.6
 
 
 .. contents::
@@ -15,8 +15,7 @@ panos_commit
 Synopsis
 --------
 
-* PanOS module that will commit firewall's candidate configuration on
-* the device. The new configuration will become active immediately.
+* Install specific release of PAN-OS.
 
 
 Requirements (on host that executes module)
@@ -43,27 +42,32 @@ Options
     <td>no</td>
     <td></td>
         <td></td>
-        <td><div>API key that can be used instead of <em>username</em>/<em>password</em> credentials.</div>        </td></tr>
-                <tr><td>devicegroup<br/><div style="font-size: small;"></div></td>
-    <td>no</td>
-    <td></td>
-        <td></td>
-        <td><div>The Panorama device group to be committed.</div>        </td></tr>
+        <td><div>API key to be used instead of <em>username</em> and <em>password</em>.</div>        </td></tr>
                 <tr><td>ip_address<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
         <td></td>
-        <td><div>The IP address (or hostname) of the PAN-OS device or Panorama management console.</div>        </td></tr>
+        <td><div>IP address or hostname of PAN-OS device.</div>        </td></tr>
                 <tr><td>password<br/><div style="font-size: small;"></div></td>
-    <td>yes</td>
+    <td>no</td>
     <td></td>
         <td></td>
-        <td><div>Password credentials to use for authentication.</div>        </td></tr>
+        <td><div>Password for authentication for PAN-OS device.  Optional if <em>api_key</em> is used.</div>        </td></tr>
+                <tr><td>restart<br/><div style="font-size: small;"></div></td>
+    <td>no</td>
+    <td></td>
+        <td></td>
+        <td><div>Restart device after installing desired version.  Use in conjunction with panos_check to determine when firewall is ready again.</div>        </td></tr>
                 <tr><td>username<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>admin</td>
         <td></td>
-        <td><div>Username credentials to use for authentication.</div>        </td></tr>
+        <td><div>Username for authentication for PAN-OS device.  Optional if <em>api_key</em> is used.</div>        </td></tr>
+                <tr><td>version<br/><div style="font-size: small;"></div></td>
+    <td>yes</td>
+    <td></td>
+        <td></td>
+        <td><div>Desired PAN-OS release.</div>        </td></tr>
         </table>
     </br>
 
@@ -74,17 +78,13 @@ Examples
 
  ::
 
-    - name: commit candidate config on firewall
-      panos_commit:
-        ip_address: '{{ ip_address }}'
-        username: '{{ username }}'
-        password: '{{ password }}'
-    
-    - name: commit candidate config on Panorama using api_key
-      panos_commit:
-        ip_address: '{{ ip_address }}'
-        api_key: '{{ api_key }}'
-        devicegroup: 'Cloud-Edge'
+    - name: Install PAN-OS 7.1.16 and restart
+      panos_software:
+        ip_address: '{{ fw_ip_address }}'
+        username: '{{ fw_username }}'
+        password: '{{ fw_password }}'
+        version: '7.1.16'
+        restart: true
 
 Return Values
 -------------
@@ -103,16 +103,22 @@ The following are the fields unique to this module:
     </tr>
 
         <tr>
-        <td> status </td>
-        <td> success status </td>
-        <td align=center> success </td>
-        <td align=center> string </td>
-        <td align=center> Commit successful </td>
+        <td> version </td>
+        <td> After performing the software install, returns the version installed on the device. </td>
+        <td align=center>  </td>
+        <td align=center>  </td>
+        <td align=center>  </td>
     </tr>
         
     </table>
     </br></br>
 
+Notes
+-----
+
+.. note::
+    - Checkmode is not supported.
+    - Panorama is supported.
 
 
 

@@ -21,7 +21,7 @@ short_description: create a policy NAT rule
 description: >
     - Create a policy nat rule. Keep in mind that we can either end up configuring source NAT, destination NAT, or
     both. Instead of splitting it into two we will make a fair attempt to determine which one the user wants.
-author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer), Robert Hagen (@rnh556)"
+author: "Luigi Mori (@jtschichold),Ivan Bojer (@ivanbojer),Robert Hagen (@rnh556),Michael Richardson (@mrichardson03)"
 version_added: "2.4"
 requirements:
     - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
@@ -47,7 +47,7 @@ options:
             - API key that can be used instead of I(username)/I(password) credentials.
     operation:
         description:
-            - The action to be taken.  Supported values are I(add)/I(update)/I(find)/I(delete).
+            - The action to be taken.  Supported values are I(add)/I(update)/I(find)/I(delete)/I(disable).
     rule_name:
         description:
             - name of the SNAT rule
@@ -82,7 +82,7 @@ options:
         default: None
     snat_address_type:
         description:
-            - type of source translation. Supported values are I(translated-address)/I(translated-address).
+            - type of source translation. Supported values are I(translated-address)/I(interface-address).
         required: false
         default: 'translated-address'
     snat_static_address:
@@ -120,6 +120,15 @@ options:
             - dnat translated port
         required: false
         default: None
+    location:
+        description:
+            - Position to place the created rule in the rule base.  Supported values are
+              I(top)/I(bottom)/I(before)/I(after).
+    existing_rule:
+        description:
+            - If 'location' is set to 'before' or 'after', this option specifies an existing
+              rule name.  The new rule will be created in the specified position relative to this
+              rule.  If 'location' is set to 'before' or 'after', this option is required.
     commit:
         description:
             - Commit configuration if changed.
@@ -143,6 +152,14 @@ EXAMPLES = '''
       snat_interface: "ethernet1/2"
       dnat_address: "10.0.1.101"
       dnat_port: "22"
+
+  - name: disable a specific security rule
+    panos_nat_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      operation: 'disable'
+      rule_name: 'Prod-Legacy 1'
 '''
 
 RETURN = '''
@@ -262,13 +279,21 @@ def create_nat_rule(**kwargs):
     return nat_rule
 
 
-def add_rule(rulebase, nat_rule):
+def find_rule_index(rulebase, rule_name):
     if rulebase:
-        rulebase.add(nat_rule)
-        nat_rule.create()
+        for num, child in enumerate(rulebase.children):
+            if rule_name == child.name:
+                return num
+    return -1
+
+
+def insert_rule_at_index(rulebase, new_rule, index):
+    if rulebase:
+        rulebase.insert(index, new_rule)
+        new_rule.create()
+        rulebase.apply()
         return True
-    else:
-        return False
+    return False
 
 
 def update_rule(rulebase, nat_rule):
@@ -286,7 +311,7 @@ def main():
         username=dict(default='admin'),
         password=dict(required=True, no_log=True),
         api_key=dict(no_log=True),
-        operation=dict(required=True, choices=['add', 'update', 'delete', 'find']),
+        operation=dict(required=True, choices=['add', 'update', 'delete', 'find', 'disable']),
         rule_name=dict(required=True),
         description=dict(),
         tag_name=dict(),
@@ -306,6 +331,8 @@ def main():
         dnat_address=dict(),
         dnat_port=dict(),
         devicegroup=dict(),
+        location=dict(default='bottom', choices=['top', 'bottom', 'before', 'after']),
+        existing_rule=dict(default=''),
         commit=dict(type='bool', default=True)
     )
 
@@ -339,6 +366,8 @@ def main():
     dnat_address = module.params['dnat_address']
     dnat_port = module.params['dnat_port']
     devicegroup = module.params['devicegroup']
+    location = module.params['location']
+    existing_rule = module.params['existing_rule']
 
     commit = module.params['commit']
 
@@ -419,7 +448,27 @@ def main():
                     dnat_address=dnat_address,
                     dnat_port=dnat_port
                 )
-                changed = add_rule(rulebase, new_rule)
+
+                if ((location == 'before') or (location == 'after')) and (existing_rule == ''):
+                    module.fail_json(msg='\'existing_rule\' must be specified if location is \'before\' or \'after\'.')
+
+                # Default is to add the rule at the bottom.
+                new_rule_index = len(rulebase.children)
+
+                if (location == 'before') or (location == 'after'):
+                    new_rule_index = find_rule_index(rulebase, existing_rule)
+
+                    if new_rule_index < 0:
+                        module.fail_json(msg='Existing rule \'%s\' does not exist.' % existing_rule)
+
+                    if location == 'after':
+                        new_rule_index = new_rule_index + 1
+
+                elif location == 'top':
+                    new_rule_index = 0
+
+                changed = insert_rule_at_index(rulebase, new_rule, new_rule_index)
+
                 if changed and commit:
                     device.commit(sync=True)
             except PanXapiError:
@@ -461,6 +510,21 @@ def main():
             module.exit_json(changed=changed, msg='Rule \'%s\' successfully updated.' % rule_name)
         else:
             module.fail_json(msg='Rule \'%s\' does not exist. Use operation: \'add\' to add it.' % rule_name)
+    elif operation == 'disable':
+        # Search for the rule, disable if found.
+        match = find_rule(rulebase, rule_name)
+        if match:
+            try:
+                match.disabled = True
+                changed = update_rule(rulebase, match)
+                if changed and commit:
+                    device.commit(sync=True)
+            except PanXapiError:
+                exc = get_exception()
+                module.fail_json(msg=exc.message)
+            module.exit_json(changed=changed, msg='Rule \'%s\' successfully disabled.' % rule_name)
+        else:
+            module.fail_json(msg='Rule \'%s\' does not exist.' % rule_name)
 
 
 if __name__ == '__main__':

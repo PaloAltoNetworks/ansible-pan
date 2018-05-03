@@ -4,6 +4,39 @@
 History
 =======
 
+V1.0.7
+------
+- Released: 2018-04-06
+- Status:   In-development
+
+*New modules*
+
+- panos_userid: added ability to (un)register userid with ip address
+- panos_software: Upgrade and downgrade PAN-OS on firewalls and Panorama.
+- panos_userid: added ability to (un)register userid with ip address
+- panos_static_route: ability to manipulate static routing tables
+
+*Removed modules*
+
+N/A
+
+*Refactored modules*
+
+- panos_interface: Added full support for static configuration of ethernet interfaces
+    - https://github.com/PaloAltoNetworks/ansible-pan/pull/61
+- Add functionality to list static address groups
+    - https://github.com/PaloAltoNetworks/ansible-pan/pull/64
+- Pass api_key to pandevice
+    - https://github.com/PaloAltoNetworks/ansible-pan/pull/63
+- panos_security_rule: Security Policy position/order
+    - https://github.com/PaloAltoNetworks/ansible-pan/issues/14
+- panos_security_rule: unable to add security policies in Post rule
+    - https://github.com/PaloAltoNetworks/ansible-pan/issues/38
+
+*Miscellanies*
+- https://github.com/PaloAltoNetworks/ansible-pan/pull/78
+- https://github.com/PaloAltoNetworks/ansible-pan/issues/22
+
 V1.0.6
 ------
 - Released: 2018-2-6

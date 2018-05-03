@@ -16,3 +16,5 @@ dist/
 # Runtime files
 *.retry
 examples/firewall-secrets.yml
+examples/panorama-secrets.yml
+*.swp

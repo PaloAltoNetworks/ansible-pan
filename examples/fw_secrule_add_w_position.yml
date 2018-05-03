@@ -1,24 +1,24 @@
-- name: Add some security rules to Panorama
-  hosts: my-panorama
+- name: Add some security rules to the firewall
+  hosts: my-firewall
   connection: local
   gather_facts: False
 
-  roles:
-    - role: PaloAltoNetworks.paloaltonetworks
+#  roles:
+#    - role: PaloAltoNetworks.paloaltonetworks
 
   tasks:
   - name: Grab the credentials from ansible-vault
-    include_vars: 'panorama-secrets.yml'
-    no_log: 'no'
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
 
-  - name: Add test pre-rule to Panorama
+  - name: Add test rule 1 to the firewall
     panos_security_rule:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
       password: '{{ password }}'
       operation: 'add'
       rule_name: 'Ansible test 1'
-      description: 'An Ansible test pre-rule'
+      description: 'An Ansible test rule'
       source_zone: ['internal']
       destination_zone: ['external']
       source_ip: ['1.2.3.4']
@@ -29,17 +29,16 @@
       service: ['service-http']
       hip_profiles: ['any']
       action: 'allow'
-      devicegroup: 'DeviceGroupA'
       commit: 'False'
 
-  - name: Add test post-rule to Panorama
+  - name: Add test rule 2 to the firewall
     panos_security_rule:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
       password: '{{ password }}'
       operation: 'add'
       rule_name: 'Ansible test 2'
-      description: 'Another Ansible test post-rule'
+      description: 'Another Ansible test rule'
       source_zone: ['internal']
       source_ip: ['192.168.100.100']
       source_user: ['any']
@@ -50,14 +49,24 @@
       application: ['any']
       service: ['service-https']
       action: 'allow'
-      devicegroup: 'DeviceGroupA'
-      is_post_rule: "True"
-      commit: 'True'
+      commit: 'False'
 
-
-#  - name: push configuration to firewall(s)
-#    panos_commit:
-#      ip_address: '{{ ip_address }}'
-#      username: '{{ username }}'
-#      password: '{{ password }}'
-#      devicegroup: 'DeviceGroupA'
+  - name: add a rule at a specific location in the rulebase
+    panos_security_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      operation: 'add'
+      rule_name: 'SSH permit'
+      description: 'SSH rule test'
+      source_zone: ['internal']
+      destination_zone: ['external']
+      source_ip: ['any']
+      source_user: ['any']
+      destination_ip: ['1.1.1.1']
+      category: ['any']
+      application: ['ssh']
+      service: ['application-default']
+      action: 'allow'
+      location: 'before'
+      existing_rule: 'Ansible test 2'

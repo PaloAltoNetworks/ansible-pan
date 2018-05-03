@@ -90,6 +90,11 @@ Options
         <td></td>
         <td><div>- Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama. If device group is not define we assume that we are contacting Firewall.
     </div>        </td></tr>
+                <tr><td>existing_rule<br/><div style="font-size: small;"></div></td>
+    <td>no</td>
+    <td></td>
+        <td></td>
+        <td><div>If 'location' is set to 'before' or 'after', this option specifies an existing rule name.  The new rule will be created in the specified position relative to this rule.  If 'location' is set to 'before' or 'after', this option is required.</div>        </td></tr>
                 <tr><td>file_blocking<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>None</td>
@@ -112,6 +117,11 @@ Options
     <td></td>
         <td></td>
         <td><div>IP address (or hostname) of PAN-OS device being configured.</div>        </td></tr>
+                <tr><td>location<br/><div style="font-size: small;"></div></td>
+    <td>no</td>
+    <td></td>
+        <td></td>
+        <td><div>Position to place the created rule in the rule base.  Supported values are <em>top</em>/<em>bottom</em>/<em>before</em>/<em>after</em>.</div>        </td></tr>
                 <tr><td>log_end<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td>True</td>
@@ -275,6 +285,33 @@ Examples
       register: result
     - debug: msg='{{result.stdout_lines}}'
     
+    - name: add a rule at a specific location in the rulebase
+      panos_security_rule:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        operation: 'add'
+        rule_name: 'SSH permit'
+        description: 'SSH rule test'
+        source_zone: ['untrust']
+        destination_zone: ['trust']
+        source_ip: ['any']
+        source_user: ['any']
+        destination_ip: ['1.1.1.1']
+        category: ['any']
+        application: ['ssh']
+        service: ['application-default']
+        action: 'allow'
+        location: 'before'
+        existing_rule: 'Prod-Legacy 1'
+    
+    - name: disable a specific security rule
+      panos_security_rule:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        operation: 'disable'
+        rule_name: 'Prod-Legacy 1'
 
 
 Notes

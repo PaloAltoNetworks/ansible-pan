@@ -27,7 +27,7 @@ description: >
     - Security policies allow you to enforce rules and take action, and can be as general or specific as needed. The
     policy rules are compared against the incoming traffic in sequence, and because the first rule that matches the
     traffic is applied, the more specific rules must precede the more general ones.
-author: "Ivan Bojer (@ivanbojer), Robert Hagen (@rnh556)"
+author: "Ivan Bojer (@ivanbojer), Robert Hagen (@rnh556), Michael Richardson (@mrichardson03)"
 version_added: "2.4"
 requirements:
     - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
@@ -156,6 +156,15 @@ options:
             - Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama.
             If device group is not define we assume that we are contacting Firewall.
         default: None
+    location:
+        description:
+            - Position to place the created rule in the rule base.  Supported values are
+              I(top)/I(bottom)/I(before)/I(after).
+    existing_rule:
+        description:
+            - If 'location' is set to 'before' or 'after', this option specifies an existing
+              rule name.  The new rule will be created in the specified position relative to this
+              rule.  If 'location' is set to 'before' or 'after', this option is required.
     commit:
         description:
             - Commit configuration if changed.
@@ -236,6 +245,33 @@ EXAMPLES = '''
   register: result
 - debug: msg='{{result.stdout_lines}}'
 
+- name: add a rule at a specific location in the rulebase
+  panos_security_rule:
+    ip_address: '{{ ip_address }}'
+    username: '{{ username }}'
+    password: '{{ password }}'
+    operation: 'add'
+    rule_name: 'SSH permit'
+    description: 'SSH rule test'
+    source_zone: ['untrust']
+    destination_zone: ['trust']
+    source_ip: ['any']
+    source_user: ['any']
+    destination_ip: ['1.1.1.1']
+    category: ['any']
+    application: ['ssh']
+    service: ['application-default']
+    action: 'allow'
+    location: 'before'
+    existing_rule: 'Prod-Legacy 1'
+
+- name: disable a specific security rule
+  panos_security_rule:
+    ip_address: '{{ ip_address }}'
+    username: '{{ username }}'
+    password: '{{ password }}'
+    operation: 'disable'
+    rule_name: 'Prod-Legacy 1'
 '''
 
 RETURN = '''
@@ -294,6 +330,7 @@ def find_rule(rulebase, rule_name):
         return rule
     else:
         return False
+
 
 def rule_is_match(propose_rule, current_rule):
 
@@ -359,13 +396,21 @@ def create_security_rule(**kwargs):
     return security_rule
 
 
-def add_rule(rulebase, sec_rule):
+def find_rule_index(rulebase, rule_name):
     if rulebase:
-        rulebase.add(sec_rule)
-        sec_rule.create()
+        for num, child in enumerate(rulebase.children):
+            if rule_name == child.name:
+                return num
+    return -1
+
+
+def insert_rule_at_index(rulebase, new_rule, index):
+    if rulebase:
+        rulebase.insert(index, new_rule)
+        new_rule.create()
+        rulebase.apply()
         return True
-    else:
-        return False
+    return False
 
 
 def update_rule(rulebase, nat_rule):
@@ -409,6 +454,8 @@ def main():
         rule_type=dict(default='universal'),
         action=dict(default='allow'),
         devicegroup=dict(),
+        location=dict(default='bottom', choices=['top', 'bottom', 'before', 'after']),
+        existing_rule=dict(default=''),
         commit=dict(type='bool', default=True)
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
@@ -446,6 +493,8 @@ def main():
     wildfire_analysis = module.params['wildfire_analysis']
     rule_type = module.params['rule_type']
     devicegroup = module.params['devicegroup']
+    location = module.params['location']
+    existing_rule = module.params['existing_rule']
 
     commit = module.params['commit']
 
@@ -519,6 +568,7 @@ def main():
             rule_type=rule_type,
             action=action
         )
+
         # Search for the rule. Fail if found.
         match = find_rule(rulebase, rule_name)
         if match:
@@ -528,7 +578,26 @@ def main():
                 module.fail_json(msg='Rule \'%s\' already exists. Use operation: \'update\' to change it.' % rule_name)
         else:
             try:
-                changed = add_rule(rulebase, new_rule)
+                if ((location == 'before') or (location == 'after')) and (existing_rule == ''):
+                    module.fail_json(msg='\'existing_rule\' must be specified if location is \'before\' or \'after\'.')
+
+                # Default is to add the rule at the bottom.
+                new_rule_index = len(rulebase.children)
+
+                if (location == 'before') or (location == 'after'):
+                    new_rule_index = find_rule_index(rulebase, existing_rule)
+
+                    if new_rule_index < 0:
+                        module.fail_json(msg='Existing rule \'%s\' does not exist.' % existing_rule)
+
+                    if location == 'after':
+                        new_rule_index = new_rule_index + 1
+
+                elif location == 'top':
+                    new_rule_index = 0
+
+                changed = insert_rule_at_index(rulebase, new_rule, new_rule_index)
+
                 if changed and commit:
                     device.commit(sync=True)
             except PanXapiError:

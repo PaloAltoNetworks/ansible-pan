@@ -68,16 +68,26 @@ Options
     <td>None</td>
         <td></td>
         <td><div>dnat translated port</div>        </td></tr>
+                <tr><td>existing_rule<br/><div style="font-size: small;"></div></td>
+    <td>no</td>
+    <td></td>
+        <td></td>
+        <td><div>If 'location' is set to 'before' or 'after', this option specifies an existing rule name.  The new rule will be created in the specified position relative to this rule.  If 'location' is set to 'before' or 'after', this option is required.</div>        </td></tr>
                 <tr><td>ip_address<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
         <td></td>
         <td><div>IP address (or hostname) of PAN-OS device being configured.</div>        </td></tr>
+                <tr><td>location<br/><div style="font-size: small;"></div></td>
+    <td>no</td>
+    <td></td>
+        <td></td>
+        <td><div>Position to place the created rule in the rule base.  Supported values are <em>top</em>/<em>bottom</em>/<em>before</em>/<em>after</em>.</div>        </td></tr>
                 <tr><td>operation<br/><div style="font-size: small;"></div></td>
     <td>no</td>
     <td></td>
         <td></td>
-        <td><div>The action to be taken.  Supported values are <em>add</em>/<em>update</em>/<em>find</em>/<em>delete</em>.</div>        </td></tr>
+        <td><div>The action to be taken.  Supported values are <em>add</em>/<em>update</em>/<em>find</em>/<em>delete</em>/<em>disable</em>.</div>        </td></tr>
                 <tr><td>password<br/><div style="font-size: small;"></div></td>
     <td>yes</td>
     <td></td>
@@ -169,6 +179,14 @@ Examples
           snat_interface: "ethernet1/2"
           dnat_address: "10.0.1.101"
           dnat_port: "22"
+    
+      - name: disable a specific security rule
+        panos_nat_rule:
+          ip_address: '{{ ip_address }}'
+          username: '{{ username }}'
+          password: '{{ password }}'
+          operation: 'disable'
+          rule_name: 'Prod-Legacy 1'
 
 
 Notes

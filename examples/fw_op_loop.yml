@@ -1,0 +1,41 @@
+- name: Demonstrate how to use OP module to execute various op commands on PANW device
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+
+  vars:
+    software_version: "8.0.9"
+
+  tasks:
+  - include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: Request software {{ software_version }} version download
+    panos_op:
+      ip_address: '{{ ip_address }}'
+      password: '{{ password }}'
+      cmd: "request system software download version \"{{software_version}}\""
+    register: result
+
+  - name: Extract and show job id (optional task)
+    vars:
+      job_id: "{{ (result.stdout | from_json)['response']['result']['job'] }}"
+    debug: msg='{{ job_id }}'
+
+  - name: Query job id until it is finished
+    vars:
+      job_id: "{{ (result.stdout | from_json)['response']['result']['job'] }}"
+    panos_op:
+      ip_address: '{{ ip_address }}'
+      password: '{{ password }}'
+      cmd: "show jobs id \"{{ job_id }}\""
+    register: result
+    until: result.stdout.find("FIN") != -1
+    retries: 5
+    delay: 10
+
+  - name: returned output in the default JSON format
+    debug: msg='{{ (result.stdout | from_json)['response']['result'] }}'
