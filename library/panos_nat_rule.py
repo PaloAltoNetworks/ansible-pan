@@ -82,7 +82,7 @@ options:
         default: None
     snat_address_type:
         description:
-            - type of source translation. Supported values are I(translated-address)/I(translated-address).
+            - type of source translation. Supported values are I(translated-address)/I(interface-address).
         required: false
         default: 'translated-address'
     snat_static_address:
