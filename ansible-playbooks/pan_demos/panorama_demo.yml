@@ -45,7 +45,7 @@
         password: "{{admin_password}}"
         operation: 'update'
         serviceobject: 'service-tcp-221'
-        destination_port: '223'
+        destination_port: '224'
         protocol: 'tcp'
         description: 'ssh on 221'
         devicegroup: "cap_one_dg"
