@@ -68,6 +68,18 @@ options:
     comment:
         description:
             - Interface comment.
+    zone_name:
+        description:
+            - Name of the zone for the interface. If the zone does not exist it is created but if the zone exists and it is not of the correct mode the operation will fail.
+        required: true
+    vr_name:
+        description:
+            - Name of the virtual router; it must already exist.
+        default: "default"
+    vsys_dg:
+        description:
+            - Name of the vsys (if firewall) or device group (if panorama) to put this object.
+        default: "vsys1"
     commit:
         description:
             - Commit if changed
@@ -118,6 +130,48 @@ try:
 except ImportError:
     HAS_LIB = False
 
+def set_zone(con, loopback, zone_name, zones):
+    desired_zone = None
+
+    # Remove the interface from the zone.
+    for z in zones:
+        if z.name == zone_name:
+            desired_zone = z
+        elif loopback.name in z.interface:
+            z.interface.remove(loopback.name)
+            z.update('interface')
+
+    if desired_zone is not None:
+        if desired_zone.interface is None:
+            desired_zone.interface = []
+        if loopback.name not in desired_zone.interface:
+            desired_zone.interface.append(loopback.name)
+            desired_zone.update('interface')
+    elif zone_name is not None:
+        z = network.Zone(zone_name, interface=[loopback.name, ])
+        con.add(z)
+        z.create()
+
+
+def set_virtual_router(con, loopback, vr_name, routers):
+    desired_vr = None
+
+    for vr in routers:
+        if vr.name == vr_name:
+            desired_vr = vr
+        elif loopback.name in vr.interface:
+            vr.interface.remove(loopback.name)
+            vr.update('interface')
+
+    if desired_vr is not None:
+        if desired_vr.interface is None:
+            desired_vr.interface = []
+        if loopback.name not in desired_vr.interface:
+            desired_vr.interface.append(loopback.name)
+            desired_vr.update('interface')
+    elif vr_name is not None:
+        raise ValueError('Virtual router {0} does not exist'.format(vr_name))
+
 
 def main():
     argument_spec = dict(
@@ -136,6 +190,9 @@ def main():
         comment=dict(),
         ipv4_mss_adjust=dict(),
         ipv6_mss_adjust=dict(),
+        zone_name=dict(required=True),
+        vr_name=dict(default='default'),
+        vsys_dg=dict(default='vsys1'),
         commit=dict(type='bool', default=True),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
@@ -167,6 +224,9 @@ def main():
 
     # Get other info.
     operation = module.params['operation']
+    zone_name = module.params['zone_name']
+    vr_name = module.params['vr_name']
+    vsys_dg = module.params['vsys_dg']
     commit = module.params['commit']
 
     # Open the connection to the PANOS device.
@@ -190,16 +250,15 @@ def main():
         '''
         module.fail_json(msg="Ethernet interfaces don't exist on Panorama")
     else:
-        # Firewall
-        # Normally we should set the vsys here, but since interfaces are
-        # vsys importables, we'll use organize_into_vsys() to help find and
-        # cleanup when the interface is imported into an undesired vsys.
-        #con.vsys = vsys_dg
-        pass
+        con.vsys = vsys_dg
 
     # Retrieve the current config.
     try:
         interfaces = network.LoopbackInterface.refreshall(con, add=False, name_only=True)
+        zones = network.Zone.refreshall(con)
+        routers = network.VirtualRouter.refreshall(con)
+        raise ValueError('Routers {0}'.format(routers))
+        vsys_list = device.Vsys.refreshall(con)
     except errors.PanDeviceError:
         e = get_exception()
         module.fail_json(msg=e.message)
@@ -215,18 +274,24 @@ def main():
 
         try:
             con.organize_into_vsys()
+            set_zone(con, loopback, None, zones)
+            set_virtual_router(con, loopback, None, routers)
             loopback.delete()
         except (errors.PanDeviceError, ValueError):
             e = get_exception()
             module.fail_json(msg=e.message)
     elif operation == 'add':
         if loopback.name in [x.name for x in interfaces]:
-            module.fail_json(msg='Interface {0} is already present; use operation "update" to update it'.format(loopback.name))
+             # Lets just update it then rather than fail
+             operation = 'update'
+             pass
 
-        con.vsys = vsys_dg
         # Create the interface.
+        con.vsys = vsys_dg
         try:
             loopback.create()
+            set_zone(con, loopback, zone_name, zones)
+            set_virtual_router(con, loopback, vr_name, routers)
         except (errors.PanDeviceError, ValueError):
             e = get_exception()
             module.fail_json(msg=e.message)
@@ -234,16 +299,33 @@ def main():
         if loopback.name not in [x.name for x in interfaces]:
             module.fail_json(msg='Interface {0} is not present; use operation "add" to create it'.format(loopback.name))
 
-        # If the interface is in the wrong vsys, remove it from the old vsys.
+        # Update the interface.
         try:
             con.organize_into_vsys()
         except errors.PanDeviceError:
             e = get_exception()
             module.fail_json(msg=e.message)
+        if loopback.vsys != vsys_dg:
+            try:
+                eth.delete_import()
+            except errors.PanDeviceError:
+                e = get_exception()
+                module.fail_json(msg=e.message)
+
+        # Move the ethernet object to the correct vsys.
+        for vsys in vsys_list:
+            if vsys.name == vsys_dg:
+                vsys.add(loopback)
+                break
+        else:
+            module.fail_json(msg='Vsys {0} does not exist'.format(vsys))
 
         # Update the interface.
         try:
             loopback.apply()
+            set_zone(con, eth, zone_name, zones)
+            set_virtual_router(con, eth, vr_name, routers)
+        
         except (errors.PanDeviceError, ValueError):
             e = get_exception()
             module.fail_json(msg=e.message)
