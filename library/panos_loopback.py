@@ -248,7 +248,7 @@ def main():
         else:
             module.fail_json(msg="'{0}' device group is not present".format(vsys_dg))
         '''
-        module.fail_json(msg="Ethernet interfaces don't exist on Panorama")
+        module.fail_json(msg="loopback interfaces don't exist on Panorama")
     else:
         con.vsys = vsys_dg
 
@@ -257,8 +257,8 @@ def main():
         interfaces = network.LoopbackInterface.refreshall(con, add=False, name_only=True)
         zones = network.Zone.refreshall(con)
         routers = network.VirtualRouter.refreshall(con)
-        raise ValueError('Routers {0}'.format(routers))
         vsys_list = device.Vsys.refreshall(con)
+
     except errors.PanDeviceError:
         e = get_exception()
         module.fail_json(msg=e.message)
@@ -307,12 +307,12 @@ def main():
             module.fail_json(msg=e.message)
         if loopback.vsys != vsys_dg:
             try:
-                eth.delete_import()
+                loopback.delete_import()
             except errors.PanDeviceError:
                 e = get_exception()
                 module.fail_json(msg=e.message)
 
-        # Move the ethernet object to the correct vsys.
+        # Move the loopback object to the correct vsys.
         for vsys in vsys_list:
             if vsys.name == vsys_dg:
                 vsys.add(loopback)
@@ -323,8 +323,8 @@ def main():
         # Update the interface.
         try:
             loopback.apply()
-            set_zone(con, eth, zone_name, zones)
-            set_virtual_router(con, eth, vr_name, routers)
+            set_zone(con, loopback, zone_name, zones)
+            set_virtual_router(con, loopback, vr_name, routers)
         
         except (errors.PanDeviceError, ValueError):
             e = get_exception()
