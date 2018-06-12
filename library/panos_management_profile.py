@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#  Copyright 2017 Palo Alto Networks, Inc
+#  Copyright 2018 Palo Alto Networks, Inc
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ requirements:
     - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
 notes:
     - Checkmode is NOT supported.
+    - Panorama is supported.
 options:
     ip_address:
         description:
