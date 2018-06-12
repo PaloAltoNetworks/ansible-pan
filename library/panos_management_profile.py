@@ -30,6 +30,7 @@ version_added: "2.6"
 requirements:
     - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
+    - xmltodict can be obtained from PyPi U(https://pypi.python.org/pypi/xmltodict)
 notes:
     - Checkmode is NOT supported.
     - Panorama is supported.

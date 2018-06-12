@@ -38,6 +38,6 @@ setup(
     ],
     install_requires=[
         'pan-python>=0.10.0',
-        'pandevice>=0.4.0'
+        'pandevice>=0.6.0'
     ],
 )
