@@ -165,6 +165,10 @@ options:
             - If 'location' is set to 'before' or 'after', this option specifies an existing
               rule name.  The new rule will be created in the specified position relative to this
               rule.  If 'location' is set to 'before' or 'after', this option is required.
+    panorama_post_rule:
+        description:
+            - If the security rule is applied against panorama, set this to True in order to inject it into post rule.
+        default: False
     commit:
         description:
             - Commit configuration if changed.
@@ -307,7 +311,7 @@ def get_devicegroup(device, devicegroup):
     return False
 
 
-def get_rulebase(device, devicegroup):
+def get_rulebase(device, devicegroup, is_post_rule):
     # Build the rulebase
     if isinstance(device, pandevice.firewall.Firewall):
         rulebase = pandevice.policies.Rulebase()
@@ -315,7 +319,11 @@ def get_rulebase(device, devicegroup):
     elif isinstance(device, pandevice.panorama.Panorama):
         dg = panorama.DeviceGroup(devicegroup)
         device.add(dg)
-        rulebase = policies.PreRulebase()
+        if is_post_rule:
+            rulebase = policies.PostRulebase()
+        else:
+            rulebase = policies.PreRulebase()
+
         dg.add(rulebase)
     else:
         return False
@@ -456,7 +464,8 @@ def main():
         devicegroup=dict(),
         location=dict(default='bottom', choices=['top', 'bottom', 'before', 'after']),
         existing_rule=dict(default=''),
-        commit=dict(type='bool', default=True)
+        commit=dict(type='bool', default=True),
+        is_post_rule = dict(type='bool', default=False)
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
                            required_one_of=[['api_key', 'password']])
@@ -495,6 +504,7 @@ def main():
     devicegroup = module.params['devicegroup']
     location = module.params['location']
     existing_rule = module.params['existing_rule']
+    is_post_rule = module.params['is_post_rule']
 
     commit = module.params['commit']
 
@@ -511,7 +521,7 @@ def main():
             module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
 
     # Get the rulebase
-    rulebase = get_rulebase(device, dev_group)
+    rulebase = get_rulebase(device, dev_group, is_post_rule)
 
     # Which action shall we take on the object?
     if operation == "find":
