@@ -9,7 +9,7 @@
   tasks:
   - name: Grab the credentials from ansible-vault
     include_vars: 'panorama-secrets.yml'
-    no_log: 'no'
+    no_log: 'yes'
 
   - name: Add test pre-rule to Panorama
     panos_security_rule:
