@@ -11,6 +11,8 @@ V1.0.8
 
 *New modules*
 
+* panos_management_profile: Manages interface management profiles
+
 *Removed modules*
 
 *Refactored modules*
