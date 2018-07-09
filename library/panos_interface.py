@@ -178,7 +178,7 @@ except ImportError:
     HAS_LIB = False
 
 
-def set_zone(con, eth, zone_name, zones):
+def set_zone(con, eth, zone_name, zones, base_ifc=None):
     desired_zone = None
 
     # Remove the interface from the zone.
@@ -190,15 +190,19 @@ def set_zone(con, eth, zone_name, zones):
             z.update('interface')
 
     if desired_zone is not None:
-        if desired_zone.mode != eth.mode:
-            raise ValueError('Mode mismatch: {0} is {1}, zone is {2}'.format(eth.name, eth.mode, z.mode))
+        if base_ifc:
+            eth_mode = base_ifc.mode
+        else:
+            eth_mode = eth.mode
+        if desired_zone.mode != eth_mode:
+            raise ValueError('Mode mismatch: {0} is {1}, zone is {2}'.format(eth.name, eth_mode, z.mode))
         if desired_zone.interface is None:
             desired_zone.interface = []
         if eth.name not in desired_zone.interface:
             desired_zone.interface.append(eth.name)
             desired_zone.update('interface')
     elif zone_name is not None:
-        z = network.Zone(zone_name, interface=[eth.name, ], mode=eth.mode)
+        z = network.Zone(zone_name, interface=[eth.name, ], mode=eth_mode)
         con.add(z)
         z.create()
 
@@ -223,6 +227,23 @@ def set_virtual_router(con, eth, vr_name, routers):
         raise ValueError('Virtual router {0} does not exist'.format(vr_name))
 
 
+def set_vlan(con, eth, vlan_name, vlans):
+    desired_vlan = None
+
+    for vlan in vlans:
+        if vlan.name == vlan_name:
+            desired_vlan = vlan
+        
+        if desired_vlan is not None:
+            if desired_vlan.interface is None:
+                desired_vlan.interface = []
+            if eth.name not in desired_vlan.interface:
+                desired_vlan.interface.append(eth.name)
+                desired_vlan.update('interface')
+        elif vlan_name is not None: 
+            raise ValueError('VLAN {0} does not exist'.format(vlan_name))
+
+
 def main():
     argument_spec = dict(
         ip_address=dict(required=True),
@@ -238,6 +259,9 @@ def main():
         mtu=dict(),
         adjust_tcp_mss=dict(),
         netflow_profile=dict(),
+        tag=dict(),
+        vlan_name=dict(),
+        subinterface=dict(type='bool', default=False),
         lldp_enabled=dict(),
         lldp_profile=dict(),
         netflow_profile_l2=dict(),
@@ -248,11 +272,11 @@ def main():
         comment=dict(),
         ipv4_mss_adjust=dict(),
         ipv6_mss_adjust=dict(),
-        enable_dhcp=dict(type='bool', default=True),
+        enable_dhcp=dict(type='bool'),
         create_default_route=dict(type='bool', default=False),
         dhcp_default_route_metric=dict(),
         zone_name=dict(required=True),
-        vr_name=dict(default='default'),
+        vr_name=dict(),
         vsys_dg=dict(default='vsys1'),
         commit=dict(type='bool', default=True),
     )
@@ -269,37 +293,70 @@ def main():
         module.params['api_key'],
     )
 
-    # Get the object params.
-    spec = {
-        'name': module.params['if_name'],
-        'mode': module.params['mode'],
-        'ip': module.params['ip'],
-        'ipv6_enabled': module.params['ipv6_enabled'],
-        'management_profile': module.params['management_profile'],
-        'mtu': module.params['mtu'],
-        'adjust_tcp_mss': module.params['adjust_tcp_mss'],
-        'netflow_profile': module.params['netflow_profile'],
-        'lldp_enabled': module.params['lldp_enabled'],
-        'lldp_profile': module.params['lldp_profile'],
-        'netflow_profile_l2': module.params['netflow_profile_l2'],
-        'link_speed': module.params['link_speed'],
-        'link_duplex': module.params['link_duplex'],
-        'link_state': module.params['link_state'],
-        'aggregate_group': module.params['aggregate_group'],
-        'comment': module.params['comment'],
-        'ipv4_mss_adjust': module.params['ipv4_mss_adjust'],
-        'ipv6_mss_adjust': module.params['ipv6_mss_adjust'],
-        'enable_dhcp': module.params['enable_dhcp'] or None,
-        'create_dhcp_default_route': module.params['create_default_route'] or None,
-        'dhcp_default_route_metric': module.params['dhcp_default_route_metric'],
-    }
-
-    # Get other info.
+    # Get info.
     operation = module.params['operation']
     zone_name = module.params['zone_name']
-    vr_name = module.params['vr_name']
     vsys_dg = module.params['vsys_dg']
     commit = module.params['commit']
+    if_mode = module.params['mode']
+    if_name = module.params['if_name']
+    if if_mode == 'layer2':
+        vlan_name = module.params['vlan_name']
+    if module.params['vr_name']:
+        vr_name = module.params['vr_name']
+    else:
+        vr_name = 'default'
+    subinterface = len(if_name.split('.')) > 1
+    if_base = None
+    spec = {}
+
+    # Get the object params.
+    if subinterface and if_mode == 'layer2':
+        spec = {
+            'name': module.params['if_name'],
+            'comment': module.params['comment'],
+            'tag': module.params['tag'] or None,
+        }
+    elif subinterface and if_mode == 'layer3':
+        spec = {
+            'name': module.params['if_name'],
+            'ip': module.params['ip'],
+            'ipv6_enabled': module.params['ipv6_enabled'],
+            'management_profile': module.params['management_profile'],
+            'mtu': module.params['mtu'],
+            'adjust_tcp_mss': module.params['adjust_tcp_mss'],
+            'comment': module.params['comment'],
+            'ipv4_mss_adjust': module.params['ipv4_mss_adjust'],
+            'ipv6_mss_adjust': module.params['ipv6_mss_adjust'],
+            'enable_dhcp': module.params['enable_dhcp'] or None,
+            'create_dhcp_default_route': module.params['create_default_route'] or None,
+            'dhcp_default_route_metric': module.params['dhcp_default_route_metric'],
+            'tag': module.params['tag'] or None,
+        }
+    else:
+        spec = {
+            'name': module.params['if_name'],
+            'mode': module.params['mode'],
+            'ip': module.params['ip'],
+            'ipv6_enabled': module.params['ipv6_enabled'],
+            'management_profile': module.params['management_profile'],
+            'mtu': module.params['mtu'],
+            'adjust_tcp_mss': module.params['adjust_tcp_mss'],
+            'netflow_profile': module.params['netflow_profile'],
+            'lldp_enabled': module.params['lldp_enabled'],
+            'lldp_profile': module.params['lldp_profile'],
+            'netflow_profile_l2': module.params['netflow_profile_l2'],
+            'link_speed': module.params['link_speed'],
+            'link_duplex': module.params['link_duplex'],
+            'link_state': module.params['link_state'],
+            'aggregate_group': module.params['aggregate_group'],
+            'comment': module.params['comment'],
+            'ipv4_mss_adjust': module.params['ipv4_mss_adjust'],
+            'ipv6_mss_adjust': module.params['ipv6_mss_adjust'],
+            'enable_dhcp': module.params['enable_dhcp'] or None,
+            'create_dhcp_default_route': module.params['create_default_route'] or None,
+            'dhcp_default_route_metric': module.params['dhcp_default_route_metric'],
+        }
 
     # Open the connection to the PANOS device.
     con = base.PanDevice.create_from_device(*auth)
@@ -309,9 +366,10 @@ def main():
     if hasattr(con, 'refresh_devices'):
         # Panorama
         # Normally we want to set the device group here, but there are no
-        # interfaces on Panorama.  So if we're given a Panorama device, then
+        # interfaces on Panorama.  So if we're given 
+        # a Panorama device, then
         # error out.
-        '''
+        '''`
         groups = panorama.DeviceGroup.refreshall(con, add=False)
         for parent in groups:
             if parent.name == vsys_dg:
@@ -334,43 +392,75 @@ def main():
         interfaces = network.EthernetInterface.refreshall(con, add=False, name_only=True)
         zones = network.Zone.refreshall(con)
         routers = network.VirtualRouter.refreshall(con)
+        vlans = network.Vlan.refreshall(con)
         vsys_list = device.Vsys.refreshall(con)
     except errors.PanDeviceError:
         e = get_exception()
         module.fail_json(msg=e.message)
 
+
     # Build the object based on the user spec.
-    eth = network.EthernetInterface(**spec)
+    if subinterface:
+        # Check that the base interface for the subinterface is present.
+        base_name = if_name.split('.')[0]
+
+        if base_name not in [x.name for x in interfaces]:
+            module.fail_json(msg='Base Interface {0} is not present; use operation "add" to create it first'.format(base_name))
+        if if_mode == 'layer2':
+            if_base = network.EthernetInterface(base_name, if_mode)
+            con.add(if_base)
+            subinterfaces = network.Layer2Subinterface.refreshall(if_base)
+            eth = network.Layer2Subinterface(**spec)
+        elif if_mode == 'layer3':
+            if_base = network.EthernetInterface(base_name, if_mode)
+            con.add(if_base)
+            subinterfaces = network.Layer3Subinterface.refreshall(if_base)
+            eth = network.Layer3Subinterface(**spec)
+        else:
+            module.fail_json(msg='Unsupported subinterface type {0}'.format(if_mode))    
+    else:
+        eth = network.EthernetInterface(**spec)
+    
     con.add(eth)
 
     # Which action should we take on the interface?
     if operation == 'delete':
-        if eth.name not in [x.name for x in interfaces]:
+        if subinterface and eth.name not in [x.name for x in subinterfaces]:
+             module.fail_json(msg='Subinterface {0} does not exist, and thus cannot be deleted'.format(eth.name))
+        if not subinterface and eth.name not in [x.name for x in interfaces]:
             module.fail_json(msg='Interface {0} does not exist, and thus cannot be deleted'.format(eth.name))
 
         try:
             con.organize_into_vsys()
-            set_zone(con, eth, None, zones)
+            set_zone(con, eth, None, zones, if_base)
             set_virtual_router(con, eth, None, routers)
+            if if_mode == 'layer2':
+                set_vlan(con, eth, vlan_name, vlans)
             eth.delete()
         except (errors.PanDeviceError, ValueError):
             e = get_exception()
             module.fail_json(msg=e.message)
     elif operation == 'add':
-        if eth.name in [x.name for x in interfaces]:
+        if subinterface and eth.name in [x.name for x in subinterfaces]:
+            module.fail_json(msg='Subinterface {0} is already present; use operation "update" to update it'.format(eth.name))
+        if not subinterface and eth.name in [x.name for x in interfaces]:
             module.fail_json(msg='Interface {0} is already present; use operation "update" to update it'.format(eth.name))
 
         con.vsys = vsys_dg
         # Create the interface.
         try:
             eth.create()
-            set_zone(con, eth, zone_name, zones)
+            set_zone(con, eth, zone_name, zones, if_base)
             set_virtual_router(con, eth, vr_name, routers)
+            if if_mode == 'layer2':
+                set_vlan(con, eth, vlan_name, vlans)
         except (errors.PanDeviceError, ValueError):
             e = get_exception()
             module.fail_json(msg=e.message)
     elif operation == 'update':
-        if eth.name not in [x.name for x in interfaces]:
+        if subinterface and eth.name not in [x.name for x in subinterfaces]:
+            module.fail_json(msg='Subinterface {0} is not present; use operation "add" to create it'.format(eth.name))
+        elif not subinterface and eth.name not in [x.name for x in interfaces]:
             module.fail_json(msg='Interface {0} is not present; use operation "add" to create it'.format(eth.name))
 
         # If the interface is in the wrong vsys, remove it from the old vsys.
@@ -397,8 +487,12 @@ def main():
         # Update the interface.
         try:
             eth.apply()
-            set_zone(con, eth, zone_name, zones)
-            set_virtual_router(con, eth, vr_name, routers)
+            set_zone(con, eth, zone_name, zones, if_base)
+            if if_mode == 'layer2':
+                set_vlan(con, eth, vlan_name, vlans)
+            else:
+                set_virtual_router(con, eth, vr_name, routers)
+
         except (errors.PanDeviceError, ValueError):
             e = get_exception()
             module.fail_json(msg=e.message)
