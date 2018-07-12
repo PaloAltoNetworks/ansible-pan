@@ -292,8 +292,8 @@ try:
     from pandevice import base
     from pandevice import firewall
     from pandevice import panorama
-    from pandevice import objects
     from pandevice import policies
+    from pandevice.errors import PanDeviceError
     import xmltodict
     import json
 
@@ -301,6 +301,11 @@ try:
 except ImportError:
     HAS_LIB = False
 
+
+ACCEPTABLE_MOVE_ERRORS = (
+    'already at the top',
+    'already at the bottom',
+)
 
 def get_devicegroup(device, devicegroup):
     dg_list = device.refresh_devices()
@@ -404,32 +409,6 @@ def create_security_rule(**kwargs):
     return security_rule
 
 
-def find_rule_index(rulebase, rule_name):
-    if rulebase:
-        for num, child in enumerate(rulebase.children):
-            if rule_name == child.name:
-                return num
-    return -1
-
-
-def insert_rule_at_index(rulebase, new_rule, index):
-    if rulebase:
-        rulebase.insert(index, new_rule)
-        new_rule.create()
-        rulebase.apply()
-        return True
-    return False
-
-
-def update_rule(rulebase, nat_rule):
-    if rulebase:
-        rulebase.add(nat_rule)
-        nat_rule.apply()
-        return True
-    else:
-        return False
-
-
 def main():
     argument_spec = dict(
         ip_address=dict(required=True),
@@ -463,7 +442,7 @@ def main():
         action=dict(default='allow'),
         devicegroup=dict(),
         location=dict(default='bottom', choices=['top', 'bottom', 'before', 'after']),
-        existing_rule=dict(default=''),
+        existing_rule=dict(),
         commit=dict(type='bool', default=True),
         is_post_rule = dict(type='bool', default=False)
     )
@@ -471,6 +450,8 @@ def main():
                            required_one_of=[['api_key', 'password']])
     if not HAS_LIB:
         module.fail_json(msg='Missing required libraries.')
+    elif not hasattr(policies.SecurityRule, 'move'):
+        module.fail_json(msg='Python library pandevice needs to be updated.')
 
     ip_address = module.params["ip_address"]
     password = module.params["password"]
@@ -508,6 +489,10 @@ def main():
 
     commit = module.params['commit']
 
+    # Sanity check the location / existing_rule params.
+    if location in ('before', 'after') and not existing_rule:
+        module.fail_json(msg="'existing_rule' must be specified if location is 'before' or 'after'.")
+
     # Create the device with the appropriate pandevice type
     device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
 
@@ -522,6 +507,8 @@ def main():
 
     # Get the rulebase
     rulebase = get_rulebase(device, dev_group, is_post_rule)
+    if not rulebase:
+        module.fail_json(msg="No rulebase found")
 
     # Which action shall we take on the object?
     if operation == "find":
@@ -542,8 +529,9 @@ def main():
         # If found, delete it
         if match:
             try:
+                match.delete()
                 if commit:
-                    match.delete()
+                    device.commit(sync=True)
             except PanXapiError:
                 exc = get_exception()
                 module.fail_json(msg=exc.message)
@@ -588,26 +576,14 @@ def main():
                 module.fail_json(msg='Rule \'%s\' already exists. Use operation: \'update\' to change it.' % rule_name)
         else:
             try:
-                if ((location == 'before') or (location == 'after')) and (existing_rule == ''):
-                    module.fail_json(msg='\'existing_rule\' must be specified if location is \'before\' or \'after\'.')
-
-                # Default is to add the rule at the bottom.
-                new_rule_index = len(rulebase.children)
-
-                if (location == 'before') or (location == 'after'):
-                    new_rule_index = find_rule_index(rulebase, existing_rule)
-
-                    if new_rule_index < 0:
-                        module.fail_json(msg='Existing rule \'%s\' does not exist.' % existing_rule)
-
-                    if location == 'after':
-                        new_rule_index = new_rule_index + 1
-
-                elif location == 'top':
-                    new_rule_index = 0
-
-                changed = insert_rule_at_index(rulebase, new_rule, new_rule_index)
-
+                rulebase.add(new_rule)
+                new_rule.create()
+                changed = True
+                try:
+                    new_rule.move(location, existing_rule)
+                except PanDeviceError as e:
+                    if '{0}'.format(e) not in ACCEPTABLE_MOVE_ERRORS:
+                        raise
                 if changed and commit:
                     device.commit(sync=True)
             except PanXapiError:
@@ -645,7 +621,15 @@ def main():
                     rule_type=rule_type,
                     action=action
                 )
-                changed = update_rule(rulebase, new_rule)
+
+                rulebase.add(new_rule)
+                new_rule.apply()
+                changed = True
+                try:
+                    new_rule.move(location, existing_rule)
+                except PanDeviceError as e:
+                    if '{0}'.format(e) not in ACCEPTABLE_MOVE_ERRORS:
+                        raise
                 if changed and commit:
                     device.commit(sync=True)
             except PanXapiError:
