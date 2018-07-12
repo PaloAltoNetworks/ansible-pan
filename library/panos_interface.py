@@ -52,7 +52,8 @@ options:
         required: true
     mode:
         description:
-            - The interface mode.  Supported values are I(layer3)/I(layer2)/I(virtual-wire)/I(tap)/I(ha)/I(decrypt-mirror)/I(aggregate-group).
+            - The interface mode.
+            - Supported values are I(layer3)/I(layer2)/I(virtual-wire)/I(tap)/I(ha)/I(decrypt-mirror)/I(aggregate-group)
         default: "layer3"
     ip:
         description:
@@ -115,7 +116,8 @@ options:
             - Metric for the DHCP default route.
     zone_name:
         description:
-            - Name of the zone for the interface. If the zone does not exist it is created but if the zone exists and it is not of the correct mode the operation will fail.
+            - Name of the zone for the interface. If the zone does not exist it is created.
+            - If the zone exists and it is not of the correct mode the operation will fail.
         required: true
     vr_name:
         description:
@@ -155,7 +157,7 @@ EXAMPLES = '''
     zone_name: "dmz"
 '''
 
-RETURN='''
+RETURN = '''
 # Default return values
 '''
 
@@ -169,7 +171,6 @@ from ansible.module_utils.basic import get_exception
 
 try:
     from pandevice import base
-    from pandevice import panorama
     from pandevice import network
     from pandevice import device
     from pandevice import errors
@@ -231,7 +232,8 @@ def main():
         api_key=dict(no_log=True),
         operation=dict(default='add', choices=['add', 'update', 'delete']),
         if_name=dict(required=True),
-        mode=dict(default='layer3', choices=['layer3', 'layer2', 'virtual-wire', 'tap', 'ha', 'decrypt-mirror', 'aggregate-group']),
+        mode=dict(default='layer3',
+                  choices=['layer3', 'layer2', 'virtual-wire', 'tap', 'ha', 'decrypt-mirror', 'aggregate-group']),
         ip=dict(type='list'),
         ipv6_enabled=dict(),
         management_profile=dict(),
@@ -305,7 +307,6 @@ def main():
     con = base.PanDevice.create_from_device(*auth)
 
     # Set vsys if firewall, device group if panorama.
-    parent = con
     if hasattr(con, 'refresh_devices'):
         # Panorama
         # Normally we want to set the device group here, but there are no
@@ -326,7 +327,7 @@ def main():
         # Normally we should set the vsys here, but since interfaces are
         # vsys importables, we'll use organize_into_vsys() to help find and
         # cleanup when the interface is imported into an undesired vsys.
-        #con.vsys = vsys_dg
+        # con.vsys = vsys_dg
         pass
 
     # Retrieve the current config.
@@ -358,7 +359,7 @@ def main():
             module.fail_json(msg=e.message)
     elif operation == 'add':
         if eth.name in [x.name for x in interfaces]:
-            module.fail_json(msg='Interface {0} is already present; use operation "update" to update it'.format(eth.name))
+            module.fail_json(msg='Interface {0} is already present; use operation "update"'.format(eth.name))
 
         con.vsys = vsys_dg
         # Create the interface.
