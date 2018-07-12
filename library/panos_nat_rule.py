@@ -174,11 +174,9 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 from ansible.module_utils.basic import get_exception, AnsibleModule
 
 try:
-    import pan.xapi
     from pan.xapi import PanXapiError
     import pandevice
     from pandevice import base
-    from pandevice import firewall
     from pandevice import panorama
     from pandevice import policies
     from pandevice.errors import PanDeviceError
@@ -194,6 +192,7 @@ ACCEPTABLE_MOVE_ERRORS = (
     'already at the top',
     'already at the bottom',
 )
+
 
 def get_devicegroup(device, devicegroup):
     dg_list = device.refresh_devices()
