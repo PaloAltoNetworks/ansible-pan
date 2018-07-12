@@ -89,12 +89,8 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.basic import get_exception
 
 try:
-    import pan.xapi
     from pan.xapi import PanXapiError
-    import pandevice
     from pandevice import base
-    from pandevice import firewall
-    from pandevice import panorama
     import xmltodict
     import json
 
