@@ -85,7 +85,6 @@ try:
     from pan.xapi import PanXapiError
     from pandevice import base
     from pandevice import panorama
-    from pandevice import policies
 
     HAS_LIB = True
 except ImportError:
