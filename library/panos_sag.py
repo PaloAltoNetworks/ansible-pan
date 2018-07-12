@@ -200,10 +200,10 @@ def get_all_address_group(device):
     if exc:
         return (False, exc)
     else:
-        l = []
+        sl = []
         for item in ret:
-            l.append(item.name)
-        s = ",".join(l)
+            sl.append(item.name)
+        s = ",".join(sl)
     return s, exc
 
 

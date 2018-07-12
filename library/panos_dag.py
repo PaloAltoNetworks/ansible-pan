@@ -107,7 +107,6 @@ from ansible.module_utils.basic import get_exception
 try:
     from pan.xapi import PanXapiError
     from pandevice import base
-    from pandevice import panorama
     from pandevice import objects
 
     HAS_LIB = True
@@ -228,7 +227,6 @@ def main():
                                             )
     commit = module.params['commit']
 
-    devicegroup = module.params['devicegroup']
     # Create the device with the appropriate pandevice type
     device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
 
