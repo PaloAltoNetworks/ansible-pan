@@ -109,9 +109,7 @@ from ansible.module_utils.basic import AnsibleModule, get_exception
 
 try:
     from pandevice import base
-    from pandevice import firewall
     from pandevice import panorama
-    from pandevice import objects
 
     from pan.xapi import PanXapiError
 
@@ -159,7 +157,7 @@ def get_all_address_group_mapping(device):
 def delete_address_from_mapping(device, ip_address, tags):
     exc = None
     try:
-        ret = device.userid.unregister(ip_address, tags)
+        device.userid.unregister(ip_address, tags)
     except PanXapiError:
         exc = get_exception()
 
