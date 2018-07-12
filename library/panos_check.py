@@ -70,7 +70,7 @@ EXAMPLES = '''
   delay: 30
 '''
 
-RETURN='''
+RETURN = '''
 # Default return values
 '''
 
@@ -126,11 +126,11 @@ def main():
         timeout=60
     )
 
-    checkpnt = time.time()+timeout
+    checkpnt = time.time() + timeout
     while True:
         try:
             xapi.op(cmd="show jobs all", cmd_xml=True)
-        except:
+        except Exception:
             pass
         else:
             jobs = xapi.element_root.findall('.//job')
@@ -143,6 +143,7 @@ def main():
         time.sleep(interval)
 
     module.fail_json(msg="Timeout")
+
 
 if __name__ == '__main__':
     main()

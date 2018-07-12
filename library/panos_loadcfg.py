@@ -66,7 +66,7 @@ EXAMPLES = '''
       file: "{{result.filename}}"
 '''
 
-RETURN='''
+RETURN = '''
 # Default return values
 '''
 

@@ -136,11 +136,8 @@ RETURN = '''
 '''
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.basic import get_exception
 
 try:
-    import pan.xapi
-    from pan.xapi import PanXapiError
     import pandevice
     from pandevice import base
     from pandevice import firewall
@@ -319,7 +316,7 @@ def main():
     password = module.params["password"]
     username = module.params['username']
     api_key = module.params['api_key']
-    application = module.params['application']
+    # application = module.params['application']
     source_zone = module.params['source_zone']
     source_ip = module.params['source_ip']
     source_port = module.params['source_port']
