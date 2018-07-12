@@ -77,12 +77,10 @@ status:
 '''
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.basic import get_exception
 
 try:
     import pandevice
     from pandevice import base
-    from pandevice import firewall
     from pandevice import panorama
 
     HAS_LIB = True
@@ -106,7 +104,7 @@ def do_commit(device, devicegroup):
         else:
             result = device.commit(sync=True, exception=True)
         return result
-    except:
+    except Exception:
         return False
 
 
