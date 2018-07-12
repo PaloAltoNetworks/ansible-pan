@@ -4,6 +4,21 @@
 History
 =======
 
+V1.0.8
+------
+- Released: In-development
+- Status:   In-development
+
+*New modules*
+
+* panos_management_profile: Manages interface management profiles
+
+*Removed modules*
+
+*Refactored modules*
+
+*Miscellanies*
+
 V1.0.7
 ------
 - Released: 2018-05-03
