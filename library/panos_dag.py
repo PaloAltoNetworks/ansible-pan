@@ -62,7 +62,8 @@ options:
         default: null
     devicegroup:
         description:
-            - The name of the Panorama device group. The group must exist on Panorama. If device group is not defined it is assumed that we are contacting a firewall.
+            - The name of the Panorama device group. The group must exist on Panorama. If
+              device group is not defined it is assumed that we are contacting a firewall.
         required: false
         default: None
     operation:
@@ -104,15 +105,10 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.basic import get_exception
 
 try:
-    import pan.xapi
     from pan.xapi import PanXapiError
-    import pandevice
     from pandevice import base
-    from pandevice import firewall
     from pandevice import panorama
     from pandevice import objects
-    import xmltodict
-    import json
 
     HAS_LIB = True
 except ImportError:
@@ -138,8 +134,8 @@ def create_address_group_object(**kwargs):
 
 
 def add_address_group(device, dev_group, ag_object):
-    """ 
-    Create a new dynamic address group object on the 
+    """
+    Create a new dynamic address group object on the
     PAN FW.
     """
 
@@ -151,50 +147,52 @@ def add_address_group(device, dev_group, ag_object):
     ag_object.create()
     return True
 
+
 def get_all_address_group(device):
     """
     Retrieve all the tag to IP address mappings
-    :param device: 
-    :return: 
+    :param device:
+    :return:
     """
     exc = None
     try:
         ret = objects.AddressGroup.refreshall(device)
-    except Exception, e:
+    except Exception:
         exc = get_exception()
 
     if exc:
         return (False, exc)
     else:
-        l = []
+        sl = []
         for item in ret:
-            l.append(item.name)
-        s = ",".join(l)
+            sl.append(item.name)
+        s = ",".join(sl)
         return (s, exc)
+
 
 def delete_address_group(device, group_name):
     """
-    Delete a specific address group 
-    
-    :param device: 
-    :param group_name: 
-    :return: 
+    Delete a specific address group
+
+    :param device:
+    :param group_name:
+    :return:
     """
 
     exc = None
     try:
         ret = objects.AddressGroup.refreshall(device)
-    except Exception, e:
+    except Exception:
         exc = get_exception()
 
     if exc:
         return (False, exc)
     else:
-        l = []
         for ag in ret:
             if ag.name == group_name:
                 ag.delete()
         return (True, None)
+
 
 def main():
 
@@ -236,12 +234,15 @@ def main():
 
     # If Panorama, validate the devicegroup
     dev_group = None
+    '''
+    # TODO(vinay) - implement get_devicegroup
     if devicegroup and isinstance(device, panorama.Panorama):
         dev_group = get_devicegroup(device, devicegroup)
         if dev_group:
             device.add(dev_group)
         else:
             module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
+    '''
 
     result = None
     if operation == 'add':

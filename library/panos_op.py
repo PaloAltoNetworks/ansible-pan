@@ -104,8 +104,8 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.basic import get_exception
 
 try:
-    from pandevice.base import PanDevice
-    from pandevice.errors import PanDeviceError
+    from pan.xapi import PanXapiError
+    from pandevice import base
     import xmltodict
     import json
 

@@ -82,16 +82,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 from ansible.module_utils.basic import get_exception, AnsibleModule
 
 try:
-    import pan.xapi
     from pan.xapi import PanXapiError
-    import pandevice
     from pandevice import base
-    from pandevice import firewall
     from pandevice import panorama
-    from pandevice import objects
     from pandevice import policies
-    import xmltodict
-    import json
 
     HAS_LIB = True
 except ImportError:

@@ -82,7 +82,7 @@ EXAMPLES = '''
     signed_by: "root-ca"
 '''
 
-RETURN='''
+RETURN = '''
 # Default return values
 '''
 
@@ -97,9 +97,9 @@ import time
 
 try:
     import paramiko
-    HAS_LIB=True
+    HAS_LIB = True
 except ImportError:
-    HAS_LIB=False
+    HAS_LIB = False
 
 _PROMPTBUFF = 4096
 
@@ -114,14 +114,14 @@ def wait_with_timeout(module, shell, prompt, timeout=60):
             if len(endresult) != 0 and endresult[-1] == prompt:
                 break
 
-        if time.time()-now > timeout:
+        if time.time() - now > timeout:
             module.fail_json(msg="Timeout waiting for prompt")
 
     return result
 
 
 def generate_cert(module, ip_address, username, key_filename, password,
-                  cert_cn, cert_friendly_name, signed_by, rsa_nbits ):
+                  cert_cn, cert_friendly_name, signed_by, rsa_nbits):
     stdout = ""
 
     client = paramiko.SSHClient()
@@ -143,8 +143,15 @@ def generate_cert(module, ip_address, username, key_filename, password,
     # generate self-signed certificate
     if isinstance(cert_cn, list):
         cert_cn = cert_cn[0]
-    cmd = 'request certificate generate signed-by {0} certificate-name {1} name {2} algorithm RSA rsa-nbits {3}\n'.format(
-        signed_by, cert_friendly_name, cert_cn, rsa_nbits)
+    cmd = ' '.join([
+        'request certificate generate signed-by',
+        signed_by,
+        'certificate-name',
+        cert_friendly_name,
+        'name',
+        cert_cn,
+        'algorithm RSA rsa-nbits {0}\n'.format(rsa_nbits),
+    ])
     shell.send(cmd)
 
     # wait for the shell to complete
@@ -155,7 +162,7 @@ def generate_cert(module, ip_address, username, key_filename, password,
     shell.send('exit\n')
 
     if 'Success' not in buff:
-        module.fail_json(msg="Error generating self signed certificate: "+stdout)
+        module.fail_json(msg="Error generating self signed certificate: " + stdout)
 
     client.close()
     return stdout
@@ -188,20 +195,15 @@ def main():
     rsa_nbits = module.params["rsa_nbits"]
 
     try:
-        stdout = generate_cert(module,
-                               ip_address,
-                               username,
-                               key_filename,
-                               password,
-                               cert_cn,
-                               cert_friendly_name,
-                               signed_by,
-                               rsa_nbits)
+        generate_cert(module, ip_address, username, key_filename,
+                      password, cert_cn, cert_friendly_name,
+                      signed_by, rsa_nbits)
     except Exception:
         exc = get_exception()
         module.fail_json(msg=exc.message)
 
     module.exit_json(changed=True, msg="okey dokey")
+
 
 if __name__ == '__main__':
     main()

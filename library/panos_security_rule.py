@@ -286,11 +286,9 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.basic import get_exception
 
 try:
-    import pan.xapi
     from pan.xapi import PanXapiError
     import pandevice
     from pandevice import base
-    from pandevice import firewall
     from pandevice import panorama
     from pandevice import policies
     from pandevice.errors import PanDeviceError
@@ -306,6 +304,7 @@ ACCEPTABLE_MOVE_ERRORS = (
     'already at the top',
     'already at the bottom',
 )
+
 
 def get_devicegroup(device, devicegroup):
     dg_list = device.refresh_devices()
@@ -444,7 +443,7 @@ def main():
         location=dict(default='bottom', choices=['top', 'bottom', 'before', 'after']),
         existing_rule=dict(),
         commit=dict(type='bool', default=True),
-        is_post_rule = dict(type='bool', default=False)
+        is_post_rule=dict(type='bool', default=False)
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
                            required_one_of=[['api_key', 'password']])
@@ -453,8 +452,8 @@ def main():
     elif not hasattr(policies.SecurityRule, 'move'):
         module.fail_json(msg='Python library pandevice needs to be updated.')
 
-    ip_address = module.params["ip_address"]
-    password = module.params["password"]
+    ip_address = module.params['ip_address']
+    password = module.params['password']
     username = module.params['username']
     api_key = module.params['api_key']
     operation = module.params['operation']
