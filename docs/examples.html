@@ -1,0 +1,947 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Examples &#8212; PANW Ansible 1.0.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="History" href="history.html" />
+    <link rel="prev" title="panos_userid" href="modules/panos_userid_module.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="examples">
+<span id="id1"></span><h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="add-security-policy-to-firewall-or-panorama">
+<h2>Add security policy to Firewall or Panorama<a class="headerlink" href="#add-security-policy-to-firewall-or-panorama" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>Security policies allow you to enforce rules and take action, and can be as general or specific as needed.
+The policy rules are compared against the incoming traffic in sequence, and because the first rule that matches
+the traffic is applied, the more specific rules must precede the more general ones.</div></blockquote>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Add</span> <span class="n">some</span> <span class="n">security</span> <span class="n">rules</span> <span class="n">to</span> <span class="n">the</span> <span class="n">firewall</span>
+  <span class="n">hosts</span><span class="p">:</span> <span class="n">my</span><span class="o">-</span><span class="n">firewall</span>
+  <span class="n">connection</span><span class="p">:</span> <span class="n">local</span>
+  <span class="n">gather_facts</span><span class="p">:</span> <span class="kc">False</span>
+
+<span class="c1">#  roles:</span>
+<span class="c1">#    - role: PaloAltoNetworks.paloaltonetworks</span>
+
+  <span class="n">tasks</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Grab</span> <span class="n">the</span> <span class="n">credentials</span> <span class="kn">from</span> <span class="nn">ansible</span><span class="o">-</span><span class="n">vault</span>
+    <span class="n">include_vars</span><span class="p">:</span> <span class="s1">&#39;firewall-secrets.yml&#39;</span>
+    <span class="n">no_log</span><span class="p">:</span> <span class="s1">&#39;yes&#39;</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Add</span> <span class="n">test</span> <span class="n">rule</span> <span class="mi">1</span> <span class="n">to</span> <span class="n">the</span> <span class="n">firewall</span>
+    <span class="n">panos_security_rule</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+      <span class="n">rule_name</span><span class="p">:</span> <span class="s1">&#39;Ansible test 1&#39;</span>
+      <span class="n">description</span><span class="p">:</span> <span class="s1">&#39;An Ansible test rule&#39;</span>
+      <span class="n">source_zone</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;internal&#39;</span><span class="p">]</span>
+      <span class="n">destination_zone</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;external&#39;</span><span class="p">]</span>
+      <span class="n">source_ip</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;1.2.3.4&#39;</span><span class="p">]</span>
+      <span class="n">source_user</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+      <span class="n">destination_ip</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+      <span class="n">category</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+      <span class="n">application</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+      <span class="n">service</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;service-http&#39;</span><span class="p">]</span>
+      <span class="n">hip_profiles</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+      <span class="n">action</span><span class="p">:</span> <span class="s1">&#39;allow&#39;</span>
+      <span class="n">commit</span><span class="p">:</span> <span class="s1">&#39;False&#39;</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Add</span> <span class="n">test</span> <span class="n">rule</span> <span class="mi">2</span> <span class="n">to</span> <span class="n">the</span> <span class="n">firewall</span>
+    <span class="n">panos_security_rule</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+      <span class="n">rule_name</span><span class="p">:</span> <span class="s1">&#39;Ansible test 2&#39;</span>
+      <span class="n">description</span><span class="p">:</span> <span class="s1">&#39;Another Ansible test rule&#39;</span>
+      <span class="n">source_zone</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;internal&#39;</span><span class="p">]</span>
+      <span class="n">source_ip</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;192.168.100.100&#39;</span><span class="p">]</span>
+      <span class="n">source_user</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+      <span class="n">hip_profiles</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+      <span class="n">destination_zone</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;external&#39;</span><span class="p">]</span>
+      <span class="n">destination_ip</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+      <span class="n">category</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+      <span class="n">application</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+      <span class="n">service</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;service-https&#39;</span><span class="p">]</span>
+      <span class="n">action</span><span class="p">:</span> <span class="s1">&#39;allow&#39;</span>
+      <span class="n">commit</span><span class="p">:</span> <span class="s1">&#39;False&#39;</span>
+</pre></div>
+</div>
+<div class="section" id="panorama">
+<h3>Panorama<a class="headerlink" href="#panorama" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Add</span> <span class="n">some</span> <span class="n">security</span> <span class="n">rules</span> <span class="n">to</span> <span class="n">Panorama</span>
+  <span class="n">hosts</span><span class="p">:</span> <span class="n">my</span><span class="o">-</span><span class="n">panorama</span>
+  <span class="n">connection</span><span class="p">:</span> <span class="n">local</span>
+  <span class="n">gather_facts</span><span class="p">:</span> <span class="kc">False</span>
+
+  <span class="n">roles</span><span class="p">:</span>
+    <span class="o">-</span> <span class="n">role</span><span class="p">:</span> <span class="n">PaloAltoNetworks</span><span class="o">.</span><span class="n">paloaltonetworks</span>
+
+  <span class="n">tasks</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Grab</span> <span class="n">the</span> <span class="n">credentials</span> <span class="kn">from</span> <span class="nn">ansible</span><span class="o">-</span><span class="n">vault</span>
+    <span class="n">include_vars</span><span class="p">:</span> <span class="s1">&#39;panorama-secrets.yml&#39;</span>
+    <span class="n">no_log</span><span class="p">:</span> <span class="s1">&#39;yes&#39;</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Add</span> <span class="n">test</span> <span class="n">pre</span><span class="o">-</span><span class="n">rule</span> <span class="n">to</span> <span class="n">Panorama</span>
+    <span class="n">panos_security_rule</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+      <span class="n">rule_name</span><span class="p">:</span> <span class="s1">&#39;Ansible test 1&#39;</span>
+      <span class="n">description</span><span class="p">:</span> <span class="s1">&#39;An Ansible test pre-rule&#39;</span>
+      <span class="n">source_zone</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;internal&#39;</span><span class="p">]</span>
+      <span class="n">destination_zone</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;external&#39;</span><span class="p">]</span>
+      <span class="n">source_ip</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;1.2.3.4&#39;</span><span class="p">]</span>
+      <span class="n">source_user</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+      <span class="n">destination_ip</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+      <span class="n">category</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+      <span class="n">application</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+      <span class="n">service</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;service-http&#39;</span><span class="p">]</span>
+      <span class="n">hip_profiles</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+      <span class="n">action</span><span class="p">:</span> <span class="s1">&#39;allow&#39;</span>
+      <span class="n">devicegroup</span><span class="p">:</span> <span class="s1">&#39;DeviceGroupA&#39;</span>
+      <span class="n">commit</span><span class="p">:</span> <span class="s1">&#39;False&#39;</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Add</span> <span class="n">test</span> <span class="n">post</span><span class="o">-</span><span class="n">rule</span> <span class="n">to</span> <span class="n">Panorama</span>
+    <span class="n">panos_security_rule</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+      <span class="n">rule_name</span><span class="p">:</span> <span class="s1">&#39;Ansible test 2&#39;</span>
+      <span class="n">description</span><span class="p">:</span> <span class="s1">&#39;Another Ansible test post-rule&#39;</span>
+      <span class="n">source_zone</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;internal&#39;</span><span class="p">]</span>
+      <span class="n">source_ip</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;192.168.100.100&#39;</span><span class="p">]</span>
+      <span class="n">source_user</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+      <span class="n">hip_profiles</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+      <span class="n">destination_zone</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;external&#39;</span><span class="p">]</span>
+      <span class="n">destination_ip</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+      <span class="n">category</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+      <span class="n">application</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+      <span class="n">service</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;service-https&#39;</span><span class="p">]</span>
+      <span class="n">action</span><span class="p">:</span> <span class="s1">&#39;allow&#39;</span>
+      <span class="n">devicegroup</span><span class="p">:</span> <span class="s1">&#39;DeviceGroupA&#39;</span>
+      <span class="n">is_post_rule</span><span class="p">:</span> <span class="s2">&quot;True&quot;</span>
+      <span class="n">commit</span><span class="p">:</span> <span class="s1">&#39;True&#39;</span>
+
+
+<span class="c1">#  - name: push configuration to firewall(s)</span>
+<span class="c1">#    panos_commit:</span>
+<span class="c1">#      ip_address: &#39;{{ ip_address }}&#39;</span>
+<span class="c1">#      username: &#39;{{ username }}&#39;</span>
+<span class="c1">#      password: &#39;{{ password }}&#39;</span>
+<span class="c1">#      devicegroup: &#39;DeviceGroupA&#39;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="add-nat-policy-to-firewall-or-panorama">
+<h2>Add NAT policy to Firewall or Panorama<a class="headerlink" href="#add-nat-policy-to-firewall-or-panorama" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>If you define Layer 3 interfaces on the firewall, you can configure a Network Address Translation (NAT) policy to
+specify whether source or destination IP addresses and ports are converted between public and private addresses and
+ports. For example, private source addresses can be translated to public addresses on traffic sent from an
+internal (trusted) zone to a public (untrusted) zone. NAT is also supported on virtual wire interfaces.</div></blockquote>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Add</span> <span class="n">a</span> <span class="n">NAT</span> <span class="n">rule</span> <span class="n">to</span> <span class="n">the</span> <span class="n">firewall</span>
+  <span class="n">hosts</span><span class="p">:</span> <span class="n">my</span><span class="o">-</span><span class="n">firewall</span>
+  <span class="n">connection</span><span class="p">:</span> <span class="n">local</span>
+  <span class="n">gather_facts</span><span class="p">:</span> <span class="kc">False</span>
+
+  <span class="n">roles</span><span class="p">:</span>
+    <span class="o">-</span> <span class="n">role</span><span class="p">:</span> <span class="n">PaloAltoNetworks</span><span class="o">.</span><span class="n">paloaltonetworks</span>
+
+  <span class="n">tasks</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Grab</span> <span class="n">the</span> <span class="n">credentials</span> <span class="kn">from</span> <span class="nn">ansible</span><span class="o">-</span><span class="n">vault</span>
+    <span class="n">include_vars</span><span class="p">:</span> <span class="s1">&#39;firewall-secrets.yml&#39;</span>
+    <span class="n">no_log</span><span class="p">:</span> <span class="s1">&#39;yes&#39;</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Add</span> <span class="n">the</span> <span class="n">necessary</span> <span class="n">service</span> <span class="nb">object</span> <span class="n">to</span> <span class="n">the</span> <span class="n">firewall</span> <span class="n">first</span>
+    <span class="n">panos_object</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">serviceobject</span><span class="p">:</span> <span class="s1">&#39;service-tcp-221&#39;</span>
+      <span class="n">protocol</span><span class="p">:</span> <span class="s1">&#39;tcp&#39;</span>
+      <span class="n">destination_port</span><span class="p">:</span> <span class="s1">&#39;221&#39;</span>
+      <span class="n">description</span><span class="p">:</span> <span class="s1">&#39;SSH on port 221&#39;</span>
+      <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Create</span> <span class="n">dynamic</span> <span class="n">NAT</span> <span class="n">rule</span> <span class="n">on</span> <span class="n">the</span> <span class="n">firewall</span>
+    <span class="n">panos_nat_rule</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">rule_name</span><span class="p">:</span> <span class="s1">&#39;Web SSH inbound&#39;</span>
+      <span class="n">source_zone</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;external&#39;</span><span class="p">]</span>
+      <span class="n">destination_zone</span><span class="p">:</span> <span class="s1">&#39;external&#39;</span>
+      <span class="n">source_ip</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+      <span class="n">destination_ip</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;10.0.0.100&#39;</span><span class="p">]</span>
+      <span class="n">service</span><span class="p">:</span> <span class="s1">&#39;service-tcp-221&#39;</span>
+      <span class="n">snat_type</span><span class="p">:</span> <span class="s1">&#39;dynamic-ip-and-port&#39;</span>
+      <span class="n">snat_interface</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;ethernet1/2&#39;</span><span class="p">]</span>
+      <span class="n">dnat_address</span><span class="p">:</span> <span class="s1">&#39;10.0.1.101&#39;</span>
+      <span class="n">dnat_port</span><span class="p">:</span> <span class="s1">&#39;22&#39;</span>
+      <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Create</span> <span class="n">a</span> <span class="n">static</span> <span class="n">NAT</span> <span class="n">rule</span> <span class="n">on</span> <span class="n">the</span> <span class="n">firewall</span>
+    <span class="n">panos_nat_rule</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">rule_name</span><span class="p">:</span> <span class="s1">&#39;Static outbound&#39;</span>
+      <span class="n">source_zone</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;internal&#39;</span><span class="p">]</span>
+      <span class="n">destination_zone</span><span class="p">:</span> <span class="s1">&#39;external&#39;</span>
+      <span class="n">source_ip</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;10.0.0.150&#39;</span><span class="p">]</span>
+      <span class="n">destination_ip</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+      <span class="n">service</span><span class="p">:</span> <span class="s1">&#39;any&#39;</span>
+      <span class="n">snat_type</span><span class="p">:</span> <span class="s1">&#39;static-ip&#39;</span>
+      <span class="n">snat_interface</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;ethernet1/2&#39;</span><span class="p">]</span>
+      <span class="n">snat_static_address</span><span class="p">:</span> <span class="s1">&#39;9.8.7.6&#39;</span>
+      <span class="n">snat_bidirectional</span><span class="p">:</span> <span class="s1">&#39;true&#39;</span>
+      <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+</pre></div>
+</div>
+<div class="section" id="id2">
+<h3>Panorama<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Add</span> <span class="n">a</span> <span class="n">NAT</span> <span class="n">rules</span> <span class="n">on</span> <span class="n">the</span> <span class="n">Panorama</span>
+  <span class="n">hosts</span><span class="p">:</span> <span class="n">my</span><span class="o">-</span><span class="n">panorama</span>
+  <span class="n">connection</span><span class="p">:</span> <span class="n">local</span>
+  <span class="n">gather_facts</span><span class="p">:</span> <span class="kc">False</span>
+
+  <span class="n">roles</span><span class="p">:</span>
+    <span class="o">-</span> <span class="n">role</span><span class="p">:</span> <span class="n">PaloAltoNetworks</span><span class="o">.</span><span class="n">paloaltonetworks</span>
+
+  <span class="n">tasks</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Grab</span> <span class="n">the</span> <span class="n">credentials</span> <span class="kn">from</span> <span class="nn">ansible</span><span class="o">-</span><span class="n">vault</span>
+    <span class="n">include_vars</span><span class="p">:</span> <span class="s1">&#39;panorama-secrets.yml&#39;</span>
+    <span class="n">no_log</span><span class="p">:</span> <span class="s1">&#39;yes&#39;</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Add</span> <span class="n">the</span> <span class="n">necessary</span> <span class="n">service</span> <span class="nb">object</span> <span class="n">to</span> <span class="n">Panorama</span> <span class="n">first</span>
+    <span class="n">panos_object</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">serviceobject</span><span class="p">:</span> <span class="s1">&#39;service-tcp-221&#39;</span>
+      <span class="n">protocol</span><span class="p">:</span> <span class="s1">&#39;tcp&#39;</span>
+      <span class="n">destination_port</span><span class="p">:</span> <span class="s1">&#39;221&#39;</span>
+      <span class="n">description</span><span class="p">:</span> <span class="s1">&#39;SSH on port 221&#39;</span>
+      <span class="n">devicegroup</span><span class="p">:</span> <span class="s1">&#39;shared_services_11022&#39;</span>
+      <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Create</span> <span class="n">dynamic</span> <span class="n">NAT</span> <span class="n">rule</span> <span class="n">on</span> <span class="n">Panorama</span>
+    <span class="n">panos_nat_rule</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">rule_name</span><span class="p">:</span> <span class="s1">&#39;Web SSH inbound&#39;</span>
+      <span class="n">source_zone</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;external&#39;</span><span class="p">]</span>
+      <span class="n">destination_zone</span><span class="p">:</span> <span class="s1">&#39;external&#39;</span>
+      <span class="n">source_ip</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+      <span class="n">destination_ip</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;10.0.0.100&#39;</span><span class="p">]</span>
+      <span class="n">service</span><span class="p">:</span> <span class="s1">&#39;service-tcp-221&#39;</span>
+      <span class="n">snat_type</span><span class="p">:</span> <span class="s1">&#39;dynamic-ip-and-port&#39;</span>
+      <span class="n">snat_interface</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;ethernet1/2&#39;</span><span class="p">]</span>
+      <span class="n">dnat_address</span><span class="p">:</span> <span class="s1">&#39;10.0.1.101&#39;</span>
+      <span class="n">dnat_port</span><span class="p">:</span> <span class="s1">&#39;22&#39;</span>
+      <span class="n">devicegroup</span><span class="p">:</span> <span class="s1">&#39;shared_services_11022&#39;</span>
+      <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Create</span> <span class="n">a</span> <span class="n">static</span> <span class="n">NAT</span> <span class="n">rule</span> <span class="n">on</span> <span class="n">the</span> <span class="n">firewall</span>
+    <span class="n">panos_nat_rule</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">rule_name</span><span class="p">:</span> <span class="s1">&#39;Static outbound&#39;</span>
+      <span class="n">source_zone</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;internal&#39;</span><span class="p">]</span>
+      <span class="n">destination_zone</span><span class="p">:</span> <span class="s1">&#39;external&#39;</span>
+      <span class="n">source_ip</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;10.0.0.150&#39;</span><span class="p">]</span>
+      <span class="n">destination_ip</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+      <span class="n">service</span><span class="p">:</span> <span class="s1">&#39;any&#39;</span>
+      <span class="n">snat_type</span><span class="p">:</span> <span class="s1">&#39;static-ip&#39;</span>
+      <span class="n">snat_interface</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;ethernet1/2&#39;</span><span class="p">]</span>
+      <span class="n">snat_static_address</span><span class="p">:</span> <span class="s1">&#39;9.8.7.6&#39;</span>
+      <span class="n">snat_bidirectional</span><span class="p">:</span> <span class="s1">&#39;true&#39;</span>
+      <span class="n">devicegroup</span><span class="p">:</span> <span class="s1">&#39;shared_services_11022&#39;</span>
+      <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="add-address-service-object">
+<h2>Add address service object<a class="headerlink" href="#add-address-service-object" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>Create address service object of different types [IP Range, FQDN, or IP Netmask].</div></blockquote>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Add</span> <span class="n">some</span> <span class="n">objects</span> <span class="n">to</span> <span class="n">the</span> <span class="n">firewall</span>
+  <span class="n">hosts</span><span class="p">:</span> <span class="n">my</span><span class="o">-</span><span class="n">firewall</span>
+  <span class="n">connection</span><span class="p">:</span> <span class="n">local</span>
+  <span class="n">gather_facts</span><span class="p">:</span> <span class="kc">False</span>
+
+  <span class="n">roles</span><span class="p">:</span>
+    <span class="o">-</span> <span class="n">role</span><span class="p">:</span> <span class="n">PaloAltoNetworks</span><span class="o">.</span><span class="n">paloaltonetworks</span>
+
+  <span class="n">tasks</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Grab</span> <span class="n">the</span> <span class="n">credentials</span> <span class="kn">from</span> <span class="nn">ansible</span><span class="o">-</span><span class="n">vault</span>
+    <span class="n">include_vars</span><span class="p">:</span> <span class="s1">&#39;firewall-secrets.yml&#39;</span>
+    <span class="n">no_log</span><span class="p">:</span> <span class="s1">&#39;yes&#39;</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Add</span> <span class="n">an</span> <span class="n">address</span> <span class="nb">object</span> <span class="n">to</span> <span class="n">the</span> <span class="n">firewall</span>
+    <span class="n">panos_object</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">addressobject</span><span class="p">:</span> <span class="s1">&#39;test-address&#39;</span>
+      <span class="n">address</span><span class="p">:</span> <span class="s1">&#39;192.168.100.89/24&#39;</span>
+      <span class="n">address_type</span><span class="p">:</span> <span class="s1">&#39;ip-netmask&#39;</span>
+      <span class="n">description</span><span class="p">:</span> <span class="s1">&#39;This is a test address object&#39;</span>
+      <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Add</span> <span class="n">another</span> <span class="n">address</span> <span class="nb">object</span> <span class="n">to</span> <span class="n">the</span> <span class="n">firewall</span>
+    <span class="n">panos_object</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">addressobject</span><span class="p">:</span> <span class="s1">&#39;test-range&#39;</span>
+      <span class="n">address</span><span class="p">:</span> <span class="s1">&#39;192.168.100.100-192.168.100.200&#39;</span>
+      <span class="n">address_type</span><span class="p">:</span> <span class="s1">&#39;ip-range&#39;</span>
+      <span class="n">description</span><span class="p">:</span> <span class="s1">&#39;This is a another test address object&#39;</span>
+      <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Add</span> <span class="n">an</span> <span class="n">address</span> <span class="n">group</span> <span class="n">to</span> <span class="n">the</span> <span class="n">firewall</span>
+    <span class="n">panos_object</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">addressgroup</span><span class="p">:</span> <span class="s1">&#39;test-address-group&#39;</span>
+      <span class="n">static_value</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;test-address&#39;</span><span class="p">,</span><span class="s1">&#39;test-range&#39;</span><span class="p">]</span>
+      <span class="n">description</span><span class="p">:</span> <span class="s1">&#39;This is a test addressgroup&#39;</span>
+      <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Add</span> <span class="n">a</span> <span class="n">service</span> <span class="n">to</span> <span class="n">the</span> <span class="n">firewall</span>
+    <span class="n">panos_object</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">serviceobject</span><span class="p">:</span> <span class="s1">&#39;service-xyz&#39;</span>
+      <span class="n">protocol</span><span class="p">:</span> <span class="s1">&#39;tcp&#39;</span>
+      <span class="n">destination_port</span><span class="p">:</span> <span class="s1">&#39;8889&#39;</span>
+      <span class="n">description</span><span class="p">:</span> <span class="s1">&#39;This is a test service object&#39;</span>
+      <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Add</span> <span class="n">another</span> <span class="n">service</span> <span class="n">to</span> <span class="n">the</span> <span class="n">firewall</span>
+    <span class="n">panos_object</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">serviceobject</span><span class="p">:</span> <span class="s1">&#39;service-abc&#39;</span>
+      <span class="n">protocol</span><span class="p">:</span> <span class="s1">&#39;tcp&#39;</span>
+      <span class="n">destination_port</span><span class="p">:</span> <span class="s1">&#39;5000,5001,6000-7000&#39;</span>
+      <span class="n">description</span><span class="p">:</span> <span class="s1">&#39;This is a test service object&#39;</span>
+      <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Add</span> <span class="n">a</span> <span class="n">service</span> <span class="n">group</span> <span class="n">to</span> <span class="n">the</span> <span class="n">firewall</span>
+    <span class="n">panos_object</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">servicegroup</span><span class="p">:</span> <span class="s1">&#39;test-service-group&#39;</span>
+      <span class="n">services</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;service-abc&#39;</span><span class="p">,</span><span class="s1">&#39;service-xyz&#39;</span><span class="p">]</span>
+      <span class="n">description</span><span class="p">:</span> <span class="s1">&#39;This is a test servicegroup&#39;</span>
+      <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Add</span> <span class="n">a</span> <span class="n">tag</span> <span class="n">to</span> <span class="n">the</span> <span class="n">firewall</span>
+    <span class="n">panos_object</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">tag_name</span><span class="p">:</span> <span class="s1">&#39;Test&#39;</span>
+      <span class="n">color</span><span class="p">:</span> <span class="s1">&#39;orange&#39;</span>
+      <span class="n">description</span><span class="p">:</span> <span class="s1">&#39;This is test tag&#39;</span>
+      <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+</pre></div>
+</div>
+<div class="section" id="id3">
+<h3>Panorama<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Add</span> <span class="n">some</span> <span class="n">objects</span> <span class="n">to</span> <span class="n">Panorama</span>
+  <span class="n">hosts</span><span class="p">:</span> <span class="n">my</span><span class="o">-</span><span class="n">panorama</span>
+  <span class="n">connection</span><span class="p">:</span> <span class="n">local</span>
+  <span class="n">gather_facts</span><span class="p">:</span> <span class="kc">False</span>
+
+  <span class="n">roles</span><span class="p">:</span>
+    <span class="o">-</span> <span class="n">role</span><span class="p">:</span> <span class="n">PaloAltoNetworks</span><span class="o">.</span><span class="n">paloaltonetworks</span>
+
+  <span class="n">tasks</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Grab</span> <span class="n">the</span> <span class="n">credentials</span> <span class="kn">from</span> <span class="nn">ansible</span><span class="o">-</span><span class="n">vault</span>
+    <span class="n">include_vars</span><span class="p">:</span> <span class="s1">&#39;panorama-secrets.yml&#39;</span>
+    <span class="n">no_log</span><span class="p">:</span> <span class="s1">&#39;yes&#39;</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Add</span> <span class="n">an</span> <span class="n">address</span> <span class="nb">object</span> <span class="n">to</span> <span class="n">Panorama</span>
+    <span class="n">panos_object</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">addressobject</span><span class="p">:</span> <span class="s1">&#39;test-address&#39;</span>
+      <span class="n">address</span><span class="p">:</span> <span class="s1">&#39;192.168.100.89/24&#39;</span>
+      <span class="n">address_type</span><span class="p">:</span> <span class="s1">&#39;ip-netmask&#39;</span>
+      <span class="n">description</span><span class="p">:</span> <span class="s1">&#39;This is a test address object&#39;</span>
+      <span class="n">devicegroup</span><span class="p">:</span> <span class="s1">&#39;shared_services_11022&#39;</span>
+      <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Add</span> <span class="n">another</span> <span class="n">address</span> <span class="nb">object</span> <span class="n">to</span> <span class="n">Panorama</span>
+    <span class="n">panos_object</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">addressobject</span><span class="p">:</span> <span class="s1">&#39;test-range&#39;</span>
+      <span class="n">address</span><span class="p">:</span> <span class="s1">&#39;192.168.100.100-192.168.100.200&#39;</span>
+      <span class="n">address_type</span><span class="p">:</span> <span class="s1">&#39;ip-range&#39;</span>
+      <span class="n">description</span><span class="p">:</span> <span class="s1">&#39;This is a another test address object&#39;</span>
+      <span class="n">devicegroup</span><span class="p">:</span> <span class="s1">&#39;shared_services_11022&#39;</span>
+      <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Add</span> <span class="n">an</span> <span class="n">address</span> <span class="n">group</span> <span class="n">to</span> <span class="n">Panorama</span>
+    <span class="n">panos_object</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">addressgroup</span><span class="p">:</span> <span class="s1">&#39;test-address-group&#39;</span>
+      <span class="n">static_value</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;test-address&#39;</span><span class="p">,</span><span class="s1">&#39;test-range&#39;</span><span class="p">]</span>
+      <span class="n">description</span><span class="p">:</span> <span class="s1">&#39;This is a test addressgroup&#39;</span>
+      <span class="n">devicegroup</span><span class="p">:</span> <span class="s1">&#39;shared_services_11022&#39;</span>
+      <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Add</span> <span class="n">a</span> <span class="n">service</span> <span class="n">to</span> <span class="n">Panorama</span>
+    <span class="n">panos_object</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">serviceobject</span><span class="p">:</span> <span class="s1">&#39;service-xyz&#39;</span>
+      <span class="n">protocol</span><span class="p">:</span> <span class="s1">&#39;tcp&#39;</span>
+      <span class="n">destination_port</span><span class="p">:</span> <span class="s1">&#39;8889&#39;</span>
+      <span class="n">description</span><span class="p">:</span> <span class="s1">&#39;This is a test service object&#39;</span>
+      <span class="n">devicegroup</span><span class="p">:</span> <span class="s1">&#39;shared_services_11022&#39;</span>
+      <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Add</span> <span class="n">another</span> <span class="n">service</span> <span class="n">to</span> <span class="n">Panorama</span>
+    <span class="n">panos_object</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">serviceobject</span><span class="p">:</span> <span class="s1">&#39;service-abc&#39;</span>
+      <span class="n">protocol</span><span class="p">:</span> <span class="s1">&#39;tcp&#39;</span>
+      <span class="n">destination_port</span><span class="p">:</span> <span class="s1">&#39;5000,5001,6000-7000&#39;</span>
+      <span class="n">description</span><span class="p">:</span> <span class="s1">&#39;This is a test service object&#39;</span>
+      <span class="n">devicegroup</span><span class="p">:</span> <span class="s1">&#39;shared_services_11022&#39;</span>
+      <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Add</span> <span class="n">a</span> <span class="n">service</span> <span class="n">group</span> <span class="n">to</span> <span class="n">Panorama</span>
+    <span class="n">panos_object</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">servicegroup</span><span class="p">:</span> <span class="s1">&#39;test-service-group&#39;</span>
+      <span class="n">services</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;service-abc&#39;</span><span class="p">,</span><span class="s1">&#39;service-xyz&#39;</span><span class="p">]</span>
+      <span class="n">description</span><span class="p">:</span> <span class="s1">&#39;This is a test servicegroup&#39;</span>
+      <span class="n">devicegroup</span><span class="p">:</span> <span class="s1">&#39;shared_services_11022&#39;</span>
+      <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Add</span> <span class="n">a</span> <span class="n">tag</span> <span class="n">to</span> <span class="n">Panorama</span>
+    <span class="n">panos_object</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">tag_name</span><span class="p">:</span> <span class="s1">&#39;Test&#39;</span>
+      <span class="n">color</span><span class="p">:</span> <span class="s1">&#39;orange&#39;</span>
+      <span class="n">description</span><span class="p">:</span> <span class="s1">&#39;This is test tag&#39;</span>
+      <span class="n">devicegroup</span><span class="p">:</span> <span class="s1">&#39;shared_services_11022&#39;</span>
+      <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="change-firewall-admin-password">
+<h2>Change firewall admin password<a class="headerlink" href="#change-firewall-admin-password" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>PanOS module that allows changes to the user account passwords by doing
+API calls to the Firewall using pan-api as the protocol.</div></blockquote>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Set</span> <span class="n">admin</span> <span class="n">password</span>
+  <span class="n">hosts</span><span class="p">:</span> <span class="n">my</span><span class="o">-</span><span class="n">firewall</span>
+  <span class="n">connection</span><span class="p">:</span> <span class="n">local</span>
+  <span class="n">gather_facts</span><span class="p">:</span> <span class="kc">False</span>
+
+  <span class="n">roles</span><span class="p">:</span>
+    <span class="o">-</span> <span class="n">role</span><span class="p">:</span> <span class="n">PaloAltoNetworks</span><span class="o">.</span><span class="n">paloaltonetworks</span>
+
+  <span class="n">tasks</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Grab</span> <span class="n">the</span> <span class="n">credentials</span> <span class="kn">from</span> <span class="nn">ansible</span><span class="o">-</span><span class="n">vault</span>
+    <span class="n">include_vars</span><span class="p">:</span> <span class="s1">&#39;firewall-secrets.yml&#39;</span>
+    <span class="n">no_log</span><span class="p">:</span> <span class="s1">&#39;yes&#39;</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Set</span> <span class="n">admin</span> <span class="n">password</span>
+    <span class="n">panos_admin</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">admin_username</span><span class="p">:</span> <span class="n">admin</span>
+      <span class="n">admin_password</span><span class="p">:</span> <span class="s2">&quot;paloalto&quot;</span>
+      <span class="n">commit</span><span class="p">:</span> <span class="kc">False</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="change-firewall-admin-password-using-ssh">
+<h2>Change firewall admin password using SSH<a class="headerlink" href="#change-firewall-admin-password-using-ssh" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>Change admin password of PAN-OS device using SSH with SSH key. This is used in particular when NGFW is deployed in
+the cloud (such as AWS).</div></blockquote>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Set</span> <span class="n">admin</span> <span class="n">password</span>
+  <span class="n">hosts</span><span class="p">:</span> <span class="n">my</span><span class="o">-</span><span class="n">firewall</span>
+  <span class="n">connection</span><span class="p">:</span> <span class="n">local</span>
+  <span class="n">gather_facts</span><span class="p">:</span> <span class="kc">False</span>
+
+  <span class="n">roles</span><span class="p">:</span>
+    <span class="o">-</span> <span class="n">role</span><span class="p">:</span> <span class="n">PaloAltoNetworks</span><span class="o">.</span><span class="n">paloaltonetworks</span>
+
+  <span class="nb">vars</span><span class="p">:</span>
+    <span class="n">new_password</span><span class="p">:</span> <span class="s1">&#39;paloalto&#39;</span>
+    <span class="n">key_filename</span><span class="p">:</span> <span class="s1">&#39;/Users/ibojer/1/test&#39;</span>
+
+  <span class="n">tasks</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Grab</span> <span class="n">the</span> <span class="n">credentials</span> <span class="kn">from</span> <span class="nn">ansible</span><span class="o">-</span><span class="n">vault</span>
+    <span class="n">include_vars</span><span class="p">:</span> <span class="s1">&#39;firewall-secrets.yml&#39;</span>
+    <span class="n">no_log</span><span class="p">:</span> <span class="s1">&#39;yes&#39;</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Change</span> <span class="n">user</span> <span class="n">password</span> <span class="n">using</span> <span class="n">ssh</span> <span class="n">protocol</span>
+    <span class="n">panos_admpwd</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">newpassword</span><span class="p">:</span> <span class="s1">&#39;{{ new_password }}&#39;</span>
+      <span class="n">key_filename</span><span class="p">:</span> <span class="s1">&#39;{{ key_filename }}&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="generates-self-signed-certificate">
+<h2>Generates self-signed certificate<a class="headerlink" href="#generates-self-signed-certificate" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>This module generates a self-signed certificate that can be used by GlobalProtect client, SSL connector, or
+otherwise. Root certificate must be preset on the system first. This module depends on paramiko for ssh.</div></blockquote>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Load</span> <span class="n">already</span> <span class="n">imported</span> <span class="n">configuration</span>
+  <span class="n">hosts</span><span class="p">:</span> <span class="n">my</span><span class="o">-</span><span class="n">firewall</span>
+  <span class="n">connection</span><span class="p">:</span> <span class="n">local</span>
+  <span class="n">gather_facts</span><span class="p">:</span> <span class="kc">False</span>
+
+  <span class="n">roles</span><span class="p">:</span>
+    <span class="o">-</span> <span class="n">role</span><span class="p">:</span> <span class="n">PaloAltoNetworks</span><span class="o">.</span><span class="n">paloaltonetworks</span>
+
+  <span class="nb">vars</span><span class="p">:</span>
+    <span class="n">cn</span><span class="p">:</span> <span class="s2">&quot;1.1.1.1&quot;</span>
+    <span class="n">friendly_name</span><span class="p">:</span> <span class="s2">&quot;test123&quot;</span>
+    <span class="n">signed_by</span><span class="p">:</span> <span class="s2">&quot;root-ca&quot;</span>
+
+  <span class="n">tasks</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Grab</span> <span class="n">the</span> <span class="n">credentials</span> <span class="kn">from</span> <span class="nn">ansible</span><span class="o">-</span><span class="n">vault</span>
+    <span class="n">include_vars</span><span class="p">:</span> <span class="s1">&#39;firewall-secrets.yml&#39;</span>
+    <span class="n">no_log</span><span class="p">:</span> <span class="s1">&#39;yes&#39;</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">generate</span> <span class="bp">self</span> <span class="n">signed</span> <span class="n">certificate</span>
+    <span class="n">panos_cert_gen_ssh</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s2">&quot;{{ ip_address }}&quot;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s2">&quot;{{ username }}&quot;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s2">&quot;{{ password }}&quot;</span>
+      <span class="n">cert_cn</span><span class="p">:</span> <span class="s2">&quot;{{ cn }}&quot;</span>
+      <span class="n">cert_friendly_name</span><span class="p">:</span> <span class="s2">&quot;{{ friendly_name }}&quot;</span>
+      <span class="n">signed_by</span><span class="p">:</span> <span class="s2">&quot;{{ signed_by }}&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="check-if-fw-is-ready">
+<h2>Check if FW is ready<a class="headerlink" href="#check-if-fw-is-ready" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>Check if PAN-OS device is ready for being configured (no pending jobs). The check could be done
+once or multiple times until the device is ready.</div></blockquote>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Load</span> <span class="n">already</span> <span class="n">imported</span> <span class="n">configuration</span>
+  <span class="n">hosts</span><span class="p">:</span> <span class="n">my</span><span class="o">-</span><span class="n">firewall</span>
+  <span class="n">connection</span><span class="p">:</span> <span class="n">local</span>
+  <span class="n">gather_facts</span><span class="p">:</span> <span class="kc">False</span>
+
+  <span class="n">roles</span><span class="p">:</span>
+    <span class="o">-</span> <span class="n">role</span><span class="p">:</span> <span class="n">PaloAltoNetworks</span><span class="o">.</span><span class="n">paloaltonetworks</span>
+
+  <span class="n">tasks</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Grab</span> <span class="n">the</span> <span class="n">credentials</span> <span class="kn">from</span> <span class="nn">ansible</span><span class="o">-</span><span class="n">vault</span>
+    <span class="n">include_vars</span><span class="p">:</span> <span class="s1">&#39;firewall-secrets.yml&#39;</span>
+    <span class="n">no_log</span><span class="p">:</span> <span class="s1">&#39;yes&#39;</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Wait</span> <span class="k">for</span> <span class="n">FW</span> <span class="n">reboot</span>
+    <span class="n">panos_check</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s2">&quot;{{ ip_address }}&quot;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s2">&quot;{{ username }}&quot;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s2">&quot;{{ password }}&quot;</span>
+    <span class="n">register</span><span class="p">:</span> <span class="n">result</span>
+    <span class="n">until</span><span class="p">:</span> <span class="ow">not</span> <span class="n">result</span><span class="o">|</span><span class="n">failed</span>
+    <span class="n">retries</span><span class="p">:</span> <span class="mi">50</span>
+    <span class="n">delay</span><span class="p">:</span> <span class="mi">5</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="dynamic-address-group-dag">
+<h2>Dynamic address group (DAG)<a class="headerlink" href="#dynamic-address-group-dag" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>Create a dynamic address group object in the firewall used for policy rules.</div></blockquote>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Set</span> <span class="n">admin</span> <span class="n">password</span>
+  <span class="n">hosts</span><span class="p">:</span> <span class="n">my</span><span class="o">-</span><span class="n">firewall</span>
+  <span class="n">connection</span><span class="p">:</span> <span class="n">local</span>
+  <span class="n">gather_facts</span><span class="p">:</span> <span class="kc">False</span>
+
+  <span class="n">roles</span><span class="p">:</span>
+    <span class="o">-</span> <span class="n">role</span><span class="p">:</span> <span class="n">PaloAltoNetworks</span><span class="o">.</span><span class="n">paloaltonetworks</span>
+
+  <span class="nb">vars</span><span class="p">:</span>
+    <span class="n">ip_to_register</span><span class="p">:</span> <span class="s2">&quot;10.10.10.10&quot;</span>
+    <span class="n">tag_names</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;workday3&quot;</span><span class="p">,</span> <span class="s2">&quot;office3&quot;</span><span class="p">,</span> <span class="s2">&quot;box3&quot;</span><span class="p">]</span>
+    <span class="n">dag_name</span><span class="p">:</span> <span class="s2">&quot;dag-6&quot;</span>
+    <span class="n">dag_match_filter</span><span class="p">:</span> <span class="s2">&quot;&#39;workday3&#39; and &#39;box3&#39;&quot;</span>
+
+  <span class="n">tasks</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Grab</span> <span class="n">the</span> <span class="n">credentials</span> <span class="kn">from</span> <span class="nn">ansible</span><span class="o">-</span><span class="n">vault</span>
+    <span class="n">include_vars</span><span class="p">:</span> <span class="s1">&#39;firewall-secrets.yml&#39;</span>
+    <span class="n">no_log</span><span class="p">:</span> <span class="s1">&#39;yes&#39;</span>
+
+    <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Create</span> <span class="n">the</span> <span class="n">tags</span> <span class="n">to</span> <span class="nb">map</span> <span class="n">IP</span> <span class="n">addresses</span>
+      <span class="n">panos_dag_tags</span><span class="p">:</span>
+        <span class="n">ip_address</span><span class="p">:</span> <span class="s2">&quot;{{ ip_address }}&quot;</span>
+        <span class="n">password</span><span class="p">:</span> <span class="s2">&quot;{{ password }}&quot;</span>
+        <span class="n">ip_to_register</span><span class="p">:</span> <span class="s2">&quot;{{ ip_to_register }}&quot;</span>
+        <span class="n">tag_names</span><span class="p">:</span> <span class="s2">&quot;{{ tag_names }}&quot;</span>
+        <span class="n">description</span><span class="p">:</span> <span class="s2">&quot;Tags to allow certain IP&#39;s to access various SaaS Applications&quot;</span>
+        <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+      <span class="n">tags</span><span class="p">:</span> <span class="s2">&quot;add-dagip&quot;</span>
+
+    <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">List</span> <span class="n">the</span> <span class="n">IP</span> <span class="n">address</span> <span class="n">to</span> <span class="n">tag</span> <span class="n">mapping</span>
+      <span class="n">panos_dag_tags</span><span class="p">:</span>
+        <span class="n">ip_address</span><span class="p">:</span> <span class="s2">&quot;{{ ip_address }}&quot;</span>
+        <span class="n">password</span><span class="p">:</span> <span class="s2">&quot;{{ password }}&quot;</span>
+        <span class="n">tag_names</span><span class="p">:</span> <span class="s2">&quot;{{ tag_names }}&quot;</span>
+        <span class="n">description</span><span class="p">:</span> <span class="s2">&quot;List the IP address to tag mapping&quot;</span>
+        <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;list&#39;</span>
+      <span class="n">tags</span><span class="p">:</span> <span class="s2">&quot;list-dagip&quot;</span>
+
+    <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Unregister</span> <span class="n">an</span> <span class="n">IP</span> <span class="n">address</span> <span class="kn">from</span> <span class="nn">a</span> <span class="n">tag</span> <span class="n">mapping</span>
+      <span class="n">panos_dag_tags</span><span class="p">:</span>
+        <span class="n">ip_address</span><span class="p">:</span> <span class="s2">&quot;{{ ip_address }}&quot;</span>
+        <span class="n">password</span><span class="p">:</span> <span class="s2">&quot;{{ password }}&quot;</span>
+        <span class="n">ip_to_register</span><span class="p">:</span> <span class="s2">&quot;{{ ip_to_register }}&quot;</span>
+        <span class="n">tag_names</span><span class="p">:</span> <span class="s2">&quot;{{ tag_names }}&quot;</span>
+        <span class="n">description</span><span class="p">:</span> <span class="s2">&quot;Unregister IP address from tag mappings&quot;</span>
+        <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;delete&#39;</span>
+      <span class="n">tags</span><span class="p">:</span> <span class="s2">&quot;delete-dagip&quot;</span>
+
+    <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Create</span> <span class="n">dynamic</span> <span class="n">address</span> <span class="n">groups</span> <span class="n">on</span> <span class="n">PAN</span> <span class="n">FW</span> 
+      <span class="n">panos_dag</span><span class="p">:</span>
+        <span class="n">ip_address</span><span class="p">:</span> <span class="s2">&quot;{{ ip_address }}&quot;</span>
+        <span class="n">password</span><span class="p">:</span> <span class="s2">&quot;{{ password }}&quot;</span>
+        <span class="n">dag_name</span><span class="p">:</span> <span class="s2">&quot;{{ dag_name }}&quot;</span>
+        <span class="n">dag_match_filter</span><span class="p">:</span> <span class="s2">&quot;{{ dag_match_filter }}&quot;</span>
+        <span class="n">description</span><span class="p">:</span> <span class="s1">&#39;Add / create dynamic address group to allow access to SaaS Applications&#39;</span>
+        <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+      <span class="n">tags</span><span class="p">:</span> <span class="s2">&quot;create-dag&quot;</span>
+
+    <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">List</span> <span class="nb">all</span> <span class="n">dynamic</span> <span class="n">address</span> <span class="n">groups</span> <span class="n">configured</span> <span class="n">on</span> <span class="n">the</span> <span class="n">PAN</span> <span class="n">FW</span>
+      <span class="n">panos_dag</span><span class="p">:</span>
+        <span class="n">ip_address</span><span class="p">:</span> <span class="s2">&quot;{{ ip_address }}&quot;</span>
+        <span class="n">password</span><span class="p">:</span> <span class="s2">&quot;{{ password }}&quot;</span>
+        <span class="n">dag_name</span><span class="p">:</span> <span class="s2">&quot;{{ dag_name }}&quot;</span>
+        <span class="n">description</span><span class="p">:</span> <span class="s1">&#39;List Dynamic Address Groups from the PAN FW&#39;</span>
+        <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;list&#39;</span>
+      <span class="n">tags</span><span class="p">:</span> <span class="s2">&quot;list-dag&quot;</span>
+
+    <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Delete</span> <span class="n">a</span> <span class="n">dynamic</span> <span class="n">address</span> <span class="n">group</span> <span class="n">on</span> <span class="n">the</span> <span class="n">PAN</span> <span class="n">FW</span>
+      <span class="n">panos_dag</span><span class="p">:</span>
+        <span class="n">ip_address</span><span class="p">:</span> <span class="s2">&quot;{{ ip_address }}&quot;</span>
+        <span class="n">password</span><span class="p">:</span> <span class="s2">&quot;{{ password }}&quot;</span>
+        <span class="n">dag_name</span><span class="p">:</span> <span class="s2">&quot;{{ dag_name }}&quot;</span>
+        <span class="n">description</span><span class="p">:</span> <span class="s1">&#39;This is used to delete Dynamic Address Groups from the PAN FW&#39;</span>
+        <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;delete&#39;</span>
+      <span class="n">tags</span><span class="p">:</span> <span class="s2">&quot;delete-dag&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="import-configuration">
+<h2>Import configuration<a class="headerlink" href="#import-configuration" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>Import file into PAN-OS device.</div></blockquote>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Import</span> <span class="n">configuration</span> <span class="n">file</span> <span class="n">into</span> <span class="n">PAN</span><span class="o">-</span><span class="n">OS</span>
+  <span class="n">hosts</span><span class="p">:</span> <span class="n">my</span><span class="o">-</span><span class="n">firewall</span>
+  <span class="n">connection</span><span class="p">:</span> <span class="n">local</span>
+  <span class="n">gather_facts</span><span class="p">:</span> <span class="kc">False</span>
+
+  <span class="n">roles</span><span class="p">:</span>
+    <span class="o">-</span> <span class="n">role</span><span class="p">:</span> <span class="n">PaloAltoNetworks</span><span class="o">.</span><span class="n">paloaltonetworks</span>
+
+  <span class="nb">vars</span><span class="p">:</span>
+    <span class="n">config_file</span><span class="p">:</span> <span class="s2">&quot;/Users/ibojer/SourceCode/ansible-pan/samples/running-config_sample.xml&quot;</span>
+
+  <span class="n">tasks</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Grab</span> <span class="n">the</span> <span class="n">credentials</span> <span class="kn">from</span> <span class="nn">ansible</span><span class="o">-</span><span class="n">vault</span>
+    <span class="n">include_vars</span><span class="p">:</span> <span class="s1">&#39;firewall-secrets.yml&#39;</span>
+    <span class="n">no_log</span><span class="p">:</span> <span class="s1">&#39;yes&#39;</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="kn">import</span> <span class="nn">configuration</span> <span class="n">file</span> <span class="n">into</span> <span class="n">PAN</span><span class="o">-</span><span class="n">OS</span>
+    <span class="n">panos_import</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s2">&quot;{{ ip_address }}&quot;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s2">&quot;{{ username }}&quot;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s2">&quot;{{ password }}&quot;</span>
+      <span class="n">file</span><span class="p">:</span> <span class="s2">&quot;{{ config_file }}&quot;</span>
+      <span class="n">category</span><span class="p">:</span> <span class="s2">&quot;configuration&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="dhcp-on-dataport">
+<h2>DHCP on DataPort<a class="headerlink" href="#dhcp-on-dataport" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>Configure data-port (DP) network interface for DHCP. By default DP interfaces are static.</div></blockquote>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Configure</span> <span class="n">eth1</span><span class="o">/</span><span class="mi">1</span> <span class="k">as</span> <span class="n">DHCP</span>
+  <span class="n">hosts</span><span class="p">:</span> <span class="n">my</span><span class="o">-</span><span class="n">firewall</span>
+  <span class="n">connection</span><span class="p">:</span> <span class="n">local</span>
+  <span class="n">gather_facts</span><span class="p">:</span> <span class="kc">False</span>
+
+  <span class="n">roles</span><span class="p">:</span>
+    <span class="o">-</span> <span class="n">role</span><span class="p">:</span> <span class="n">PaloAltoNetworks</span><span class="o">.</span><span class="n">paloaltonetworks</span>
+
+  <span class="n">tasks</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Grab</span> <span class="n">the</span> <span class="n">credentials</span> <span class="kn">from</span> <span class="nn">ansible</span><span class="o">-</span><span class="n">vault</span>
+    <span class="n">include_vars</span><span class="p">:</span> <span class="s1">&#39;firewall-secrets.yml&#39;</span>
+    <span class="n">no_log</span><span class="p">:</span> <span class="s1">&#39;yes&#39;</span>
+
+  <span class="c1"># Create ethernet1/1 as DHCP.</span>
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">enable</span> <span class="n">DHCP</span> <span class="n">client</span> <span class="n">on</span> <span class="n">ethernet1</span><span class="o">/</span><span class="mi">1</span> <span class="ow">in</span> <span class="n">zone</span> <span class="n">external</span>
+    <span class="n">panos_interface</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">if_name</span><span class="p">:</span> <span class="s2">&quot;ethernet1/1&quot;</span>
+      <span class="n">zone_name</span><span class="p">:</span> <span class="s2">&quot;external&quot;</span>
+      <span class="n">create_default_route</span><span class="p">:</span> <span class="s2">&quot;yes&quot;</span>
+      <span class="n">operation</span><span class="p">:</span> <span class="s2">&quot;update&quot;</span>
+      <span class="n">commit</span><span class="p">:</span> <span class="kc">False</span>
+
+  <span class="c1"># Update ethernet1/2 with a static IP address in zone internal.</span>
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">ethernet1</span><span class="o">/</span><span class="mi">2</span> <span class="k">as</span> <span class="n">static</span> <span class="ow">in</span> <span class="n">zone</span> <span class="n">internal</span>
+    <span class="n">panos_interface</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">if_name</span><span class="p">:</span> <span class="s2">&quot;ethernet1/2&quot;</span>
+      <span class="n">mode</span><span class="p">:</span> <span class="s2">&quot;layer3&quot;</span>
+      <span class="n">ip</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;10.1.1.1/24&quot;</span><span class="p">]</span>
+      <span class="n">enable_dhcp</span><span class="p">:</span> <span class="n">false</span>
+      <span class="n">zone_name</span><span class="p">:</span> <span class="s2">&quot;internal&quot;</span>
+      <span class="n">operation</span><span class="p">:</span> <span class="s2">&quot;update&quot;</span>
+      <span class="n">commit</span><span class="p">:</span> <span class="kc">False</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">configure</span> <span class="n">ethernet1</span><span class="o">/</span><span class="mi">3</span>
+    <span class="n">panos_interface</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">if_name</span><span class="p">:</span> <span class="s2">&quot;ethernet1/3&quot;</span>
+      <span class="n">zone_name</span><span class="p">:</span> <span class="s2">&quot;tap_zone&quot;</span>
+      <span class="n">create_default_route</span><span class="p">:</span> <span class="s2">&quot;yes&quot;</span>
+      <span class="n">operation</span><span class="p">:</span> <span class="s2">&quot;update&quot;</span>
+      <span class="n">commit</span><span class="p">:</span> <span class="kc">False</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="load-configuration">
+<h2>Load configuration<a class="headerlink" href="#load-configuration" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>This is example playbook that imports and loads firewall configuration from a configuration file</li>
+</ul>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">---</span>
+<span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="kn">import</span> <span class="nn">config</span>
+  <span class="n">hosts</span><span class="p">:</span> <span class="n">my</span><span class="o">-</span><span class="n">firewall</span>
+  <span class="n">connection</span><span class="p">:</span> <span class="n">local</span>
+  <span class="n">gather_facts</span><span class="p">:</span> <span class="kc">False</span>
+
+  <span class="nb">vars</span><span class="p">:</span>
+    <span class="n">cfg_file</span><span class="p">:</span> <span class="n">candidate</span><span class="o">-</span><span class="n">template</span><span class="o">-</span><span class="n">empty</span><span class="o">.</span><span class="n">xml</span>
+
+  <span class="n">tasks</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Grab</span> <span class="n">the</span> <span class="n">credentials</span> <span class="kn">from</span> <span class="nn">ansible</span><span class="o">-</span><span class="n">vault</span>
+    <span class="n">include_vars</span><span class="p">:</span> <span class="s1">&#39;firewall-secrets.yml&#39;</span>
+    <span class="n">no_log</span><span class="p">:</span> <span class="s1">&#39;yes&#39;</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">wait</span> <span class="k">for</span> <span class="n">SSH</span> <span class="p">(</span><span class="n">timeout</span> <span class="mi">10</span><span class="nb">min</span><span class="p">)</span>
+    <span class="n">wait_for</span><span class="p">:</span> <span class="n">port</span><span class="o">=</span><span class="mi">22</span> <span class="n">host</span><span class="o">=</span><span class="s1">&#39;{{ ip_address }}&#39;</span> <span class="n">search_regex</span><span class="o">=</span><span class="n">SSH</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">600</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">checking</span> <span class="k">if</span> <span class="n">device</span> <span class="n">ready</span>
+    <span class="n">panos_check</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+    <span class="n">register</span><span class="p">:</span> <span class="n">result</span>
+    <span class="n">until</span><span class="p">:</span> <span class="ow">not</span> <span class="n">result</span><span class="o">|</span><span class="n">failed</span>
+    <span class="n">retries</span><span class="p">:</span> <span class="mi">10</span>
+    <span class="n">delay</span><span class="p">:</span> <span class="mi">10</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="kn">import</span> <span class="nn">configuration</span>
+    <span class="n">panos_import</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">file</span><span class="p">:</span> <span class="s1">&#39;{{cfg_file}}&#39;</span>
+      <span class="n">category</span><span class="p">:</span> <span class="s1">&#39;configuration&#39;</span>
+    <span class="n">register</span><span class="p">:</span> <span class="n">result</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">load</span> <span class="n">configuration</span>
+    <span class="n">panos_loadcfg</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">file</span><span class="p">:</span> <span class="s1">&#39;{{result.filename}}&#39;</span>
+      <span class="n">commit</span><span class="p">:</span> <span class="kc">False</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="nb">set</span> <span class="n">admin</span> <span class="n">password</span>
+    <span class="n">panos_admin</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">admin_username</span><span class="p">:</span> <span class="n">admin</span>
+      <span class="n">admin_password</span><span class="p">:</span> <span class="s1">&#39;{{password}}&#39;</span>
+      <span class="n">commit</span><span class="p">:</span> <span class="kc">False</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">commit</span>
+    <span class="n">panos_commit</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+      <span class="n">sync</span><span class="p">:</span> <span class="kc">False</span>
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">waiting</span> <span class="k">for</span> <span class="n">commit</span>
+    <span class="n">panos_check</span><span class="p">:</span>
+      <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+      <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+      <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+    <span class="n">register</span><span class="p">:</span> <span class="n">result</span>
+    <span class="n">until</span><span class="p">:</span> <span class="ow">not</span> <span class="n">result</span><span class="o">|</span><span class="n">failed</span>
+    <span class="n">retries</span><span class="p">:</span> <span class="mi">10</span>
+    <span class="n">delay</span><span class="p">:</span> <span class="mi">10</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Examples</a><ul>
+<li><a class="reference internal" href="#add-security-policy-to-firewall-or-panorama">Add security policy to Firewall or Panorama</a><ul>
+<li><a class="reference internal" href="#panorama">Panorama</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#add-nat-policy-to-firewall-or-panorama">Add NAT policy to Firewall or Panorama</a><ul>
+<li><a class="reference internal" href="#id2">Panorama</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#add-address-service-object">Add address service object</a><ul>
+<li><a class="reference internal" href="#id3">Panorama</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#change-firewall-admin-password">Change firewall admin password</a></li>
+<li><a class="reference internal" href="#change-firewall-admin-password-using-ssh">Change firewall admin password using SSH</a></li>
+<li><a class="reference internal" href="#generates-self-signed-certificate">Generates self-signed certificate</a></li>
+<li><a class="reference internal" href="#check-if-fw-is-ready">Check if FW is ready</a></li>
+<li><a class="reference internal" href="#dynamic-address-group-dag">Dynamic address group (DAG)</a></li>
+<li><a class="reference internal" href="#import-configuration">Import configuration</a></li>
+<li><a class="reference internal" href="#dhcp-on-dataport">DHCP on DataPort</a></li>
+<li><a class="reference internal" href="#load-configuration">Load configuration</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="modules/panos_userid_module.html" title="previous chapter">panos_userid</a></li>
+      <li>Next: <a href="history.html" title="next chapter">History</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/examples.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Palo Alto Networks.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/examples.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>panos_dag_tags &#8212; PANW Ansible 1.0.4 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="panos_import" href="panos_import_module.html" />
+    <link rel="prev" title="panos_dag" href="panos_dag_module.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="panos-dag-tags">
+<span id="id1"></span><h1>panos_dag_tags<a class="headerlink" href="#panos-dag-tags" title="Permalink to this headline">¶</a></h1>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 2.5.</span></p>
+</div>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#synopsis" id="id2">Synopsis</a></li>
+<li><a class="reference internal" href="#requirements-on-host-that-executes-module" id="id3">Requirements (on host that executes module)</a></li>
+<li><a class="reference internal" href="#options" id="id4">Options</a></li>
+<li><a class="reference internal" href="#examples" id="id5">Examples</a></li>
+<li><a class="reference internal" href="#notes" id="id6">Notes</a><ul>
+<li><a class="reference internal" href="#status" id="id7">Status</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="synopsis">
+<h2><a class="toc-backref" href="#id2">Synopsis</a><a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Create the ip address to tag associations. Tags will in turn be used to create DAG&#8217;s</li>
+</ul>
+</div>
+<div class="section" id="requirements-on-host-that-executes-module">
+<h2><a class="toc-backref" href="#id3">Requirements (on host that executes module)</a><a class="headerlink" href="#requirements-on-host-that-executes-module" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li>pan-python can be obtained from PyPi <a class="reference external" href="https://pypi.python.org/pypi/pan-python">https://pypi.python.org/pypi/pan-python</a></li>
+<li>pandevice can be obtained from PyPi <a class="reference external" href="https://pypi.python.org/pypi/pandevice">https://pypi.python.org/pypi/pandevice</a></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="options">
+<h2><a class="toc-backref" href="#id4">Options</a><a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
+<table border=1 cellpadding=4>
+<tr>
+<th class="head">parameter</th>
+<th class="head">required</th>
+<th class="head">default</th>
+<th class="head">choices</th>
+<th class="head">comments</th>
+</tr>
+            <tr><td>api_key<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td></td>
+    <td></td>
+    <td><div>API key that can be used instead of <em>username</em>/<em>password</em> credentials.</div>        </td></tr>
+            <tr><td>commit<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td>True</td>
+    <td></td>
+    <td><div>commit if changed</div>        </td></tr>
+            <tr><td>description<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td></td>
+    <td></td>
+    <td><div>The purpose / objective of the static Address Group</div>        </td></tr>
+            <tr><td>devicegroup<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td></td>
+    <td></td>
+    <td><div>- Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama. If device group is not define we assume that we are contacting Firewall.
+</div>        </td></tr>
+            <tr><td>ip_address<br/><div style="font-size: small;"></div></td>
+<td>yes</td>
+<td></td>
+    <td></td>
+    <td><div>IP address (or hostname) of PAN-OS device</div>        </td></tr>
+            <tr><td>ip_to_register<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td></td>
+    <td></td>
+    <td><div>IP that will be registered with the given tag names.</div>        </td></tr>
+            <tr><td>operation<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td></td>
+    <td></td>
+    <td><div>The action to be taken. Supported values are <em>add</em>/<em>update</em>/<em>find</em>/<em>delete</em>.</div>        </td></tr>
+            <tr><td>password<br/><div style="font-size: small;"></div></td>
+<td>yes</td>
+<td></td>
+    <td></td>
+    <td><div>password for authentication</div>        </td></tr>
+            <tr><td>tag_names<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td></td>
+    <td></td>
+    <td><div>The list of the tags that will be added or removed from the IP address.</div>        </td></tr>
+            <tr><td>username<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td>admin</td>
+    <td></td>
+    <td><div>username for authentication</div>        </td></tr>
+    </table>
+</br></div>
+<div class="section" id="examples">
+<h2><a class="toc-backref" href="#id5">Examples</a><a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Create</span> <span class="n">the</span> <span class="n">tags</span> <span class="n">to</span> <span class="nb">map</span> <span class="n">IP</span> <span class="n">addresses</span>
+  <span class="n">panos_dag_tags</span><span class="p">:</span>
+    <span class="n">ip_address</span><span class="p">:</span> <span class="s2">&quot;{{ ip_address }}&quot;</span>
+    <span class="n">password</span><span class="p">:</span> <span class="s2">&quot;{{ password }}&quot;</span>
+    <span class="n">ip_to_register</span><span class="p">:</span> <span class="s2">&quot;{{ ip_to_register }}&quot;</span>
+    <span class="n">tag_names</span><span class="p">:</span> <span class="s2">&quot;{{ tag_names }}&quot;</span>
+    <span class="n">description</span><span class="p">:</span> <span class="s2">&quot;Tags to allow certain IP&#39;s to access various SaaS Applications&quot;</span>
+    <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+  <span class="n">tags</span><span class="p">:</span> <span class="s2">&quot;adddagip&quot;</span>
+
+<span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">List</span> <span class="n">the</span> <span class="n">IP</span> <span class="n">address</span> <span class="n">to</span> <span class="n">tag</span> <span class="n">mapping</span>
+  <span class="n">panos_dag_tags</span><span class="p">:</span>
+    <span class="n">ip_address</span><span class="p">:</span> <span class="s2">&quot;{{ ip_address }}&quot;</span>
+    <span class="n">password</span><span class="p">:</span> <span class="s2">&quot;{{ password }}&quot;</span>
+    <span class="n">tag_names</span><span class="p">:</span> <span class="s2">&quot;{{ tag_names }}&quot;</span>
+    <span class="n">description</span><span class="p">:</span> <span class="s2">&quot;List the IP address to tag mapping&quot;</span>
+    <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;list&#39;</span>
+  <span class="n">tags</span><span class="p">:</span> <span class="s2">&quot;listdagip&quot;</span>
+
+<span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Unregister</span> <span class="n">an</span> <span class="n">IP</span> <span class="n">address</span> <span class="kn">from</span> <span class="nn">a</span> <span class="n">tag</span> <span class="n">mapping</span>
+  <span class="n">panos_dag_tags</span><span class="p">:</span>
+    <span class="n">ip_address</span><span class="p">:</span> <span class="s2">&quot;{{ ip_address }}&quot;</span>
+    <span class="n">password</span><span class="p">:</span> <span class="s2">&quot;{{ password }}&quot;</span>
+    <span class="n">ip_to_register</span><span class="p">:</span> <span class="s2">&quot;{{ ip_to_register }}&quot;</span>
+    <span class="n">tag_names</span><span class="p">:</span> <span class="s2">&quot;{{ tag_names }}&quot;</span>
+    <span class="n">description</span><span class="p">:</span> <span class="s2">&quot;Unregister IP address from tag mappings&quot;</span>
+    <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;delete&#39;</span>
+  <span class="n">tags</span><span class="p">:</span> <span class="s2">&quot;deletedagip&quot;</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="notes">
+<h2><a class="toc-backref" href="#id6">Notes</a><a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<ul class="last simple">
+<li>Checkmode is not supported.</li>
+<li>Panorama is not supported.</li>
+</ul>
+</div>
+<div class="section" id="status">
+<h3><a class="toc-backref" href="#id7">Status</a><a class="headerlink" href="#status" title="Permalink to this headline">¶</a></h3>
+<p>This module is flagged as <strong>preview</strong> which means that it is not guaranteed to have a backwards compatible interface.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">panos_dag_tags</a><ul>
+<li><a class="reference internal" href="#synopsis">Synopsis</a></li>
+<li><a class="reference internal" href="#requirements-on-host-that-executes-module">Requirements (on host that executes module)</a></li>
+<li><a class="reference internal" href="#options">Options</a></li>
+<li><a class="reference internal" href="#examples">Examples</a></li>
+<li><a class="reference internal" href="#notes">Notes</a><ul>
+<li><a class="reference internal" href="#status">Status</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../modules.html">Modules list</a><ul>
+      <li>Previous: <a href="panos_dag_module.html" title="previous chapter">panos_dag</a></li>
+      <li>Next: <a href="panos_import_module.html" title="next chapter">panos_import</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/modules/panos_dag_tags_module.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Palo Alto Networks.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="../_sources/modules/panos_dag_tags_module.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

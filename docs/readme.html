@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Palo Alto Networks Ansible modules &#8212; PANW Ansible 1.0.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Modules list" href="modules.html" />
+    <link rel="prev" title="Palo Alto Networks Ansible documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="palo-alto-networks-ansible-modules">
+<h1>Palo Alto Networks Ansible modules<a class="headerlink" href="#palo-alto-networks-ansible-modules" title="Permalink to this headline">¶</a></h1>
+<p>A collection of Ansible modules that automate configuration and operational tasks on Palo Alto Networks
+Next Generation Firewalls – both physical and virtualized form factor. The underlying protocol uses API calls
+that are wrapped within the Ansible framework.</p>
+<ul class="simple">
+<li>Free software: Apache 2.0 License</li>
+<li>Documentation: <a class="reference external" href="http://panwansible.readthedocs.io/">http://panwansible.readthedocs.io/</a></li>
+<li>PANW community supported live page: <a class="reference external" href="http://live.paloaltonetworks.com/ansible">http://live.paloaltonetworks.com/ansible</a></li>
+</ul>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>PANW PANOS Ansible modules are part of the default Ansible distribution which is available at:</p>
+<blockquote>
+<div><a class="reference external" href="https://github.com/ansible/ansible/tree/devel/lib/ansible/modules/network/panos">https://github.com/ansible/ansible/tree/devel/lib/ansible/modules/network/panos</a></div></blockquote>
+<p>It is also available as free <strong>Apache 2.0</strong> licensed code from Palo Alto Networks Github repo. This repo usually contains
+the newest feature and bug fixes and it is synchronised with official RedHat Ansible repo upon every new Ansible release.</p>
+<blockquote>
+<div><a class="reference external" href="https://github.com/PaloAltoNetworks/ansible-pan/">https://github.com/PaloAltoNetworks/ansible-pan/</a></div></blockquote>
+<p>Or as ansible role installed from ansible-galaxy</p>
+<blockquote>
+<div>ansible-galaxy install PaloAltoNetworks.paloaltonetworks</div></blockquote>
+</div>
+<div class="section" id="sample-playbooks">
+<h2>Sample playbooks<a class="headerlink" href="#sample-playbooks" title="Permalink to this headline">¶</a></h2>
+<p>Sample playbooks can be found within this repo under:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">examples</span>
+<span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">fw_dag</span><span class="o">.</span><span class="n">yml</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>More comprehensive playbooks can be found under:</p>
+<blockquote>
+<div>ansible-playbooks/</div></blockquote>
+</div>
+<div class="section" id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<p>Each module is documented in docs/modules, you can also look at the documentation online at <a class="reference external" href="http://panwansible.readthedocs.io/">http://panwansible.readthedocs.io/</a>
+under <em>modules</em> section</p>
+<p><strong>How to build doc&#8217;s locally?</strong></p>
+<p>Using Docker:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ docker run -it -v &lt;PATH_TO_REPO&gt;/ansible-pan/:/documents/ ivanbojer/spinx-with-rtd
+$ cd docs
+$ make html
+</pre></div>
+</div>
+<p>Using Spinx:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ cd docs
+$ make html
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Palo Alto Networks Ansible modules</a><ul>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#sample-playbooks">Sample playbooks</a></li>
+<li><a class="reference internal" href="#documentation">Documentation</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Palo Alto Networks Ansible documentation!</a></li>
+      <li>Next: <a href="modules.html" title="next chapter">Modules list</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/readme.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Palo Alto Networks.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/readme.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

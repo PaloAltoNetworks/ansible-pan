@@ -1,0 +1,445 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>panos_security_rule &#8212; PANW Ansible 1.0.4 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="panos_software" href="panos_software_module.html" />
+    <link rel="prev" title="panos_sag" href="panos_sag_module.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="panos-security-rule">
+<span id="id1"></span><h1>panos_security_rule<a class="headerlink" href="#panos-security-rule" title="Permalink to this headline">¶</a></h1>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 2.4.</span></p>
+</div>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#synopsis" id="id2">Synopsis</a></li>
+<li><a class="reference internal" href="#requirements-on-host-that-executes-module" id="id3">Requirements (on host that executes module)</a></li>
+<li><a class="reference internal" href="#options" id="id4">Options</a></li>
+<li><a class="reference internal" href="#examples" id="id5">Examples</a></li>
+<li><a class="reference internal" href="#notes" id="id6">Notes</a><ul>
+<li><a class="reference internal" href="#status" id="id7">Status</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="synopsis">
+<h2><a class="toc-backref" href="#id2">Synopsis</a><a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Security policies allow you to enforce rules and take action, and can be as general or specific as needed. The policy rules are compared against the incoming traffic in sequence, and because the first rule that matches the traffic is applied, the more specific rules must precede the more general ones.</li>
+</ul>
+</div>
+<div class="section" id="requirements-on-host-that-executes-module">
+<h2><a class="toc-backref" href="#id3">Requirements (on host that executes module)</a><a class="headerlink" href="#requirements-on-host-that-executes-module" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li>pan-python can be obtained from PyPi <a class="reference external" href="https://pypi.python.org/pypi/pan-python">https://pypi.python.org/pypi/pan-python</a></li>
+<li>pandevice can be obtained from PyPi <a class="reference external" href="https://pypi.python.org/pypi/pandevice">https://pypi.python.org/pypi/pandevice</a></li>
+<li>xmltodict can be obtained from PyPi <a class="reference external" href="https://pypi.python.org/pypi/xmltodict">https://pypi.python.org/pypi/xmltodict</a></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="options">
+<h2><a class="toc-backref" href="#id4">Options</a><a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
+<table border=1 cellpadding=4>
+<tr>
+<th class="head">parameter</th>
+<th class="head">required</th>
+<th class="head">default</th>
+<th class="head">choices</th>
+<th class="head">comments</th>
+</tr>
+            <tr><td>action<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td>allow</td>
+    <td></td>
+    <td><div>Action to apply once rules maches.</div>        </td></tr>
+            <tr><td>antivirus<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td>None</td>
+    <td></td>
+    <td><div>Name of the already defined antivirus profile.</div>        </td></tr>
+            <tr><td>api_key<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td></td>
+    <td></td>
+    <td><div>API key that can be used instead of <em>username</em>/<em>password</em> credentials.</div>        </td></tr>
+            <tr><td>application<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td>any</td>
+    <td></td>
+    <td><div>List of applications.</div>        </td></tr>
+            <tr><td>commit<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td>True</td>
+    <td></td>
+    <td><div>Commit configuration if changed.</div>        </td></tr>
+            <tr><td>data_filtering<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td>None</td>
+    <td></td>
+    <td><div>Name of the already defined data_filtering profile.</div>        </td></tr>
+            <tr><td>description<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td>None</td>
+    <td></td>
+    <td><div>Description for the security rule.</div>        </td></tr>
+            <tr><td>destination_ip<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td>any</td>
+    <td></td>
+    <td><div>List of destination addresses.</div>        </td></tr>
+            <tr><td>destination_zone<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td>any</td>
+    <td></td>
+    <td><div>List of destination zones.</div>        </td></tr>
+            <tr><td>devicegroup<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td>None</td>
+    <td></td>
+    <td><div>- Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama. If device group is not define we assume that we are contacting Firewall.
+</div>        </td></tr>
+            <tr><td>existing_rule<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td></td>
+    <td></td>
+    <td><div>If 'location' is set to 'before' or 'after', this option specifies an existing rule name.  The new rule will be created in the specified position relative to this rule.  If 'location' is set to 'before' or 'after', this option is required.</div>        </td></tr>
+            <tr><td>file_blocking<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td>None</td>
+    <td></td>
+    <td><div>Name of the already defined file_blocking profile.</div>        </td></tr>
+            <tr><td>group_profile<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td>None</td>
+    <td></td>
+    <td><div>- Security profile group that is already defined in the system. This property supersedes antivirus, vulnerability, spyware, url_filtering, file_blocking, data_filtering, and wildfire_analysis properties.
+</div>        </td></tr>
+            <tr><td>hip_profiles<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td>any</td>
+    <td></td>
+    <td><div>- If you are using GlobalProtect with host information profile (HIP) enabled, you can also base the policy on information collected by GlobalProtect. For example, the user access level can be determined HIP that notifies the firewall about the user's local configuration.
+</div>        </td></tr>
+            <tr><td>ip_address<br/><div style="font-size: small;"></div></td>
+<td>yes</td>
+<td></td>
+    <td></td>
+    <td><div>IP address (or hostname) of PAN-OS device being configured.</div>        </td></tr>
+            <tr><td>location<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td></td>
+    <td></td>
+    <td><div>Position to place the created rule in the rule base.  Supported values are <em>top</em>/<em>bottom</em>/<em>before</em>/<em>after</em>.</div>        </td></tr>
+            <tr><td>log_end<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td>True</td>
+    <td></td>
+    <td><div>Whether to log at session end.</div>        </td></tr>
+            <tr><td>log_start<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td></td>
+    <td></td>
+    <td><div>Whether to log at session start.</div>        </td></tr>
+            <tr><td>operation<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td>add</td>
+    <td></td>
+    <td><div>The action to be taken.  Supported values are <em>add</em>/<em>update</em>/<em>find</em>/<em>delete</em>.</div>        </td></tr>
+            <tr><td>password<br/><div style="font-size: small;"></div></td>
+<td>yes</td>
+<td></td>
+    <td></td>
+    <td><div>Password credentials to use for auth unless <em>api_key</em> is set.</div>        </td></tr>
+            <tr><td>rule_name<br/><div style="font-size: small;"></div></td>
+<td>yes</td>
+<td></td>
+    <td></td>
+    <td><div>Name of the security rule.</div>        </td></tr>
+            <tr><td>rule_type<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td>universal</td>
+    <td></td>
+    <td><div>Type of security rule (version 6.1 of PanOS and above).</div>        </td></tr>
+            <tr><td>service<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td>application-default</td>
+    <td></td>
+    <td><div>List of services.</div>        </td></tr>
+            <tr><td>source_ip<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td>any</td>
+    <td></td>
+    <td><div>List of source addresses.</div>        </td></tr>
+            <tr><td>source_user<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td>any</td>
+    <td></td>
+    <td><div>Use users to enforce policy for individual users or a group of users.</div>        </td></tr>
+            <tr><td>source_zone<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td>any</td>
+    <td></td>
+    <td><div>List of source zones.</div>        </td></tr>
+            <tr><td>spyware<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td>None</td>
+    <td></td>
+    <td><div>Name of the already defined spyware profile.</div>        </td></tr>
+            <tr><td>tag_name<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td>None</td>
+    <td></td>
+    <td><div>Administrative tags that can be added to the rule. Note, tags must be already defined.</div>        </td></tr>
+            <tr><td>url_filtering<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td>None</td>
+    <td></td>
+    <td><div>Name of the already defined url_filtering profile.</div>        </td></tr>
+            <tr><td>username<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td>admin</td>
+    <td></td>
+    <td><div>Username credentials to use for auth unless <em>api_key</em> is set.</div>        </td></tr>
+            <tr><td>vulnerability<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td>None</td>
+    <td></td>
+    <td><div>Name of the already defined vulnerability profile.</div>        </td></tr>
+            <tr><td>wildfire_analysis<br/><div style="font-size: small;"></div></td>
+<td>no</td>
+<td>None</td>
+    <td></td>
+    <td><div>Name of the already defined wildfire_analysis profile.</div>        </td></tr>
+    </table>
+</br></div>
+<div class="section" id="examples">
+<h2><a class="toc-backref" href="#id5">Examples</a><a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">add</span> <span class="n">an</span> <span class="n">SSH</span> <span class="n">inbound</span> <span class="n">rule</span> <span class="n">to</span> <span class="n">devicegroup</span>
+  <span class="n">panos_security_rule</span><span class="p">:</span>
+    <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+    <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+    <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+    <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+    <span class="n">rule_name</span><span class="p">:</span> <span class="s1">&#39;SSH permit&#39;</span>
+    <span class="n">description</span><span class="p">:</span> <span class="s1">&#39;SSH rule test&#39;</span>
+    <span class="n">tag_name</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;ProjectX&#39;</span><span class="p">]</span>
+    <span class="n">source_zone</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;public&#39;</span><span class="p">]</span>
+    <span class="n">destination_zone</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;private&#39;</span><span class="p">]</span>
+    <span class="n">source</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+    <span class="n">source_user</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+    <span class="n">destination</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;1.1.1.1&#39;</span><span class="p">]</span>
+    <span class="n">category</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+    <span class="n">application</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;ssh&#39;</span><span class="p">]</span>
+    <span class="n">service</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;application-default&#39;</span><span class="p">]</span>
+    <span class="n">hip_profiles</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+    <span class="n">action</span><span class="p">:</span> <span class="s1">&#39;allow&#39;</span>
+    <span class="n">devicegroup</span><span class="p">:</span> <span class="s1">&#39;Cloud Edge&#39;</span>
+
+<span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">add</span> <span class="n">a</span> <span class="n">rule</span> <span class="n">to</span> <span class="n">allow</span> <span class="n">HTTP</span> <span class="n">multimedia</span> <span class="n">only</span> <span class="kn">from</span> <span class="nn">CDNs</span>
+  <span class="n">panos_security_rule</span><span class="p">:</span>
+    <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;10.5.172.91&#39;</span>
+    <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;admin&#39;</span>
+    <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;paloalto&#39;</span>
+    <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+    <span class="n">rule_name</span><span class="p">:</span> <span class="s1">&#39;HTTP Multimedia&#39;</span>
+    <span class="n">description</span><span class="p">:</span> <span class="s1">&#39;Allow HTTP multimedia only to host at 1.1.1.1&#39;</span>
+    <span class="n">source_zone</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;public&#39;</span><span class="p">]</span>
+    <span class="n">destination_zone</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;private&#39;</span><span class="p">]</span>
+    <span class="n">source</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+    <span class="n">source_user</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+    <span class="n">destination</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;1.1.1.1&#39;</span><span class="p">]</span>
+    <span class="n">category</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;content-delivery-networks&#39;</span><span class="p">]</span>
+    <span class="n">application</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;http-video&#39;</span><span class="p">,</span> <span class="s1">&#39;http-audio&#39;</span><span class="p">]</span>
+    <span class="n">service</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;service-http&#39;</span><span class="p">,</span> <span class="s1">&#39;service-https&#39;</span><span class="p">]</span>
+    <span class="n">hip_profiles</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+    <span class="n">action</span><span class="p">:</span> <span class="s1">&#39;allow&#39;</span>
+
+<span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">add</span> <span class="n">a</span> <span class="n">more</span> <span class="nb">complex</span> <span class="n">rule</span> <span class="n">that</span> <span class="n">uses</span> <span class="n">security</span> <span class="n">profiles</span>
+  <span class="n">panos_security_rule</span><span class="p">:</span>
+    <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+    <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+    <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+    <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+    <span class="n">rule_name</span><span class="p">:</span> <span class="s1">&#39;Allow HTTP w profile&#39;</span>
+    <span class="n">log_start</span><span class="p">:</span> <span class="n">false</span>
+    <span class="n">log_end</span><span class="p">:</span> <span class="n">true</span>
+    <span class="n">action</span><span class="p">:</span> <span class="s1">&#39;allow&#39;</span>
+    <span class="n">antivirus</span><span class="p">:</span> <span class="s1">&#39;default&#39;</span>
+    <span class="n">vulnerability</span><span class="p">:</span> <span class="s1">&#39;default&#39;</span>
+    <span class="n">spyware</span><span class="p">:</span> <span class="s1">&#39;default&#39;</span>
+    <span class="n">url_filtering</span><span class="p">:</span> <span class="s1">&#39;default&#39;</span>
+    <span class="n">wildfire_analysis</span><span class="p">:</span> <span class="s1">&#39;default&#39;</span>
+
+<span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">delete</span> <span class="n">a</span> <span class="n">devicegroup</span> <span class="n">security</span> <span class="n">rule</span>
+  <span class="n">panos_security_rule</span><span class="p">:</span>
+    <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+    <span class="n">api_key</span><span class="p">:</span> <span class="s1">&#39;{{ api_key }}&#39;</span>
+    <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;delete&#39;</span>
+    <span class="n">rule_name</span><span class="p">:</span> <span class="s1">&#39;Allow telnet&#39;</span>
+    <span class="n">devicegroup</span><span class="p">:</span> <span class="s1">&#39;DC Firewalls&#39;</span>
+
+<span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">find</span> <span class="n">a</span> <span class="n">specific</span> <span class="n">security</span> <span class="n">rule</span>
+  <span class="n">panos_security_rule</span><span class="p">:</span>
+    <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+    <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+    <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;find&#39;</span>
+    <span class="n">rule_name</span><span class="p">:</span> <span class="s1">&#39;Allow RDP to DCs&#39;</span>
+  <span class="n">register</span><span class="p">:</span> <span class="n">result</span>
+<span class="o">-</span> <span class="n">debug</span><span class="p">:</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;{{result.stdout_lines}}&#39;</span>
+
+<span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">add</span> <span class="n">a</span> <span class="n">rule</span> <span class="n">at</span> <span class="n">a</span> <span class="n">specific</span> <span class="n">location</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">rulebase</span>
+  <span class="n">panos_security_rule</span><span class="p">:</span>
+    <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+    <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+    <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+    <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span>
+    <span class="n">rule_name</span><span class="p">:</span> <span class="s1">&#39;SSH permit&#39;</span>
+    <span class="n">description</span><span class="p">:</span> <span class="s1">&#39;SSH rule test&#39;</span>
+    <span class="n">source_zone</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;untrust&#39;</span><span class="p">]</span>
+    <span class="n">destination_zone</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;trust&#39;</span><span class="p">]</span>
+    <span class="n">source_ip</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+    <span class="n">source_user</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+    <span class="n">destination_ip</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;1.1.1.1&#39;</span><span class="p">]</span>
+    <span class="n">category</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;any&#39;</span><span class="p">]</span>
+    <span class="n">application</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;ssh&#39;</span><span class="p">]</span>
+    <span class="n">service</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;application-default&#39;</span><span class="p">]</span>
+    <span class="n">action</span><span class="p">:</span> <span class="s1">&#39;allow&#39;</span>
+    <span class="n">location</span><span class="p">:</span> <span class="s1">&#39;before&#39;</span>
+    <span class="n">existing_rule</span><span class="p">:</span> <span class="s1">&#39;Prod-Legacy 1&#39;</span>
+
+<span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">disable</span> <span class="n">a</span> <span class="n">specific</span> <span class="n">security</span> <span class="n">rule</span>
+  <span class="n">panos_security_rule</span><span class="p">:</span>
+    <span class="n">ip_address</span><span class="p">:</span> <span class="s1">&#39;{{ ip_address }}&#39;</span>
+    <span class="n">username</span><span class="p">:</span> <span class="s1">&#39;{{ username }}&#39;</span>
+    <span class="n">password</span><span class="p">:</span> <span class="s1">&#39;{{ password }}&#39;</span>
+    <span class="n">operation</span><span class="p">:</span> <span class="s1">&#39;disable&#39;</span>
+    <span class="n">rule_name</span><span class="p">:</span> <span class="s1">&#39;Prod-Legacy 1&#39;</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="notes">
+<h2><a class="toc-backref" href="#id6">Notes</a><a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<ul class="last simple">
+<li>Checkmode is not supported.</li>
+<li>Panorama is supported.</li>
+</ul>
+</div>
+<div class="section" id="status">
+<h3><a class="toc-backref" href="#id7">Status</a><a class="headerlink" href="#status" title="Permalink to this headline">¶</a></h3>
+<p>This module is flagged as <strong>preview</strong> which means that it is not guaranteed to have a backwards compatible interface.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">panos_security_rule</a><ul>
+<li><a class="reference internal" href="#synopsis">Synopsis</a></li>
+<li><a class="reference internal" href="#requirements-on-host-that-executes-module">Requirements (on host that executes module)</a></li>
+<li><a class="reference internal" href="#options">Options</a></li>
+<li><a class="reference internal" href="#examples">Examples</a></li>
+<li><a class="reference internal" href="#notes">Notes</a><ul>
+<li><a class="reference internal" href="#status">Status</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../modules.html">Modules list</a><ul>
+      <li>Previous: <a href="panos_sag_module.html" title="previous chapter">panos_sag</a></li>
+      <li>Next: <a href="panos_software_module.html" title="next chapter">panos_software</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/modules/panos_security_rule_module.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Palo Alto Networks.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="../_sources/modules/panos_security_rule_module.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
