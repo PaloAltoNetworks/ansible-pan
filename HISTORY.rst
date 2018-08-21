@@ -19,6 +19,9 @@ V1.0.8
 
 *Miscellanies*
 
+* *panos_security_rule* - New `log_setting` param added to specify the log forwarding profile to be used
+
+
 V1.0.7
 ------
 - Released: 2018-05-03
