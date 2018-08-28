@@ -17,32 +17,37 @@ The device should have Internet access.
 ## Options
 
 | parameter | required | default | choices | comments |
-| --------- | -------- | ------- | ------- | -------- |
-auth_code  |
-yes |
- |
- |
-authcode to be applied </td></tr>
-force  |
-no |
-false |
- |
-whether to apply authcode even if device is already licensed </td></tr>
-ip_address  |
-yes |
- |
- |
-IP address (or hostname) of PAN-OS device </td></tr>
-password  |
-yes |
- |
- |
-password for authentication </td></tr>
-username  |
-no |
-admin |
- |
-username for authentication </td></tr>
+| --- | --- | --- | --- | --- |
+| auth_code  |
+| yes |
+|  |
+| |  |
+| authcode to be applied  |
+</td></tr>
+| force  |
+| no |
+| false |
+| |  |
+| whether to apply authcode even if device is already licensed  |
+</td></tr>
+| ip_address  |
+| yes |
+|  |
+| |  |
+| IP address (or hostname) of PAN-OS device  |
+</td></tr>
+| password  |
+| yes |
+|  |
+| |  |
+| password for authentication  |
+</td></tr>
+| username  |
+| no |
+| admin |
+| |  |
+| username for authentication  |
+</td></tr>
 </table>
 </br>
 
@@ -67,8 +72,8 @@ username for authentication </td></tr>
 The following are the fields unique to this module:
 
 | name | description | returned | type | sample |
-
-| serialnumber | serialnumber of the device in case that it has been already registered | success | string | 973080716 </td> |
+| --- | --- | --- | --- | --- |
+| serialnumber | serialnumber of the device in case that it has been already registered | success | string | 973080716 |
 
 
 

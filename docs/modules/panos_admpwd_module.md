@@ -16,27 +16,31 @@ Useful for AWS instances where the first login should be done via SSH.
 ## Options
 
 | parameter | required | default | choices | comments |
-| --------- | -------- | ------- | ------- | -------- |
-ip_address  |
-yes |
- |
- |
-IP address (or hostname) of PAN-OS device </td></tr>
-key_filename  |
-yes |
- |
- |
-filename of the SSH Key to use for authentication </td></tr>
-newpassword  |
-yes |
- |
- |
-password to configure for admin on the PAN-OS device </td></tr>
-username  |
-no |
-admin |
- |
-username for initial authentication </td></tr>
+| --- | --- | --- | --- | --- |
+| ip_address  |
+| yes |
+|  |
+| |  |
+| IP address (or hostname) of PAN-OS device  |
+</td></tr>
+| key_filename  |
+| yes |
+|  |
+| |  |
+| filename of the SSH Key to use for authentication  |
+</td></tr>
+| newpassword  |
+| yes |
+|  |
+| |  |
+| password to configure for admin on the PAN-OS device  |
+</td></tr>
+| username  |
+| no |
+| admin |
+| |  |
+| username for initial authentication  |
+</td></tr>
 </table>
 </br>
 
@@ -61,8 +65,8 @@ username for initial authentication </td></tr>
 The following are the fields unique to this module:
 
 | name | description | returned | type | sample |
-
-| status | success status | success | string | Last login: Fri Sep 16 11:09:20 2016 from 10.35.34.56.....Configuration committed successfully </td> |
+| --- | --- | --- | --- | --- |
+| status | success status | success | string | Last login: Fri Sep 16 11:09:20 2016 from 10.35.34.56.....Configuration committed successfully |
 
 
 

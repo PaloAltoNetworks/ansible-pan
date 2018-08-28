@@ -35,23 +35,22 @@ Aliases: @{ ','.join(aliases) }@
 ## Options
 
 | parameter | required | default | choices | comments |
-| --------- | -------- | ------- | ------- | -------- |
+| --- | --- | --- | --- | --- |
 {% for k in option_keys %}
 {% set v = options[k] %}
 {% if not v['suboptions'] %}
-@{ k }@ {% if v['version_added'] %} (added in @{v['version_added']}@){% endif %} |
-{% if v.get('required', False) %}yes{% else %}no{% endif %} |
-{% if v['default'] %}@{ v['default'] }@{% endif %} |
-{% if v.get('type', 'not_bool') == 'bool' %}
-yes / no |
+| @{ k }@ {% if v['version_added'] %} (added in @{v['version_added']}@){% endif %} |
+| {% if v.get('required', False) %}yes{% else %}no{% endif %} |
+| {% if v['default'] %}@{ v['default'] }@{% endif %} |
+| {% if v.get('type', 'not_bool') == 'bool' %} yes / no |
 {% else %}
-{% if v['choices'] %} {% for choice in v.get('choices',[]) -%} @{ choice }@ {% endfor -%} {% endif %} |
+| {% if v['choices'] %} {% for choice in v.get('choices',[]) -%} @{ choice }@ {% endfor -%} {% endif %} |
 {% endif %}
-{% for desc in v.description -%} @{ desc | replace('\n', '\n    ') | html_ify }@ {% endfor -%} {% if 'aliases' in v and v.aliases -%}
- aliases: @{ v.aliases|join(', ') }@ {%- endif %}
+| {% for desc in v.description -%} @{ desc | replace('\n', '\n    ') | html_ify }@ {% endfor -%} {% if 'aliases' in v and v.aliases -%}
+ aliases: @{ v.aliases|join(', ') }@ {%- endif %} |
 {% else %}
-@{ k }@ {% if v['version_added'] %} (added in @{v['version_added']}@){% endif %} |
-{% if v.get('required', False) %}yes{% else %}no{% endif %} |
+| @{ k }@ {% if v['version_added'] %} (added in @{v['version_added']}@){% endif %} |
+| {% if v.get('required', False) %}yes{% else %}no{% endif %} |
 
 <td> {% for desc in v.description -%}<div>@{ desc | replace('\n', '\n    ') | html_ify }@</div>{% endfor -%} {% if 'aliases' in v and v.aliases -%}</br>
 <div style="font-size: small;">aliases: @{ v.aliases|join(', ') }@<div>{%- endif %}
@@ -109,9 +108,9 @@ yes / no |
 The following are the fields unique to this module:
 
 | name | description | returned | type | sample |
-
+| --- | --- | --- | --- | --- |
 {% for entry in returndocs %}
-| @{ entry }@ | @{ returndocs[entry].description }@ | @{ returndocs[entry].returned }@ | @{ returndocs[entry].type }@ | @{ returndocs[entry].sample}@ </td> |
+| @{ entry }@ | @{ returndocs[entry].description }@ | @{ returndocs[entry].returned }@ | @{ returndocs[entry].type }@ | @{ returndocs[entry].sample}@ |
 {% endfor %}
 {% endif %}
 

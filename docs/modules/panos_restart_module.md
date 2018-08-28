@@ -16,32 +16,37 @@ Restart a device either through Panorama or going directly to a firewall.
 ## Options
 
 | parameter | required | default | choices | comments |
-| --------- | -------- | ------- | ------- | -------- |
-api_key  |
-no |
- |
- |
-API key that can be used instead of <em>username</em>/<em>password</em> credentials. </td></tr>
-devicegroup  |
-no |
-None |
- |
-Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama. If device group is not define we assume that we are contacting Firewall. </td></tr>
-ip_address  |
-yes |
- |
- |
-IP address (or hostname) of PAN-OS device being configured. </td></tr>
-password  |
-no |
- |
- |
-Password credentials to use for auth unless <em>api_key</em> is set. </td></tr>
-username  |
-no |
-admin |
- |
-Username credentials to use for auth unless <em>api_key</em> is set. </td></tr>
+| --- | --- | --- | --- | --- |
+| api_key  |
+| no |
+|  |
+| |  |
+| API key that can be used instead of <em>username</em>/<em>password</em> credentials.  |
+</td></tr>
+| devicegroup  |
+| no |
+| None |
+| |  |
+| Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama. If device group is not define we assume that we are contacting Firewall.  |
+</td></tr>
+| ip_address  |
+| yes |
+|  |
+| |  |
+| IP address (or hostname) of PAN-OS device being configured.  |
+</td></tr>
+| password  |
+| no |
+|  |
+| |  |
+| Password credentials to use for auth unless <em>api_key</em> is set.  |
+</td></tr>
+| username  |
+| no |
+| admin |
+| |  |
+| Username credentials to use for auth unless <em>api_key</em> is set.  |
+</td></tr>
 </table>
 </br>
 
@@ -58,8 +63,8 @@ Username credentials to use for auth unless <em>api_key</em> is set. </td></tr>
 The following are the fields unique to this module:
 
 | name | description | returned | type | sample |
-
-| status | success status | success | string | okey dokey </td> |
+| --- | --- | --- | --- | --- |
+| status | success status | success | string | okey dokey |
 
 #### Notes
 

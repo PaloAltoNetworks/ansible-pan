@@ -16,92 +16,109 @@ Security policies allow you to enforce rules and take action, and can be as gene
 ## Options
 
 | parameter | required | default | choices | comments |
-| --------- | -------- | ------- | ------- | -------- |
-api_key  |
-no |
- |
- |
-API key that can be used instead of <em>username</em>/<em>password</em> credentials. </td></tr>
-application  |
-no |
- |
- |
-The application. </td></tr>
-category  |
-no |
- |
- |
-URL category </td></tr>
-destination_ip  |
-no |
- |
- |
-The destination IP address. </td></tr>
-destination_port  |
-no |
- |
- |
-The destination port. </td></tr>
-destination_zone  |
-no |
- |
- |
-The destination zone. </td></tr>
-ip_address  |
-yes |
- |
- |
-IP address (or hostname) of PAN-OS device being configured. </td></tr>
-password  |
-yes |
- |
- |
-Password credentials to use for auth unless <em>api_key</em> is set. </td></tr>
-protocol  |
-no |
- |
- |
-The IP protocol number from 1 to 255. </td></tr>
-rule_type  |
-no |
-security |
- |
-Type of rule. Valid types are <em>security</em> or <em>nat</em>. </td></tr>
-source_ip  |
-yes |
- |
- |
-The source IP address. </td></tr>
-source_port  |
-no |
- |
- |
-The source port. </td></tr>
-source_user  |
-no |
- |
- |
-The source user or group. </td></tr>
-source_zone  |
-no |
- |
- |
-The source zone. </td></tr>
-to_interface  |
-no |
- |
- |
-The inbound interface in a NAT rule. </td></tr>
-username  |
-no |
-admin |
- |
-Username credentials to use for auth unless <em>api_key</em> is set. </td></tr>
-vsys_id  |
-yes |
-vsys1 |
- |
-ID of the VSYS object. </td></tr>
+| --- | --- | --- | --- | --- |
+| api_key  |
+| no |
+|  |
+| |  |
+| API key that can be used instead of <em>username</em>/<em>password</em> credentials.  |
+</td></tr>
+| application  |
+| no |
+|  |
+| |  |
+| The application.  |
+</td></tr>
+| category  |
+| no |
+|  |
+| |  |
+| URL category  |
+</td></tr>
+| destination_ip  |
+| no |
+|  |
+| |  |
+| The destination IP address.  |
+</td></tr>
+| destination_port  |
+| no |
+|  |
+| |  |
+| The destination port.  |
+</td></tr>
+| destination_zone  |
+| no |
+|  |
+| |  |
+| The destination zone.  |
+</td></tr>
+| ip_address  |
+| yes |
+|  |
+| |  |
+| IP address (or hostname) of PAN-OS device being configured.  |
+</td></tr>
+| password  |
+| yes |
+|  |
+| |  |
+| Password credentials to use for auth unless <em>api_key</em> is set.  |
+</td></tr>
+| protocol  |
+| no |
+|  |
+| |  |
+| The IP protocol number from 1 to 255.  |
+</td></tr>
+| rule_type  |
+| no |
+| security |
+| |  |
+| Type of rule. Valid types are <em>security</em> or <em>nat</em>.  |
+</td></tr>
+| source_ip  |
+| yes |
+|  |
+| |  |
+| The source IP address.  |
+</td></tr>
+| source_port  |
+| no |
+|  |
+| |  |
+| The source port.  |
+</td></tr>
+| source_user  |
+| no |
+|  |
+| |  |
+| The source user or group.  |
+</td></tr>
+| source_zone  |
+| no |
+|  |
+| |  |
+| The source zone.  |
+</td></tr>
+| to_interface  |
+| no |
+|  |
+| |  |
+| The inbound interface in a NAT rule.  |
+</td></tr>
+| username  |
+| no |
+| admin |
+| |  |
+| Username credentials to use for auth unless <em>api_key</em> is set.  |
+</td></tr>
+| vsys_id  |
+| yes |
+| vsys1 |
+| |  |
+| ID of the VSYS object.  |
+</td></tr>
 </table>
 </br>
 

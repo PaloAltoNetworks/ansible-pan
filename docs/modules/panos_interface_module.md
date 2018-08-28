@@ -16,157 +16,187 @@ Configure data-port (DP) network interface for DHCP. By default DP interfaces ar
 ## Options
 
 | parameter | required | default | choices | comments |
-| --------- | -------- | ------- | ------- | -------- |
-adjust_tcp_mss  |
-no |
- |
- |
-Adjust TCP MSS for layer3 interface. </td></tr>
-aggregate_group  |
-no |
- |
- |
-Aggregate interface name. </td></tr>
-api_key  |
-no |
- |
- |
-API key that can be used instead of <em>username</em>/<em>password</em> credentials. </td></tr>
-comment  |
-no |
- |
- |
-Interface comment. </td></tr>
-commit  |
-no |
-True |
- |
-Commit if changed </td></tr>
-create_default_route  |
-no |
-false |
- |
-Whether or not to add default route with router learned via DHCP. </td></tr>
-dhcp_default_route_metric  |
-no |
- |
- |
-Metric for the DHCP default route. </td></tr>
-enable_dhcp  |
-no |
-true |
- |
-Enable DHCP on this interface. </td></tr>
-if_name  |
-yes |
- |
- |
-Name of the interface to configure. </td></tr>
-ip  |
-no |
- |
- |
-List of static IP addresses. </td></tr>
-ip_address  |
-yes |
- |
- |
-IP address (or hostname) of PAN-OS device being configured. </td></tr>
-ipv4_mss_adjust  |
-no |
- |
- |
-(7.1+) TCP MSS adjustment for IPv4. </td></tr>
-ipv6_enabled  |
-no |
- |
- |
-Enable IPv6. </td></tr>
-ipv6_mss_adjust  |
-no |
- |
- |
-(7.1+) TCP MSS adjustment for IPv6. </td></tr>
-link_duplex  |
-no |
- |
- |
-Link duplex.  Supported values are <em>auto</em>/<em>full</em>/<em>half</em>. </td></tr>
-link_speed  |
-no |
- |
- |
-Link speed.  Supported values are <em>auto</em>/<em>10</em>/<em>100</em>/<em>1000</em>. </td></tr>
-link_state  |
-no |
- |
- |
-Link state.  Supported values are <em>auto</em>/<em>up</em>/<em>down</em>. </td></tr>
-lldp_enabled  |
-no |
- |
- |
-Enable LLDP for layer2 interface. </td></tr>
-lldp_profile  |
-no |
- |
- |
-LLDP profile name for layer2 interface. </td></tr>
-management_profile  |
-no |
- |
- |
-Interface management profile name. </td></tr>
-mode  |
-no |
-layer3 |
- |
-The interface mode. Supported values are <em>layer3</em>/<em>layer2</em>/<em>virtual-wire</em>/<em>tap</em>/<em>ha</em>/<em>decrypt-mirror</em>/<em>aggregate-group</em> </td></tr>
-mtu  |
-no |
- |
- |
-MTU for layer3 interface. </td></tr>
-netflow_profile  |
-no |
- |
- |
-Netflow profile for layer3 interface. </td></tr>
-netflow_profile_l2  |
-no |
- |
- |
-Netflow profile name for layer2 interface. </td></tr>
-operation  |
-no |
-add |
- |
-The action to be taken.  Supported values are <em>add</em>/<em>update</em>/<em>delete</em>. </td></tr>
-password  |
-no |
- |
- |
-Password credentials to use for auth. </td></tr>
-username  |
-no |
-admin |
- |
-Username credentials to use for auth. </td></tr>
-vr_name  |
-no |
-default |
- |
-Name of the virtual router; it must already exist. </td></tr>
-vsys_dg  |
-no |
-vsys1 |
- |
-Name of the vsys (if firewall) or device group (if panorama) to put this object. </td></tr>
-zone_name  |
-yes |
- |
- |
-Name of the zone for the interface. If the zone does not exist it is created. If the zone exists and it is not of the correct mode the operation will fail. </td></tr>
+| --- | --- | --- | --- | --- |
+| adjust_tcp_mss  |
+| no |
+|  |
+| |  |
+| Adjust TCP MSS for layer3 interface.  |
+</td></tr>
+| aggregate_group  |
+| no |
+|  |
+| |  |
+| Aggregate interface name.  |
+</td></tr>
+| api_key  |
+| no |
+|  |
+| |  |
+| API key that can be used instead of <em>username</em>/<em>password</em> credentials.  |
+</td></tr>
+| comment  |
+| no |
+|  |
+| |  |
+| Interface comment.  |
+</td></tr>
+| commit  |
+| no |
+| True |
+| |  |
+| Commit if changed  |
+</td></tr>
+| create_default_route  |
+| no |
+| false |
+| |  |
+| Whether or not to add default route with router learned via DHCP.  |
+</td></tr>
+| dhcp_default_route_metric  |
+| no |
+|  |
+| |  |
+| Metric for the DHCP default route.  |
+</td></tr>
+| enable_dhcp  |
+| no |
+| true |
+| |  |
+| Enable DHCP on this interface.  |
+</td></tr>
+| if_name  |
+| yes |
+|  |
+| |  |
+| Name of the interface to configure.  |
+</td></tr>
+| ip  |
+| no |
+|  |
+| |  |
+| List of static IP addresses.  |
+</td></tr>
+| ip_address  |
+| yes |
+|  |
+| |  |
+| IP address (or hostname) of PAN-OS device being configured.  |
+</td></tr>
+| ipv4_mss_adjust  |
+| no |
+|  |
+| |  |
+| (7.1+) TCP MSS adjustment for IPv4.  |
+</td></tr>
+| ipv6_enabled  |
+| no |
+|  |
+| |  |
+| Enable IPv6.  |
+</td></tr>
+| ipv6_mss_adjust  |
+| no |
+|  |
+| |  |
+| (7.1+) TCP MSS adjustment for IPv6.  |
+</td></tr>
+| link_duplex  |
+| no |
+|  |
+| |  |
+| Link duplex.  Supported values are <em>auto</em>/<em>full</em>/<em>half</em>.  |
+</td></tr>
+| link_speed  |
+| no |
+|  |
+| |  |
+| Link speed.  Supported values are <em>auto</em>/<em>10</em>/<em>100</em>/<em>1000</em>.  |
+</td></tr>
+| link_state  |
+| no |
+|  |
+| |  |
+| Link state.  Supported values are <em>auto</em>/<em>up</em>/<em>down</em>.  |
+</td></tr>
+| lldp_enabled  |
+| no |
+|  |
+| |  |
+| Enable LLDP for layer2 interface.  |
+</td></tr>
+| lldp_profile  |
+| no |
+|  |
+| |  |
+| LLDP profile name for layer2 interface.  |
+</td></tr>
+| management_profile  |
+| no |
+|  |
+| |  |
+| Interface management profile name.  |
+</td></tr>
+| mode  |
+| no |
+| layer3 |
+| |  |
+| The interface mode. Supported values are <em>layer3</em>/<em>layer2</em>/<em>virtual-wire</em>/<em>tap</em>/<em>ha</em>/<em>decrypt-mirror</em>/<em>aggregate-group</em>  |
+</td></tr>
+| mtu  |
+| no |
+|  |
+| |  |
+| MTU for layer3 interface.  |
+</td></tr>
+| netflow_profile  |
+| no |
+|  |
+| |  |
+| Netflow profile for layer3 interface.  |
+</td></tr>
+| netflow_profile_l2  |
+| no |
+|  |
+| |  |
+| Netflow profile name for layer2 interface.  |
+</td></tr>
+| operation  |
+| no |
+| add |
+| |  |
+| The action to be taken.  Supported values are <em>add</em>/<em>update</em>/<em>delete</em>.  |
+</td></tr>
+| password  |
+| no |
+|  |
+| |  |
+| Password credentials to use for auth.  |
+</td></tr>
+| username  |
+| no |
+| admin |
+| |  |
+| Username credentials to use for auth.  |
+</td></tr>
+| vr_name  |
+| no |
+| default |
+| |  |
+| Name of the virtual router; it must already exist.  |
+</td></tr>
+| vsys_dg  |
+| no |
+| vsys1 |
+| |  |
+| Name of the vsys (if firewall) or device group (if panorama) to put this object.  |
+</td></tr>
+| zone_name  |
+| yes |
+|  |
+| |  |
+| Name of the zone for the interface. If the zone does not exist it is created. If the zone exists and it is not of the correct mode the operation will fail.  |
+</td></tr>
 </table>
 </br>
 

@@ -16,37 +16,43 @@ Install specific release of PAN-OS.
 ## Options
 
 | parameter | required | default | choices | comments |
-| --------- | -------- | ------- | ------- | -------- |
-api_key  |
-no |
- |
- |
-API key to be used instead of <em>username</em> and <em>password</em>. </td></tr>
-ip_address  |
-yes |
- |
- |
-IP address or hostname of PAN-OS device. </td></tr>
-password  |
-no |
- |
- |
-Password for authentication for PAN-OS device.  Optional if <em>api_key</em> is used. </td></tr>
-restart  |
-no |
- |
- |
-Restart device after installing desired version.  Use in conjunction with panos_check to determine when firewall is ready again. </td></tr>
-username  |
-no |
-admin |
- |
-Username for authentication for PAN-OS device.  Optional if <em>api_key</em> is used. </td></tr>
-version  |
-yes |
- |
- |
-Desired PAN-OS release. </td></tr>
+| --- | --- | --- | --- | --- |
+| api_key  |
+| no |
+|  |
+| |  |
+| API key to be used instead of <em>username</em> and <em>password</em>.  |
+</td></tr>
+| ip_address  |
+| yes |
+|  |
+| |  |
+| IP address or hostname of PAN-OS device.  |
+</td></tr>
+| password  |
+| no |
+|  |
+| |  |
+| Password for authentication for PAN-OS device.  Optional if <em>api_key</em> is used.  |
+</td></tr>
+| restart  |
+| no |
+|  |
+| |  |
+| Restart device after installing desired version.  Use in conjunction with panos_check to determine when firewall is ready again.  |
+</td></tr>
+| username  |
+| no |
+| admin |
+| |  |
+| Username for authentication for PAN-OS device.  Optional if <em>api_key</em> is used.  |
+</td></tr>
+| version  |
+| yes |
+|  |
+| |  |
+| Desired PAN-OS release.  |
+</td></tr>
 </table>
 </br>
 
@@ -66,8 +72,8 @@ Desired PAN-OS release. </td></tr>
 The following are the fields unique to this module:
 
 | name | description | returned | type | sample |
-
-| version | After performing the software install, returns the version installed on the device. |  |  |  </td> |
+| --- | --- | --- | --- | --- |
+| version | After performing the software install, returns the version installed on the device. |  |  |  |
 
 #### Notes
 

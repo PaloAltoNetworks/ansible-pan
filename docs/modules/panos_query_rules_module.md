@@ -322,77 +322,91 @@ s
 ## Options
 
 | parameter | required | default | choices | comments |
-| --------- | -------- | ------- | ------- | -------- |
-api_key  |
-no |
- |
- |
-API key that can be used instead of <em>username</em>/<em>password</em> credentials. </td></tr>
-application  |
-no |
-None |
- |
-Name of the application or application group to be queried. </td></tr>
-destination_ip  |
-no |
-None |
- |
-The destination IP address to be queried. </td></tr>
-destination_port  |
-no |
-None |
- |
-The destination port to be queried. </td></tr>
-destination_zone  |
-no |
-None |
- |
-Name of the destination security zone to be queried. </td></tr>
-devicegroup  |
-no |
-None |
- |
-The Panorama device group in which to conduct the query. </td></tr>
-ip_address  |
-yes |
- |
- |
-IP address (or hostname) of PAN-OS firewall or Panorama management console being queried. </td></tr>
-password  |
-yes |
- |
- |
-Password credentials to use for authentication. </td></tr>
-protocol  |
-no |
-None |
- |
-The protocol used to be queried.  Must be either <em>tcp</em> or <em>udp</em>. </td></tr>
-source_ip  |
-no |
-None |
- |
-The source IP address to be queried. </td></tr>
-source_port  |
-no |
-None |
- |
-The source port to be queried. </td></tr>
-source_zone  |
-no |
-None |
- |
-Name of the source security zone to be queried. </td></tr>
-tag_name  |
-no |
-None |
- |
-Name of the rule tag to be queried. </td></tr>
-username  |
-no |
-admin |
- |
-Username credentials to use for authentication. </td></tr>
+| --- | --- | --- | --- | --- |
+| api_key  |
+| no |
+|  |
+| |  |
+| API key that can be used instead of <em>username</em>/<em>password</em> credentials.  |
+</td></tr>
+| application  |
+| no |
+| None |
+| |  |
+| Name of the application or application group to be queried.  |
+</td></tr>
+| destination_ip  |
+| no |
+| None |
+| |  |
+| The destination IP address to be queried.  |
+</td></tr>
+| destination_port  |
+| no |
+| None |
+| |  |
+| The destination port to be queried.  |
+</td></tr>
+| destination_zone  |
+| no |
+| None |
+| |  |
+| Name of the destination security zone to be queried.  |
+</td></tr>
+| devicegroup  |
+| no |
+| None |
+| |  |
+| The Panorama device group in which to conduct the query.  |
+</td></tr>
+| ip_address  |
+| yes |
+|  |
+| |  |
+| IP address (or hostname) of PAN-OS firewall or Panorama management console being queried.  |
+</td></tr>
+| password  |
+| yes |
+|  |
+| |  |
+| Password credentials to use for authentication.  |
+</td></tr>
+| protocol  |
+| no |
+| None |
+| |  |
+| The protocol used to be queried.  Must be either <em>tcp</em> or <em>udp</em>.  |
+</td></tr>
+| source_ip  |
+| no |
+| None |
+| |  |
+| The source IP address to be queried.  |
+</td></tr>
+| source_port  |
+| no |
+| None |
+| |  |
+| The source port to be queried.  |
+</td></tr>
+| source_zone  |
+| no |
+| None |
+| |  |
+| Name of the source security zone to be queried.  |
+</td></tr>
+| tag_name  |
+| no |
+| None |
+| |  |
+| Name of the rule tag to be queried.  |
+</td></tr>
+| username  |
+| no |
+| admin |
+| |  |
+| Username credentials to use for authentication.  |
+</td></tr>
 </table>
 </br>
 
