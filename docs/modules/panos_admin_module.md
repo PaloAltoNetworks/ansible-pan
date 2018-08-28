@@ -15,14 +15,10 @@ PanOS module that allows changes to the user account passwords by doing API call
 ## Options
 
 | parameter | required | default | choices | comments |
-| --------- | -------- | ------- | ------- | -------- |
-admin_password  |
-yes |
- |
- |
-New password for <em>admin_username</em> user </td></tr>
-admin_username  |
-no |
+| --- | --- | --- | --- | --- |
+| admin_password  | yes | | | New password for <em>admin_username</em> user |
+
+| admin_username  | no |
 admin |
  |
 Username that needs password change. </td></tr>
@@ -77,8 +73,8 @@ Username credentials to use for auth unless <em>api_key</em> is set. </td></tr>
 The following are the fields unique to this module:
 
 | name | description | returned | type | sample |
-
-| status | success status | success | string | okey dokey </td> |
+| --- | --- | --- | --- | --- |
+| status | success status | success | string | okey dokey |
 
 #### Notes
 
