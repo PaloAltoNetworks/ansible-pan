@@ -17,36 +17,37 @@ Import file on PAN-OS device
 ## Options
 
 | parameter | required | default | choices | comments |
-| category<  |
-| no |
-| software |
-|  |
-| Category of file uploaded. The default is software. </td></tr>
-| file<  |
-| no |
-| None |
-|  |
-| Location of the file to import into device. </td></tr>
-| ip_address<  |
-| yes |
-|  |
-|  |
-| IP address (or hostname) of PAN-OS device. </td></tr>
-| password<  |
-| yes |
-|  |
-|  |
-| Password for device authentication. </td></tr>
-| url<  |
-| no |
-| None |
-|  |
-| URL of the file that will be imported to device. </td></tr>
-| username<  |
-| no |
-| admin |
-|  |
-| Username for device authentication. </td></tr>
+| --------- | -------- | ------- | ------- | -------- |
+category  |
+no |
+software |
+ |
+Category of file uploaded. The default is software. </td></tr>
+file  |
+no |
+None |
+ |
+Location of the file to import into device. </td></tr>
+ip_address  |
+yes |
+ |
+ |
+IP address (or hostname) of PAN-OS device. </td></tr>
+password  |
+yes |
+ |
+ |
+Password for device authentication. </td></tr>
+url  |
+no |
+None |
+ |
+URL of the file that will be imported to device. </td></tr>
+username  |
+no |
+admin |
+ |
+Username for device authentication. </td></tr>
 </table>
 </br>
 

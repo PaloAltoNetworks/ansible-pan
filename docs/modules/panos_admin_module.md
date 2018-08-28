@@ -15,46 +15,47 @@ PanOS module that allows changes to the user account passwords by doing API call
 ## Options
 
 | parameter | required | default | choices | comments |
-| admin_password<  |
-| yes |
-|  |
-|  |
-| New password for <em>admin_username</em> user </td></tr>
-| admin_username<  |
-| no |
-| admin |
-|  |
-| Username that needs password change. </td></tr>
-| api_key<  |
-| no |
-|  |
-|  |
-| API key that can be used instead of <em>username</em>/<em>password</em> credentials. </td></tr>
-| commit<  |
-| no |
-| True |
-|  |
-| Commit configuration if changed. </td></tr>
-| ip_address<  |
-| yes |
-|  |
-|  |
-| IP address (or hostname) of PAN-OS device being configured. </td></tr>
-| password<  |
-| yes |
-|  |
-|  |
-| Password credentials to use for auth unless <em>api_key</em> is set. </td></tr>
-| role<  |
-| no |
-|  |
-|  |
-| role for admin user </td></tr>
-| username<  |
-| no |
-| admin |
-|  |
-| Username credentials to use for auth unless <em>api_key</em> is set. </td></tr>
+| --------- | -------- | ------- | ------- | -------- |
+admin_password  |
+yes |
+ |
+ |
+New password for <em>admin_username</em> user </td></tr>
+admin_username  |
+no |
+admin |
+ |
+Username that needs password change. </td></tr>
+api_key  |
+no |
+ |
+ |
+API key that can be used instead of <em>username</em>/<em>password</em> credentials. </td></tr>
+commit  |
+no |
+True |
+ |
+Commit configuration if changed. </td></tr>
+ip_address  |
+yes |
+ |
+ |
+IP address (or hostname) of PAN-OS device being configured. </td></tr>
+password  |
+yes |
+ |
+ |
+Password credentials to use for auth unless <em>api_key</em> is set. </td></tr>
+role  |
+no |
+ |
+ |
+role for admin user </td></tr>
+username  |
+no |
+admin |
+ |
+Username credentials to use for auth unless <em>api_key</em> is set. </td></tr>
 </table>
 </br>
 

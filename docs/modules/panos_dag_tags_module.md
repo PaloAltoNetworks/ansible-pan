@@ -16,57 +16,58 @@ Create the ip address to tag associations. Tags will in turn be used to create D
 ## Options
 
 | parameter | required | default | choices | comments |
-| api_key<  |
-| no |
-|  |
-|  |
-| API key that can be used instead of <em>username</em>/<em>password</em> credentials. </td></tr>
-| commit<  |
-| no |
-| True |
-|  |
-| commit if changed </td></tr>
-| description<  |
-| no |
-|  |
-|  |
-| The purpose / objective of the static Address Group </td></tr>
-| devicegroup<  |
-| no |
-|  |
-|  |
-| - Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama. If device group is not define we assume that we are contacting Firewall.
+| --------- | -------- | ------- | ------- | -------- |
+api_key  |
+no |
+ |
+ |
+API key that can be used instead of <em>username</em>/<em>password</em> credentials. </td></tr>
+commit  |
+no |
+True |
+ |
+commit if changed </td></tr>
+description  |
+no |
+ |
+ |
+The purpose / objective of the static Address Group </td></tr>
+devicegroup  |
+no |
+ |
+ |
+- Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama. If device group is not define we assume that we are contacting Firewall.
      </td></tr>
-| ip_address<  |
-| yes |
-|  |
-|  |
-| IP address (or hostname) of PAN-OS device </td></tr>
-| ip_to_register<  |
-| no |
-|  |
-|  |
-| IP that will be registered with the given tag names. </td></tr>
-| operation<  |
-| no |
-|  |
-|  |
-| The action to be taken. Supported values are <em>add</em>/<em>update</em>/<em>find</em>/<em>delete</em>. </td></tr>
-| password<  |
-| yes |
-|  |
-|  |
-| password for authentication </td></tr>
-| tag_names<  |
-| no |
-|  |
-|  |
-| The list of the tags that will be added or removed from the IP address. </td></tr>
-| username<  |
-| no |
-| admin |
-|  |
-| username for authentication </td></tr>
+ip_address  |
+yes |
+ |
+ |
+IP address (or hostname) of PAN-OS device </td></tr>
+ip_to_register  |
+no |
+ |
+ |
+IP that will be registered with the given tag names. </td></tr>
+operation  |
+no |
+ |
+ |
+The action to be taken. Supported values are <em>add</em>/<em>update</em>/<em>find</em>/<em>delete</em>. </td></tr>
+password  |
+yes |
+ |
+ |
+password for authentication </td></tr>
+tag_names  |
+no |
+ |
+ |
+The list of the tags that will be added or removed from the IP address. </td></tr>
+username  |
+no |
+admin |
+ |
+username for authentication </td></tr>
 </table>
 </br>
 
