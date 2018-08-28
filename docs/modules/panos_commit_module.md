@@ -16,39 +16,32 @@ the device. The new configuration will become active immediately.
 
 ## Options
 
-<table border=1 cellpadding=4>
-<tr>
-<th class="head">parameter</th>
-<th class="head">required</th>
-<th class="head">default</th>
-<th class="head">choices</th>
-<th class="head">comments</th>
-</tr>
-<tr><td>api_key<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>API key that can be used instead of <em>username</em>/<em>password</em> credentials.</div></td></tr>
-<tr><td>devicegroup<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>The Panorama device group to be committed.</div></td></tr>
-<tr><td>ip_address<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>The IP address (or hostname) of the PAN-OS device or Panorama management console.</div></td></tr>
-<tr><td>password<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>Password credentials to use for authentication.</div></td></tr>
-<tr><td>username<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>admin</td>
-<td></td>
-<td><div>Username credentials to use for authentication.</div></td></tr>
+| parameter | required | default | choices | comments |
+| api_key<  |
+| no |
+|  |
+|  |
+| API key that can be used instead of <em>username</em>/<em>password</em> credentials. </td></tr>
+| devicegroup<  |
+| no |
+|  |
+|  |
+| The Panorama device group to be committed. </td></tr>
+| ip_address<  |
+| yes |
+|  |
+|  |
+| The IP address (or hostname) of the PAN-OS device or Panorama management console. </td></tr>
+| password<  |
+| yes |
+|  |
+|  |
+| Password credentials to use for authentication. </td></tr>
+| username<  |
+| no |
+| admin |
+|  |
+| Username credentials to use for authentication. </td></tr>
 </table>
 </br>
 
@@ -71,25 +64,9 @@ the device. The new configuration will become active immediately.
 
 The following are the fields unique to this module:
 
-<table border=1 cellpadding=4>
-<tr>
-<th class="head">name</th>
-<th class="head">description</th>
-<th class="head">returned</th>
-<th class="head">type</th>
-<th class="head">sample</th>
-</tr>
+| name | description | returned | type | sample |
 
-<tr>
-    <td> status </td>
-    <td> success status </td>
-    <td align=center> success </td>
-    <td align=center> string </td>
-    <td align=center> Commit successful </td>
-</tr>
-
-</table>
-</br></br>
+| status | success status | success | string | Commit successful </td> |
 
 
 

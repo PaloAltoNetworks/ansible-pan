@@ -15,74 +15,67 @@ Create static routes on PAN-OS devices.
 
 ## Options
 
-<table border=1 cellpadding=4>
-<tr>
-<th class="head">parameter</th>
-<th class="head">required</th>
-<th class="head">default</th>
-<th class="head">choices</th>
-<th class="head">comments</th>
-</tr>
-<tr><td>admin_dist<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>Administrative distance for static route.</div></td></tr>
-<tr><td>api_key<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>API key to be used instead of <em>username</em> and <em>password</em>.</div></td></tr>
-<tr><td>destination<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>Destination network.  Required if <em>state</em> is <em>present</em>.</div></td></tr>
-<tr><td>ip_address<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>IP address or hostname of PAN-OS device.</div></td></tr>
-<tr><td>metric<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>10</td>
-<td></td>
-<td><div>Metric for route.</div></td></tr>
-<tr><td>name<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>Name of static route.</div></td></tr>
-<tr><td>nexthop<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>Next hop IP address.  Required if <em>state</em> is <em>present</em>.</div></td></tr>
-<tr><td>nexthop_type<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>ip-address</td>
-<td><ul><li>ip-address</li><li>discard</li></ul></td>
-<td><div>Type of next hop.</div></td></tr>
-<tr><td>password<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>Password for authentication for PAN-OS device.  Optional if <em>api_key</em> is used.</div></td></tr>
-<tr><td>state<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>present</td>
-<td><ul><li>present</li><li>absent</li></ul></td>
-<td><div>Create or remove static route.</div></td></tr>
-<tr><td>username<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>admin</td>
-<td></td>
-<td><div>Username for authentication for PAN-OS device.  Optional if <em>api_key</em> is used.</div></td></tr>
-<tr><td>virtual_router<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>default</td>
-<td></td>
-<td><div>Virtual router to use.</div></td></tr>
+| parameter | required | default | choices | comments |
+| admin_dist<  |
+| no |
+|  |
+|  |
+| Administrative distance for static route. </td></tr>
+| api_key<  |
+| no |
+|  |
+|  |
+| API key to be used instead of <em>username</em> and <em>password</em>. </td></tr>
+| destination<  |
+| no |
+|  |
+|  |
+| Destination network.  Required if <em>state</em> is <em>present</em>. </td></tr>
+| ip_address<  |
+| yes |
+|  |
+|  |
+| IP address or hostname of PAN-OS device. </td></tr>
+| metric<  |
+| no |
+| 10 |
+|  |
+| Metric for route. </td></tr>
+| name<  |
+| yes |
+|  |
+|  |
+| Name of static route. </td></tr>
+| nexthop<  |
+| no |
+|  |
+|  |
+| Next hop IP address.  Required if <em>state</em> is <em>present</em>. </td></tr>
+| nexthop_type<  |
+| no |
+| ip-address |
+|  ip-address discard  |
+| Type of next hop. </td></tr>
+| password<  |
+| no |
+|  |
+|  |
+| Password for authentication for PAN-OS device.  Optional if <em>api_key</em> is used. </td></tr>
+| state<  |
+| no |
+| present |
+|  present absent  |
+| Create or remove static route. </td></tr>
+| username<  |
+| no |
+| admin |
+|  |
+| Username for authentication for PAN-OS device.  Optional if <em>api_key</em> is used. </td></tr>
+| virtual_router<  |
+| no |
+| default |
+|  |
+| Virtual router to use. </td></tr>
 </table>
 </br>
 

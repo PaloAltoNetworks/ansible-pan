@@ -232,129 +232,122 @@ s
 
 ## Options
 
-<table border=1 cellpadding=4>
-<tr>
-<th class="head">parameter</th>
-<th class="head">required</th>
-<th class="head">default</th>
-<th class="head">choices</th>
-<th class="head">comments</th>
-</tr>
-<tr><td>api_key<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>API key that can be used instead of <em>username</em>/<em>password</em> credentials.</div></td></tr>
-<tr><td>commit<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>True</td>
-<td></td>
-<td><div>Commit configuration if changed.</div></td></tr>
-<tr><td>destination_ip<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>[u'any']</td>
-<td></td>
-<td><div>list of destination addresses</div></td></tr>
-<tr><td>destination_zone<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>destination zone</div></td></tr>
-<tr><td>dnat_address<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>None</td>
-<td></td>
-<td><div>dnat translated address</div></td></tr>
-<tr><td>dnat_port<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>None</td>
-<td></td>
-<td><div>dnat translated port</div></td></tr>
-<tr><td>existing_rule<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>If 'location' is set to 'before' or 'after', this option specifies an existing rule name.  The new rule will be created in the specified position relative to this rule.  If 'location' is set to 'before' or 'after', this option is required.</div></td></tr>
-<tr><td>ip_address<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>IP address (or hostname) of PAN-OS device being configured.</div></td></tr>
-<tr><td>location<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>Position to place the created rule in the rule base.  Supported values are <em>top</em>/<em>bottom</em>/<em>before</em>/<em>after</em>.</div></td></tr>
-<tr><td>operation<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>The action to be taken.  Supported values are <em>add</em>/<em>update</em>/<em>find</em>/<em>delete</em>/<em>disable</em>.</div></td></tr>
-<tr><td>password<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>Password credentials to use for auth unless <em>api_key</em> is set.</div></td></tr>
-<tr><td>rule_name<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>name of the SNAT rule</div></td></tr>
-<tr><td>service<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>any</td>
-<td></td>
-<td><div>service</div></td></tr>
-<tr><td>snat_address_type<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>translated-address</td>
-<td></td>
-<td><div>type of source translation. Supported values are <em>translated-address</em>/<em>interface-address</em>.</div></td></tr>
-<tr><td>snat_bidirectional<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>false</td>
-<td></td>
-<td><div>bidirectional flag</div></td></tr>
-<tr><td>snat_dynamic_address<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>None</td>
-<td></td>
-<td><div>Source NAT translated address. Used with Dynamic-IP and Dynamic-IP-and-Port.</div></td></tr>
-<tr><td>snat_interface<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>None</td>
-<td></td>
-<td><div>snat interface</div></td></tr>
-<tr><td>snat_interface_address<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>None</td>
-<td></td>
-<td><div>snat interface address</div></td></tr>
-<tr><td>snat_static_address<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>None</td>
-<td></td>
-<td><div>Source NAT translated address. Used with Static-IP translation.</div></td></tr>
-<tr><td>snat_type<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>None</td>
-<td></td>
-<td><div>type of source translation</div></td></tr>
-<tr><td>source_ip<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>[u'any']</td>
-<td></td>
-<td><div>list of source addresses</div></td></tr>
-<tr><td>source_zone<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>list of source zones</div></td></tr>
-<tr><td>username<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>admin</td>
-<td></td>
-<td><div>Username credentials to use for auth unless <em>api_key</em> is set.</div></td></tr>
+| parameter | required | default | choices | comments |
+| api_key<  |
+| no |
+|  |
+|  |
+| API key that can be used instead of <em>username</em>/<em>password</em> credentials. </td></tr>
+| commit<  |
+| no |
+| True |
+|  |
+| Commit configuration if changed. </td></tr>
+| destination_ip<  |
+| no |
+| [u'any'] |
+|  |
+| list of destination addresses </td></tr>
+| destination_zone<  |
+| yes |
+|  |
+|  |
+| destination zone </td></tr>
+| dnat_address<  |
+| no |
+| None |
+|  |
+| dnat translated address </td></tr>
+| dnat_port<  |
+| no |
+| None |
+|  |
+| dnat translated port </td></tr>
+| existing_rule<  |
+| no |
+|  |
+|  |
+| If 'location' is set to 'before' or 'after', this option specifies an existing rule name.  The new rule will be created in the specified position relative to this rule.  If 'location' is set to 'before' or 'after', this option is required. </td></tr>
+| ip_address<  |
+| yes |
+|  |
+|  |
+| IP address (or hostname) of PAN-OS device being configured. </td></tr>
+| location<  |
+| no |
+|  |
+|  |
+| Position to place the created rule in the rule base.  Supported values are <em>top</em>/<em>bottom</em>/<em>before</em>/<em>after</em>. </td></tr>
+| operation<  |
+| no |
+|  |
+|  |
+| The action to be taken.  Supported values are <em>add</em>/<em>update</em>/<em>find</em>/<em>delete</em>/<em>disable</em>. </td></tr>
+| password<  |
+| yes |
+|  |
+|  |
+| Password credentials to use for auth unless <em>api_key</em> is set. </td></tr>
+| rule_name<  |
+| yes |
+|  |
+|  |
+| name of the SNAT rule </td></tr>
+| service<  |
+| no |
+| any |
+|  |
+| service </td></tr>
+| snat_address_type<  |
+| no |
+| translated-address |
+|  |
+| type of source translation. Supported values are <em>translated-address</em>/<em>interface-address</em>. </td></tr>
+| snat_bidirectional<  |
+| no |
+| false |
+|  |
+| bidirectional flag </td></tr>
+| snat_dynamic_address<  |
+| no |
+| None |
+|  |
+| Source NAT translated address. Used with Dynamic-IP and Dynamic-IP-and-Port. </td></tr>
+| snat_interface<  |
+| no |
+| None |
+|  |
+| snat interface </td></tr>
+| snat_interface_address<  |
+| no |
+| None |
+|  |
+| snat interface address </td></tr>
+| snat_static_address<  |
+| no |
+| None |
+|  |
+| Source NAT translated address. Used with Static-IP translation. </td></tr>
+| snat_type<  |
+| no |
+| None |
+|  |
+| type of source translation </td></tr>
+| source_ip<  |
+| no |
+| [u'any'] |
+|  |
+| list of source addresses </td></tr>
+| source_zone<  |
+| yes |
+|  |
+|  |
+| list of source zones </td></tr>
+| username<  |
+| no |
+| admin |
+|  |
+| Username credentials to use for auth unless <em>api_key</em> is set. </td></tr>
 </table>
 </br>
 

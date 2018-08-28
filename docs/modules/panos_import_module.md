@@ -16,44 +16,37 @@ Import file on PAN-OS device
 
 ## Options
 
-<table border=1 cellpadding=4>
-<tr>
-<th class="head">parameter</th>
-<th class="head">required</th>
-<th class="head">default</th>
-<th class="head">choices</th>
-<th class="head">comments</th>
-</tr>
-<tr><td>category<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>software</td>
-<td></td>
-<td><div>Category of file uploaded. The default is software.</div></td></tr>
-<tr><td>file<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>None</td>
-<td></td>
-<td><div>Location of the file to import into device.</div></td></tr>
-<tr><td>ip_address<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>IP address (or hostname) of PAN-OS device.</div></td></tr>
-<tr><td>password<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>Password for device authentication.</div></td></tr>
-<tr><td>url<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>None</td>
-<td></td>
-<td><div>URL of the file that will be imported to device.</div></td></tr>
-<tr><td>username<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>admin</td>
-<td></td>
-<td><div>Username for device authentication.</div></td></tr>
+| parameter | required | default | choices | comments |
+| category<  |
+| no |
+| software |
+|  |
+| Category of file uploaded. The default is software. </td></tr>
+| file<  |
+| no |
+| None |
+|  |
+| Location of the file to import into device. </td></tr>
+| ip_address<  |
+| yes |
+|  |
+|  |
+| IP address (or hostname) of PAN-OS device. </td></tr>
+| password<  |
+| yes |
+|  |
+|  |
+| Password for device authentication. </td></tr>
+| url<  |
+| no |
+| None |
+|  |
+| URL of the file that will be imported to device. </td></tr>
+| username<  |
+| no |
+| admin |
+|  |
+| Username for device authentication. </td></tr>
 </table>
 </br>
 

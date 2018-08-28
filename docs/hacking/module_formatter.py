@@ -21,8 +21,8 @@
 from __future__ import print_function
 __metaclass__ = type
 
-import pydevd
-pydevd.settrace('localhost', port=50974, stdoutToServer=True, stderrToServer=True)
+# import pydevd
+# pydevd.settrace('localhost', port=50974, stdoutToServer=True, stderrToServer=True)
 
 import os
 import glob

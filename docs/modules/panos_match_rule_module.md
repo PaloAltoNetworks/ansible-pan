@@ -15,99 +15,92 @@ Security policies allow you to enforce rules and take action, and can be as gene
 
 ## Options
 
-<table border=1 cellpadding=4>
-<tr>
-<th class="head">parameter</th>
-<th class="head">required</th>
-<th class="head">default</th>
-<th class="head">choices</th>
-<th class="head">comments</th>
-</tr>
-<tr><td>api_key<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>API key that can be used instead of <em>username</em>/<em>password</em> credentials.</div></td></tr>
-<tr><td>application<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>The application.</div></td></tr>
-<tr><td>category<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>URL category</div></td></tr>
-<tr><td>destination_ip<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>The destination IP address.</div></td></tr>
-<tr><td>destination_port<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>The destination port.</div></td></tr>
-<tr><td>destination_zone<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>The destination zone.</div></td></tr>
-<tr><td>ip_address<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>IP address (or hostname) of PAN-OS device being configured.</div></td></tr>
-<tr><td>password<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>Password credentials to use for auth unless <em>api_key</em> is set.</div></td></tr>
-<tr><td>protocol<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>The IP protocol number from 1 to 255.</div></td></tr>
-<tr><td>rule_type<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>security</td>
-<td></td>
-<td><div>Type of rule. Valid types are <em>security</em> or <em>nat</em>.</div></td></tr>
-<tr><td>source_ip<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>The source IP address.</div></td></tr>
-<tr><td>source_port<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>The source port.</div></td></tr>
-<tr><td>source_user<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>The source user or group.</div></td></tr>
-<tr><td>source_zone<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>The source zone.</div></td></tr>
-<tr><td>to_interface<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>The inbound interface in a NAT rule.</div></td></tr>
-<tr><td>username<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>admin</td>
-<td></td>
-<td><div>Username credentials to use for auth unless <em>api_key</em> is set.</div></td></tr>
-<tr><td>vsys_id<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td>vsys1</td>
-<td></td>
-<td><div>ID of the VSYS object.</div></td></tr>
+| parameter | required | default | choices | comments |
+| api_key<  |
+| no |
+|  |
+|  |
+| API key that can be used instead of <em>username</em>/<em>password</em> credentials. </td></tr>
+| application<  |
+| no |
+|  |
+|  |
+| The application. </td></tr>
+| category<  |
+| no |
+|  |
+|  |
+| URL category </td></tr>
+| destination_ip<  |
+| no |
+|  |
+|  |
+| The destination IP address. </td></tr>
+| destination_port<  |
+| no |
+|  |
+|  |
+| The destination port. </td></tr>
+| destination_zone<  |
+| no |
+|  |
+|  |
+| The destination zone. </td></tr>
+| ip_address<  |
+| yes |
+|  |
+|  |
+| IP address (or hostname) of PAN-OS device being configured. </td></tr>
+| password<  |
+| yes |
+|  |
+|  |
+| Password credentials to use for auth unless <em>api_key</em> is set. </td></tr>
+| protocol<  |
+| no |
+|  |
+|  |
+| The IP protocol number from 1 to 255. </td></tr>
+| rule_type<  |
+| no |
+| security |
+|  |
+| Type of rule. Valid types are <em>security</em> or <em>nat</em>. </td></tr>
+| source_ip<  |
+| yes |
+|  |
+|  |
+| The source IP address. </td></tr>
+| source_port<  |
+| no |
+|  |
+|  |
+| The source port. </td></tr>
+| source_user<  |
+| no |
+|  |
+|  |
+| The source user or group. </td></tr>
+| source_zone<  |
+| no |
+|  |
+|  |
+| The source zone. </td></tr>
+| to_interface<  |
+| no |
+|  |
+|  |
+| The inbound interface in a NAT rule. </td></tr>
+| username<  |
+| no |
+| admin |
+|  |
+| Username credentials to use for auth unless <em>api_key</em> is set. </td></tr>
+| vsys_id<  |
+| yes |
+| vsys1 |
+|  |
+| ID of the VSYS object. </td></tr>
 </table>
 </br>
 

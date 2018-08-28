@@ -15,99 +15,92 @@ Configure management settings of device. Not all configuration options are confi
 
 ## Options
 
-<table border=1 cellpadding=4>
-<tr>
-<th class="head">parameter</th>
-<th class="head">required</th>
-<th class="head">default</th>
-<th class="head">choices</th>
-<th class="head">comments</th>
-</tr>
-<tr><td>api_key<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>API key that can be used instead of <em>username</em>/<em>password</em> credentials.</div></td></tr>
-<tr><td>commit<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>True</td>
-<td></td>
-<td><div>Commit configuration if changed.</div></td></tr>
-<tr><td>devicegroup<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama.</div></td></tr>
-<tr><td>dns_server_primary<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>IP address of primary DNS server.</div></td></tr>
-<tr><td>dns_server_secondary<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>IP address of secondary DNS server.</div></td></tr>
-<tr><td>domain<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>The domain of the device</div></td></tr>
-<tr><td>hostname<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>The hostname of the device.</div></td></tr>
-<tr><td>ip_address<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>IP address (or hostname) of PAN-OS device being configured.</div></td></tr>
-<tr><td>login_banner<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>Login banner text.</div></td></tr>
-<tr><td>ntp_server_primary<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>IP address (or hostname) of primary NTP server.</div></td></tr>
-<tr><td>ntp_server_secondary<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>IP address (or hostname) of secondary NTP server.</div></td></tr>
-<tr><td>panorama_primary<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>IP address (or hostname) of primary Panorama server.</div></td></tr>
-<tr><td>panorama_secondary<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>IP address (or hostname) of secondary Panorama server.</div></td></tr>
-<tr><td>password<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>Password credentials to use for auth unless <em>api_key</em> is set.</div></td></tr>
-<tr><td>timezone<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>Device timezone.</div></td></tr>
-<tr><td>update_server<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>IP or hostname of the update server.</div></td></tr>
-<tr><td>username<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>admin</td>
-<td></td>
-<td><div>Username credentials to use for auth unless <em>api_key</em> is set.</div></td></tr>
+| parameter | required | default | choices | comments |
+| api_key<  |
+| no |
+|  |
+|  |
+| API key that can be used instead of <em>username</em>/<em>password</em> credentials. </td></tr>
+| commit<  |
+| no |
+| True |
+|  |
+| Commit configuration if changed. </td></tr>
+| devicegroup<  |
+| no |
+|  |
+|  |
+| Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama. </td></tr>
+| dns_server_primary<  |
+| no |
+|  |
+|  |
+| IP address of primary DNS server. </td></tr>
+| dns_server_secondary<  |
+| no |
+|  |
+|  |
+| IP address of secondary DNS server. </td></tr>
+| domain<  |
+| no |
+|  |
+|  |
+| The domain of the device </td></tr>
+| hostname<  |
+| no |
+|  |
+|  |
+| The hostname of the device. </td></tr>
+| ip_address<  |
+| yes |
+|  |
+|  |
+| IP address (or hostname) of PAN-OS device being configured. </td></tr>
+| login_banner<  |
+| no |
+|  |
+|  |
+| Login banner text. </td></tr>
+| ntp_server_primary<  |
+| no |
+|  |
+|  |
+| IP address (or hostname) of primary NTP server. </td></tr>
+| ntp_server_secondary<  |
+| no |
+|  |
+|  |
+| IP address (or hostname) of secondary NTP server. </td></tr>
+| panorama_primary<  |
+| no |
+|  |
+|  |
+| IP address (or hostname) of primary Panorama server. </td></tr>
+| panorama_secondary<  |
+| no |
+|  |
+|  |
+| IP address (or hostname) of secondary Panorama server. </td></tr>
+| password<  |
+| yes |
+|  |
+|  |
+| Password credentials to use for auth unless <em>api_key</em> is set. </td></tr>
+| timezone<  |
+| no |
+|  |
+|  |
+| Device timezone. </td></tr>
+| update_server<  |
+| no |
+|  |
+|  |
+| IP or hostname of the update server. </td></tr>
+| username<  |
+| no |
+| admin |
+|  |
+| Username credentials to use for auth unless <em>api_key</em> is set. </td></tr>
 </table>
 </br>
 

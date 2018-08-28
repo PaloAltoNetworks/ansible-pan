@@ -15,49 +15,42 @@ Userid allows for user to IP mapping that can be used in the policy rules.
 
 ## Options
 
-<table border=1 cellpadding=4>
-<tr>
-<th class="head">parameter</th>
-<th class="head">required</th>
-<th class="head">default</th>
-<th class="head">choices</th>
-<th class="head">comments</th>
-</tr>
-<tr><td>api_key<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>API key that can be used instead of <em>username</em>/<em>password</em> credentials.</div></td></tr>
-<tr><td>ip_address<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>IP address (or hostname) of PAN-OS device being configured.</div></td></tr>
-<tr><td>operation<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>register</td>
-<td></td>
-<td><div>The action to be taken.  Supported values are <em>login</em>/<em>logout</em>.</div></td></tr>
-<tr><td>password<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>Password credentials to use for auth unless <em>api_key</em> is set.</div></td></tr>
-<tr><td>register_ip<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>ip of the user's machine that needs to be registered with userid.</div></td></tr>
-<tr><td>userid<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>User UPN</div></td></tr>
-<tr><td>username<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>admin</td>
-<td></td>
-<td><div>Username credentials to use for auth unless <em>api_key</em> is set.</div></td></tr>
+| parameter | required | default | choices | comments |
+| api_key<  |
+| no |
+|  |
+|  |
+| API key that can be used instead of <em>username</em>/<em>password</em> credentials. </td></tr>
+| ip_address<  |
+| yes |
+|  |
+|  |
+| IP address (or hostname) of PAN-OS device being configured. </td></tr>
+| operation<  |
+| no |
+| register |
+|  |
+| The action to be taken.  Supported values are <em>login</em>/<em>logout</em>. </td></tr>
+| password<  |
+| yes |
+|  |
+|  |
+| Password credentials to use for auth unless <em>api_key</em> is set. </td></tr>
+| register_ip<  |
+| yes |
+|  |
+|  |
+| ip of the user's machine that needs to be registered with userid. </td></tr>
+| userid<  |
+| yes |
+|  |
+|  |
+| User UPN </td></tr>
+| username<  |
+| no |
+| admin |
+|  |
+| Username credentials to use for auth unless <em>api_key</em> is set. </td></tr>
 </table>
 </br>
 

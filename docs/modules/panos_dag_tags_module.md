@@ -15,65 +15,58 @@ Create the ip address to tag associations. Tags will in turn be used to create D
 
 ## Options
 
-<table border=1 cellpadding=4>
-<tr>
-<th class="head">parameter</th>
-<th class="head">required</th>
-<th class="head">default</th>
-<th class="head">choices</th>
-<th class="head">comments</th>
-</tr>
-<tr><td>api_key<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>API key that can be used instead of <em>username</em>/<em>password</em> credentials.</div></td></tr>
-<tr><td>commit<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>True</td>
-<td></td>
-<td><div>commit if changed</div></td></tr>
-<tr><td>description<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>The purpose / objective of the static Address Group</div></td></tr>
-<tr><td>devicegroup<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>- Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama. If device group is not define we assume that we are contacting Firewall.
-    </div></td></tr>
-<tr><td>ip_address<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>IP address (or hostname) of PAN-OS device</div></td></tr>
-<tr><td>ip_to_register<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>IP that will be registered with the given tag names.</div></td></tr>
-<tr><td>operation<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>The action to be taken. Supported values are <em>add</em>/<em>update</em>/<em>find</em>/<em>delete</em>.</div></td></tr>
-<tr><td>password<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>password for authentication</div></td></tr>
-<tr><td>tag_names<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>The list of the tags that will be added or removed from the IP address.</div></td></tr>
-<tr><td>username<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>admin</td>
-<td></td>
-<td><div>username for authentication</div></td></tr>
+| parameter | required | default | choices | comments |
+| api_key<  |
+| no |
+|  |
+|  |
+| API key that can be used instead of <em>username</em>/<em>password</em> credentials. </td></tr>
+| commit<  |
+| no |
+| True |
+|  |
+| commit if changed </td></tr>
+| description<  |
+| no |
+|  |
+|  |
+| The purpose / objective of the static Address Group </td></tr>
+| devicegroup<  |
+| no |
+|  |
+|  |
+| - Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama. If device group is not define we assume that we are contacting Firewall.
+     </td></tr>
+| ip_address<  |
+| yes |
+|  |
+|  |
+| IP address (or hostname) of PAN-OS device </td></tr>
+| ip_to_register<  |
+| no |
+|  |
+|  |
+| IP that will be registered with the given tag names. </td></tr>
+| operation<  |
+| no |
+|  |
+|  |
+| The action to be taken. Supported values are <em>add</em>/<em>update</em>/<em>find</em>/<em>delete</em>. </td></tr>
+| password<  |
+| yes |
+|  |
+|  |
+| password for authentication </td></tr>
+| tag_names<  |
+| no |
+|  |
+|  |
+| The list of the tags that will be added or removed from the IP address. </td></tr>
+| username<  |
+| no |
+| admin |
+|  |
+| username for authentication </td></tr>
 </table>
 </br>
 

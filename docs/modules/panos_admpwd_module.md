@@ -15,34 +15,27 @@ Useful for AWS instances where the first login should be done via SSH.
 
 ## Options
 
-<table border=1 cellpadding=4>
-<tr>
-<th class="head">parameter</th>
-<th class="head">required</th>
-<th class="head">default</th>
-<th class="head">choices</th>
-<th class="head">comments</th>
-</tr>
-<tr><td>ip_address<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>IP address (or hostname) of PAN-OS device</div></td></tr>
-<tr><td>key_filename<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>filename of the SSH Key to use for authentication</div></td></tr>
-<tr><td>newpassword<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>password to configure for admin on the PAN-OS device</div></td></tr>
-<tr><td>username<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>admin</td>
-<td></td>
-<td><div>username for initial authentication</div></td></tr>
+| parameter | required | default | choices | comments |
+| ip_address<  |
+| yes |
+|  |
+|  |
+| IP address (or hostname) of PAN-OS device </td></tr>
+| key_filename<  |
+| yes |
+|  |
+|  |
+| filename of the SSH Key to use for authentication </td></tr>
+| newpassword<  |
+| yes |
+|  |
+|  |
+| password to configure for admin on the PAN-OS device </td></tr>
+| username<  |
+| no |
+| admin |
+|  |
+| username for initial authentication </td></tr>
 </table>
 </br>
 
@@ -66,25 +59,9 @@ Useful for AWS instances where the first login should be done via SSH.
 
 The following are the fields unique to this module:
 
-<table border=1 cellpadding=4>
-<tr>
-<th class="head">name</th>
-<th class="head">description</th>
-<th class="head">returned</th>
-<th class="head">type</th>
-<th class="head">sample</th>
-</tr>
+| name | description | returned | type | sample |
 
-<tr>
-    <td> status </td>
-    <td> success status </td>
-    <td align=center> success </td>
-    <td align=center> string </td>
-    <td align=center> Last login: Fri Sep 16 11:09:20 2016 from 10.35.34.56.....Configuration committed successfully </td>
-</tr>
-
-</table>
-</br></br>
+| status | success status | success | string | Last login: Fri Sep 16 11:09:20 2016 from 10.35.34.56.....Configuration committed successfully </td> |
 
 
 

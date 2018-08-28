@@ -106,44 +106,37 @@ e
 
 ## Options
 
-<table border=1 cellpadding=4>
-<tr>
-<th class="head">parameter</th>
-<th class="head">required</th>
-<th class="head">default</th>
-<th class="head">choices</th>
-<th class="head">comments</th>
-</tr>
-<tr><td>api_key<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>API key that can be used instead of <em>username</em>/<em>password</em> credentials.</div></td></tr>
-<tr><td>cmd<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>The OP command to be performed.</div></td></tr>
-<tr><td>cmd_is_xml<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td><ul><li>yes</li><li>no</li></ul></td>
-<td><div>The cmd is already given in XML format, so don't convert it.</div></td></tr>
-<tr><td>ip_address<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>IP address (or hostname) of PAN-OS device or Panorama management console being configured.</div></td></tr>
-<tr><td>password<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>Password credentials to use for authentication.</div></td></tr>
-<tr><td>username<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>admin</td>
-<td></td>
-<td><div>Username credentials to use for authentication.</div></td></tr>
+| parameter | required | default | choices | comments |
+| api_key<  |
+| no |
+|  |
+|  |
+| API key that can be used instead of <em>username</em>/<em>password</em> credentials. </td></tr>
+| cmd<  |
+| yes |
+|  |
+|  |
+| The OP command to be performed. </td></tr>
+| cmd_is_xml<  |
+| no |
+|  |
+| yes / no |
+| The cmd is already given in XML format, so don't convert it. </td></tr>
+| ip_address<  |
+| yes |
+|  |
+|  |
+| IP address (or hostname) of PAN-OS device or Panorama management console being configured. </td></tr>
+| password<  |
+| yes |
+|  |
+|  |
+| Password credentials to use for authentication. </td></tr>
+| username<  |
+| no |
+| admin |
+|  |
+| Username credentials to use for authentication. </td></tr>
 </table>
 </br>
 
@@ -175,32 +168,10 @@ e
 
 The following are the fields unique to this module:
 
-<table border=1 cellpadding=4>
-<tr>
-<th class="head">name</th>
-<th class="head">description</th>
-<th class="head">returned</th>
-<th class="head">type</th>
-<th class="head">sample</th>
-</tr>
+| name | description | returned | type | sample |
 
-<tr>
-    <td> stdout_xml </td>
-    <td> output of the given OP command as JSON formatted string </td>
-    <td align=center> success </td>
-    <td align=center> string </td>
-    <td align=center> <response status=success><result><system><hostname>fw2</hostname> </td>
-</tr>
-<tr>
-    <td> stdout </td>
-    <td> output of the given OP command as JSON formatted string </td>
-    <td align=center> success </td>
-    <td align=center> string </td>
-    <td align=center> {system: {app-release-date: 2017/05/01  15:09:12}} </td>
-</tr>
-
-</table>
-</br></br>
+| stdout_xml | output of the given OP command as JSON formatted string | success | string | <response status=success><result><system><hostname>fw2</hostname> </td> |
+| stdout | output of the given OP command as JSON formatted string | success | string | {system: {app-release-date: 2017/05/01  15:09:12}} </td> |
 
 #### Notes
 

@@ -15,54 +15,47 @@ otherwise. Root certificate must be preset on the system first. This module depe
 
 ## Options
 
-<table border=1 cellpadding=4>
-<tr>
-<th class="head">parameter</th>
-<th class="head">required</th>
-<th class="head">default</th>
-<th class="head">choices</th>
-<th class="head">comments</th>
-</tr>
-<tr><td>cert_cn<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>Certificate CN (common name) embedded in the certificate signature.</div></td></tr>
-<tr><td>cert_friendly_name<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>Human friendly certificate name (not CN but just a friendly name).</div></td></tr>
-<tr><td>ip_address<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>IP address (or hostname) of PAN-OS device being configured.</div></td></tr>
-<tr><td>key_filename<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>Location of the filename that is used for the auth. Either <em>key_filename</em> or <em>password</em> is required.</div></td></tr>
-<tr><td>password<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>Password credentials to use for auth. Either <em>key_filename</em> or <em>password</em> is required.</div></td></tr>
-<tr><td>rsa_nbits<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>2048</td>
-<td></td>
-<td><div>Number of bits used by the RSA algorithm for the certificate generation.</div></td></tr>
-<tr><td>signed_by<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>Undersigning authority (CA) that MUST already be presents on the device.</div></td></tr>
-<tr><td>username<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>admin</td>
-<td></td>
-<td><div>User name to use for auth. Default is admin.</div></td></tr>
+| parameter | required | default | choices | comments |
+| cert_cn<  |
+| yes |
+|  |
+|  |
+| Certificate CN (common name) embedded in the certificate signature. </td></tr>
+| cert_friendly_name<  |
+| yes |
+|  |
+|  |
+| Human friendly certificate name (not CN but just a friendly name). </td></tr>
+| ip_address<  |
+| yes |
+|  |
+|  |
+| IP address (or hostname) of PAN-OS device being configured. </td></tr>
+| key_filename<  |
+| yes |
+|  |
+|  |
+| Location of the filename that is used for the auth. Either <em>key_filename</em> or <em>password</em> is required. </td></tr>
+| password<  |
+| yes |
+|  |
+|  |
+| Password credentials to use for auth. Either <em>key_filename</em> or <em>password</em> is required. </td></tr>
+| rsa_nbits<  |
+| no |
+| 2048 |
+|  |
+| Number of bits used by the RSA algorithm for the certificate generation. </td></tr>
+| signed_by<  |
+| yes |
+|  |
+|  |
+| Undersigning authority (CA) that MUST already be presents on the device. </td></tr>
+| username<  |
+| no |
+| admin |
+|  |
+| User name to use for auth. Default is admin. </td></tr>
 </table>
 </br>
 

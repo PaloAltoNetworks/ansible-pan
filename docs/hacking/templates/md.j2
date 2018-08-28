@@ -34,31 +34,24 @@ Aliases: @{ ','.join(aliases) }@
 {% if options -%}
 ## Options
 
-<table border=1 cellpadding=4>
-<tr>
-<th class="head">parameter</th>
-<th class="head">required</th>
-<th class="head">default</th>
-<th class="head">choices</th>
-<th class="head">comments</th>
-</tr>
+| parameter | required | default | choices | comments |
 {% for k in option_keys %}
 {% set v = options[k] %}
 {% if not v['suboptions'] %}
-<tr><td>@{ k }@<br/><div style="font-size: small;">{% if v['version_added'] %} (added in @{v['version_added']}@){% endif %}</div></td>
-<td>{% if v.get('required', False) %}yes{% else %}no{% endif %}</td>
-<td>{% if v['default'] %}@{ v['default'] }@{% endif %}</td>
+| @{ k }@< {% if v['version_added'] %} (added in @{v['version_added']}@){% endif %} |
+| {% if v.get('required', False) %}yes{% else %}no{% endif %} |
+| {% if v['default'] %}@{ v['default'] }@{% endif %} |
 {% if v.get('type', 'not_bool') == 'bool' %}
-<td><ul><li>yes</li><li>no</li></ul></td>
+| yes / no |
 {% else %}
-<td>{% if v['choices'] %}<ul>{% for choice in v.get('choices',[]) -%}<li>@{ choice }@</li>{% endfor -%}</ul>{% endif %}</td>
+| {% if v['choices'] %} {% for choice in v.get('choices',[]) -%} @{ choice }@ {% endfor -%} {% endif %} |
 {% endif %}
-<td>{% for desc in v.description -%}<div>@{ desc | replace('\n', '\n    ') | html_ify }@</div>{% endfor -%} {% if 'aliases' in v and v.aliases -%}</br>
-<div style="font-size: small;">aliases: @{ v.aliases|join(', ') }@<div>{%- endif %}
+| {% for desc in v.description -%} @{ desc | replace('\n', '\n    ') | html_ify }@ {% endfor -%} {% if 'aliases' in v and v.aliases -%}
+ aliases: @{ v.aliases|join(', ') }@ {%- endif %}
 {% else %}
-<tr><td rowspan="2">@{ k }@<br/><div style="font-size: small;">{% if v['version_added'] %} (added in @{v['version_added']}@){% endif %}</div></td>
-<td>{% if v.get('required', False) %}yes{% else %}no{% endif %}</td>
-<td></td><td></td>
+ | @{ k }@ {% if v['version_added'] %} (added in @{v['version_added']}@){% endif %} |
+| {% if v.get('required', False) %}yes{% else %}no{% endif %} |
+| | | |
 <td> {% for desc in v.description -%}<div>@{ desc | replace('\n', '\n    ') | html_ify }@</div>{% endfor -%} {% if 'aliases' in v and v.aliases -%}</br>
 <div style="font-size: small;">aliases: @{ v.aliases|join(', ') }@<div>{%- endif %}
 </tr>
@@ -114,53 +107,11 @@ Aliases: @{ ','.join(aliases) }@
 
 The following are the fields unique to this module:
 
-<table border=1 cellpadding=4>
-<tr>
-<th class="head">name</th>
-<th class="head">description</th>
-<th class="head">returned</th>
-<th class="head">type</th>
-<th class="head">sample</th>
-</tr>
+| name | description | returned | type | sample |
 
 {% for entry in returndocs %}
-<tr>
-    <td> @{ entry }@ </td>
-    <td> @{ returndocs[entry].description }@ </td>
-    <td align=center> @{ returndocs[entry].returned }@ </td>
-    <td align=center> @{ returndocs[entry].type }@ </td>
-    <td align=center> @{ returndocs[entry].sample}@ </td>
-</tr>
-{% if returndocs[entry].type == 'dictionary' %}
-<tr><td>contains: </td>
-<td colspan=4>
-    <table border=1 cellpadding=2>
-    <tr>
-    <th class="head">name</th>
-    <th class="head">description</th>
-    <th class="head">returned</th>
-    <th class="head">type</th>
-    <th class="head">sample</th>
-    </tr>
-
-    {% for sub in returndocs[entry].contains %}
-    <tr>
-    <td> @{ sub }@ </td>
-    <td> @{ returndocs[entry].contains[sub].description }@ </td>
-    <td align=center> @{ returndocs[entry].contains[sub].returned }@ </td>
-    <td align=center> @{ returndocs[entry].contains[sub].type }@ </td>
-    <td align=center> @{ returndocs[entry].contains[sub].sample}@ </td>
-    </tr>
-    {% endfor %}
-
-    </table>
-</td></tr>
-
-{% endif %}
+| @{ entry }@ | @{ returndocs[entry].description }@ | @{ returndocs[entry].returned }@ | @{ returndocs[entry].type }@ | @{ returndocs[entry].sample}@ </td> |
 {% endfor %}
-
-</table>
-</br></br>
 {% endif %}
 
 {% if notes -%}

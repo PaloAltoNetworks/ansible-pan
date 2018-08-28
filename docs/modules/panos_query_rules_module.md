@@ -321,84 +321,77 @@ s
 
 ## Options
 
-<table border=1 cellpadding=4>
-<tr>
-<th class="head">parameter</th>
-<th class="head">required</th>
-<th class="head">default</th>
-<th class="head">choices</th>
-<th class="head">comments</th>
-</tr>
-<tr><td>api_key<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>API key that can be used instead of <em>username</em>/<em>password</em> credentials.</div></td></tr>
-<tr><td>application<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>None</td>
-<td></td>
-<td><div>Name of the application or application group to be queried.</div></td></tr>
-<tr><td>destination_ip<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>None</td>
-<td></td>
-<td><div>The destination IP address to be queried.</div></td></tr>
-<tr><td>destination_port<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>None</td>
-<td></td>
-<td><div>The destination port to be queried.</div></td></tr>
-<tr><td>destination_zone<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>None</td>
-<td></td>
-<td><div>Name of the destination security zone to be queried.</div></td></tr>
-<tr><td>devicegroup<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>None</td>
-<td></td>
-<td><div>The Panorama device group in which to conduct the query.</div></td></tr>
-<tr><td>ip_address<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>IP address (or hostname) of PAN-OS firewall or Panorama management console being queried.</div></td></tr>
-<tr><td>password<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>Password credentials to use for authentication.</div></td></tr>
-<tr><td>protocol<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>None</td>
-<td></td>
-<td><div>The protocol used to be queried.  Must be either <em>tcp</em> or <em>udp</em>.</div></td></tr>
-<tr><td>source_ip<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>None</td>
-<td></td>
-<td><div>The source IP address to be queried.</div></td></tr>
-<tr><td>source_port<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>None</td>
-<td></td>
-<td><div>The source port to be queried.</div></td></tr>
-<tr><td>source_zone<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>None</td>
-<td></td>
-<td><div>Name of the source security zone to be queried.</div></td></tr>
-<tr><td>tag_name<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>None</td>
-<td></td>
-<td><div>Name of the rule tag to be queried.</div></td></tr>
-<tr><td>username<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>admin</td>
-<td></td>
-<td><div>Username credentials to use for authentication.</div></td></tr>
+| parameter | required | default | choices | comments |
+| api_key<  |
+| no |
+|  |
+|  |
+| API key that can be used instead of <em>username</em>/<em>password</em> credentials. </td></tr>
+| application<  |
+| no |
+| None |
+|  |
+| Name of the application or application group to be queried. </td></tr>
+| destination_ip<  |
+| no |
+| None |
+|  |
+| The destination IP address to be queried. </td></tr>
+| destination_port<  |
+| no |
+| None |
+|  |
+| The destination port to be queried. </td></tr>
+| destination_zone<  |
+| no |
+| None |
+|  |
+| Name of the destination security zone to be queried. </td></tr>
+| devicegroup<  |
+| no |
+| None |
+|  |
+| The Panorama device group in which to conduct the query. </td></tr>
+| ip_address<  |
+| yes |
+|  |
+|  |
+| IP address (or hostname) of PAN-OS firewall or Panorama management console being queried. </td></tr>
+| password<  |
+| yes |
+|  |
+|  |
+| Password credentials to use for authentication. </td></tr>
+| protocol<  |
+| no |
+| None |
+|  |
+| The protocol used to be queried.  Must be either <em>tcp</em> or <em>udp</em>. </td></tr>
+| source_ip<  |
+| no |
+| None |
+|  |
+| The source IP address to be queried. </td></tr>
+| source_port<  |
+| no |
+| None |
+|  |
+| The source port to be queried. </td></tr>
+| source_zone<  |
+| no |
+| None |
+|  |
+| Name of the source security zone to be queried. </td></tr>
+| tag_name<  |
+| no |
+| None |
+|  |
+| Name of the rule tag to be queried. </td></tr>
+| username<  |
+| no |
+| admin |
+|  |
+| Username credentials to use for authentication. </td></tr>
 </table>
 </br>
 

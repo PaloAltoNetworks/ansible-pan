@@ -321,187 +321,180 @@ s
 
 ## Options
 
-<table border=1 cellpadding=4>
-<tr>
-<th class="head">parameter</th>
-<th class="head">required</th>
-<th class="head">default</th>
-<th class="head">choices</th>
-<th class="head">comments</th>
-</tr>
-<tr><td>action<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>allow</td>
-<td></td>
-<td><div>Action to apply once rules maches.</div></td></tr>
-<tr><td>antivirus<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>None</td>
-<td></td>
-<td><div>Name of the already defined antivirus profile.</div></td></tr>
-<tr><td>api_key<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>API key that can be used instead of <em>username</em>/<em>password</em> credentials.</div></td></tr>
-<tr><td>application<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>any</td>
-<td></td>
-<td><div>List of applications.</div></td></tr>
-<tr><td>commit<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>True</td>
-<td></td>
-<td><div>Commit configuration if changed.</div></td></tr>
-<tr><td>data_filtering<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>None</td>
-<td></td>
-<td><div>Name of the already defined data_filtering profile.</div></td></tr>
-<tr><td>description<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>None</td>
-<td></td>
-<td><div>Description for the security rule.</div></td></tr>
-<tr><td>destination_ip<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>any</td>
-<td></td>
-<td><div>List of destination addresses.</div></td></tr>
-<tr><td>destination_zone<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>any</td>
-<td></td>
-<td><div>List of destination zones.</div></td></tr>
-<tr><td>devicegroup<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>None</td>
-<td></td>
-<td><div>- Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama. If device group is not define we assume that we are contacting Firewall.
-    </div></td></tr>
-<tr><td>existing_rule<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>If 'location' is set to 'before' or 'after', this option specifies an existing rule name.  The new rule will be created in the specified position relative to this rule.  If 'location' is set to 'before' or 'after', this option is required.</div></td></tr>
-<tr><td>file_blocking<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>None</td>
-<td></td>
-<td><div>Name of the already defined file_blocking profile.</div></td></tr>
-<tr><td>group_profile<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>None</td>
-<td></td>
-<td><div>- Security profile group that is already defined in the system. This property supersedes antivirus, vulnerability, spyware, url_filtering, file_blocking, data_filtering, and wildfire_analysis properties.
-    </div></td></tr>
-<tr><td>hip_profiles<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>any</td>
-<td></td>
-<td><div>- If you are using GlobalProtect with host information profile (HIP) enabled, you can also base the policy on information collected by GlobalProtect. For example, the user access level can be determined HIP that notifies the firewall about the user's local configuration.
-    </div></td></tr>
-<tr><td>ip_address<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>IP address (or hostname) of PAN-OS device being configured.</div></td></tr>
-<tr><td>location<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>Position to place the created rule in the rule base.  Supported values are <em>top</em>/<em>bottom</em>/<em>before</em>/<em>after</em>.</div></td></tr>
-<tr><td>log_end<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>True</td>
-<td></td>
-<td><div>Whether to log at session end.</div></td></tr>
-<tr><td>log_setting<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>Log forwarding profile</div></td></tr>
-<tr><td>log_start<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>Whether to log at session start.</div></td></tr>
-<tr><td>operation<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>add</td>
-<td></td>
-<td><div>The action to be taken.  Supported values are <em>add</em>/<em>update</em>/<em>find</em>/<em>delete</em>.</div></td></tr>
-<tr><td>panorama_post_rule<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td></td>
-<td></td>
-<td><div>If the security rule is applied against panorama, set this to True in order to inject it into post rule.</div></td></tr>
-<tr><td>password<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>Password credentials to use for auth unless <em>api_key</em> is set.</div></td></tr>
-<tr><td>rule_name<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>Name of the security rule.</div></td></tr>
-<tr><td>rule_type<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>universal</td>
-<td></td>
-<td><div>Type of security rule (version 6.1 of PanOS and above).</div></td></tr>
-<tr><td>service<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>application-default</td>
-<td></td>
-<td><div>List of services.</div></td></tr>
-<tr><td>source_ip<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>any</td>
-<td></td>
-<td><div>List of source addresses.</div></td></tr>
-<tr><td>source_user<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>any</td>
-<td></td>
-<td><div>Use users to enforce policy for individual users or a group of users.</div></td></tr>
-<tr><td>source_zone<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>any</td>
-<td></td>
-<td><div>List of source zones.</div></td></tr>
-<tr><td>spyware<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>None</td>
-<td></td>
-<td><div>Name of the already defined spyware profile.</div></td></tr>
-<tr><td>tag_name<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>None</td>
-<td></td>
-<td><div>Administrative tags that can be added to the rule. Note, tags must be already defined.</div></td></tr>
-<tr><td>url_filtering<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>None</td>
-<td></td>
-<td><div>Name of the already defined url_filtering profile.</div></td></tr>
-<tr><td>username<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>admin</td>
-<td></td>
-<td><div>Username credentials to use for auth unless <em>api_key</em> is set.</div></td></tr>
-<tr><td>vulnerability<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>None</td>
-<td></td>
-<td><div>Name of the already defined vulnerability profile.</div></td></tr>
-<tr><td>wildfire_analysis<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>None</td>
-<td></td>
-<td><div>Name of the already defined wildfire_analysis profile.</div></td></tr>
+| parameter | required | default | choices | comments |
+| action<  |
+| no |
+| allow |
+|  |
+| Action to apply once rules maches. </td></tr>
+| antivirus<  |
+| no |
+| None |
+|  |
+| Name of the already defined antivirus profile. </td></tr>
+| api_key<  |
+| no |
+|  |
+|  |
+| API key that can be used instead of <em>username</em>/<em>password</em> credentials. </td></tr>
+| application<  |
+| no |
+| any |
+|  |
+| List of applications. </td></tr>
+| commit<  |
+| no |
+| True |
+|  |
+| Commit configuration if changed. </td></tr>
+| data_filtering<  |
+| no |
+| None |
+|  |
+| Name of the already defined data_filtering profile. </td></tr>
+| description<  |
+| no |
+| None |
+|  |
+| Description for the security rule. </td></tr>
+| destination_ip<  |
+| no |
+| any |
+|  |
+| List of destination addresses. </td></tr>
+| destination_zone<  |
+| no |
+| any |
+|  |
+| List of destination zones. </td></tr>
+| devicegroup<  |
+| no |
+| None |
+|  |
+| - Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama. If device group is not define we assume that we are contacting Firewall.
+     </td></tr>
+| existing_rule<  |
+| no |
+|  |
+|  |
+| If 'location' is set to 'before' or 'after', this option specifies an existing rule name.  The new rule will be created in the specified position relative to this rule.  If 'location' is set to 'before' or 'after', this option is required. </td></tr>
+| file_blocking<  |
+| no |
+| None |
+|  |
+| Name of the already defined file_blocking profile. </td></tr>
+| group_profile<  |
+| no |
+| None |
+|  |
+| - Security profile group that is already defined in the system. This property supersedes antivirus, vulnerability, spyware, url_filtering, file_blocking, data_filtering, and wildfire_analysis properties.
+     </td></tr>
+| hip_profiles<  |
+| no |
+| any |
+|  |
+| - If you are using GlobalProtect with host information profile (HIP) enabled, you can also base the policy on information collected by GlobalProtect. For example, the user access level can be determined HIP that notifies the firewall about the user's local configuration.
+     </td></tr>
+| ip_address<  |
+| yes |
+|  |
+|  |
+| IP address (or hostname) of PAN-OS device being configured. </td></tr>
+| location<  |
+| no |
+|  |
+|  |
+| Position to place the created rule in the rule base.  Supported values are <em>top</em>/<em>bottom</em>/<em>before</em>/<em>after</em>. </td></tr>
+| log_end<  |
+| no |
+| True |
+|  |
+| Whether to log at session end. </td></tr>
+| log_setting<  |
+| no |
+|  |
+|  |
+| Log forwarding profile </td></tr>
+| log_start<  |
+| no |
+|  |
+|  |
+| Whether to log at session start. </td></tr>
+| operation<  |
+| no |
+| add |
+|  |
+| The action to be taken.  Supported values are <em>add</em>/<em>update</em>/<em>find</em>/<em>delete</em>. </td></tr>
+| panorama_post_rule<  |
+| no |
+|  |
+|  |
+| If the security rule is applied against panorama, set this to True in order to inject it into post rule. </td></tr>
+| password<  |
+| yes |
+|  |
+|  |
+| Password credentials to use for auth unless <em>api_key</em> is set. </td></tr>
+| rule_name<  |
+| yes |
+|  |
+|  |
+| Name of the security rule. </td></tr>
+| rule_type<  |
+| no |
+| universal |
+|  |
+| Type of security rule (version 6.1 of PanOS and above). </td></tr>
+| service<  |
+| no |
+| application-default |
+|  |
+| List of services. </td></tr>
+| source_ip<  |
+| no |
+| any |
+|  |
+| List of source addresses. </td></tr>
+| source_user<  |
+| no |
+| any |
+|  |
+| Use users to enforce policy for individual users or a group of users. </td></tr>
+| source_zone<  |
+| no |
+| any |
+|  |
+| List of source zones. </td></tr>
+| spyware<  |
+| no |
+| None |
+|  |
+| Name of the already defined spyware profile. </td></tr>
+| tag_name<  |
+| no |
+| None |
+|  |
+| Administrative tags that can be added to the rule. Note, tags must be already defined. </td></tr>
+| url_filtering<  |
+| no |
+| None |
+|  |
+| Name of the already defined url_filtering profile. </td></tr>
+| username<  |
+| no |
+| admin |
+|  |
+| Username credentials to use for auth unless <em>api_key</em> is set. </td></tr>
+| vulnerability<  |
+| no |
+| None |
+|  |
+| Name of the already defined vulnerability profile. </td></tr>
+| wildfire_analysis<  |
+| no |
+| None |
+|  |
+| Name of the already defined wildfire_analysis profile. </td></tr>
 </table>
 </br>
 

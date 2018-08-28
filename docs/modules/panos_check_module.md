@@ -15,39 +15,32 @@ The check could be done once or multiple times until the device is ready.
 
 ## Options
 
-<table border=1 cellpadding=4>
-<tr>
-<th class="head">parameter</th>
-<th class="head">required</th>
-<th class="head">default</th>
-<th class="head">choices</th>
-<th class="head">comments</th>
-</tr>
-<tr><td>interval<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>0</td>
-<td></td>
-<td><div>time waited between checks</div></td></tr>
-<tr><td>ip_address<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>IP address (or hostname) of PAN-OS device</div></td></tr>
-<tr><td>password<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>password for authentication</div></td></tr>
-<tr><td>timeout<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>0</td>
-<td></td>
-<td><div>timeout of API calls</div></td></tr>
-<tr><td>username<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>admin</td>
-<td></td>
-<td><div>username for authentication</div></td></tr>
+| parameter | required | default | choices | comments |
+| interval<  |
+| no |
+| 0 |
+|  |
+| time waited between checks </td></tr>
+| ip_address<  |
+| yes |
+|  |
+|  |
+| IP address (or hostname) of PAN-OS device </td></tr>
+| password<  |
+| yes |
+|  |
+|  |
+| password for authentication </td></tr>
+| timeout<  |
+| no |
+| 0 |
+|  |
+| timeout of API calls </td></tr>
+| username<  |
+| no |
+| admin |
+|  |
+| username for authentication </td></tr>
 </table>
 </br>
 

@@ -16,39 +16,32 @@ The device should have Internet access.
 
 ## Options
 
-<table border=1 cellpadding=4>
-<tr>
-<th class="head">parameter</th>
-<th class="head">required</th>
-<th class="head">default</th>
-<th class="head">choices</th>
-<th class="head">comments</th>
-</tr>
-<tr><td>auth_code<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>authcode to be applied</div></td></tr>
-<tr><td>force<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>false</td>
-<td></td>
-<td><div>whether to apply authcode even if device is already licensed</div></td></tr>
-<tr><td>ip_address<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>IP address (or hostname) of PAN-OS device</div></td></tr>
-<tr><td>password<br/><div style="font-size: small;"></div></td>
-<td>yes</td>
-<td></td>
-<td></td>
-<td><div>password for authentication</div></td></tr>
-<tr><td>username<br/><div style="font-size: small;"></div></td>
-<td>no</td>
-<td>admin</td>
-<td></td>
-<td><div>username for authentication</div></td></tr>
+| parameter | required | default | choices | comments |
+| auth_code<  |
+| yes |
+|  |
+|  |
+| authcode to be applied </td></tr>
+| force<  |
+| no |
+| false |
+|  |
+| whether to apply authcode even if device is already licensed </td></tr>
+| ip_address<  |
+| yes |
+|  |
+|  |
+| IP address (or hostname) of PAN-OS device </td></tr>
+| password<  |
+| yes |
+|  |
+|  |
+| password for authentication </td></tr>
+| username<  |
+| no |
+| admin |
+|  |
+| username for authentication </td></tr>
 </table>
 </br>
 
@@ -72,25 +65,9 @@ The device should have Internet access.
 
 The following are the fields unique to this module:
 
-<table border=1 cellpadding=4>
-<tr>
-<th class="head">name</th>
-<th class="head">description</th>
-<th class="head">returned</th>
-<th class="head">type</th>
-<th class="head">sample</th>
-</tr>
+| name | description | returned | type | sample |
 
-<tr>
-    <td> serialnumber </td>
-    <td> serialnumber of the device in case that it has been already registered </td>
-    <td align=center> success </td>
-    <td align=center> string </td>
-    <td align=center> 973080716 </td>
-</tr>
-
-</table>
-</br></br>
+| serialnumber | serialnumber of the device in case that it has been already registered | success | string | 973080716 </td> |
 
 
 
