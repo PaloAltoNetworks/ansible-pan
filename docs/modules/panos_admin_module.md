@@ -14,7 +14,6 @@ PanOS module that allows changes to the user account passwords by doing API call
 
 ## Options
 
-```html
 <table border=1 cellpadding=4>
 <tr>
 <th class="head">parameter</th>
@@ -65,7 +64,7 @@ PanOS module that allows changes to the user account passwords by doing API call
 <td><div>Username credentials to use for auth unless <em>api_key</em> is set.</div></td></tr>
 </table>
 </br>
-```
+
 
 
 ## Examples
@@ -112,3 +111,7 @@ The following are the fields unique to this module:
 #### Status
 
 This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+<<<<<<< HEAD
+=======
+
+>>>>>>> develop

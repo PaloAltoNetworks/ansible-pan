@@ -4,6 +4,24 @@
 History
 =======
 
+V1.0.8
+------
+- Released: In-development
+- Status:   In-development
+
+*New modules*
+
+* panos_management_profile: Manages interface management profiles
+
+*Removed modules*
+
+*Refactored modules*
+
+*Miscellanies*
+
+* *panos_security_rule* - New `log_setting` param added to specify the log forwarding profile to be used
+
+
 V1.0.7
 ------
 - Released: 2018-05-03

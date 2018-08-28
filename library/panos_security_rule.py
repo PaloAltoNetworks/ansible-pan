@@ -114,6 +114,9 @@ options:
         description:
             - Whether to log at session end.
         default: true
+    log_setting:
+        description:
+            - Log forwarding profile
     action:
         description:
             - Action to apply once rules maches.
@@ -348,7 +351,8 @@ def rule_is_match(propose_rule, current_rule):
 
     match_check = ['name', 'description', 'group_profile', 'antivirus', 'vulnerability'
                    'spyware', 'url_filtering', 'file_blocking', 'data_filtering',
-                   'wildfire_analysis', 'type', 'action', 'tag', 'log_start', 'log_end']
+                   'wildfire_analysis', 'type', 'action', 'tag', 'log_start', 'log_end',
+                   'log_setting']
     list_check = ['tozone', 'fromzone', 'source', 'source_user', 'destination', 'category',
                   'application', 'service', 'hip_profiles']
 
@@ -380,6 +384,7 @@ def create_security_rule(**kwargs):
         category=kwargs['category'],
         log_start=kwargs['log_start'],
         log_end=kwargs['log_end'],
+        log_setting=kwargs['log_setting'],
         action=kwargs['action'],
         type=kwargs['rule_type']
     )
@@ -437,6 +442,7 @@ def main():
         wildfire_analysis=dict(),
         log_start=dict(type='bool', default=False),
         log_end=dict(type='bool', default=True),
+        log_setting=dict(),
         rule_type=dict(default='universal'),
         action=dict(default='allow'),
         devicegroup=dict(),
@@ -471,6 +477,7 @@ def main():
     category = module.params['category']
     log_start = module.params['log_start']
     log_end = module.params['log_end']
+    log_setting = module.params['log_setting']
     action = module.params['action']
     group_profile = module.params['group_profile']
     antivirus = module.params['antivirus']
@@ -562,6 +569,7 @@ def main():
             wildfire_analysis=wildfire_analysis,
             log_start=log_start,
             log_end=log_end,
+            log_setting=log_setting,
             rule_type=rule_type,
             action=action
         )
@@ -617,6 +625,7 @@ def main():
                     wildfire_analysis=wildfire_analysis,
                     log_start=log_start,
                     log_end=log_end,
+                    log_setting=log_setting,
                     rule_type=rule_type,
                     action=action
                 )
