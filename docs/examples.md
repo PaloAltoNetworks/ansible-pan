@@ -1,3 +1,7 @@
+---
+title: Examples
+layout: none
+---
 Examples
 ========
 

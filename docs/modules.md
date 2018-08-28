@@ -1,3 +1,7 @@
+---
+title: Modules list
+layout: none
+---
 Modules list
 ============
 
