@@ -25,7 +25,8 @@ DOCUMENTATION = '''
 ---
 module: panos_management_profile
 short_description: Manage interface management profiles.
-description: This module will allow you to manage interface management profiles on PAN-OS.
+description:
+    - This module will allow you to manage interface management profiles on PAN-OS.
 version_added: "2.6"
 requirements:
     - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
