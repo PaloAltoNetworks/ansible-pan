@@ -16,6 +16,7 @@ Modules list
 - [panos_lic_module](modules/panos_lic_module.md)
 - [panos_loadcfg_module](modules/panos_loadcfg_module.md)
 - [panos_match_rule_module](modules/panos_match_rule_module.md)
+- [panos_management_module](modules/panos_management_profile_module.md)
 - [panos_mgtconfig_module](modules/panos_mgtconfig_module.md)
 - [panos_nat_rule_module](modules/panos_nat_rule_module.md)
 - [panos_object_module](modules/panos_object_module.md)
@@ -27,4 +28,4 @@ Modules list
 - [panos_security_rule_module](modules/panos_security_rule_module.md)
 - [panos_software_module](modules/panos_software_module.md)
 - [panos_static_route_module](modules/panos_static_route_module.md)
-- [panos_useridmodule](modules/panos_useridmodule.md)
+- [panos_useridmodule](modules/panos_userid_module.md)
