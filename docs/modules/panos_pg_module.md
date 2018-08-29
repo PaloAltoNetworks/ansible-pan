@@ -16,82 +16,55 @@ Create a security profile group
 
 | parameter | required | default | choices | comments |
 | --- | --- | --- | --- | --- |
-| commit  |
-| no |
-| True |
-| |  |
-| commit if changed  |
-</td></tr>
-| data_filtering  |
-| no |
-| None |
-| |  |
-| name of the data filtering profile  |
-</td></tr>
-| file_blocking  |
-| no |
-| None |
-| |  |
-| name of the file blocking profile  |
-</td></tr>
-| ip_address  |
-| yes |
-|  |
-| |  |
-| IP address (or hostname) of PAN-OS device  |
-</td></tr>
-| password  |
-| yes |
-|  |
-| |  |
-| password for authentication  |
-</td></tr>
-| pg_name  |
-| yes |
-|  |
-| |  |
-| name of the security profile group  |
-</td></tr>
-| spyware  |
-| no |
-| None |
-| |  |
-| name of the spyware profile  |
-</td></tr>
-| url_filtering  |
-| no |
-| None |
-| |  |
-| name of the url filtering profile  |
-</td></tr>
-| username  |
-| no |
-| admin |
-| |  |
-| username for authentication  |
-</td></tr>
-| virus  |
-| no |
-| None |
-| |  |
-| name of the anti-virus profile  |
-</td></tr>
-| vulnerability  |
-| no |
-| None |
-| |  |
-| name of the vulnerability profile  |
-</td></tr>
-| wildfire  |
-| no |
-| None |
-| |  |
-| name of the wildfire analysis profile  |
-</td></tr>
-</table>
-</br>
 
-
+NOT suboptions
+|commit|no||
+commit if changed
+ |
+NOT suboptions
+|data_filtering|no||
+name of the data filtering profile
+ |
+NOT suboptions
+|file_blocking|no||
+name of the file blocking profile
+ |
+NOT suboptions
+|ip_address|yes||
+IP address (or hostname) of PAN-OS device
+ |
+NOT suboptions
+|password|yes||
+password for authentication
+ |
+NOT suboptions
+|pg_name|yes||
+name of the security profile group
+ |
+NOT suboptions
+|spyware|no||
+name of the spyware profile
+ |
+NOT suboptions
+|url_filtering|no||
+name of the url filtering profile
+ |
+NOT suboptions
+|username|no||
+username for authentication
+ |
+NOT suboptions
+|virus|no||
+name of the anti-virus profile
+ |
+NOT suboptions
+|vulnerability|no||
+name of the vulnerability profile
+ |
+NOT suboptions
+|wildfire|no||
+name of the wildfire analysis profile
+ |
 
 ## Examples
 

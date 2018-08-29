@@ -18,77 +18,52 @@ Create a static address group object in the firewall used for policy rules.
 
 | parameter | required | default | choices | comments |
 | --- | --- | --- | --- | --- |
-| api_key  |
-| no |
-|  |
-| |  |
-| API key that can be used instead of <em>username</em>/<em>password</em> credentials.  |
-</td></tr>
-| commit  |
-| no |
-| True |
-| |  |
-| commit if changed  |
-</td></tr>
-| description  |
-| no |
-|  |
-| |  |
-| The purpose / objective of the static Address Group  |
-</td></tr>
-| devicegroup  |
-| no |
-| None |
-| |  |
-| - The name of the Panorama device group. The group must exist on Panorama. If device group is not defined it is assumed that we are contacting a firewall.
-      |
-</td></tr>
-| ip_address  |
-| yes |
-|  |
-| |  |
-| IP address (or hostname) of PAN-OS device  |
-</td></tr>
-| operation  |
-| yes |
-|  |
-| |  |
-| The operation to perform Supported values are <em>add</em>/<em>list</em>/<em>delete</em>.  |
-</td></tr>
-| password  |
-| yes |
-|  |
-| |  |
-| password for authentication  |
-</td></tr>
-| sag_name  |
-| yes |
-|  |
-| |  |
-| name of the dynamic address group  |
-</td></tr>
-| static_match_filter  |
-| yes |
-|  |
-| |  |
-| Static filter used by the address group  |
-</td></tr>
-| tags  |
-| no |
-|  |
-| |  |
-| Tags to be associated with the address group  |
-</td></tr>
-| username  |
-| no |
-| admin |
-| |  |
-| username for authentication  |
-</td></tr>
-</table>
-</br>
 
-
+NOT suboptions
+|api_key|no||
+API key that can be used instead of <em>username</em>/<em>password</em> credentials.
+ |
+NOT suboptions
+|commit|no||
+commit if changed
+ |
+NOT suboptions
+|description|no||
+The purpose / objective of the static Address Group
+ |
+NOT suboptions
+|devicegroup|no||
+- The name of the Panorama device group. The group must exist on Panorama. If device group is not defined it is assumed that we are contacting a firewall.
+    
+ |
+NOT suboptions
+|ip_address|yes||
+IP address (or hostname) of PAN-OS device
+ |
+NOT suboptions
+|operation|yes||
+The operation to perform Supported values are <em>add</em>/<em>list</em>/<em>delete</em>.
+ |
+NOT suboptions
+|password|yes||
+password for authentication
+ |
+NOT suboptions
+|sag_name|yes||
+name of the dynamic address group
+ |
+NOT suboptions
+|static_match_filter|yes||
+Static filter used by the address group
+ |
+NOT suboptions
+|tags|no||
+Tags to be associated with the address group
+ |
+NOT suboptions
+|username|no||
+username for authentication
+ |
 
 ## Examples
 

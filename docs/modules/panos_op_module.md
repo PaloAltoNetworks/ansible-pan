@@ -108,46 +108,32 @@ e
 
 | parameter | required | default | choices | comments |
 | --- | --- | --- | --- | --- |
-| api_key  |
-| no |
-|  |
-| |  |
-| API key that can be used instead of <em>username</em>/<em>password</em> credentials.  |
-</td></tr>
-| cmd  |
-| yes |
-|  |
-| |  |
-| The OP command to be performed.  |
-</td></tr>
-| cmd_is_xml  |
-| no |
-|  |
-|  yes / no |
-| The cmd is already given in XML format, so don't convert it.  |
-</td></tr>
-| ip_address  |
-| yes |
-|  |
-| |  |
-| IP address (or hostname) of PAN-OS device or Panorama management console being configured.  |
-</td></tr>
-| password  |
-| yes |
-|  |
-| |  |
-| Password credentials to use for authentication.  |
-</td></tr>
-| username  |
-| no |
-| admin |
-| |  |
-| Username credentials to use for authentication.  |
-</td></tr>
-</table>
-</br>
 
-
+NOT suboptions
+|api_key|no||
+API key that can be used instead of <em>username</em>/<em>password</em> credentials.
+ |
+NOT suboptions
+|cmd|yes||
+The OP command to be performed.
+ |
+NOT suboptions
+|cmd_is_xml|no||
+| 'yes/no' |
+The cmd is already given in XML format, so don't convert it.
+ |
+NOT suboptions
+|ip_address|yes||
+IP address (or hostname) of PAN-OS device or Panorama management console being configured.
+ |
+NOT suboptions
+|password|yes||
+Password credentials to use for authentication.
+ |
+NOT suboptions
+|username|no||
+Username credentials to use for authentication.
+ |
 
 ## Examples
 

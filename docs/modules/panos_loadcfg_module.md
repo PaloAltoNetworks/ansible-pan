@@ -16,40 +16,27 @@ Load configuration on PAN-OS device
 
 | parameter | required | default | choices | comments |
 | --- | --- | --- | --- | --- |
-| commit  |
-| no |
-| True |
-| |  |
-| commit if changed  |
-</td></tr>
-| file  |
-| no |
-| None |
-| |  |
-| configuration file to load  |
-</td></tr>
-| ip_address  |
-| yes |
-|  |
-| |  |
-| IP address (or hostname) of PAN-OS device  |
-</td></tr>
-| password  |
-| yes |
-|  |
-| |  |
-| password for authentication  |
-</td></tr>
-| username  |
-| no |
-| admin |
-| |  |
-| username for authentication  |
-</td></tr>
-</table>
-</br>
 
-
+NOT suboptions
+|commit|no||
+commit if changed
+ |
+NOT suboptions
+|file|no||
+configuration file to load
+ |
+NOT suboptions
+|ip_address|yes||
+IP address (or hostname) of PAN-OS device
+ |
+NOT suboptions
+|password|yes||
+password for authentication
+ |
+NOT suboptions
+|username|no||
+username for authentication
+ |
 
 ## Examples
 

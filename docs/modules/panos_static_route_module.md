@@ -17,82 +17,59 @@ Create static routes on PAN-OS devices.
 
 | parameter | required | default | choices | comments |
 | --- | --- | --- | --- | --- |
-| admin_dist  |
-| no |
-|  |
-| |  |
-| Administrative distance for static route.  |
-</td></tr>
-| api_key  |
-| no |
-|  |
-| |  |
-| API key to be used instead of <em>username</em> and <em>password</em>.  |
-</td></tr>
-| destination  |
-| no |
-|  |
-| |  |
-| Destination network.  Required if <em>state</em> is <em>present</em>.  |
-</td></tr>
-| ip_address  |
-| yes |
-|  |
-| |  |
-| IP address or hostname of PAN-OS device.  |
-</td></tr>
-| metric  |
-| no |
-| 10 |
-| |  |
-| Metric for route.  |
-</td></tr>
-| name  |
-| yes |
-|  |
-| |  |
-| Name of static route.  |
-</td></tr>
-| nexthop  |
-| no |
-|  |
-| |  |
-| Next hop IP address.  Required if <em>state</em> is <em>present</em>.  |
-</td></tr>
-| nexthop_type  |
-| no |
+
+NOT suboptions
+|admin_dist|no||
+Administrative distance for static route.
+ |
+NOT suboptions
+|api_key|no||
+API key to be used instead of <em>username</em> and <em>password</em>.
+ |
+NOT suboptions
+|destination|no||
+Destination network.  Required if <em>state</em> is <em>present</em>.
+ |
+NOT suboptions
+|ip_address|yes||
+IP address or hostname of PAN-OS device.
+ |
+NOT suboptions
+|metric|no||
+Metric for route.
+ |
+NOT suboptions
+|name|yes||
+Name of static route.
+ |
+NOT suboptions
+|nexthop|no||
+Next hop IP address.  Required if <em>state</em> is <em>present</em>.
+ |
+NOT suboptions
+|nexthop_type|no||
 | ip-address |
-| |  ip-address discard  |
-| Type of next hop.  |
-</td></tr>
-| password  |
-| no |
-|  |
-| |  |
-| Password for authentication for PAN-OS device.  Optional if <em>api_key</em> is used.  |
-</td></tr>
-| state  |
-| no |
+| discard |
+Type of next hop.
+ |
+NOT suboptions
+|password|no||
+Password for authentication for PAN-OS device.  Optional if <em>api_key</em> is used.
+ |
+NOT suboptions
+|state|no||
 | present |
-| |  present absent  |
-| Create or remove static route.  |
-</td></tr>
-| username  |
-| no |
-| admin |
-| |  |
-| Username for authentication for PAN-OS device.  Optional if <em>api_key</em> is used.  |
-</td></tr>
-| virtual_router  |
-| no |
-| default |
-| |  |
-| Virtual router to use.  |
-</td></tr>
-</table>
-</br>
-
-
+| absent |
+Create or remove static route.
+ |
+NOT suboptions
+|username|no||
+Username for authentication for PAN-OS device.  Optional if <em>api_key</em> is used.
+ |
+NOT suboptions
+|virtual_router|no||
+Virtual router to use.
+ |
 
 ## Examples
 

@@ -18,76 +18,51 @@ Create a dynamic address group object in the firewall used for policy rules
 
 | parameter | required | default | choices | comments |
 | --- | --- | --- | --- | --- |
-| api_key  |
-| no |
-|  |
-| |  |
-| API key that can be used instead of <em>username</em>/<em>password</em> credentials.  |
-</td></tr>
-| commit  |
-| no |
-| True |
-| |  |
-| commit if changed  |
-</td></tr>
-| dag_match_filter  |
-| yes |
-|  |
-| |  |
-| dynamic filter user by the dynamic address group  |
-</td></tr>
-| dag_name  |
-| yes |
-|  |
-| |  |
-| name of the dynamic address group  |
-</td></tr>
-| description  |
-| no |
-|  |
-| |  |
-| The description of the object.  |
-</td></tr>
-| devicegroup  |
-| no |
-| None |
-| |  |
-| The name of the Panorama device group. The group must exist on Panorama. If device group is not defined it is assumed that we are contacting a firewall.  |
-</td></tr>
-| ip_address  |
-| yes |
-|  |
-| |  |
-| IP address (or hostname) of PAN-OS device  |
-</td></tr>
-| operation  |
-| yes |
-|  |
-| |  |
-| The operation to perform Supported values are <em>add</em>/<em>list</em>/<em>delete</em>.  |
-</td></tr>
-| password  |
-| yes |
-|  |
-| |  |
-| password for authentication  |
-</td></tr>
-| tag_name  |
-| no |
-|  |
-| |  |
-| Add administrative tags to the DAG  |
-</td></tr>
-| username  |
-| no |
-| admin |
-| |  |
-| username for authentication  |
-</td></tr>
-</table>
-</br>
 
-
+NOT suboptions
+|api_key|no||
+API key that can be used instead of <em>username</em>/<em>password</em> credentials.
+ |
+NOT suboptions
+|commit|no||
+commit if changed
+ |
+NOT suboptions
+|dag_match_filter|yes||
+dynamic filter user by the dynamic address group
+ |
+NOT suboptions
+|dag_name|yes||
+name of the dynamic address group
+ |
+NOT suboptions
+|description|no||
+The description of the object.
+ |
+NOT suboptions
+|devicegroup|no||
+The name of the Panorama device group. The group must exist on Panorama. If device group is not defined it is assumed that we are contacting a firewall.
+ |
+NOT suboptions
+|ip_address|yes||
+IP address (or hostname) of PAN-OS device
+ |
+NOT suboptions
+|operation|yes||
+The operation to perform Supported values are <em>add</em>/<em>list</em>/<em>delete</em>.
+ |
+NOT suboptions
+|password|yes||
+password for authentication
+ |
+NOT suboptions
+|tag_name|no||
+Add administrative tags to the DAG
+ |
+NOT suboptions
+|username|no||
+username for authentication
+ |
 
 ## Examples
 
