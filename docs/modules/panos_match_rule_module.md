@@ -17,75 +17,23 @@ Security policies allow you to enforce rules and take action, and can be as gene
 
 | parameter | required | default | choices | comments |
 | --- | --- | --- | --- | --- |
-
-NOT suboptions
-|api_key|no||
-API key that can be used instead of <em>username</em>/<em>password</em> credentials.
- |
-NOT suboptions
-|application|no||
-The application.
- |
-NOT suboptions
-|category|no||
-URL category
- |
-NOT suboptions
-|destination_ip|no||
-The destination IP address.
- |
-NOT suboptions
-|destination_port|no||
-The destination port.
- |
-NOT suboptions
-|destination_zone|no||
-The destination zone.
- |
-NOT suboptions
-|ip_address|yes||
-IP address (or hostname) of PAN-OS device being configured.
- |
-NOT suboptions
-|password|yes||
-Password credentials to use for auth unless <em>api_key</em> is set.
- |
-NOT suboptions
-|protocol|no||
-The IP protocol number from 1 to 255.
- |
-NOT suboptions
-|rule_type|no||
-Type of rule. Valid types are <em>security</em> or <em>nat</em>.
- |
-NOT suboptions
-|source_ip|yes||
-The source IP address.
- |
-NOT suboptions
-|source_port|no||
-The source port.
- |
-NOT suboptions
-|source_user|no||
-The source user or group.
- |
-NOT suboptions
-|source_zone|no||
-The source zone.
- |
-NOT suboptions
-|to_interface|no||
-The inbound interface in a NAT rule.
- |
-NOT suboptions
-|username|no||
-Username credentials to use for auth unless <em>api_key</em> is set.
- |
-NOT suboptions
-|vsys_id|yes||
-ID of the VSYS object.
- |
+| api_key |  |  |  | API key that can be used instead of <em>username</em>/<em>password</em> credentials. |
+| application |  |  |  | The application. |
+| category |  |  |  | URL category |
+| destination_ip |  |  |  | The destination IP address. |
+| destination_port |  |  |  | The destination port. |
+| destination_zone |  |  |  | The destination zone. |
+| ip_address | yes |  |  | IP address (or hostname) of PAN-OS device being configured. |
+| password | yes |  |  | Password credentials to use for auth unless <em>api_key</em> is set. |
+| protocol |  |  |  | The IP protocol number from 1 to 255. |
+| rule_type |  | security |  | Type of rule. Valid types are <em>security</em> or <em>nat</em>. |
+| source_ip | yes |  |  | The source IP address. |
+| source_port |  |  |  | The source port. |
+| source_user |  |  |  | The source user or group. |
+| source_zone |  |  |  | The source zone. |
+| to_interface |  |  |  | The inbound interface in a NAT rule. |
+| username |  | admin |  | Username credentials to use for auth unless <em>api_key</em> is set. |
+| vsys_id | yes | vsys1 |  | ID of the VSYS object. |
 
 ## Examples
 

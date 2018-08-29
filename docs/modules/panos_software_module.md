@@ -17,31 +17,12 @@ Install specific release of PAN-OS.
 
 | parameter | required | default | choices | comments |
 | --- | --- | --- | --- | --- |
-
-NOT suboptions
-|api_key|no||
-API key to be used instead of <em>username</em> and <em>password</em>.
- |
-NOT suboptions
-|ip_address|yes||
-IP address or hostname of PAN-OS device.
- |
-NOT suboptions
-|password|no||
-Password for authentication for PAN-OS device.  Optional if <em>api_key</em> is used.
- |
-NOT suboptions
-|restart|no||
-Restart device after installing desired version.  Use in conjunction with panos_check to determine when firewall is ready again.
- |
-NOT suboptions
-|username|no||
-Username for authentication for PAN-OS device.  Optional if <em>api_key</em> is used.
- |
-NOT suboptions
-|version|yes||
-Desired PAN-OS release.
- |
+| api_key |  |  |  | API key to be used instead of <em>username</em> and <em>password</em>. |
+| ip_address | yes |  |  | IP address or hostname of PAN-OS device. |
+| password |  |  |  | Password for authentication for PAN-OS device.  Optional if <em>api_key</em> is used. |
+| restart |  |  |  | Restart device after installing desired version.  Use in conjunction with panos_check to determine when firewall is ready again. |
+| username |  | admin |  | Username for authentication for PAN-OS device.  Optional if <em>api_key</em> is used. |
+| version | yes |  |  | Desired PAN-OS release. |
 
 ## Examples
 

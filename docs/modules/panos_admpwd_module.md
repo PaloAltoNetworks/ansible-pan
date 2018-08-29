@@ -17,23 +17,10 @@ Useful for AWS instances where the first login should be done via SSH.
 
 | parameter | required | default | choices | comments |
 | --- | --- | --- | --- | --- |
-
-NOT suboptions
-|ip_address|yes||
-IP address (or hostname) of PAN-OS device
- |
-NOT suboptions
-|key_filename|yes||
-filename of the SSH Key to use for authentication
- |
-NOT suboptions
-|newpassword|yes||
-password to configure for admin on the PAN-OS device
- |
-NOT suboptions
-|username|no||
-username for initial authentication
- |
+| ip_address | yes |  |  | IP address (or hostname) of PAN-OS device |
+| key_filename | yes |  |  | filename of the SSH Key to use for authentication |
+| newpassword | yes |  |  | password to configure for admin on the PAN-OS device |
+| username |  | admin |  | username for initial authentication |
 
 ## Examples
 

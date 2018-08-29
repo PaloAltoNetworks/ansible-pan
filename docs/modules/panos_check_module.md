@@ -17,27 +17,11 @@ The check could be done once or multiple times until the device is ready.
 
 | parameter | required | default | choices | comments |
 | --- | --- | --- | --- | --- |
-
-NOT suboptions
-|interval|no||
-time waited between checks
- |
-NOT suboptions
-|ip_address|yes||
-IP address (or hostname) of PAN-OS device
- |
-NOT suboptions
-|password|yes||
-password for authentication
- |
-NOT suboptions
-|timeout|no||
-timeout of API calls
- |
-NOT suboptions
-|username|no||
-username for authentication
- |
+| interval |  | 0 |  | time waited between checks |
+| ip_address | yes |  |  | IP address (or hostname) of PAN-OS device |
+| password | yes |  |  | password for authentication |
+| timeout |  | 0 |  | timeout of API calls |
+| username |  | admin |  | username for authentication |
 
 ## Examples
 

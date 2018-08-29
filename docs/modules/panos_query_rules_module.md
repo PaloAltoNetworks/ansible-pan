@@ -323,63 +323,20 @@ s
 
 | parameter | required | default | choices | comments |
 | --- | --- | --- | --- | --- |
-
-NOT suboptions
-|api_key|no||
-API key that can be used instead of <em>username</em>/<em>password</em> credentials.
- |
-NOT suboptions
-|application|no||
-Name of the application or application group to be queried.
- |
-NOT suboptions
-|destination_ip|no||
-The destination IP address to be queried.
- |
-NOT suboptions
-|destination_port|no||
-The destination port to be queried.
- |
-NOT suboptions
-|destination_zone|no||
-Name of the destination security zone to be queried.
- |
-NOT suboptions
-|devicegroup|no||
-The Panorama device group in which to conduct the query.
- |
-NOT suboptions
-|ip_address|yes||
-IP address (or hostname) of PAN-OS firewall or Panorama management console being queried.
- |
-NOT suboptions
-|password|yes||
-Password credentials to use for authentication.
- |
-NOT suboptions
-|protocol|no||
-The protocol used to be queried.  Must be either <em>tcp</em> or <em>udp</em>.
- |
-NOT suboptions
-|source_ip|no||
-The source IP address to be queried.
- |
-NOT suboptions
-|source_port|no||
-The source port to be queried.
- |
-NOT suboptions
-|source_zone|no||
-Name of the source security zone to be queried.
- |
-NOT suboptions
-|tag_name|no||
-Name of the rule tag to be queried.
- |
-NOT suboptions
-|username|no||
-Username credentials to use for authentication.
- |
+| api_key |  |  |  | API key that can be used instead of <em>username</em>/<em>password</em> credentials. |
+| application |  | None |  | Name of the application or application group to be queried. |
+| destination_ip |  | None |  | The destination IP address to be queried. |
+| destination_port |  | None |  | The destination port to be queried. |
+| destination_zone |  | None |  | Name of the destination security zone to be queried. |
+| devicegroup |  | None |  | The Panorama device group in which to conduct the query. |
+| ip_address | yes |  |  | IP address (or hostname) of PAN-OS firewall or Panorama management console being queried. |
+| password | yes |  |  | Password credentials to use for authentication. |
+| protocol |  | None |  | The protocol used to be queried.  Must be either <em>tcp</em> or <em>udp</em>. |
+| source_ip |  | None |  | The source IP address to be queried. |
+| source_port |  | None |  | The source port to be queried. |
+| source_zone |  | None |  | Name of the source security zone to be queried. |
+| tag_name |  | None |  | Name of the rule tag to be queried. |
+| username |  | admin |  | Username credentials to use for authentication. |
 
 ## Examples
 

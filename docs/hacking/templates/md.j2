@@ -34,64 +34,41 @@ Aliases: @{ ','.join(aliases) }@
 {% if options -%}
 ## Options
 
-{% set out_line = '| parameter | required | default | choices | comments |\n' %}
-{% set out_line = out_line + '| --- | --- | --- | --- | --- |\n' %}
-@{ out_line }@
+| parameter | required | default | choices | comments |
+| --- | --- | --- | --- | --- |
 {% for k in option_keys %}
 {% set v = options[k] %}
-{% set required = 'no' %}
+{% set required = '' %}
 {% set default = '' %}
+{% set description = [] %}
+{% set choices = [] %}
+{% set out_line = ' EMPTY ' %}
 {% if v.get('required', False) %}{% set required = 'yes' %}{% endif %}
-{% if not v['default'] %}{% set default = '' %}{% endif %}
+{% if v['default'] %}{% set default = v['default']|string %}{% endif %}
 {% if not v['suboptions'] %}
-NOT suboptions
-{% set out_line = '|' + k +'|' + required + '|' + default + '|' %}
-@{ out_line }@
-    {% if v.get('type', 'not_bool') == 'bool' %}
-| 'yes/no' |
-    {% else %}
-        {% if v['choices'] %}
-            {% for choice in v.get('choices',[]) -%}
-| @{ choice }@ |
-            {% endfor -%}
-        {% endif %}
+  {% set out_line = '|' + k +'|' + required + '|' + default + '|' %}
+  {% if v.get('type', 'not_bool') == 'bool' %}
+    {% set out_line = out_line + 'yes/no |' %}
+  {% else %}
+    {% if v['choices'] %}
+      {% set c_array = [] %}
+      {% for choice in v.get('choices',[]) -%}
+        {% if c_array.append(choice|string) %}{% endif %}
+      {% endfor -%}
+      {% if choices.append(c_array|join(', ')) %}{% endif %}
     {% endif %}
+  {% endif %}
     {% for desc in v.description -%}
-        @{ desc | replace('\n', '\n    ') | html_ify }@
+      {% if description.append(desc | html_ify) %}{% endif %}
     {% endfor -%}
+| @{ k }@ | @{ required }@ | @{ default }@ | @{ choices|list|join }@ | @{ description|list|join }@ |
     {% if 'aliases' in v and v.aliases -%}
-        aliases: @{ v.aliases|join(', ') }@ {%- endif %} |
+        aliases: @{ v.aliases|join(', ') }@ {%- endif %}
     {% else %}
 | @{ k }@ {% if v['version_added'] %} (added in @{v['version_added']}@){% endif %} |
 | {% if v.get('required', False) %}yes{% else %}no{% endif %} |
-        {% for desc in v.description -%}<div>@{ desc | replace('\n', '\n    ') | html_ify }@</div>{% endfor -%} {% if 'aliases' in v and v.aliases -%}</br>
-<div style="font-size: small;">aliases: @{ v.aliases|join(', ') }@<div>{%- endif %}
-</tr>
-<tr>
-<td colspan="5">
-<table border=1 cellpadding=4>
-<caption><b>Dictionary object @{ k }@</b></caption>
-<tr>
-<th class="head">parameter</th>
-<th class="head">required</th>
-<th class="head">default</th>
-<th class="head">choices</th>
-<th class="head">comments</th>
-</tr>
-{% for k2 in v['suboptions'] %}
-    {% set v2 = v['suboptions'] [k2] %}
-    <tr><td>@{ k2 }@<br/><div style="font-size: small;">{% if v2['version_added'] %} (added in @{v2['version_added']}@){% endif %}</div></td>
-    <td>{% if v2.get('required', False) %}yes{% else %}no{% endif %}</td>
-    <td>{% if v2['default'] %}@{ v2['default'] }@{% endif %}</td>
-    {% if v2.get('type', 'not_bool') == 'bool' %}
-    <td><ul><li>yes</li><li>no</li></ul></td>
-    {% else %}
-    <td>{% if v2['choices'] %}<ul>{% for choice in v2.get('choices',[]) -%}<li>@{ choice }@</li>{% endfor -%}</ul>{% endif %}</td>
-    {% endif %}
-    <td>{% for desc in v2.description -%}<div>@{ desc | replace('\n', '\n    ') | html_ify }@</div>{% endfor -%} {% if 'aliases' in v and v2.aliases -%}</br>
-    <div style="font-size: small;">aliases: @{ v2.aliases|join(', ') }@<div>{%- endif %}
-    </td></tr>
-{% endfor %}
+        {% for desc in v.description -%}<div>@{ desc | replace('\n', '\n    ') | html_ify }@
+        {% endfor -%}
 {% endif %}
 {% endfor %}
 {% endif %}
@@ -113,9 +90,9 @@ The following are the fields unique to this module:
 
 | name | description | returned | type | sample |
 | --- | --- | --- | --- | --- |
-{% for entry in returndocs %}
+    {% for entry in returndocs %}
 | @{ entry }@ | @{ returndocs[entry].description }@ | @{ returndocs[entry].returned }@ | @{ returndocs[entry].type }@ | @{ returndocs[entry].sample}@ |
-{% endfor %}
+    {% endfor %}
 {% endif %}
 
 {% if notes -%}

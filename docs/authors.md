@@ -3,12 +3,15 @@ Authors
 
 **Development Leads**
 
--   Ivan Bojer (\@ivanbojer)
--   Luigi Mori (\@jtschichold)
+-   Ivan Bojer (@ivanbojer)
+-   Garfield Freeman (@shinmog)
+
 
 **Contributors**
 
--   Robert Hagen (\@rnh556)
+-   Robert Hagen (@rnh556)
+-   Luigi Mori (@jtschichold)
+-   Vinay Venkataraghavan (@vinayvenkat)
 
 **Credits**
 

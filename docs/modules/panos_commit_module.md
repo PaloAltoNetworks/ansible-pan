@@ -18,27 +18,11 @@ the device. The new configuration will become active immediately.
 
 | parameter | required | default | choices | comments |
 | --- | --- | --- | --- | --- |
-
-NOT suboptions
-|api_key|no||
-API key that can be used instead of <em>username</em>/<em>password</em> credentials.
- |
-NOT suboptions
-|devicegroup|no||
-The Panorama device group to be committed.
- |
-NOT suboptions
-|ip_address|yes||
-The IP address (or hostname) of the PAN-OS device or Panorama management console.
- |
-NOT suboptions
-|password|yes||
-Password credentials to use for authentication.
- |
-NOT suboptions
-|username|no||
-Username credentials to use for authentication.
- |
+| api_key |  |  |  | API key that can be used instead of <em>username</em>/<em>password</em> credentials. |
+| devicegroup |  |  |  | The Panorama device group to be committed. |
+| ip_address | yes |  |  | The IP address (or hostname) of the PAN-OS device or Panorama management console. |
+| password | yes |  |  | Password credentials to use for authentication. |
+| username |  | admin |  | Username credentials to use for authentication. |
 
 ## Examples
 

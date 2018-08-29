@@ -323,146 +323,43 @@ s
 
 | parameter | required | default | choices | comments |
 | --- | --- | --- | --- | --- |
-
-NOT suboptions
-|action|no||
-Action to apply once rules maches.
+| action |  | allow |  | Action to apply once rules maches. |
+| antivirus |  | None |  | Name of the already defined antivirus profile. |
+| api_key |  |  |  | API key that can be used instead of <em>username</em>/<em>password</em> credentials. |
+| application |  | any |  | List of applications. |
+| commit |  | True |  | Commit configuration if changed. |
+| data_filtering |  | None |  | Name of the already defined data_filtering profile. |
+| description |  | None |  | Description for the security rule. |
+| destination_ip |  | any |  | List of destination addresses. |
+| destination_zone |  | any |  | List of destination zones. |
+| devicegroup |  | None |  | - Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama. If device group is not define we assume that we are contacting Firewall.
  |
-NOT suboptions
-|antivirus|no||
-Name of the already defined antivirus profile.
+| existing_rule |  |  |  | If 'location' is set to 'before' or 'after', this option specifies an existing rule name.  The new rule will be created in the specified position relative to this rule.  If 'location' is set to 'before' or 'after', this option is required. |
+| file_blocking |  | None |  | Name of the already defined file_blocking profile. |
+| group_profile |  | None |  | - Security profile group that is already defined in the system. This property supersedes antivirus, vulnerability, spyware, url_filtering, file_blocking, data_filtering, and wildfire_analysis properties.
  |
-NOT suboptions
-|api_key|no||
-API key that can be used instead of <em>username</em>/<em>password</em> credentials.
+| hip_profiles |  | any |  | - If you are using GlobalProtect with host information profile (HIP) enabled, you can also base the policy on information collected by GlobalProtect. For example, the user access level can be determined HIP that notifies the firewall about the user's local configuration.
  |
-NOT suboptions
-|application|no||
-List of applications.
- |
-NOT suboptions
-|commit|no||
-Commit configuration if changed.
- |
-NOT suboptions
-|data_filtering|no||
-Name of the already defined data_filtering profile.
- |
-NOT suboptions
-|description|no||
-Description for the security rule.
- |
-NOT suboptions
-|destination_ip|no||
-List of destination addresses.
- |
-NOT suboptions
-|destination_zone|no||
-List of destination zones.
- |
-NOT suboptions
-|devicegroup|no||
-- Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama. If device group is not define we assume that we are contacting Firewall.
-    
- |
-NOT suboptions
-|existing_rule|no||
-If 'location' is set to 'before' or 'after', this option specifies an existing rule name.  The new rule will be created in the specified position relative to this rule.  If 'location' is set to 'before' or 'after', this option is required.
- |
-NOT suboptions
-|file_blocking|no||
-Name of the already defined file_blocking profile.
- |
-NOT suboptions
-|group_profile|no||
-- Security profile group that is already defined in the system. This property supersedes antivirus, vulnerability, spyware, url_filtering, file_blocking, data_filtering, and wildfire_analysis properties.
-    
- |
-NOT suboptions
-|hip_profiles|no||
-- If you are using GlobalProtect with host information profile (HIP) enabled, you can also base the policy on information collected by GlobalProtect. For example, the user access level can be determined HIP that notifies the firewall about the user's local configuration.
-    
- |
-NOT suboptions
-|ip_address|yes||
-IP address (or hostname) of PAN-OS device being configured.
- |
-NOT suboptions
-|location|no||
-Position to place the created rule in the rule base.  Supported values are <em>top</em>/<em>bottom</em>/<em>before</em>/<em>after</em>.
- |
-NOT suboptions
-|log_end|no||
-Whether to log at session end.
- |
-NOT suboptions
-|log_setting|no||
-Log forwarding profile
- |
-NOT suboptions
-|log_start|no||
-Whether to log at session start.
- |
-NOT suboptions
-|operation|no||
-The action to be taken.  Supported values are <em>add</em>/<em>update</em>/<em>find</em>/<em>delete</em>.
- |
-NOT suboptions
-|panorama_post_rule|no||
-If the security rule is applied against panorama, set this to True in order to inject it into post rule.
- |
-NOT suboptions
-|password|yes||
-Password credentials to use for auth unless <em>api_key</em> is set.
- |
-NOT suboptions
-|rule_name|yes||
-Name of the security rule.
- |
-NOT suboptions
-|rule_type|no||
-Type of security rule (version 6.1 of PanOS and above).
- |
-NOT suboptions
-|service|no||
-List of services.
- |
-NOT suboptions
-|source_ip|no||
-List of source addresses.
- |
-NOT suboptions
-|source_user|no||
-Use users to enforce policy for individual users or a group of users.
- |
-NOT suboptions
-|source_zone|no||
-List of source zones.
- |
-NOT suboptions
-|spyware|no||
-Name of the already defined spyware profile.
- |
-NOT suboptions
-|tag_name|no||
-Administrative tags that can be added to the rule. Note, tags must be already defined.
- |
-NOT suboptions
-|url_filtering|no||
-Name of the already defined url_filtering profile.
- |
-NOT suboptions
-|username|no||
-Username credentials to use for auth unless <em>api_key</em> is set.
- |
-NOT suboptions
-|vulnerability|no||
-Name of the already defined vulnerability profile.
- |
-NOT suboptions
-|wildfire_analysis|no||
-Name of the already defined wildfire_analysis profile.
- |
+| ip_address | yes |  |  | IP address (or hostname) of PAN-OS device being configured. |
+| location |  |  |  | Position to place the created rule in the rule base.  Supported values are <em>top</em>/<em>bottom</em>/<em>before</em>/<em>after</em>. |
+| log_end |  | True |  | Whether to log at session end. |
+| log_setting |  |  |  | Log forwarding profile |
+| log_start |  |  |  | Whether to log at session start. |
+| operation |  | add |  | The action to be taken.  Supported values are <em>add</em>/<em>update</em>/<em>find</em>/<em>delete</em>. |
+| panorama_post_rule |  |  |  | If the security rule is applied against panorama, set this to True in order to inject it into post rule. |
+| password | yes |  |  | Password credentials to use for auth unless <em>api_key</em> is set. |
+| rule_name | yes |  |  | Name of the security rule. |
+| rule_type |  | universal |  | Type of security rule (version 6.1 of PanOS and above). |
+| service |  | application-default |  | List of services. |
+| source_ip |  | any |  | List of source addresses. |
+| source_user |  | any |  | Use users to enforce policy for individual users or a group of users. |
+| source_zone |  | any |  | List of source zones. |
+| spyware |  | None |  | Name of the already defined spyware profile. |
+| tag_name |  | None |  | Administrative tags that can be added to the rule. Note, tags must be already defined. |
+| url_filtering |  | None |  | Name of the already defined url_filtering profile. |
+| username |  | admin |  | Username credentials to use for auth unless <em>api_key</em> is set. |
+| vulnerability |  | None |  | Name of the already defined vulnerability profile. |
+| wildfire_analysis |  | None |  | Name of the already defined wildfire_analysis profile. |
 
 ## Examples
 

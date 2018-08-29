@@ -234,99 +234,29 @@ s
 
 | parameter | required | default | choices | comments |
 | --- | --- | --- | --- | --- |
-
-NOT suboptions
-|api_key|no||
-API key that can be used instead of <em>username</em>/<em>password</em> credentials.
- |
-NOT suboptions
-|commit|no||
-Commit configuration if changed.
- |
-NOT suboptions
-|destination_ip|no||
-list of destination addresses
- |
-NOT suboptions
-|destination_zone|yes||
-destination zone
- |
-NOT suboptions
-|dnat_address|no||
-dnat translated address
- |
-NOT suboptions
-|dnat_port|no||
-dnat translated port
- |
-NOT suboptions
-|existing_rule|no||
-If 'location' is set to 'before' or 'after', this option specifies an existing rule name.  The new rule will be created in the specified position relative to this rule.  If 'location' is set to 'before' or 'after', this option is required.
- |
-NOT suboptions
-|ip_address|yes||
-IP address (or hostname) of PAN-OS device being configured.
- |
-NOT suboptions
-|location|no||
-Position to place the created rule in the rule base.  Supported values are <em>top</em>/<em>bottom</em>/<em>before</em>/<em>after</em>.
- |
-NOT suboptions
-|operation|no||
-The action to be taken.  Supported values are <em>add</em>/<em>update</em>/<em>find</em>/<em>delete</em>/<em>disable</em>.
- |
-NOT suboptions
-|password|yes||
-Password credentials to use for auth unless <em>api_key</em> is set.
- |
-NOT suboptions
-|rule_name|yes||
-name of the SNAT rule
- |
-NOT suboptions
-|service|no||
-service
- |
-NOT suboptions
-|snat_address_type|no||
-type of source translation. Supported values are <em>translated-address</em>/<em>interface-address</em>.
- |
-NOT suboptions
-|snat_bidirectional|no||
-bidirectional flag
- |
-NOT suboptions
-|snat_dynamic_address|no||
-Source NAT translated address. Used with Dynamic-IP and Dynamic-IP-and-Port.
- |
-NOT suboptions
-|snat_interface|no||
-snat interface
- |
-NOT suboptions
-|snat_interface_address|no||
-snat interface address
- |
-NOT suboptions
-|snat_static_address|no||
-Source NAT translated address. Used with Static-IP translation.
- |
-NOT suboptions
-|snat_type|no||
-type of source translation
- |
-NOT suboptions
-|source_ip|no||
-list of source addresses
- |
-NOT suboptions
-|source_zone|yes||
-list of source zones
- |
-NOT suboptions
-|username|no||
-Username credentials to use for auth unless <em>api_key</em> is set.
- |
+| api_key |  |  |  | API key that can be used instead of <em>username</em>/<em>password</em> credentials. |
+| commit |  | True |  | Commit configuration if changed. |
+| destination_ip |  | [u'any'] |  | list of destination addresses |
+| destination_zone | yes |  |  | destination zone |
+| dnat_address |  | None |  | dnat translated address |
+| dnat_port |  | None |  | dnat translated port |
+| existing_rule |  |  |  | If 'location' is set to 'before' or 'after', this option specifies an existing rule name.  The new rule will be created in the specified position relative to this rule.  If 'location' is set to 'before' or 'after', this option is required. |
+| ip_address | yes |  |  | IP address (or hostname) of PAN-OS device being configured. |
+| location |  |  |  | Position to place the created rule in the rule base.  Supported values are <em>top</em>/<em>bottom</em>/<em>before</em>/<em>after</em>. |
+| operation |  |  |  | The action to be taken.  Supported values are <em>add</em>/<em>update</em>/<em>find</em>/<em>delete</em>/<em>disable</em>. |
+| password | yes |  |  | Password credentials to use for auth unless <em>api_key</em> is set. |
+| rule_name | yes |  |  | name of the SNAT rule |
+| service |  | any |  | service |
+| snat_address_type |  | translated-address |  | type of source translation. Supported values are <em>translated-address</em>/<em>interface-address</em>. |
+| snat_bidirectional |  | false |  | bidirectional flag |
+| snat_dynamic_address |  | None |  | Source NAT translated address. Used with Dynamic-IP and Dynamic-IP-and-Port. |
+| snat_interface |  | None |  | snat interface |
+| snat_interface_address |  | None |  | snat interface address |
+| snat_static_address |  | None |  | Source NAT translated address. Used with Static-IP translation. |
+| snat_type |  | None |  | type of source translation |
+| source_ip |  | [u'any'] |  | list of source addresses |
+| source_zone | yes |  |  | list of source zones |
+| username |  | admin |  | Username credentials to use for auth unless <em>api_key</em> is set. |
 
 ## Examples
 

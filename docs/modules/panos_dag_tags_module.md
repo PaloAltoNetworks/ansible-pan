@@ -17,48 +17,17 @@ Create the ip address to tag associations. Tags will in turn be used to create D
 
 | parameter | required | default | choices | comments |
 | --- | --- | --- | --- | --- |
-
-NOT suboptions
-|api_key|no||
-API key that can be used instead of <em>username</em>/<em>password</em> credentials.
+| api_key |  |  |  | API key that can be used instead of <em>username</em>/<em>password</em> credentials. |
+| commit |  | True |  | commit if changed |
+| description |  |  |  | The purpose / objective of the static Address Group |
+| devicegroup |  |  |  | - Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama. If device group is not define we assume that we are contacting Firewall.
  |
-NOT suboptions
-|commit|no||
-commit if changed
- |
-NOT suboptions
-|description|no||
-The purpose / objective of the static Address Group
- |
-NOT suboptions
-|devicegroup|no||
-- Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama. If device group is not define we assume that we are contacting Firewall.
-    
- |
-NOT suboptions
-|ip_address|yes||
-IP address (or hostname) of PAN-OS device
- |
-NOT suboptions
-|ip_to_register|no||
-IP that will be registered with the given tag names.
- |
-NOT suboptions
-|operation|no||
-The action to be taken. Supported values are <em>add</em>/<em>update</em>/<em>find</em>/<em>delete</em>.
- |
-NOT suboptions
-|password|yes||
-password for authentication
- |
-NOT suboptions
-|tag_names|no||
-The list of the tags that will be added or removed from the IP address.
- |
-NOT suboptions
-|username|no||
-username for authentication
- |
+| ip_address | yes |  |  | IP address (or hostname) of PAN-OS device |
+| ip_to_register |  |  |  | IP that will be registered with the given tag names. |
+| operation |  |  |  | The action to be taken. Supported values are <em>add</em>/<em>update</em>/<em>find</em>/<em>delete</em>. |
+| password | yes |  |  | password for authentication |
+| tag_names |  |  |  | The list of the tags that will be added or removed from the IP address. |
+| username |  | admin |  | username for authentication |
 
 ## Examples
 

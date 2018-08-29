@@ -17,39 +17,14 @@ otherwise. Root certificate must be preset on the system first. This module depe
 
 | parameter | required | default | choices | comments |
 | --- | --- | --- | --- | --- |
-
-NOT suboptions
-|cert_cn|yes||
-Certificate CN (common name) embedded in the certificate signature.
- |
-NOT suboptions
-|cert_friendly_name|yes||
-Human friendly certificate name (not CN but just a friendly name).
- |
-NOT suboptions
-|ip_address|yes||
-IP address (or hostname) of PAN-OS device being configured.
- |
-NOT suboptions
-|key_filename|yes||
-Location of the filename that is used for the auth. Either <em>key_filename</em> or <em>password</em> is required.
- |
-NOT suboptions
-|password|yes||
-Password credentials to use for auth. Either <em>key_filename</em> or <em>password</em> is required.
- |
-NOT suboptions
-|rsa_nbits|no||
-Number of bits used by the RSA algorithm for the certificate generation.
- |
-NOT suboptions
-|signed_by|yes||
-Undersigning authority (CA) that MUST already be presents on the device.
- |
-NOT suboptions
-|username|no||
-User name to use for auth. Default is admin.
- |
+| cert_cn | yes |  |  | Certificate CN (common name) embedded in the certificate signature. |
+| cert_friendly_name | yes |  |  | Human friendly certificate name (not CN but just a friendly name). |
+| ip_address | yes |  |  | IP address (or hostname) of PAN-OS device being configured. |
+| key_filename | yes |  |  | Location of the filename that is used for the auth. Either <em>key_filename</em> or <em>password</em> is required. |
+| password | yes |  |  | Password credentials to use for auth. Either <em>key_filename</em> or <em>password</em> is required. |
+| rsa_nbits |  | 2048 |  | Number of bits used by the RSA algorithm for the certificate generation. |
+| signed_by | yes |  |  | Undersigning authority (CA) that MUST already be presents on the device. |
+| username |  | admin |  | User name to use for auth. Default is admin. |
 
 ## Examples
 

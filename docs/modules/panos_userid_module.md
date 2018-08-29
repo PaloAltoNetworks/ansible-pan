@@ -17,35 +17,13 @@ Userid allows for user to IP mapping that can be used in the policy rules.
 
 | parameter | required | default | choices | comments |
 | --- | --- | --- | --- | --- |
-
-NOT suboptions
-|api_key|no||
-API key that can be used instead of <em>username</em>/<em>password</em> credentials.
- |
-NOT suboptions
-|ip_address|yes||
-IP address (or hostname) of PAN-OS device being configured.
- |
-NOT suboptions
-|operation|no||
-The action to be taken.  Supported values are <em>login</em>/<em>logout</em>.
- |
-NOT suboptions
-|password|yes||
-Password credentials to use for auth unless <em>api_key</em> is set.
- |
-NOT suboptions
-|register_ip|yes||
-ip of the user's machine that needs to be registered with userid.
- |
-NOT suboptions
-|userid|yes||
-User UPN
- |
-NOT suboptions
-|username|no||
-Username credentials to use for auth unless <em>api_key</em> is set.
- |
+| api_key |  |  |  | API key that can be used instead of <em>username</em>/<em>password</em> credentials. |
+| ip_address | yes |  |  | IP address (or hostname) of PAN-OS device being configured. |
+| operation |  | register |  | The action to be taken.  Supported values are <em>login</em>/<em>logout</em>. |
+| password | yes |  |  | Password credentials to use for auth unless <em>api_key</em> is set. |
+| register_ip | yes |  |  | ip of the user's machine that needs to be registered with userid. |
+| userid | yes |  |  | User UPN |
+| username |  | admin |  | Username credentials to use for auth unless <em>api_key</em> is set. |
 
 ## Examples
 

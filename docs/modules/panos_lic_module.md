@@ -18,27 +18,11 @@ The device should have Internet access.
 
 | parameter | required | default | choices | comments |
 | --- | --- | --- | --- | --- |
-
-NOT suboptions
-|auth_code|yes||
-authcode to be applied
- |
-NOT suboptions
-|force|no||
-whether to apply authcode even if device is already licensed
- |
-NOT suboptions
-|ip_address|yes||
-IP address (or hostname) of PAN-OS device
- |
-NOT suboptions
-|password|yes||
-password for authentication
- |
-NOT suboptions
-|username|no||
-username for authentication
- |
+| auth_code | yes |  |  | authcode to be applied |
+| force |  | false |  | whether to apply authcode even if device is already licensed |
+| ip_address | yes |  |  | IP address (or hostname) of PAN-OS device |
+| password | yes |  |  | password for authentication |
+| username |  | admin |  | username for authentication |
 
 ## Examples
 

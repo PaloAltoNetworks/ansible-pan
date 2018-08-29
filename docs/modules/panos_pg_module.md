@@ -16,55 +16,18 @@ Create a security profile group
 
 | parameter | required | default | choices | comments |
 | --- | --- | --- | --- | --- |
-
-NOT suboptions
-|commit|no||
-commit if changed
- |
-NOT suboptions
-|data_filtering|no||
-name of the data filtering profile
- |
-NOT suboptions
-|file_blocking|no||
-name of the file blocking profile
- |
-NOT suboptions
-|ip_address|yes||
-IP address (or hostname) of PAN-OS device
- |
-NOT suboptions
-|password|yes||
-password for authentication
- |
-NOT suboptions
-|pg_name|yes||
-name of the security profile group
- |
-NOT suboptions
-|spyware|no||
-name of the spyware profile
- |
-NOT suboptions
-|url_filtering|no||
-name of the url filtering profile
- |
-NOT suboptions
-|username|no||
-username for authentication
- |
-NOT suboptions
-|virus|no||
-name of the anti-virus profile
- |
-NOT suboptions
-|vulnerability|no||
-name of the vulnerability profile
- |
-NOT suboptions
-|wildfire|no||
-name of the wildfire analysis profile
- |
+| commit |  | True |  | commit if changed |
+| data_filtering |  | None |  | name of the data filtering profile |
+| file_blocking |  | None |  | name of the file blocking profile |
+| ip_address | yes |  |  | IP address (or hostname) of PAN-OS device |
+| password | yes |  |  | password for authentication |
+| pg_name | yes |  |  | name of the security profile group |
+| spyware |  | None |  | name of the spyware profile |
+| url_filtering |  | None |  | name of the url filtering profile |
+| username |  | admin |  | username for authentication |
+| virus |  | None |  | name of the anti-virus profile |
+| vulnerability |  | None |  | name of the vulnerability profile |
+| wildfire |  | None |  | name of the wildfire analysis profile |
 
 ## Examples
 

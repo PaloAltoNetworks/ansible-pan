@@ -1,6 +1,5 @@
 ---
 title: Palo Alto Networks Ansible documentation!
-layout: none
 ---
 # Palo Alto Networks Ansible documentation!
 

@@ -17,129 +17,36 @@ Configure data-port (DP) network interface for DHCP. By default DP interfaces ar
 
 | parameter | required | default | choices | comments |
 | --- | --- | --- | --- | --- |
-
-NOT suboptions
-|adjust_tcp_mss|no||
-Adjust TCP MSS for layer3 interface.
- |
-NOT suboptions
-|aggregate_group|no||
-Aggregate interface name.
- |
-NOT suboptions
-|api_key|no||
-API key that can be used instead of <em>username</em>/<em>password</em> credentials.
- |
-NOT suboptions
-|comment|no||
-Interface comment.
- |
-NOT suboptions
-|commit|no||
-Commit if changed
- |
-NOT suboptions
-|create_default_route|no||
-Whether or not to add default route with router learned via DHCP.
- |
-NOT suboptions
-|dhcp_default_route_metric|no||
-Metric for the DHCP default route.
- |
-NOT suboptions
-|enable_dhcp|no||
-Enable DHCP on this interface.
- |
-NOT suboptions
-|if_name|yes||
-Name of the interface to configure.
- |
-NOT suboptions
-|ip|no||
-List of static IP addresses.
- |
-NOT suboptions
-|ip_address|yes||
-IP address (or hostname) of PAN-OS device being configured.
- |
-NOT suboptions
-|ipv4_mss_adjust|no||
-(7.1+) TCP MSS adjustment for IPv4.
- |
-NOT suboptions
-|ipv6_enabled|no||
-Enable IPv6.
- |
-NOT suboptions
-|ipv6_mss_adjust|no||
-(7.1+) TCP MSS adjustment for IPv6.
- |
-NOT suboptions
-|link_duplex|no||
-Link duplex.  Supported values are <em>auto</em>/<em>full</em>/<em>half</em>.
- |
-NOT suboptions
-|link_speed|no||
-Link speed.  Supported values are <em>auto</em>/<em>10</em>/<em>100</em>/<em>1000</em>.
- |
-NOT suboptions
-|link_state|no||
-Link state.  Supported values are <em>auto</em>/<em>up</em>/<em>down</em>.
- |
-NOT suboptions
-|lldp_enabled|no||
-Enable LLDP for layer2 interface.
- |
-NOT suboptions
-|lldp_profile|no||
-LLDP profile name for layer2 interface.
- |
-NOT suboptions
-|management_profile|no||
-Interface management profile name.
- |
-NOT suboptions
-|mode|no||
-The interface mode.
-Supported values are <em>layer3</em>/<em>layer2</em>/<em>virtual-wire</em>/<em>tap</em>/<em>ha</em>/<em>decrypt-mirror</em>/<em>aggregate-group</em>
- |
-NOT suboptions
-|mtu|no||
-MTU for layer3 interface.
- |
-NOT suboptions
-|netflow_profile|no||
-Netflow profile for layer3 interface.
- |
-NOT suboptions
-|netflow_profile_l2|no||
-Netflow profile name for layer2 interface.
- |
-NOT suboptions
-|operation|no||
-The action to be taken.  Supported values are <em>add</em>/<em>update</em>/<em>delete</em>.
- |
-NOT suboptions
-|password|no||
-Password credentials to use for auth.
- |
-NOT suboptions
-|username|no||
-Username credentials to use for auth.
- |
-NOT suboptions
-|vr_name|no||
-Name of the virtual router; it must already exist.
- |
-NOT suboptions
-|vsys_dg|no||
-Name of the vsys (if firewall) or device group (if panorama) to put this object.
- |
-NOT suboptions
-|zone_name|yes||
-Name of the zone for the interface. If the zone does not exist it is created.
-If the zone exists and it is not of the correct mode the operation will fail.
- |
+| adjust_tcp_mss |  |  |  | Adjust TCP MSS for layer3 interface. |
+| aggregate_group |  |  |  | Aggregate interface name. |
+| api_key |  |  |  | API key that can be used instead of <em>username</em>/<em>password</em> credentials. |
+| comment |  |  |  | Interface comment. |
+| commit |  | True |  | Commit if changed |
+| create_default_route |  | false |  | Whether or not to add default route with router learned via DHCP. |
+| dhcp_default_route_metric |  |  |  | Metric for the DHCP default route. |
+| enable_dhcp |  | true |  | Enable DHCP on this interface. |
+| if_name | yes |  |  | Name of the interface to configure. |
+| ip |  |  |  | List of static IP addresses. |
+| ip_address | yes |  |  | IP address (or hostname) of PAN-OS device being configured. |
+| ipv4_mss_adjust |  |  |  | (7.1+) TCP MSS adjustment for IPv4. |
+| ipv6_enabled |  |  |  | Enable IPv6. |
+| ipv6_mss_adjust |  |  |  | (7.1+) TCP MSS adjustment for IPv6. |
+| link_duplex |  |  |  | Link duplex.  Supported values are <em>auto</em>/<em>full</em>/<em>half</em>. |
+| link_speed |  |  |  | Link speed.  Supported values are <em>auto</em>/<em>10</em>/<em>100</em>/<em>1000</em>. |
+| link_state |  |  |  | Link state.  Supported values are <em>auto</em>/<em>up</em>/<em>down</em>. |
+| lldp_enabled |  |  |  | Enable LLDP for layer2 interface. |
+| lldp_profile |  |  |  | LLDP profile name for layer2 interface. |
+| management_profile |  |  |  | Interface management profile name. |
+| mode |  | layer3 |  | The interface mode.Supported values are <em>layer3</em>/<em>layer2</em>/<em>virtual-wire</em>/<em>tap</em>/<em>ha</em>/<em>decrypt-mirror</em>/<em>aggregate-group</em> |
+| mtu |  |  |  | MTU for layer3 interface. |
+| netflow_profile |  |  |  | Netflow profile for layer3 interface. |
+| netflow_profile_l2 |  |  |  | Netflow profile name for layer2 interface. |
+| operation |  | add |  | The action to be taken.  Supported values are <em>add</em>/<em>update</em>/<em>delete</em>. |
+| password |  |  |  | Password credentials to use for auth. |
+| username |  | admin |  | Username credentials to use for auth. |
+| vr_name |  | default |  | Name of the virtual router; it must already exist. |
+| vsys_dg |  | vsys1 |  | Name of the vsys (if firewall) or device group (if panorama) to put this object. |
+| zone_name | yes |  |  | Name of the zone for the interface. If the zone does not exist it is created.If the zone exists and it is not of the correct mode the operation will fail. |
 
 ## Examples
 
