@@ -208,6 +208,7 @@ def jinja2_environment(template_dir, typ):
         variable_start_string="@{",
         variable_end_string="}@",
         trim_blocks=True,
+        lstrip_blocks=True
     )
     env.globals['xline'] = rst_xline
 

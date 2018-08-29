@@ -34,25 +34,37 @@ Aliases: @{ ','.join(aliases) }@
 {% if options -%}
 ## Options
 
-| parameter | required | default | choices | comments |
-| --- | --- | --- | --- | --- |
+{% set out_line = '| parameter | required | default | choices | comments |\n' %}
+{% set out_line = out_line + '| --- | --- | --- | --- | --- |\n' %}
+@{ out_line }@
 {% for k in option_keys %}
 {% set v = options[k] %}
+{% set required = 'no' %}
+{% set default = '' %}
+{% if v.get('required', False) %}{% set required = 'yes' %}{% endif %}
+{% if not v['default'] %}{% set default = '' %}{% endif %}
 {% if not v['suboptions'] %}
+NOT suboptions
+{% set out_line = '|' + k +'|' + required + '|' + default + '|' %}
+@{ out_line }@
+    {% if v.get('type', 'not_bool') == 'bool' %}
+| 'yes/no' |
+    {% else %}
+        {% if v['choices'] %}
+            {% for choice in v.get('choices',[]) -%}
+| @{ choice }@ |
+            {% endfor -%}
+        {% endif %}
+    {% endif %}
+    {% for desc in v.description -%}
+        @{ desc | replace('\n', '\n    ') | html_ify }@
+    {% endfor -%}
+    {% if 'aliases' in v and v.aliases -%}
+        aliases: @{ v.aliases|join(', ') }@ {%- endif %} |
+    {% else %}
 | @{ k }@ {% if v['version_added'] %} (added in @{v['version_added']}@){% endif %} |
 | {% if v.get('required', False) %}yes{% else %}no{% endif %} |
-| {% if v['default'] %}@{ v['default'] }@{% endif %} |
-| {% if v.get('type', 'not_bool') == 'bool' %} yes / no |
-{% else %}
-| {% if v['choices'] %} {% for choice in v.get('choices',[]) -%} @{ choice }@ {% endfor -%} {% endif %} |
-{% endif %}
-| {% for desc in v.description -%} @{ desc | replace('\n', '\n    ') | html_ify }@ {% endfor -%} {% if 'aliases' in v and v.aliases -%}
- aliases: @{ v.aliases|join(', ') }@ {%- endif %} |
-{% else %}
-| @{ k }@ {% if v['version_added'] %} (added in @{v['version_added']}@){% endif %} |
-| {% if v.get('required', False) %}yes{% else %}no{% endif %} |
-
-<td> {% for desc in v.description -%}<div>@{ desc | replace('\n', '\n    ') | html_ify }@</div>{% endfor -%} {% if 'aliases' in v and v.aliases -%}</br>
+        {% for desc in v.description -%}<div>@{ desc | replace('\n', '\n    ') | html_ify }@</div>{% endfor -%} {% if 'aliases' in v and v.aliases -%}</br>
 <div style="font-size: small;">aliases: @{ v.aliases|join(', ') }@<div>{%- endif %}
 </tr>
 <tr>
@@ -80,17 +92,9 @@ Aliases: @{ ','.join(aliases) }@
     <div style="font-size: small;">aliases: @{ v2.aliases|join(', ') }@<div>{%- endif %}
     </td></tr>
 {% endfor %}
-</table>
-</td>
-</tr>
 {% endif %}
-</td></tr>
 {% endfor %}
-</table>
-</br>
-
 {% endif %}
-
 
 {% if examples or plainexamples -%}
 ## Examples
