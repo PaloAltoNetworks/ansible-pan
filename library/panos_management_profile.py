@@ -136,7 +136,7 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
-Default return values.
+# Default return values.
 '''
 
 
