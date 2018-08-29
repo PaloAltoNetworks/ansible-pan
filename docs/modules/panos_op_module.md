@@ -1,3 +1,6 @@
+---
+title: panos_op
+---
 # panos_op
 
 _(versionadded:: 2.5)_

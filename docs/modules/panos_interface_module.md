@@ -1,3 +1,6 @@
+---
+title: panos_interface
+---
 # panos_interface
 
 _(versionadded:: 2.3)_

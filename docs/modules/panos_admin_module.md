@@ -1,3 +1,6 @@
+---
+title: panos_admin
+---
 # panos_admin
 
 _(versionadded:: 2.3)_

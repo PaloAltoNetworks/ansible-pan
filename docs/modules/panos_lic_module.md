@@ -1,3 +1,6 @@
+---
+title: panos_lic
+---
 # panos_lic
 
 _(versionadded:: 2.3)_

@@ -1,3 +1,6 @@
+---
+title: panos_software
+---
 # panos_software
 
 _(versionadded:: 2.6)_

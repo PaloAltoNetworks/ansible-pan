@@ -1,3 +1,6 @@
+---
+title: panos_cert_gen_ssh
+---
 # panos_cert_gen_ssh
 
 _(versionadded:: 2.3)_

@@ -1,3 +1,6 @@
+---
+title: panos_loadcfg
+---
 # panos_loadcfg
 
 _(versionadded:: 2.3)_

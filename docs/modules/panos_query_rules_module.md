@@ -1,3 +1,6 @@
+---
+title: panos_query_rules
+---
 # panos_query_rules
 
 _(versionadded:: 2.5)_

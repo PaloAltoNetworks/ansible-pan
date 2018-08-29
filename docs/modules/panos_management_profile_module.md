@@ -1,3 +1,6 @@
+---
+title: panos_management_profile
+---
 # panos_management_profile
 
 _(versionadded:: 2.6)_
@@ -5,83 +8,7 @@ _(versionadded:: 2.6)_
 
 ## Synopsis
 
-T
-h
-i
-s
- 
-m
-o
-d
-u
-l
-e
- 
-w
-i
-l
-l
- 
-a
-l
-l
-o
-w
- 
-y
-o
-u
- 
-t
-o
- 
-m
-a
-n
-a
-g
-e
- 
-i
-n
-t
-e
-r
-f
-a
-c
-e
- 
-m
-a
-n
-a
-g
-e
-m
-e
-n
-t
- 
-p
-r
-o
-f
-i
-l
-e
-s
- 
-o
-n
- 
-P
-A
-N
--
-O
-S
-.
+This module will allow you to manage interface management profiles on PAN-OS.
 
 
 ## Requirements (on host that executes module)

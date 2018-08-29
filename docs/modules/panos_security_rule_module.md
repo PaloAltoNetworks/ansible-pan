@@ -1,3 +1,6 @@
+---
+title: panos_security_rule
+---
 # panos_security_rule
 
 _(versionadded:: 2.4)_

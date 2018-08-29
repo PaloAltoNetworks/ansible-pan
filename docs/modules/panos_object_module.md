@@ -1,3 +1,6 @@
+---
+title: panos_object
+---
 # panos_object
 
 _(versionadded:: 2.4)_

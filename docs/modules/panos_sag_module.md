@@ -1,3 +1,6 @@
+---
+title: panos_sag
+---
 # panos_sag
 
 _(versionadded:: 2.4)_

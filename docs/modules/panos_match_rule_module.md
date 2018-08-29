@@ -1,3 +1,6 @@
+---
+title: panos_match_rule
+---
 # panos_match_rule
 
 _(versionadded:: 2.5)_

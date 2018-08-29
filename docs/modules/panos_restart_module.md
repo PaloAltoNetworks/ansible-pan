@@ -1,3 +1,6 @@
+---
+title: panos_restart
+---
 # panos_restart
 
 _(versionadded:: 2.3)_

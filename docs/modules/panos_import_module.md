@@ -1,3 +1,6 @@
+---
+title: panos_import
+---
 # panos_import
 
 _(versionadded:: 2.3)_

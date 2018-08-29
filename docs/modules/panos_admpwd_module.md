@@ -1,3 +1,6 @@
+---
+title: panos_admpwd
+---
 # panos_admpwd
 
 _(versionadded:: 2.3)_

@@ -1,3 +1,6 @@
+---
+title: panos_mgtconfig
+---
 # panos_mgtconfig
 
 _(versionadded:: 2.4)_

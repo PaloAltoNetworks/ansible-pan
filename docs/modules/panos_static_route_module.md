@@ -1,3 +1,6 @@
+---
+title: panos_static_route
+---
 # panos_static_route
 
 _(versionadded:: 2.6)_

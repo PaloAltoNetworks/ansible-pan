@@ -1,3 +1,6 @@
+---
+title: panos_pg
+---
 # panos_pg
 
 _(versionadded:: 2.3)_

@@ -1,3 +1,6 @@
+---
+title: panos_nat_rule
+---
 # panos_nat_rule
 
 _(versionadded:: 2.4)_

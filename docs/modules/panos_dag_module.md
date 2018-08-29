@@ -1,3 +1,6 @@
+---
+title: panos_dag
+---
 # panos_dag
 
 _(versionadded:: 2.3)_

@@ -1,3 +1,6 @@
+---
+title: panos_commit
+---
 # panos_commit
 
 _(versionadded:: 2.3)_

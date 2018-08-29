@@ -1,3 +1,6 @@
+---
+title: panos_userid
+---
 # panos_userid
 
 _(versionadded:: 2.6)_

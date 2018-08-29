@@ -1,3 +1,6 @@
+---
+title: panos_check
+---
 # panos_check
 
 _(versionadded:: 2.3)_
