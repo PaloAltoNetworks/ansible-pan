@@ -82,6 +82,24 @@ def rst_ify(text):
 
     return t
 
+
+#####################################################################################
+
+def md_ify(text):
+    ''' convert symbols like I(this is in italics) to valid restructured text '''
+
+    try:
+        t = _ITALIC.sub(r'*' + r"\1" + r"*", text)
+        t = _BOLD.sub(r'**' + r"\1" + r"**", t)
+        t = _MODULE.sub(r':ref:`' + r"\1 <\1>" + r"`", t)
+        t = _URL.sub(r"\1", t)
+        t = _CONST.sub(r'``' + r"\1" + r"``", t)
+    except Exception as e:
+        raise AnsibleError("Could not process (%s) : %s" % (str(text), str(e)))
+
+    return t
+
+
 #####################################################################################
 
 def html_ify(text):
@@ -220,8 +238,9 @@ def jinja2_environment(template_dir, typ):
         template = env.get_template('rst.j2')
         outputname = "%s_module.rst"
     elif typ == 'md':
-        env.filters['convert_symbols_to_format'] = rst_ify
+        env.filters['convert_symbols_to_format'] = md_ify
         env.filters['html_ify'] = html_ify
+        env.filters['rst_ify'] = rst_ify
         env.filters['fmt'] = rst_fmt
         env.filters['xline'] = rst_xline
         template = env.get_template('md.j2')

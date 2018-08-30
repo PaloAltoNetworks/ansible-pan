@@ -62,7 +62,7 @@ Aliases: @{ ','.join(aliases) }@
     {% endif %}
   {% endif %}
     {% for desc in v.description -%}
-      {% if description.append(desc | html_ify) %}{% endif %}
+      {% if description.append(desc | rst_ify) %}{% endif %}
     {% endfor -%}
 | @{ k }@ | @{ required }@ | @{ default }@ | @{ choices|list|join }@ | @{ description|list|join }@ |
     {% if 'aliases' in v and v.aliases -%}
@@ -70,7 +70,7 @@ Aliases: @{ ','.join(aliases) }@
     {% else %}
 | @{ k }@ {% if v['version_added'] %} (added in @{v['version_added']}@){% endif %} |
 | {% if v.get('required', False) %}yes{% else %}no{% endif %} |
-        {% for desc in v.description -%}<div>@{ desc | replace('\n', '\n    ') | html_ify }@
+        {% for desc in v.description -%}<div>@{ desc | replace('\n', '\n    ') | rst_ify }@
         {% endfor -%}
 {% endif %}
 {% endfor %}
