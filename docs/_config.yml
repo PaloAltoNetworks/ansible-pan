@@ -1,0 +1,8 @@
+theme: jekyll-theme-cayman
+title: Palo Alto Networks Ansible
+email: techbizdev@paloaltonetworks.com
+description: >- # this means to ignore newlines until "baseurl:"
+  A collection of Ansible modules that automate configuration and operational
+  tasks on Palo Alto Networks Next Generation Firewalls – both physical and
+  virtualized form factor. The underlying protocol uses API calls that are
+  wrapped within the Ansible framework.

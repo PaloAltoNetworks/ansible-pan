@@ -25,7 +25,8 @@ DOCUMENTATION = '''
 ---
 module: panos_op
 short_description: execute arbitrary OP commands on PANW devices (e.g. show interface all)
-description: This module will allow user to pass and execute any supported OP command on the PANW device.
+description:
+    - This module will allow user to pass and execute any supported OP command on the PANW device.
 author: "Ivan Bojer (@ivanbojer)"
 version_added: "2.5"
 requirements:
