@@ -8,193 +8,7 @@ _(versionadded:: 2.4)_
 
 ## Synopsis
 
--
- 
-P
-o
-l
-i
-c
-y
- 
-o
-b
-j
-e
-c
-t
-s
- 
-f
-o
-r
-m
- 
-t
-h
-e
- 
-m
-a
-t
-c
-h
- 
-c
-r
-i
-t
-e
-r
-i
-a
- 
-f
-o
-r
- 
-p
-o
-l
-i
-c
-y
- 
-r
-u
-l
-e
-s
- 
-a
-n
-d
- 
-m
-a
-n
-y
- 
-o
-t
-h
-e
-r
- 
-f
-u
-n
-c
-t
-i
-o
-n
-s
- 
-i
-n
- 
-P
-A
-N
--
-O
-S
-.
- 
-T
-h
-e
-s
-e
- 
-m
-a
-y
- 
-i
-n
-c
-l
-u
-d
-e
- 
-a
-d
-d
-r
-e
-s
-s
- 
-o
-b
-j
-e
-c
-t
-,
- 
-a
-d
-d
-r
-e
-s
-s
- 
-g
-r
-o
-u
-p
-s
-,
- 
-s
-e
-r
-v
-i
-c
-e
- 
-o
-b
-j
-e
-c
-t
-s
-,
- 
-s
-e
-r
-v
-i
-c
-e
- 
-g
-r
-o
-u
-p
-s
-,
- 
-a
-n
-d
- 
-t
-a
-g
-.
-
-
+Policy objects form the match criteria for policy rules and many other functions in PAN-OS. These may include address object, address groups, service objects, service groups, and tag.
 
 
 ## Requirements (on host that executes module)
@@ -207,11 +21,11 @@ g
 | parameter | required | default | choices | comments |
 | --- | --- | --- | --- | --- |
 | address |  |  |  | The IP address of the host or network in CIDR notation. |
-| address_type |  |  |  | The type of address object definition.  Valid types are <em>ip-netmask</em> and <em>ip-range</em>. |
+| address_type |  |  |  | The type of address object definition.  Valid types are *ip-netmask* and *ip-range*. |
 | addressgroup |  |  |  | A static group of address objects or dynamic address group. |
 | addressobject |  |  |  | The name of the address object. |
-| api_key |  |  |  | API key that can be used instead of <em>username</em>/<em>password</em> credentials. |
-| color |  |  |  | - The color of the tag object.  Valid values are <em>red, green, blue, yellow, copper, orange, purple, gray, light green, cyan, light gray, blue gray, lime, black, gold, and brown</em>.
+| api_key |  |  |  | API key that can be used instead of *username*/*password* credentials. |
+| color |  |  |  | - The color of the tag object.  Valid values are *red, green, blue, yellow, copper, orange, purple, gray, light green, cyan, light gray, blue gray, lime, black, gold, and brown*.
  |
 | description |  |  |  | The description of the object. |
 | destination_port |  |  |  | The destination port to be used in a service object definition. |
@@ -219,9 +33,9 @@ g
  |
 | dynamic_value |  |  |  | The filter match criteria to be used in a dynamic addressgroup definition. |
 | ip_address | yes |  |  | IP address (or hostname) of PAN-OS device or Panorama management console being configured. |
-| operation | yes |  |  | The operation to be performed.  Supported values are <em>add</em>/<em>delete</em>/<em>find</em>. |
+| operation | yes |  |  | The operation to be performed.  Supported values are *add*/*delete*/*find*. |
 | password | yes |  |  | Password credentials to use for authentication. |
-| protocol |  |  |  | The IP protocol to be used in a service object definition.  Valid values are <em>tcp</em> or <em>udp</em>. |
+| protocol |  |  |  | The IP protocol to be used in a service object definition.  Valid values are *tcp* or *udp*. |
 | servicegroup |  |  |  | A group of service objects. |
 | serviceobject |  |  |  | The name of the service object. |
 | services |  |  |  | The group of service objects used in a servicegroup definition. |

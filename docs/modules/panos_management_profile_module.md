@@ -21,7 +21,7 @@ This module will allow you to manage interface management profiles on PAN-OS.
 
 | parameter | required | default | choices | comments |
 | --- | --- | --- | --- | --- |
-| api_key |  |  |  | API key that can be used instead of <em>username</em>/<em>password</em> credentials. |
+| api_key |  |  |  | API key that can be used instead of *username*/*password* credentials. |
 | commit |  | True |  | Perform a commit if a change is made. |
 | http |  |  |  | Enable http |
 | http_ocsp |  |  |  | Enable http-ocsp |
@@ -35,7 +35,7 @@ This module will allow you to manage interface management profiles on PAN-OS.
 | response_pages |  |  |  | Enable response pages |
 | snmp |  |  |  | Enable snmp |
 | ssh |  |  |  | Enable ssh |
-| state |  | present |  | The state.  Can be either <em>present</em>/<em>absent</em>. |
+| state |  | present |  | The state.  Can be either *present*/*absent*. |
 | telnet |  |  |  | Enable telnet |
 | userid_service |  |  |  | Enable userid service |
 | userid_syslog_listener_ssl |  |  |  | Enable userid syslog listener ssl |

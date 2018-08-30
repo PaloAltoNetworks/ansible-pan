@@ -8,98 +8,7 @@ _(versionadded:: 2.5)_
 
 ## Synopsis
 
-T
-h
-i
-s
- 
-m
-o
-d
-u
-l
-e
- 
-w
-i
-l
-l
- 
-a
-l
-l
-o
-w
- 
-u
-s
-e
-r
- 
-t
-o
- 
-p
-a
-s
-s
- 
-a
-n
-d
- 
-e
-x
-e
-c
-u
-t
-e
- 
-a
-n
-y
- 
-s
-u
-p
-p
-o
-r
-t
-e
-d
- 
-O
-P
- 
-c
-o
-m
-m
-a
-n
-d
- 
-o
-n
- 
-t
-h
-e
- 
-P
-A
-N
-W
- 
-d
-e
-v
-i
-c
-e
-.
+This module will allow user to pass and execute any supported OP command on the PANW device.
 
 
 ## Requirements (on host that executes module)
@@ -111,7 +20,7 @@ e
 
 | parameter | required | default | choices | comments |
 | --- | --- | --- | --- | --- |
-| api_key |  |  |  | API key that can be used instead of <em>username</em>/<em>password</em> credentials. |
+| api_key |  |  |  | API key that can be used instead of *username*/*password* credentials. |
 | cmd | yes |  |  | The OP command to be performed. |
 | cmd_is_xml |  |  |  | The cmd is already given in XML format, so don't convert it. |
 | ip_address | yes |  |  | IP address (or hostname) of PAN-OS device or Panorama management console being configured. |

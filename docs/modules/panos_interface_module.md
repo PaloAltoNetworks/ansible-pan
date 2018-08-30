@@ -22,7 +22,7 @@ Configure data-port (DP) network interface for DHCP. By default DP interfaces ar
 | --- | --- | --- | --- | --- |
 | adjust_tcp_mss |  |  |  | Adjust TCP MSS for layer3 interface. |
 | aggregate_group |  |  |  | Aggregate interface name. |
-| api_key |  |  |  | API key that can be used instead of <em>username</em>/<em>password</em> credentials. |
+| api_key |  |  |  | API key that can be used instead of *username*/*password* credentials. |
 | comment |  |  |  | Interface comment. |
 | commit |  | True |  | Commit if changed |
 | create_default_route |  | false |  | Whether or not to add default route with router learned via DHCP. |
@@ -34,17 +34,17 @@ Configure data-port (DP) network interface for DHCP. By default DP interfaces ar
 | ipv4_mss_adjust |  |  |  | (7.1+) TCP MSS adjustment for IPv4. |
 | ipv6_enabled |  |  |  | Enable IPv6. |
 | ipv6_mss_adjust |  |  |  | (7.1+) TCP MSS adjustment for IPv6. |
-| link_duplex |  |  |  | Link duplex.  Supported values are <em>auto</em>/<em>full</em>/<em>half</em>. |
-| link_speed |  |  |  | Link speed.  Supported values are <em>auto</em>/<em>10</em>/<em>100</em>/<em>1000</em>. |
-| link_state |  |  |  | Link state.  Supported values are <em>auto</em>/<em>up</em>/<em>down</em>. |
+| link_duplex |  |  |  | Link duplex.  Supported values are *auto*/*full*/*half*. |
+| link_speed |  |  |  | Link speed.  Supported values are *auto*/*10*/*100*/*1000*. |
+| link_state |  |  |  | Link state.  Supported values are *auto*/*up*/*down*. |
 | lldp_enabled |  |  |  | Enable LLDP for layer2 interface. |
 | lldp_profile |  |  |  | LLDP profile name for layer2 interface. |
 | management_profile |  |  |  | Interface management profile name. |
-| mode |  | layer3 |  | The interface mode.Supported values are <em>layer3</em>/<em>layer2</em>/<em>virtual-wire</em>/<em>tap</em>/<em>ha</em>/<em>decrypt-mirror</em>/<em>aggregate-group</em> |
+| mode |  | layer3 |  | The interface mode.Supported values are *layer3*/*layer2*/*virtual-wire*/*tap*/*ha*/*decrypt-mirror*/*aggregate-group* |
 | mtu |  |  |  | MTU for layer3 interface. |
 | netflow_profile |  |  |  | Netflow profile for layer3 interface. |
 | netflow_profile_l2 |  |  |  | Netflow profile name for layer2 interface. |
-| operation |  | add |  | The action to be taken.  Supported values are <em>add</em>/<em>update</em>/<em>delete</em>. |
+| operation |  | add |  | The action to be taken.  Supported values are *add*/*update*/*delete*. |
 | password |  |  |  | Password credentials to use for auth. |
 | username |  | admin |  | Username credentials to use for auth. |
 | vr_name |  | default |  | Name of the virtual router; it must already exist. |

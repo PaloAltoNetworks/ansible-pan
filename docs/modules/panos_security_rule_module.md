@@ -8,312 +8,7 @@ _(versionadded:: 2.4)_
 
 ## Synopsis
 
--
- 
-S
-e
-c
-u
-r
-i
-t
-y
- 
-p
-o
-l
-i
-c
-i
-e
-s
- 
-a
-l
-l
-o
-w
- 
-y
-o
-u
- 
-t
-o
- 
-e
-n
-f
-o
-r
-c
-e
- 
-r
-u
-l
-e
-s
- 
-a
-n
-d
- 
-t
-a
-k
-e
- 
-a
-c
-t
-i
-o
-n
-,
- 
-a
-n
-d
- 
-c
-a
-n
- 
-b
-e
- 
-a
-s
- 
-g
-e
-n
-e
-r
-a
-l
- 
-o
-r
- 
-s
-p
-e
-c
-i
-f
-i
-c
- 
-a
-s
- 
-n
-e
-e
-d
-e
-d
-.
- 
-T
-h
-e
- 
-p
-o
-l
-i
-c
-y
- 
-r
-u
-l
-e
-s
- 
-a
-r
-e
- 
-c
-o
-m
-p
-a
-r
-e
-d
- 
-a
-g
-a
-i
-n
-s
-t
- 
-t
-h
-e
- 
-i
-n
-c
-o
-m
-i
-n
-g
- 
-t
-r
-a
-f
-f
-i
-c
- 
-i
-n
- 
-s
-e
-q
-u
-e
-n
-c
-e
-,
- 
-a
-n
-d
- 
-b
-e
-c
-a
-u
-s
-e
- 
-t
-h
-e
- 
-f
-i
-r
-s
-t
- 
-r
-u
-l
-e
- 
-t
-h
-a
-t
- 
-m
-a
-t
-c
-h
-e
-s
- 
-t
-h
-e
- 
-t
-r
-a
-f
-f
-i
-c
- 
-i
-s
- 
-a
-p
-p
-l
-i
-e
-d
-,
- 
-t
-h
-e
- 
-m
-o
-r
-e
- 
-s
-p
-e
-c
-i
-f
-i
-c
- 
-r
-u
-l
-e
-s
- 
-m
-u
-s
-t
- 
-p
-r
-e
-c
-e
-d
-e
- 
-t
-h
-e
- 
-m
-o
-r
-e
- 
-g
-e
-n
-e
-r
-a
-l
- 
-o
-n
-e
-s
-.
-
-
+Security policies allow you to enforce rules and take action, and can be as general or specific as needed. The policy rules are compared against the incoming traffic in sequence, and because the first rule that matches the traffic is applied, the more specific rules must precede the more general ones.
 
 
 ## Requirements (on host that executes module)
@@ -328,7 +23,7 @@ s
 | --- | --- | --- | --- | --- |
 | action |  | allow |  | Action to apply once rules maches. |
 | antivirus |  | None |  | Name of the already defined antivirus profile. |
-| api_key |  |  |  | API key that can be used instead of <em>username</em>/<em>password</em> credentials. |
+| api_key |  |  |  | API key that can be used instead of *username*/*password* credentials. |
 | application |  | any |  | List of applications. |
 | commit |  | True |  | Commit configuration if changed. |
 | data_filtering |  | None |  | Name of the already defined data_filtering profile. |
@@ -344,13 +39,13 @@ s
 | hip_profiles |  | any |  | - If you are using GlobalProtect with host information profile (HIP) enabled, you can also base the policy on information collected by GlobalProtect. For example, the user access level can be determined HIP that notifies the firewall about the user's local configuration.
  |
 | ip_address | yes |  |  | IP address (or hostname) of PAN-OS device being configured. |
-| location |  |  |  | Position to place the created rule in the rule base.  Supported values are <em>top</em>/<em>bottom</em>/<em>before</em>/<em>after</em>. |
+| location |  |  |  | Position to place the created rule in the rule base.  Supported values are *top*/*bottom*/*before*/*after*. |
 | log_end |  | True |  | Whether to log at session end. |
 | log_setting |  |  |  | Log forwarding profile |
 | log_start |  |  |  | Whether to log at session start. |
-| operation |  | add |  | The action to be taken.  Supported values are <em>add</em>/<em>update</em>/<em>find</em>/<em>delete</em>. |
+| operation |  | add |  | The action to be taken.  Supported values are *add*/*update*/*find*/*delete*. |
 | panorama_post_rule |  |  |  | If the security rule is applied against panorama, set this to True in order to inject it into post rule. |
-| password | yes |  |  | Password credentials to use for auth unless <em>api_key</em> is set. |
+| password | yes |  |  | Password credentials to use for auth unless *api_key* is set. |
 | rule_name | yes |  |  | Name of the security rule. |
 | rule_type |  | universal |  | Type of security rule (version 6.1 of PanOS and above). |
 | service |  | application-default |  | List of services. |
@@ -360,7 +55,7 @@ s
 | spyware |  | None |  | Name of the already defined spyware profile. |
 | tag_name |  | None |  | Administrative tags that can be added to the rule. Note, tags must be already defined. |
 | url_filtering |  | None |  | Name of the already defined url_filtering profile. |
-| username |  | admin |  | Username credentials to use for auth unless <em>api_key</em> is set. |
+| username |  | admin |  | Username credentials to use for auth unless *api_key* is set. |
 | vulnerability |  | None |  | Name of the already defined vulnerability profile. |
 | wildfire_analysis |  | None |  | Name of the already defined wildfire_analysis profile. |
 

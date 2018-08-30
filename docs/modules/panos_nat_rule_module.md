@@ -8,224 +8,7 @@ _(versionadded:: 2.4)_
 
 ## Synopsis
 
--
- 
-C
-r
-e
-a
-t
-e
- 
-a
- 
-p
-o
-l
-i
-c
-y
- 
-n
-a
-t
- 
-r
-u
-l
-e
-.
- 
-K
-e
-e
-p
- 
-i
-n
- 
-m
-i
-n
-d
- 
-t
-h
-a
-t
- 
-w
-e
- 
-c
-a
-n
- 
-e
-i
-t
-h
-e
-r
- 
-e
-n
-d
- 
-u
-p
- 
-c
-o
-n
-f
-i
-g
-u
-r
-i
-n
-g
- 
-s
-o
-u
-r
-c
-e
- 
-N
-A
-T
-,
- 
-d
-e
-s
-t
-i
-n
-a
-t
-i
-o
-n
- 
-N
-A
-T
-,
- 
-o
-r
- 
-b
-o
-t
-h
-.
- 
-I
-n
-s
-t
-e
-a
-d
- 
-o
-f
- 
-s
-p
-l
-i
-t
-t
-i
-n
-g
- 
-i
-t
- 
-i
-n
-t
-o
- 
-t
-w
-o
- 
-w
-e
- 
-w
-i
-l
-l
- 
-m
-a
-k
-e
- 
-a
- 
-f
-a
-i
-r
- 
-a
-t
-t
-e
-m
-p
-t
- 
-t
-o
- 
-d
-e
-t
-e
-r
-m
-i
-n
-e
- 
-w
-h
-i
-c
-h
- 
-o
-n
-e
- 
-t
-h
-e
- 
-u
-s
-e
-r
- 
-w
-a
-n
-t
-s
-.
-
-
+Create a policy nat rule. Keep in mind that we can either end up configuring source NAT, destination NAT, or both. Instead of splitting it into two we will make a fair attempt to determine which one the user wants.
 
 
 ## Requirements (on host that executes module)
@@ -237,7 +20,7 @@ s
 
 | parameter | required | default | choices | comments |
 | --- | --- | --- | --- | --- |
-| api_key |  |  |  | API key that can be used instead of <em>username</em>/<em>password</em> credentials. |
+| api_key |  |  |  | API key that can be used instead of *username*/*password* credentials. |
 | commit |  | True |  | Commit configuration if changed. |
 | destination_ip |  | [u'any'] |  | list of destination addresses |
 | destination_zone | yes |  |  | destination zone |
@@ -245,12 +28,12 @@ s
 | dnat_port |  | None |  | dnat translated port |
 | existing_rule |  |  |  | If 'location' is set to 'before' or 'after', this option specifies an existing rule name.  The new rule will be created in the specified position relative to this rule.  If 'location' is set to 'before' or 'after', this option is required. |
 | ip_address | yes |  |  | IP address (or hostname) of PAN-OS device being configured. |
-| location |  |  |  | Position to place the created rule in the rule base.  Supported values are <em>top</em>/<em>bottom</em>/<em>before</em>/<em>after</em>. |
-| operation |  |  |  | The action to be taken.  Supported values are <em>add</em>/<em>update</em>/<em>find</em>/<em>delete</em>/<em>disable</em>. |
-| password | yes |  |  | Password credentials to use for auth unless <em>api_key</em> is set. |
+| location |  |  |  | Position to place the created rule in the rule base.  Supported values are *top*/*bottom*/*before*/*after*. |
+| operation |  |  |  | The action to be taken.  Supported values are *add*/*update*/*find*/*delete*/*disable*. |
+| password | yes |  |  | Password credentials to use for auth unless *api_key* is set. |
 | rule_name | yes |  |  | name of the SNAT rule |
 | service |  | any |  | service |
-| snat_address_type |  | translated-address |  | type of source translation. Supported values are <em>translated-address</em>/<em>interface-address</em>. |
+| snat_address_type |  | translated-address |  | type of source translation. Supported values are *translated-address*/*interface-address*. |
 | snat_bidirectional |  | false |  | bidirectional flag |
 | snat_dynamic_address |  | None |  | Source NAT translated address. Used with Dynamic-IP and Dynamic-IP-and-Port. |
 | snat_interface |  | None |  | snat interface |
@@ -259,7 +42,7 @@ s
 | snat_type |  | None |  | type of source translation |
 | source_ip |  | [u'any'] |  | list of source addresses |
 | source_zone | yes |  |  | list of source zones |
-| username |  | admin |  | Username credentials to use for auth unless <em>api_key</em> is set. |
+| username |  | admin |  | Username credentials to use for auth unless *api_key* is set. |
 
 ## Examples
 

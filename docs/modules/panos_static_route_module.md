@@ -21,16 +21,16 @@ Create static routes on PAN-OS devices.
 | parameter | required | default | choices | comments |
 | --- | --- | --- | --- | --- |
 | admin_dist |  |  |  | Administrative distance for static route. |
-| api_key |  |  |  | API key to be used instead of <em>username</em> and <em>password</em>. |
-| destination |  |  |  | Destination network.  Required if <em>state</em> is <em>present</em>. |
+| api_key |  |  |  | API key to be used instead of *username* and *password*. |
+| destination |  |  |  | Destination network.  Required if *state* is *present*. |
 | ip_address | yes |  |  | IP address or hostname of PAN-OS device. |
 | metric |  | 10 |  | Metric for route. |
 | name | yes |  |  | Name of static route. |
-| nexthop |  |  |  | Next hop IP address.  Required if <em>state</em> is <em>present</em>. |
+| nexthop |  |  |  | Next hop IP address.  Required if *state* is *present*. |
 | nexthop_type |  | ip-address | ip-address, discard | Type of next hop. |
-| password |  |  |  | Password for authentication for PAN-OS device.  Optional if <em>api_key</em> is used. |
+| password |  |  |  | Password for authentication for PAN-OS device.  Optional if *api_key* is used. |
 | state |  | present | present, absent | Create or remove static route. |
-| username |  | admin |  | Username for authentication for PAN-OS device.  Optional if <em>api_key</em> is used. |
+| username |  | admin |  | Username for authentication for PAN-OS device.  Optional if *api_key* is used. |
 | virtual_router |  | default |  | Virtual router to use. |
 
 ## Examples

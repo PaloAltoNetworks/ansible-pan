@@ -19,14 +19,14 @@ PanOS module that allows changes to the user account passwords by doing API call
 
 | parameter | required | default | choices | comments |
 | --- | --- | --- | --- | --- |
-| admin_password | yes |  |  | New password for <em>admin_username</em> user |
+| admin_password | yes |  |  | New password for *admin_username* user |
 | admin_username |  | admin |  | Username that needs password change. |
-| api_key |  |  |  | API key that can be used instead of <em>username</em>/<em>password</em> credentials. |
+| api_key |  |  |  | API key that can be used instead of *username*/*password* credentials. |
 | commit |  | True |  | Commit configuration if changed. |
 | ip_address | yes |  |  | IP address (or hostname) of PAN-OS device being configured. |
-| password | yes |  |  | Password credentials to use for auth unless <em>api_key</em> is set. |
+| password | yes |  |  | Password credentials to use for auth unless *api_key* is set. |
 | role |  |  |  | role for admin user |
-| username |  | admin |  | Username credentials to use for auth unless <em>api_key</em> is set. |
+| username |  | admin |  | Username credentials to use for auth unless *api_key* is set. |
 
 ## Examples
 

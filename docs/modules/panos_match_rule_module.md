@@ -20,22 +20,22 @@ Security policies allow you to enforce rules and take action, and can be as gene
 
 | parameter | required | default | choices | comments |
 | --- | --- | --- | --- | --- |
-| api_key |  |  |  | API key that can be used instead of <em>username</em>/<em>password</em> credentials. |
+| api_key |  |  |  | API key that can be used instead of *username*/*password* credentials. |
 | application |  |  |  | The application. |
 | category |  |  |  | URL category |
 | destination_ip |  |  |  | The destination IP address. |
 | destination_port |  |  |  | The destination port. |
 | destination_zone |  |  |  | The destination zone. |
 | ip_address | yes |  |  | IP address (or hostname) of PAN-OS device being configured. |
-| password | yes |  |  | Password credentials to use for auth unless <em>api_key</em> is set. |
+| password | yes |  |  | Password credentials to use for auth unless *api_key* is set. |
 | protocol |  |  |  | The IP protocol number from 1 to 255. |
-| rule_type |  | security |  | Type of rule. Valid types are <em>security</em> or <em>nat</em>. |
+| rule_type |  | security |  | Type of rule. Valid types are *security* or *nat*. |
 | source_ip | yes |  |  | The source IP address. |
 | source_port |  |  |  | The source port. |
 | source_user |  |  |  | The source user or group. |
 | source_zone |  |  |  | The source zone. |
 | to_interface |  |  |  | The inbound interface in a NAT rule. |
-| username |  | admin |  | Username credentials to use for auth unless <em>api_key</em> is set. |
+| username |  | admin |  | Username credentials to use for auth unless *api_key* is set. |
 | vsys_id | yes | vsys1 |  | ID of the VSYS object. |
 
 ## Examples

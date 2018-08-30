@@ -20,7 +20,7 @@ Configure management settings of device. Not all configuration options are confi
 
 | parameter | required | default | choices | comments |
 | --- | --- | --- | --- | --- |
-| api_key |  |  |  | API key that can be used instead of <em>username</em>/<em>password</em> credentials. |
+| api_key |  |  |  | API key that can be used instead of *username*/*password* credentials. |
 | commit |  | True |  | Commit configuration if changed. |
 | devicegroup |  |  |  | Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama. |
 | dns_server_primary |  |  |  | IP address of primary DNS server. |
@@ -33,10 +33,10 @@ Configure management settings of device. Not all configuration options are confi
 | ntp_server_secondary |  |  |  | IP address (or hostname) of secondary NTP server. |
 | panorama_primary |  |  |  | IP address (or hostname) of primary Panorama server. |
 | panorama_secondary |  |  |  | IP address (or hostname) of secondary Panorama server. |
-| password | yes |  |  | Password credentials to use for auth unless <em>api_key</em> is set. |
+| password | yes |  |  | Password credentials to use for auth unless *api_key* is set. |
 | timezone |  |  |  | Device timezone. |
 | update_server |  |  |  | IP or hostname of the update server. |
-| username |  | admin |  | Username credentials to use for auth unless <em>api_key</em> is set. |
+| username |  | admin |  | Username credentials to use for auth unless *api_key* is set. |
 
 ## Examples
 
