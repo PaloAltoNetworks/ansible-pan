@@ -7,7 +7,7 @@ Next Generation Firewalls – both physical and virtualized form factor. The und
 that are wrapped within the Ansible framework.
 
 - Free software: Apache 2.0 License
-- Documentation: http://panwansible.readthedocs.io/
+- Documentation: https://pages.github.io/PaloAltoNetwokrs/ansible-pan
 - PANW community supported live page: http://live.paloaltonetworks.com/ansible
 
 
@@ -46,21 +46,5 @@ More comprehensive playbooks can be found under:
 Documentation
 -------------
 
-Each module is documented in docs/modules, you can also look at the documentation online at http://panwansible.readthedocs.io/
+Each module is documented in docs/modules, you can also look at the documentation online at https://pages.github.io/PaloAltoNetwokrs/ansible-pan
 under *modules* section
-
-**How to build doc's locally?**
-    
-Using Docker::
-
-    $ docker run -it -v <PATH_TO_REPO>/ansible-pan/:/documents/ ivanbojer/spinx-with-rtd
-    $ cd docs
-    $ make html
-
-Using Spinx::
-
-    $ cd docs
-    $ make html
-    
-.. <comment> this is test from original
-
