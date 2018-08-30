@@ -14,6 +14,8 @@ Add security policy to Firewall or Panorama
 > that matches the traffic is applied, the more specific rules must
 > precede the more general ones.
 
+[Example](../examples/fw_secrule_add.yml)
+
 ### Panorama
 
 Add NAT policy to Firewall or Panorama
