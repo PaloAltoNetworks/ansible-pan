@@ -5,7 +5,7 @@ title: Palo Alto Networks Ansible documentation!
 # Palo Alto Networks Ansible documentation!
 
 ## Table of Contents
-1. [README](https://github.com/ivanbojer/ansible-pan/blob/develop/README.rst)
+1. [README](https://github.com/PaloAltoNetworks/ansible-pan/blob/master/README.md)
 2. [Modules](modules.md)
 3. [Examples](examples.md)
 4. [History](history.md)
