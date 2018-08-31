@@ -6,3 +6,5 @@ description: >- # this means to ignore newlines until "baseurl:"
   tasks on Palo Alto Networks Next Generation Firewalls – both physical and
   virtualized form factor. The underlying protocol uses API calls that are
   wrapped within the Ansible framework.
+# Google Analytics
+google_analytics: UA-36785921-2
