@@ -1,0 +1,124 @@
+{% if short_description %}
+{% set title = module %}
+{% endif %}
+---
+title: @{ title }@
+---
+# @{ title }@
+
+{% if version_added is defined -%}
+_(versionadded:: @{ version_added }@)_
+{% endif %}
+
+{% if deprecated is defined -%}
+## DEPRECATED
+
+@{ deprecated | convert_symbols_to_format }@
+{% endif %}
+
+## Synopsis
+
+{% for desc in description -%}
+@{ desc | convert_symbols_to_format }@
+{% endfor %}
+
+{% if aliases is defined -%}
+Aliases: @{ ','.join(aliases) }@
+{% endif %}
+
+{% if requirements %}
+## Requirements (on host that executes module)
+
+{% for req in requirements %}
+- @{ req | convert_symbols_to_format }@
+{% endfor %}
+{% endif %}
+
+{% if options -%}
+## Options
+
+| parameter | required | default | choices | comments |
+| --- | --- | --- | --- | --- |
+{% for k in option_keys %}
+{% set v = options[k] %}
+{% set required = '' %}
+{% set default = '' %}
+{% set description = [] %}
+{% set choices = [] %}
+{% set out_line = ' EMPTY ' %}
+{% if v.get('required', False) %}{% set required = 'yes' %}{% endif %}
+{% if v['default'] %}{% set default = v['default']|string %}{% endif %}
+{% if not v['suboptions'] %}
+  {% set out_line = '|' + k +'|' + required + '|' + default + '|' %}
+  {% if v.get('type', 'not_bool') == 'bool' %}
+    {% set out_line = out_line + 'yes/no |' %}
+  {% else %}
+    {% if v['choices'] %}
+      {% set c_array = [] %}
+      {% for choice in v.get('choices',[]) -%}
+        {% if c_array.append(choice|string) %}{% endif %}
+      {% endfor -%}
+      {% if choices.append(c_array|join(', ')) %}{% endif %}
+    {% endif %}
+  {% endif %}
+    {% for desc in v.description -%}
+      {% if description.append(desc | rst_ify) %}{% endif %}
+    {% endfor -%}
+| @{ k }@ | @{ required }@ | @{ default }@ | @{ choices|list|join }@ | @{ description|list|join }@ |
+    {% if 'aliases' in v and v.aliases -%}
+        aliases: @{ v.aliases|join(', ') }@ {%- endif %}
+    {% else %}
+| @{ k }@ {% if v['version_added'] %} (added in @{v['version_added']}@){% endif %} |
+| {% if v.get('required', False) %}yes{% else %}no{% endif %} |
+        {% for desc in v.description -%}<div>@{ desc | replace('\n', '\n    ') | rst_ify }@
+        {% endfor -%}
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if examples or plainexamples -%}
+## Examples
+
+{% for example in examples %}
+{% if example['description'] %}@{ example['description'] | indent(4, True) }@{% endif %}
+@{ example['code'] | escape | indent(4, True) }@
+{% endfor %}
+{% if plainexamples %}@{ plainexamples | indent(4, True) }@{% endif %}
+{% endif %}
+
+{% if returndocs -%}
+#### Return Values
+
+The following are the fields unique to this module:
+
+| name | description | returned | type | sample |
+| --- | --- | --- | --- | --- |
+    {% for entry in returndocs %}
+| @{ entry }@ | @{ returndocs[entry].description }@ | @{ returndocs[entry].returned }@ | @{ returndocs[entry].type }@ | @{ returndocs[entry].sample}@ |
+    {% endfor %}
+{% endif %}
+
+{% if notes -%}
+#### Notes
+
+{% for note in notes %}
+- @{ note | convert_symbols_to_format }@
+{% endfor %}
+{% endif %}
+
+{% if not deprecated %}
+{% set support = { 'core': 'This module is maintained by those with core commit privileges', 'curated': 'This module is supported mainly by the community and is curated by core committers.', 'community': 'This module is community maintained without core committer oversight.'} %}
+{% set module_states = { 'preview': 'it is not guaranteed to have a backwards compatible interface', 'stableinterface': 'the maintainers for this module guarantee that no backward incompatible interface changes will be made'} %}
+
+{% if metadata %}
+{% if metadata.status %}
+
+#### Status
+
+{% for cur_state in  metadata.status %}
+This module is flagged as **@{cur_state}@** which means that @{module_states[cur_state]}@.
+{% endfor %}
+{% endif %}
+
+{% endif %}
+{% endif %}
