@@ -118,6 +118,7 @@ class IKEGateway:
         self.auth_type = kwargs.get('auth_type')
         self.enable_passive_mode = kwargs.get('enable_passive_mode')
         self.liveness_check = kwargs.get('liveness_check')
+        self.peer_ip_type = 'ip'
         self.peer_ip_value = kwargs.get('peer_ip_value')
         self.psk = kwargs.get('psk')
 
@@ -234,7 +235,7 @@ def main():
 
     ike_gateway = network.IkeGateway(name=ikeGtwy.name, version=ikeGtwy.protocol_version, enable_ipv6=False,
                                      disabled=False,
-                                     peer_ip_type="ip", peer_ip_value=ikeGtwy.peer_ip_value,
+                                     peer_ip_type=ikeGtwy.peer_ip_type, peer_ip_value=ikeGtwy.peer_ip_value,
                                      interface=ikeGtwy.interface,
                                      auth_type=ikeGtwy.auth_type, pre_shared_key=ikeGtwy.psk,
                                      local_id_type=None, local_id_value=None, peer_id_type=None, peer_id_value=None,
