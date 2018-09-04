@@ -278,9 +278,8 @@ def main():
 
         if commit:
             module.exit_json(msg='VPN config successful.')
-
-    elif:
-        module.fail_json(msg='That operation is not implemented yet')
+        else:
+            module.fail_json(msg='That operation is not implemented yet')
 
 
 if __name__ == '__main__':
