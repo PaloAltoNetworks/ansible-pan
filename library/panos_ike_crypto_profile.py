@@ -1,0 +1,219 @@
+#!/usr/bin/env python
+
+#  Copyright 2017 Palo Alto Networks, Inc
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
+
+
+DOCUMENTATION = '''
+---
+module: panos_vpn
+short_description: Configures IKE Crypto profile on the firewall with subset of settings
+description:
+    - Use the IKE Crypto Profiles page to specify protocols and algorithms for identification, authentication, and encryption (IKEv1 or IKEv2, Phase 1).
+author: "Ivan Bojer (@ivanbojer)"
+version_added: "2.6"
+requirements:
+    - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
+    - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
+notes:
+    - Checkmode is not supported.
+    - Panorama is NOT supported.
+options:
+    ip_address:
+        description:
+            - IP address (or hostname) of PAN-OS device being configured.
+        required: true
+    username:
+        description:
+            - Username credentials to use for auth unless I(api_key) is set.
+        default: "admin"
+    password:
+        description:
+            - Password credentials to use for auth unless I(api_key) is set.
+        required: true
+    api_key:
+        description:
+            - API key that can be used instead of I(username)/I(password) credentials.
+    state:
+        description:
+            - Create or remove static route.
+        choices: ['present', 'absent']
+        default: 'present'
+    commit:
+        description:
+            - Commit configuration if changed.
+        default: true
+
+
+    ike_profile_name:
+        description:
+            - Name for the profile.
+        required: true
+    ike_dhgroup:
+        description:
+            - Specify the priority for Diffie-Hellman (DH) groups.
+        default: group2
+    ike_authentication:
+        description:
+            - Specify the priority for hash algorithms.
+        default: sha1
+    ike_encryption:
+        description:
+            - Select the appropriate Encapsulating Security Payload (ESP) authentication options.
+        default: ['aes-256-cbc', '3des']
+    ike_lifetime_sec:
+        description:
+            - Select unit of time and enter the length of time that the negotiated IKE Phase 1 key will be effective.
+        default: 28800
+'''
+
+EXAMPLES = '''
+- name: Add IKE crypto config to the firewall
+    panos_ike_crypto_profile:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      state: 'present'
+      ike_profile_name: 'IKE-Ansible'
+      ike_dhgroup: 'group2'
+      ike_authentication: 'sha1'
+      ike_encryption: ['aes-256-cbc', '3des']
+      ike_lifetime_sec: '28800'
+      commit: 'False'
+'''
+
+RETURN = '''
+# Default return values
+'''
+
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.basic import get_exception
+
+try:
+    from pan.xapi import PanXapiError
+    import pandevice
+    from pandevice import base
+    from pandevice import panorama
+    from pandevice.errors import PanDeviceError
+    from pandevice import network
+
+    HAS_LIB = True
+except ImportError:
+    HAS_LIB = False
+
+
+# def get_devicegroup(device, devicegroup):
+#     dg_list = device.refresh_devices()
+#     for group in dg_list:
+#         if isinstance(group, pandevice.panorama.DeviceGroup):
+#             if group.name == devicegroup:
+#                 return group
+#     return False
+
+
+class IKEProfile:
+    def __init__(self, *args, **kwargs):
+        self.name = kwargs.get('name')
+        self.authentication = kwargs.get('authentication')
+        self.encryption = kwargs.get('encryption')
+        self.dh_group = kwargs.get('dh_group')
+        self.lifetime_secs = kwargs.get('lifetime_secs')
+
+
+def main():
+    argument_spec = dict(
+        ip_address=dict(required=True),
+        password=dict(no_log=True),
+        username=dict(default='admin'),
+        api_key=dict(no_log=True),
+        state=dict(default='present', choices=['present', 'absent']),
+        ike_profile_name=dict(required=True),
+        ike_dhgroup=dict(default='group2'),
+        ike_authentication=dict(default='sha1'),
+        ike_encryption=dict(type='list', default=['aes-256-cbc', '3des']),
+        ike_lifetime_sec=dict(type='int', default=28800),
+        commit=dict(type='bool', default=True)
+    )
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
+                           required_one_of=[['api_key', 'password']])
+    if not HAS_LIB:
+        module.fail_json(msg='Missing required libraries.')
+
+    ip_address = module.params['ip_address']
+    password = module.params['password']
+    username = module.params['username']
+    api_key = module.params['api_key']
+    state = module.params['state']
+    ike_profile_name = module.params['ike_profile_name']
+    ike_dhgroup = module.params['ike_dhgroup']
+    ike_authentication = module.params['ike_authentication']
+    ike_encryption = module.params['ike_encryption']
+    ike_lifetime_sec = module.params['ike_lifetime_sec']
+    commit = module.params['commit']
+
+    # If Panorama, validate the devicegroup
+    # dev_group = None
+    # if devicegroup and isinstance(device, panorama.Panorama):
+    #     dev_group = get_devicegroup(device, devicegroup)
+    #     if dev_group:
+    #         device.add(dev_group)
+    #     else:
+    #         module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
+
+    ikeProfile = IKEProfile(name=ike_profile_name,
+                            authentication=ike_authentication,
+                            encryption=ike_encryption,
+                            dh_group=ike_dhgroup, lifetime_secs=ike_lifetime_sec)
+
+    ike_crypto_prof = network.IkeCryptoProfile(ikeProfile.name,
+                                               ikeProfile.dh_group,
+                                               ikeProfile.authentication,
+                                               ikeProfile.encryption,
+                                               ikeProfile.lifetime_secs,
+                                               None, None, None, 0)
+
+    # Create the device with the appropriate pandevice type
+    device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
+
+    changed = False
+    try:
+        if state == "present":
+            device.add(ike_crypto_prof)
+            ike_crypto_prof.create()
+            changed = True
+        elif state == "absent":
+            # fetch all crypto profiles
+            network.IkeCryptoProfile.refreshall(device)
+            ike_crypto_prof = device.find(ikeProfile.name, network.IkeCryptoProfile)
+            if ike_crypto_prof:
+                ike_crypto_prof.delete()
+                changed = True
+        else:
+            module.fail_json(msg='[%s] state is not implemented yet' % state)
+    except PanDeviceError:
+        exc = get_exception()
+        module.fail_json(msg=exc.message)
+
+    if commit:
+        device.commit(sync=True)
+
+    module.exit_json(msg='IKE Crypto profile config successful.', changed=changed)
+
+
+if __name__ == '__main__':
+    main()

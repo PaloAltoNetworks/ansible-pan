@@ -14,6 +14,8 @@ V1.0.8
 *New modules*
 
 -   panos\_management\_profile: Manages interface management profiles
+-   panos\_ike\_crypto\_profile: Use the IKE Crypto Profiles page to specify protocols and algorithms for 
+identification, authentication, and encryption (IKEv1 or IKEv2, Phase 1).
 
 *Removed modules*
 
