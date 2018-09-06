@@ -16,6 +16,7 @@ V1.0.8
 -   panos\_management\_profile: Manages interface management profiles
 -   panos\_ike\_crypto\_profile: Use the IKE Crypto Profiles page to specify protocols and algorithms for 
 identification, authentication, and encryption (IKEv1 or IKEv2, Phase 1).
+-   panos\_ipsec\_profile: Configures IPSec Crypto profile on the firewall with subset of settings.
 
 *Removed modules*
 

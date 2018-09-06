@@ -1,4 +1,4 @@
-- name: Add some security rules to the firewall
+- name: This is composite script that creates VPN IPSec profile and tunnel on NGFW
   hosts: my-firewall
   connection: local
   gather_facts: False
@@ -11,31 +11,57 @@
     include_vars: 'firewall-secrets.yml'
     no_log: 'yes'
 
-  - name: Add vpn config to the firewall
-    panos_vpn:
+  - name: Add IKE crypto config to the firewall
+    panos_ike_crypto_profile:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
       password: '{{ password }}'
-      operation: 'add'
-      ike_profile_name: 'IKE-Ansible'
-      ike_dhgroup: 'group2'
-      ike_authentication: 'sha1'
-      ike_encryption=: ['aes-256-cbc', '3des']
-      ike_lifetime_sec: '28800'
-      ipsec_profile_name: 'IPSec-Ansible'
-      ipsec_encryption: ['aes-256-cbc', '3des']
-      ipsec_authentication: 'sha1'
-      ipsec_dhgroup: 'group2'
-      ipsec_lifetime_hrs: '1'
-      ike_gw_name: 'IKEGW-Ansible'
-      ike_gw_protocol_version: 'ikev2'
-      ike_gw_interface: 'ethernet1/1'
-      ike_gw_auth_type: 'pre-shared-key'
-      ike_gw_pasive_mode: 'True'
-      ike_gw_liveness_check: '5'
-      ike_gw_peer_ip_value: '1.2.3.4'
-      ike_gw_psk: 'CHANGEME'
-      ipsec_tunnel_name: 'IPSecTunnel-Ansible'
-      ipsec_tunnel_interface: 'ethernet1/1'
-      ipsec_key_type: 'auto-key'
+      state: 'present'
+      name: 'IKE-Ansible'
+      dhgroup: 'group2'
+      authentication: 'sha1'
+      encryption: ['aes-256-cbc', '3des']
+      lifetime_sec: '28800'
       commit: 'False'
+
+  - name: Add IPSec crypto config to the firewall
+    panos_ipsec_profile:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      state: 'present'
+      name: 'IPSec-Ansible'
+      encryption: ['aes-256-cbc', '3des']
+      authentication: 'sha1'
+      dhgroup: 'group2'
+      lifetime_hrs: '1'
+      commit: 'False'
+
+#  - name: Add vpn config to the firewall
+#    panos_vpn:
+#      ip_address: '{{ ip_address }}'
+#      username: '{{ username }}'
+#      password: '{{ password }}'
+#      operation: 'delete'
+#      ike_profile_name: 'IKE-Ansible'
+#      ike_dhgroup: 'group2'
+#      ike_authentication: 'sha1'
+#      ike_encryption: ['aes-256-cbc', '3des']
+#      ike_lifetime_sec: '28800'
+#      ipsec_profile_name: 'IPSec-Ansible'
+#      ipsec_encryption: ['aes-256-cbc', '3des']
+#      ipsec_authentication: 'sha1'
+#      ipsec_dhgroup: 'group2'
+#      ipsec_lifetime_hrs: '1'
+#      ike_gw_name: 'IKEGW-Ansible'
+#      ike_gw_protocol_version: 'ikev2'
+#      ike_gw_interface: 'ethernet1/1'
+#      ike_gw_auth_type: 'pre-shared-key'
+#      ike_gw_pasive_mode: 'True'
+#      ike_gw_liveness_check: '5'
+#      ike_gw_peer_ip_value: '1.2.3.4'
+#      ike_gw_psk: 'CHANGEME'
+#      ipsec_tunnel_name: 'IPSecTunnel-Ansible'
+#      ipsec_tunnel_interface: 'tunnel.2'
+#      ipsec_key_type: 'auto-key'
+#      commit: 'False'

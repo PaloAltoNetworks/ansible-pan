@@ -16,9 +16,9 @@
       username: '{{ username }}'
       password: '{{ password }}'
       state: 'present'
-      ike_profile_name: 'IKE-Ansible'
-      ike_dhgroup: 'group2'
-      ike_authentication: 'sha1'
-      ike_encryption: ['aes-256-cbc', '3des']
-      ike_lifetime_sec: '28800'
+      name: 'IKE-Ansible'
+      dhgroup: 'group2'
+      authentication: 'sha1'
+      encryption: ['aes-256-cbc', '3des']
+      lifetime_sec: '28800'
       commit: 'False'

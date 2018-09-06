@@ -21,10 +21,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = '''
 ---
-module: panos_vpn
-short_description: Configures IKE Crypto profile on the firewall with subset of settings
+module: panos_ipsec_profile
+short_description: Configures IPSec Crypto profile on the firewall with subset of settings.
 description:
-    - Use the IKE Crypto Profiles page to specify protocols and algorithms for identification, authentication, and encryption (IKEv1 or IKEv2, Phase 1).
+    - IPSec Crypto profiles specify protocols and algorithms for authentication and encryption in VPN tunnels based on IPSec SA negotiation (Phase 2).
 author: "Ivan Bojer (@ivanbojer)"
 version_added: "2.6"
 requirements:
@@ -74,24 +74,24 @@ options:
         description:
             - Select the appropriate Encapsulating Security Payload (ESP) authentication options.
         default: ['aes-256-cbc', '3des']
-    lifetime_sec:
+    lifetime_hrs:
         description:
-            - Select unit of time and enter the length of time that the negotiated IKE Phase 1 key will be effective.
-        default: 28800
+            - Select units and enter the length of time (default is one hour) that the negotiated key will stay effective.
+        default: 1
 '''
 
 EXAMPLES = '''
-- name: Add IKE crypto config to the firewall
-    panos_ike_crypto_profile:
+- name: Add IPSec crypto config to the firewall
+    panos_ipsec_profile:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
       password: '{{ password }}'
       state: 'present'
-      name: 'IKE-Ansible'
-      dhgroup: 'group2'
-      authentication: 'sha1'
+      name: 'IPSec-Ansible'
       encryption: ['aes-256-cbc', '3des']
-      lifetime_sec: '28800'
+      authentication: 'sha1'
+      dhgroup: 'group2'
+      lifetime_hrs: '1'
       commit: 'False'
 '''
 
@@ -124,13 +124,13 @@ except ImportError:
 #     return False
 
 
-class IKEProfile:
+class IPSecProfile:
     def __init__(self, *args, **kwargs):
         self.name = kwargs.get('name')
         self.authentication = kwargs.get('authentication')
         self.encryption = kwargs.get('encryption')
         self.dh_group = kwargs.get('dh_group')
-        self.lifetime_secs = kwargs.get('lifetime_secs')
+        self.lifetime_hrs = kwargs.get('lifetime_hrs')
 
 
 def main():
@@ -141,10 +141,10 @@ def main():
         api_key=dict(no_log=True),
         state=dict(default='present', choices=['present', 'absent']),
         name=dict(required=True),
-        dhgroup=dict(default='group2'),
-        authentication=dict(default='sha1'),
         encryption=dict(type='list', default=['aes-256-cbc', '3des']),
-        lifetime_sec=dict(type='int', default=28800),
+        authentication=dict(default='sha1'),
+        dhgroup=dict(default='group2'),
+        lifetime_hrs=dict(type='int', default=1),
         commit=dict(type='bool', default=True)
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
@@ -157,11 +157,11 @@ def main():
     username = module.params['username']
     api_key = module.params['api_key']
     state = module.params['state']
-    ike_profile_name = module.params['name']
-    ike_dhgroup = module.params['dhgroup']
-    ike_authentication = module.params['authentication']
-    ike_encryption = module.params['encryption']
-    ike_lifetime_sec = module.params['lifetime_sec']
+    profile_name = module.params['name']
+    encryption = module.params['encryption']
+    authentication = module.params['authentication']
+    dhgroup = module.params['dhgroup']
+    lifetime_hrs = module.params['lifetime_hrs']
     commit = module.params['commit']
 
     # If Panorama, validate the devicegroup
@@ -173,17 +173,14 @@ def main():
     #     else:
     #         module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
 
-    ikeProfile = IKEProfile(name=ike_profile_name,
-                            authentication=ike_authentication,
-                            encryption=ike_encryption,
-                            dh_group=ike_dhgroup, lifetime_secs=ike_lifetime_sec)
+    ipsecProfile = IPSecProfile(name=profile_name, encryption=encryption,
+                                authentication=authentication, dhgroup=dhgroup,
+                                lifetime_hrs=lifetime_hrs)
 
-    ike_crypto_prof = network.IkeCryptoProfile(ikeProfile.name,
-                                               ikeProfile.dh_group,
-                                               ikeProfile.authentication,
-                                               ikeProfile.encryption,
-                                               ikeProfile.lifetime_secs,
-                                               None, None, None, 0)
+    ipsec_crypto_prof = network.IpsecCryptoProfile(name=ipsecProfile.name, esp_encryption=ipsecProfile.encryption,
+                                                   esp_authentication=ipsecProfile.authentication,
+                                                   ah_authentication=None, dh_group=ipsecProfile.dh_group,
+                                                   lifetime_hours=ipsecProfile.lifetime_hrs)
 
     # Create the device with the appropriate pandevice type
     device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
@@ -191,15 +188,15 @@ def main():
     changed = False
     try:
         if state == "present":
-            device.add(ike_crypto_prof)
-            ike_crypto_prof.create()
+            device.add(ipsec_crypto_prof)
+            ipsec_crypto_prof.create()
             changed = True
         elif state == "absent":
-            # fetch all crypto profiles
-            network.IkeCryptoProfile.refreshall(device)
-            ike_crypto_prof = device.find(ikeProfile.name, network.IkeCryptoProfile)
-            if ike_crypto_prof:
-                ike_crypto_prof.delete()
+            # fetch all profiles
+            network.IpsecCryptoProfile.refreshall(device)
+            ipsec_crypto_prof = device.find(ipsecProfile.name, network.IpsecCryptoProfile)
+            if ipsec_crypto_prof:
+                ipsec_crypto_prof.delete()
                 changed = True
         else:
             module.fail_json(msg='[%s] state is not implemented yet' % state)
@@ -210,7 +207,7 @@ def main():
     if commit:
         device.commit(sync=True)
 
-    module.exit_json(msg='IKE Crypto profile config successful.', changed=changed)
+    module.exit_json(msg='IPSec crypto profile config successful.', changed=changed)
 
 
 if __name__ == '__main__':

@@ -10,11 +10,11 @@
     include_vars: 'firewall-secrets.yml'
     no_log: 'yes'
 
-  - name: Delete named IKE crypto profile
-    panos_ike_crypto_profile:
+  - name: Delete named IPSec crypto profile
+    panos_ipsec_profile:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
       password: '{{ password }}'
       state: 'absent'
-      name: 'IKE-Ansible'
+      name: 'IPSec-Ansible'
       commit: 'False'
