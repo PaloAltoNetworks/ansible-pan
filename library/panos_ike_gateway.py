@@ -21,7 +21,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = '''
 ---
-module: panos_ike_crypto_profile
+module: panos_vpn
 short_description: Configures IKE Crypto profile on the firewall with subset of settings
 description:
     - Use the IKE Crypto Profiles page to specify protocols and algorithms for identification, authentication, and encryption (IKEv1 or IKEv2, Phase 1).
