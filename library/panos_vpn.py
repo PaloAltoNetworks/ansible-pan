@@ -142,10 +142,10 @@ def main():
         ike_profile_name=dict(required=True),
         ike_dhgroup=dict(default='group2'),
         ike_authentication=dict(default='sha1'),
-        ike_encryption=dict(default=['aes-256-cbc', '3des']),
+        ike_encryption=dict(type='list', default=['aes-256-cbc', '3des']),
         ike_lifetime_sec=dict(type='int', default=28800),
         ipsec_profile_name=dict(required=True),
-        ipsec_encryption=dict(default=['aes-256-cbc', '3des']),
+        ipsec_encryption=dict(type='list', default=['aes-256-cbc', '3des']),
         ipsec_authentication=dict(default='sha1'),
         ipsec_dhgroup=dict(default='group2'),
         ipsec_lifetime_hrs=dict(type='int', default=1),
@@ -212,15 +212,16 @@ def main():
                             encryption=ike_encryption,
                             dh_group=ike_dhgroup, lifetime_secs=ike_lifetime_sec)
 
-    ipsecProfile = IPSecProfile(name=ipsec_profile_name, ipsec_encryption=ipsec_encryption,
-                                ipsec_authentication=ipsec_authentication, ipsec_dhgroup=ipsec_dhgroup,
-                                ipsec_lifetime_hrs=ipsec_lifetime_hrs)
-    ikeGtwy = IKEGateway(name=ike_gw_name, protocol_version=ike_gw_protocol_version, ike_gw_interface=ike_gw_interface,
-                         ike_gw_auth_type=ike_gw_auth_type, ike_gw_pasive_mode=ike_gw_pasive_mode,
-                         ike_gw_liveness_check=ike_gw_liveness_check, peer_ip_value=ike_gw_peer_ip_value, psk=ike_gw_psk)
+    ipsecProfile = IPSecProfile(name=ipsec_profile_name, encryption=ipsec_encryption,
+                                authentication=ipsec_authentication, dhgroup=ipsec_dhgroup,
+                                lifetime_hrs=ipsec_lifetime_hrs)
+    ikeGtwy = IKEGateway(name=ike_gw_name, protocol_version=ike_gw_protocol_version, interface=ike_gw_interface,
+                         auth_type=ike_gw_auth_type, pasive_mode=ike_gw_pasive_mode,
+                         liveness_check=ike_gw_liveness_check, peer_ip_value=ike_gw_peer_ip_value,
+                         psk=ike_gw_psk)
 
-    ipsecTunnel = IPSecTunnel(name=ipsec_tunnel_name, tunnel_interface=ipsec_tunnel_interface,
-                              ipsec_key_type=ipsec_key_type)
+    ipsecTunnel = IPSecTunnel(ikeGtwy.name, ipsecProfile.name, name=ipsec_tunnel_name,
+                              tunnel_interface=ipsec_tunnel_interface, key_type=ipsec_key_type)
 
     ####
 
@@ -253,7 +254,7 @@ def main():
                                      ikev2_send_peer_id=False, enable_liveness_check=True,
                                      liveness_check_interval=ikeGtwy.liveness_check)
 
-    ipsec_tunnel = network.IpsecTunnel(name=ipsecTunnel.name, tunnel_interface=ipsecTunnel. tunnel_interface,
+    ipsec_tunnel = network.IpsecTunnel(name=ipsecTunnel.name, tunnel_interface=ipsecTunnel.tunnel_interface,
                                        type=ipsecTunnel.key_type,
                                        ak_ike_gateway=ikeGtwy.name,
                                        ak_ipsec_crypto_profile=ipsecTunnel.ipsec_profile,
