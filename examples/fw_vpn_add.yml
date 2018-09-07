@@ -54,7 +54,14 @@
       crypto_profile_name: 'IKE-Ansible'
       commit: 'False'
 
-
-#      ipsec_tunnel_name: 'IPSecTunnel-Ansible'
-#      ipsec_tunnel_interface: 'tunnel.2'
-#      ipsec_key_type: 'auto-key'
+  - name: Add IPSec tunnel to IKE gateway profile
+    panos_ipsec_tunnel:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      state: 'present'
+      name: 'IPSecTunnel-Ansible'
+      tunnel_interface: 'tunnel.2'
+      ike_gtw_name: 'IKEGW-Ansible'
+      ipsec_profile: 'IPSec-Ansible'
+      commit: 'False'
