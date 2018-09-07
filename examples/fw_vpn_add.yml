@@ -46,7 +46,6 @@
       name: 'IKEGW-Ansible'
       protocol_version: 'ikev2'
       interface: 'ethernet1/1'
-      auth_type: 'pre-shared-key'
       pasive_mode: 'True'
       liveness_check: '5'
       peer_ip_value: '1.2.3.4'
