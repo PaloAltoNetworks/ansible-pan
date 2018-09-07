@@ -47,10 +47,37 @@ options:
     operation:
         description:
             - The action to be taken.  Supported values are I(add)/I(update)/I(find)/I(delete)/I(disable).
+            - This is used only if "state" is unspecified.
+    state:
+        description:
+            - The state.  Can be either I(present)/I(absent).
+            - If this is defined, then "operation" is ignored.
+        default: 'present'
+    devicegroup:
+        description:
+            - The device group to place the NAT rule into.
+            - Panorama only; ignored for firewalls.
+        default: "shared"
+    vsys:
+        description:
+            - The vsys to place the NAT rule into.
+            - Firewall only; ignored for Panorama.
+        default: "vsys1"
+    rulebase:
+        description:
+            - The rulebase to put the NAT rule into.
+            - Values are I(pre-rulebase)/I(post-rulebase).
+            - Panorama only; ignored for firewalls.
+        default: "pre-rulebase"
     rule_name:
         description:
             - name of the SNAT rule
         required: true
+    nat_type:
+        description:
+            - Type of NAT.
+            - Values are I(ipv4)/I(nat64)/I(nptv6).
+        default: "ipv4"
     source_zone:
         description:
             - list of source zones
@@ -173,11 +200,9 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 from ansible.module_utils.basic import get_exception, AnsibleModule
 
 try:
-    from pan.xapi import PanXapiError
-    import pandevice
-    from pandevice import base
-    from pandevice import panorama
-    from pandevice import policies
+    from pandevice.base import PanDevice
+    from pandevice.panorama import DeviceGroup
+    from pandevice.policies import Rulebase, PreRulebase, PostRulebase, NatRule
     from pandevice.errors import PanDeviceError
     import xmltodict
     import json
@@ -185,6 +210,7 @@ try:
     HAS_LIB = True
 except ImportError:
     HAS_LIB = False
+    raise
 
 
 ACCEPTABLE_MOVE_ERRORS = (
@@ -196,39 +222,20 @@ ACCEPTABLE_MOVE_ERRORS = (
 def get_devicegroup(device, devicegroup):
     dg_list = device.refresh_devices()
     for group in dg_list:
-        if isinstance(group, pandevice.panorama.DeviceGroup):
+        if isinstance(group, DeviceGroup):
             if group.name == devicegroup:
                 return group
     return False
 
 
-def get_rulebase(device, devicegroup):
-    # Build the rulebase
-    if isinstance(device, pandevice.firewall.Firewall):
-        rulebase = pandevice.policies.Rulebase()
-        device.add(rulebase)
-    elif isinstance(device, pandevice.panorama.Panorama):
-        dg = panorama.DeviceGroup(devicegroup)
-        device.add(dg)
-        rulebase = policies.PreRulebase()
-        dg.add(rulebase)
-    else:
-        return False
-    policies.NatRule.refreshall(rulebase)
-    return rulebase
-
-
-def find_rule(rulebase, rule_name):
-    # Search for the rule name
-    rule = rulebase.find(rule_name)
-    if rule:
-        return rule
-    else:
-        return False
+def find_rule(rules, new_rule):
+    for i in rules:
+        if i.name == new_rule.name:
+            return i
 
 
 def create_nat_rule(**kwargs):
-    nat_rule = policies.NatRule(
+    nat_rule = NatRule(
         name=kwargs['rule_name'],
         description=kwargs['description'],
         fromzone=kwargs['source_zone'],
@@ -288,9 +295,11 @@ def main():
         username=dict(default='admin'),
         password=dict(required=True, no_log=True),
         api_key=dict(no_log=True),
-        operation=dict(required=True, choices=['add', 'update', 'delete', 'find', 'disable']),
+        operation=dict(choices=['add', 'update', 'delete', 'find', 'disable']),
+        state=dict(default='present', choices=['present', 'absent']),
         rule_name=dict(required=True),
         description=dict(),
+        nat_type=dict(default='ipv4', choices=['ipv4', 'nat64', 'nptv6']),
         tag_name=dict(),
         source_zone=dict(type='list'),
         source_ip=dict(type='list', default=['any']),
@@ -307,7 +316,9 @@ def main():
         snat_bidirectional=dict(type='bool', default=False),
         dnat_address=dict(),
         dnat_port=dict(),
-        devicegroup=dict(),
+        devicegroup=dict(default='shared'),
+        rulebase=dict(default='pre-rulebase', choices=['pre-rulebase', 'post-rulebase']),
+        vsys=dict(default='vsys1'),
         location=dict(default='bottom', choices=['top', 'bottom', 'before', 'after']),
         existing_rule=dict(),
         commit=dict(type='bool', default=True)
@@ -317,14 +328,14 @@ def main():
                            required_one_of=[['api_key', 'password']])
     if not HAS_LIB:
         module.fail_json(msg='Missing required libraries.')
-    elif not hasattr(policies.NatRule, 'move'):
+    elif not hasattr(NatRule, 'move'):
         module.fail_json(msg='Python library pandevice needs to be updated.')
 
-    ip_address = module.params["ip_address"]
-    password = module.params["password"]
-    username = module.params['username']
-    api_key = module.params['api_key']
-    operation = module.params['operation']
+    # Get firewall / Panorama auth.
+    auth = [module.params[x] for x in
+            ('ip_address', 'username', 'password', 'api_key')]
+
+    # Get object params.
     rule_name = module.params['rule_name']
     description = module.params['description']
     tag_name = module.params['tag_name']
@@ -334,7 +345,7 @@ def main():
     destination_ip = module.params['destination_ip']
     service = module.params['service']
     to_interface = module.params['to_interface']
-    nat_type = 'ipv4'
+    nat_type = module.params['nat_type']
     snat_type = module.params['snat_type']
     snat_address_type = module.params['snat_address_type']
     snat_static_address = module.params['snat_static_address']
@@ -344,37 +355,114 @@ def main():
     snat_bidirectional = module.params['snat_bidirectional']
     dnat_address = module.params['dnat_address']
     dnat_port = module.params['dnat_port']
+
+    # Get other info.
+    operation = module.params['operation']
+    state = module.params['state']
     devicegroup = module.params['devicegroup']
+    vsys = module.params['vsys']
+    commit = module.params['commit']
     location = module.params['location']
     existing_rule = module.params['existing_rule']
-
-    commit = module.params['commit']
 
     # Sanity check the location / existing_rule params.
     if location in ('before', 'after') and not existing_rule:
         module.fail_json(msg="'existing_rule' must be specified if location is 'before' or 'after'.")
 
     # Create the device with the appropriate pandevice type
-    device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
+    con = PanDevice.create_from_device(*auth)
 
-    # If Panorama, validate the devicegroup
-    dev_group = None
-    if devicegroup and isinstance(device, panorama.Panorama):
-        dev_group = get_devicegroup(device, devicegroup)
-        if dev_group:
-            device.add(dev_group)
+    # Set vsys if firewall, device group if Panorama, and set the rulebase.
+    parent = con
+    if hasattr(con, 'refresh_devices'):
+        # Panorama
+        if devicegroup not in (None, 'shared'):
+            dev_group = get_devicegroup(con, devicegroup)
+            if not dev_group:
+                module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
+            parent = dev_group
+        if module.params['rulebase'] in (None, 'pre-rulebase'):
+            rulebase = PreRulebase()
+            parent.add(rulebase)
+            parent = rulebase
+        elif module.params['rulebase'] == 'post-rulebase':
+            rulebase = PostRulebase()
+            parent.add(rulebase)
+            parent = rulebase
+    else:
+        # Firewall
+        parent.vsys = vsys
+        rulebase = Rulebase()
+        parent.add(rulebase)
+        parent = rulebase
+
+    # Get the current NAT rules.
+    try:
+        rules = NatRule.refreshall(parent)
+    except PanDeviceError as e:
+        module.fail_json(msg='Failed NAT refreshall: {0}'.format(e))
+
+    # Create the desired rule.
+    new_rule = create_nat_rule(
+        rule_name=rule_name,
+        description=description,
+        tag_name=tag_name,
+        source_zone=source_zone,
+        destination_zone=destination_zone,
+        source_ip=source_ip,
+        destination_ip=destination_ip,
+        service=service,
+        to_interface=to_interface,
+        nat_type=nat_type,
+        snat_type=snat_type,
+        snat_address_type=snat_address_type,
+        snat_static_address=snat_static_address,
+        snat_dynamic_address=snat_dynamic_address,
+        snat_interface=snat_interface,
+        snat_interface_address=snat_interface_address,
+        snat_bidirectional=snat_bidirectional,
+        dnat_address=dnat_address,
+        dnat_port=dnat_port
+    )
+
+    if not new_rule:
+        module.fail_json(msg='Incorrect NAT rule params specified; quitting')
+    parent.add(new_rule)
+
+    # Perform the desired operation.
+    changed = False
+    do_move = False
+    if state == 'present':
+        match = find_rule(rules, new_rule)
+        if match is not None:
+            if not match.equal(new_rule):
+                try:
+                    new_rule.apply()
+                except PanDeviceError as e:
+                    module.fail_json(msg='Failed "present" apply: {0}'.format(e))
+                else:
+                    changed = True
+                    do_move = True
         else:
-            module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
-
-    # Get the rulebase
-    rulebase = get_rulebase(device, dev_group)
-    if not rulebase:
-        module.fail_json(msg="No rulebase found")
-
-    # Which action shall we take on the object?
-    if operation == "find":
+            try:
+                new_rule.create()
+            except PanDeviceError as e:
+                module.fail_json(msg='Failed "present" create: {0}'.format(e))
+            else:
+                changed = True
+                do_move = True
+    elif state == 'absent':
+        match = find_rule(rules, new_rule)
+        if match is not None:
+            try:
+                new_rule.delete()
+            except PanDeviceError as e:
+                module.fail_json(msg='Failed "absent" delete: {0}'.format(e))
+            else:
+                changed = True
+    elif operation == "find":
         # Search for the rule
-        match = find_rule(rulebase, rule_name)
+        match = find_rule(rules, new_rule)
         # If found, format and return the result
         if match:
             match_dict = xmltodict.parse(match.element_str())
@@ -386,126 +474,74 @@ def main():
             module.fail_json(msg='Rule \'%s\' not found. Is the name correct?' % rule_name)
     elif operation == "delete":
         # Search for the object
-        match = find_rule(rulebase, rule_name)
-        # If found, delete it
-        if match:
-            try:
-                match.delete()
-                if commit:
-                    device.commit(sync=True)
-            except PanXapiError:
-                exc = get_exception()
-                module.fail_json(msg=exc.message)
-
-            module.exit_json(changed=True, msg='Rule \'%s\' successfully deleted.' % rule_name)
-        else:
+        match = find_rule(rules, new_rule)
+        if match is None:
             module.fail_json(msg='Rule \'%s\' not found. Is the name correct?' % rule_name)
+        try:
+            new_rule.delete()
+        except PanDeviceError as e:
+            module.fail_json(msg='Failed "delete" delete: {0}'.format(e))
+        else:
+            changed = True
     elif operation == "add":
         # Look for required parameters
-        if source_zone and destination_zone and nat_type:
-            pass
-        else:
+        if not source_zone or not destination_zone or not nat_type:
             module.fail_json(msg='Missing parameter. Required: source_zone, destination_zone, nat_type')
         # Search for the rule. Fail if found.
-        match = find_rule(rulebase, rule_name)
+        match = find_rule(rules, new_rule)
         if match:
             module.fail_json(msg='Rule \'%s\' already exists. Use operation: \'update\' to change it.' % rule_name)
+        try:
+            new_rule.create()
+        except PanDeviceError as e:
+            module.fail_json(msg='Failed "add" create: {0}'.format(e))
         else:
-            try:
-                new_rule = create_nat_rule(
-                    rule_name=rule_name,
-                    description=description,
-                    tag_name=tag_name,
-                    source_zone=source_zone,
-                    destination_zone=destination_zone,
-                    source_ip=source_ip,
-                    destination_ip=destination_ip,
-                    service=service,
-                    to_interface=to_interface,
-                    nat_type=nat_type,
-                    snat_type=snat_type,
-                    snat_address_type=snat_address_type,
-                    snat_static_address=snat_static_address,
-                    snat_dynamic_address=snat_dynamic_address,
-                    snat_interface=snat_interface,
-                    snat_interface_address=snat_interface_address,
-                    snat_bidirectional=snat_bidirectional,
-                    dnat_address=dnat_address,
-                    dnat_port=dnat_port
-                )
-
-                rulebase.add(new_rule)
-                new_rule.create()
-                changed = True
-                try:
-                    new_rule.move(location, existing_rule)
-                except PanDeviceError as e:
-                    if '{0}'.format(e) not in ACCEPTABLE_MOVE_ERRORS:
-                        raise
-                if changed and commit:
-                    device.commit(sync=True)
-            except PanXapiError:
-                exc = get_exception()
-                module.fail_json(msg=exc.message)
-            module.exit_json(changed=changed, msg='Rule \'%s\' successfully added.' % rule_name)
+            changed = True
+            do_move = True
     elif operation == 'update':
         # Search for the rule. Update if found.
         match = find_rule(rulebase, rule_name)
         if not match:
             module.fail_json(msg='Rule \'%s\' does not exist. Use operation: \'add\' to add it.' % rule_name)
         try:
-            new_rule = create_nat_rule(
-                rule_name=rule_name,
-                description=description,
-                tag_name=tag_name,
-                source_zone=source_zone,
-                destination_zone=destination_zone,
-                source_ip=source_ip,
-                destination_ip=destination_ip,
-                service=service,
-                to_interface=to_interface,
-                nat_type=nat_type,
-                snat_type=snat_type,
-                snat_address_type=snat_address_type,
-                snat_static_address=snat_static_address,
-                snat_dynamic_address=snat_dynamic_address,
-                snat_interface=snat_interface,
-                snat_interface_address=snat_interface_address,
-                snat_bidirectional=snat_bidirectional,
-                dnat_address=dnat_address,
-                dnat_port=dnat_port
-            )
-
-            rulebase.add(new_rule)
             new_rule.apply()
+        except PanDeviceError as e:
+            module.fail_json(msg='Failed "update" apply: {0}'.format(e))
+        else:
             changed = True
-            try:
-                new_rule.move(location, existing_rule)
-            except PanDeviceError as e:
-                if '{0}'.format(e) not in ACCEPTABLE_MOVE_ERRORS:
-                    raise
-            if changed and commit:
-                device.commit(sync=True)
-        except PanXapiError:
-            exc = get_exception()
-            module.fail_json(msg=exc.message)
-        module.exit_json(changed=changed, msg='Rule \'%s\' successfully updated.' % rule_name)
+            do_move = True
     elif operation == 'disable':
         # Search for the rule, disable if found.
-        match = find_rule(rulebase, rule_name)
-        if match:
-            try:
-                match.disabled = True
-                match.update('disabled')
-                changed = True
-                if changed and commit:
-                    device.commit(sync=True)
-            except PanXapiError:
-                exc = get_exception()
-                module.fail_json(msg=exc.message)
-            module.exit_json(changed=changed, msg='Rule \'%s\' successfully disabled.' % rule_name)
-        else:
+        match = find_rule(rules, new_rule)
+        if not match:
             module.fail_json(msg='Rule \'%s\' does not exist.' % rule_name)
+        if not match.disabled:
+            match.disabled = True
+            try:
+                match.update('disabled')
+            except PanDeviceError as e:
+                module.fail_json(msg='Failed "disabled": {0}'.format(e))
+            else:
+                changed = True
+
+    # Optional move.
+    if do_move:
+        try:
+            new_rule.move(location, existing_rule)
+        except PanDeviceError as e:
+            if '{0}'.format(e) not in ACCEPTABLE_MOVE_ERRORS:
+                module.fail_json(msg='Failed move: {0}'.format(e))
+        else:
+            changed = True
+
+    # Optional commit.
+    if changed and commit:
+        try:
+            con.commit(sync=True)
+        except PanDeviceError as e:
+            module.fail_json(msg='Failed commit: {0}'.format(e))
+
+    module.exit_json(changed=changed, msg='Done')
 
 
 if __name__ == '__main__':
