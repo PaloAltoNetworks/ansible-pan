@@ -21,10 +21,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = '''
 ---
-module: panos_vpn
-short_description: Configures IKE Crypto profile on the firewall with subset of settings
+module: panos_ike_gateway
+short_description: Configures IKE gateway on the firewall with subset of settings.
 description:
-    - Use the IKE Crypto Profiles page to specify protocols and algorithms for identification, authentication, and encryption (IKEv1 or IKEv2, Phase 1).
+    - Use this to manage or define a gateway, including the configuration information necessary to perform Internet Key Exchange (IKE) protocol negotiation with a peer gateway. This is the Phase 1 portion of the IKE/IPSec VPN setup.
 author: "Ivan Bojer (@ivanbojer)"
 version_added: "2.6"
 requirements:
@@ -62,36 +62,51 @@ options:
         description:
             - Name for the profile.
         required: true
-    dhgroup:
+    protocol_version:
         description:
             - Specify the priority for Diffie-Hellman (DH) groups.
-        default: group2
-    authentication:
+        default: ike2
+    interface:
         description:
-            - Specify the priority for hash algorithms.
-        default: sha1
-    encryption:
+            - Specify the outgoing firewall interface to the VPN tunnel.
+        default: 'ethernet1/1'
+    pasive_mode:
         description:
-            - Select the appropriate Encapsulating Security Payload (ESP) authentication options.
-        default: ['aes-256-cbc', '3des']
-    lifetime_sec:
+            - True to have the firewall only respond to IKE connections and never initiate them.
+        default: True
+    liveness_check:
         description:
-            - Select unit of time and enter the length of time that the negotiated IKE Phase 1 key will be effective.
-        default: 28800
+            - The IKEv2 Liveness Check is always on; all IKEv2 packets serve the purpose of a liveness check. Click this box to have the system send empty informational packets after the peer has been idle for a specified number of seconds.
+        default: 5
+    peer_ip_value:
+        description:
+            - IPv4 address of the peer gateway.
+        default: '127.0.0.1'
+    psk:
+        description:
+            - Specify pre-shared key.
+        default: 'CHANGEME'
+    crypto_profile_name:
+        description:
+            - Select an existing profile or keep the default profile.
+        default: 'default'
 '''
 
 EXAMPLES = '''
-- name: Add IKE crypto config to the firewall
-    panos_ike_crypto_profile:
+- name: Add IKE gateway config to the firewall
+    panos_ike_gateway:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
       password: '{{ password }}'
       state: 'present'
-      name: 'IKE-Ansible'
-      dhgroup: 'group2'
-      authentication: 'sha1'
-      encryption: ['aes-256-cbc', '3des']
-      lifetime_sec: '28800'
+      name: 'IKEGW-Ansible'
+      protocol_version: 'ikev2'
+      interface: 'ethernet1/1'
+      pasive_mode: 'True'
+      liveness_check: '5'
+      peer_ip_value: '1.2.3.4'
+      psk: 'CHANGEME'
+      crypto_profile_name: 'IKE-Ansible'
       commit: 'False'
 '''
 
@@ -124,13 +139,17 @@ except ImportError:
 #     return False
 
 
-class IKEProfile:
+class IKEGateway:
     def __init__(self, *args, **kwargs):
         self.name = kwargs.get('name')
-        self.authentication = kwargs.get('authentication')
-        self.encryption = kwargs.get('encryption')
-        self.dh_group = kwargs.get('dh_group')
-        self.lifetime_secs = kwargs.get('lifetime_secs')
+        self.protocol_version = kwargs.get('protocol_version')
+        self.interface = kwargs.get('interface')
+        self.auth_type = 'pre-shared-key'
+        self.enable_passive_mode = kwargs.get('enable_passive_mode')
+        self.liveness_check = kwargs.get('liveness_check')
+        self.peer_ip_type = 'ip'
+        self.peer_ip_value = kwargs.get('peer_ip_value')
+        self.psk = kwargs.get('psk')
 
 
 def main():
@@ -141,10 +160,14 @@ def main():
         api_key=dict(no_log=True),
         state=dict(default='present', choices=['present', 'absent']),
         name=dict(required=True),
-        dhgroup=dict(default='group2'),
-        authentication=dict(default='sha1'),
-        encryption=dict(type='list', default=['aes-256-cbc', '3des']),
-        lifetime_sec=dict(type='int', default=28800),
+        protocol_version=dict(default='ikev2'),
+        interface=dict(default='ethernet1/1'),
+        # auth_type=dict(default='pre-shared-key'),
+        pasive_mode=dict(type='bool', default=True),
+        liveness_check=dict(type='int', default=5),
+        peer_ip_value=dict(default='127.0.0.1'),
+        psk=dict(default='CHANGEME'),
+        crypto_profile_name=dict(default='default'),
         commit=dict(type='bool', default=True)
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
@@ -157,11 +180,15 @@ def main():
     username = module.params['username']
     api_key = module.params['api_key']
     state = module.params['state']
-    ike_profile_name = module.params['name']
-    ike_dhgroup = module.params['dhgroup']
-    ike_authentication = module.params['authentication']
-    ike_encryption = module.params['encryption']
-    ike_lifetime_sec = module.params['lifetime_sec']
+    name = module.params['name']
+    protocol_version = module.params['protocol_version']
+    interface = module.params['interface']
+    # auth_type = module.params['auth_type']
+    pasive_mode = module.params['pasive_mode']
+    liveness_check = module.params['liveness_check']
+    peer_ip_value = module.params['peer_ip_value']
+    psk = module.params['psk']
+    crypto_profile_name = module.params['crypto_profile_name']
     commit = module.params['commit']
 
     # If Panorama, validate the devicegroup
@@ -173,17 +200,29 @@ def main():
     #     else:
     #         module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
 
-    ikeProfile = IKEProfile(name=ike_profile_name,
-                            authentication=ike_authentication,
-                            encryption=ike_encryption,
-                            dh_group=ike_dhgroup, lifetime_secs=ike_lifetime_sec)
+    ikeGtwy = IKEGateway(name=name, protocol_version=protocol_version, interface=interface, pasive_mode=pasive_mode,
+                         liveness_check=liveness_check, peer_ip_value=peer_ip_value,
+                         psk=psk)
 
-    ike_crypto_prof = network.IkeCryptoProfile(ikeProfile.name,
-                                               ikeProfile.dh_group,
-                                               ikeProfile.authentication,
-                                               ikeProfile.encryption,
-                                               ikeProfile.lifetime_secs,
-                                               None, None, None, 0)
+    ike_gateway = network.IkeGateway(name=ikeGtwy.name, version=ikeGtwy.protocol_version, enable_ipv6=False,
+                                     disabled=False,
+                                     peer_ip_type=ikeGtwy.peer_ip_type, peer_ip_value=ikeGtwy.peer_ip_value,
+                                     interface=ikeGtwy.interface,
+                                     auth_type=ikeGtwy.auth_type, pre_shared_key=ikeGtwy.psk,
+                                     local_id_type=None, local_id_value=None, peer_id_type=None, peer_id_value=None,
+                                     peer_id_check=None,
+                                     local_cert=None, cert_enable_hash_and_url=False, cert_base_url=None,
+                                     cert_use_management_as_source=False, cert_permit_payload_mismatch=False,
+                                     cert_profile=None, cert_enable_strict_validation=False,
+                                     enable_passive_mode=True,
+                                     enable_fragmentation=False,
+                                     ikev1_exchange_mode=None, ikev1_crypto_profile=None,
+                                     enable_dead_peer_detection=False, dead_peer_detection_interval=99,
+                                     dead_peer_detection_retry=10,
+                                     ikev2_crypto_profile=crypto_profile_name,
+                                     ikev2_cookie_validation=False,
+                                     ikev2_send_peer_id=False, enable_liveness_check=True,
+                                     liveness_check_interval=ikeGtwy.liveness_check)
 
     # Create the device with the appropriate pandevice type
     device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
@@ -191,15 +230,15 @@ def main():
     changed = False
     try:
         if state == "present":
-            device.add(ike_crypto_prof)
-            ike_crypto_prof.create()
+            device.add(ike_gateway)
+            ike_gateway.create()
             changed = True
         elif state == "absent":
             # fetch all crypto profiles
-            network.IkeCryptoProfile.refreshall(device)
-            ike_crypto_prof = device.find(ikeProfile.name, network.IkeCryptoProfile)
-            if ike_crypto_prof:
-                ike_crypto_prof.delete()
+            network.IkeGateway.refreshall(device)
+            ike_gateway = device.find(ikeGtwy.name, network.IkeGateway)
+            if ike_gateway:
+                ike_gateway.delete()
                 changed = True
         else:
             module.fail_json(msg='[%s] state is not implemented yet' % state)
@@ -210,7 +249,7 @@ def main():
     if commit:
         device.commit(sync=True)
 
-    module.exit_json(msg='IKE Crypto profile config successful.', changed=changed)
+    module.exit_json(msg='IKE gateway config successful.', changed=changed)
 
 
 if __name__ == '__main__':
