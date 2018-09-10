@@ -25,7 +25,7 @@ short_description: Retrieve facts about registered IPs on PAN-OS devices.
 description:
     - Retrieves tag information about registered IPs on PAN-OS devices.
 author: "Michael Richardson (@mrichardson03)"
-version_added: "2.5"
+version_added: "2.7"
 requirements:
     - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
@@ -46,7 +46,7 @@ options:
     api_key:
         description:
             - API key to be used instead of I(username) and I(password).
-    tag_names:
+    tags:
         description:
             - List of tags to retrieve facts for.  If not specified, retrieve all tags.
 '''
@@ -64,7 +64,7 @@ EXAMPLES = '''
     ip_address: '{{ fw_ip_address }}'
     username: '{{ fw_username }}'
     password: '{{ fw_password }}'
-    tag_names: ['First_Tag']
+    tags: ['First_Tag']
   register: first_tag_registered_ip_facts
 '''
 
@@ -93,7 +93,7 @@ def main():
         username=dict(default='admin'),
         password=dict(no_log=True),
         api_key=dict(no_log=True),
-        tag_names=dict(type='list')
+        tags=dict(type='list')
     )
 
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
@@ -104,11 +104,11 @@ def main():
     username = module.params['username']
     password = module.params['password']
     api_key = module.params['api_key']
-    tag_names = module.params['tag_names']
+    tags = module.params['tags']
 
     try:
         device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
-        registered_ips = device.userid.get_registered_ip(tags=tag_names)
+        registered_ips = device.userid.get_registered_ip(tags=tags)
 
     except PanXapiError:
         module.fail_json(msg=get_exception())

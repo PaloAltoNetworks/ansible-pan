@@ -25,7 +25,7 @@ short_description: Register IP addresses for use with dynamic address groups on 
 description:
     - Registers tags for IP addresses that can be used to build dynamic address groups.
 author: "Michael Richardson (@mrichardson03)"
-version_added: "2.5"
+version_added: "2.7"
 requirements:
     - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
@@ -47,17 +47,17 @@ options:
     api_key:
         description:
             - API key to be used instead of I(username) and I(password).
-    registered_ip:
+    ips:
         description:
-            - IP address to register.
+            - List of IP addresses to register/unregister.
         required: true
-    tag_names:
+    tags:
         description:
             - List of tags that the IP address will be registered to.
         required: true
     state:
         description:
-            - Create or remove registered IP address.
+            - Create or remove registered IP addresses.
         choices: ['present', 'absent']
         default: 'present'
 '''
@@ -68,8 +68,8 @@ EXAMPLES = '''
     ip_address: '{{ fw_ip_address }}'
     username: '{{ fw_username }}'
     password: '{{ fw_password }}'
-    registered_ip: '1.1.1.1'
-    tag_names: ['First_Tag']
+    ips: ['1.1.1.1']
+    tags: ['First_Tag']
     state: 'present'
 
 - name: Add 'First_Tag' tag to 1.1.1.2
@@ -77,8 +77,8 @@ EXAMPLES = '''
     ip_address: '{{ fw_ip_address }}'
     username: '{{ fw_username }}'
     password: '{{ fw_password }}'
-    registered_ip: '1.1.1.2'
-    tag_names: ['First_Tag']
+    ips: ['1.1.1.2']
+    tags: ['First_Tag']
     state: 'present'
 
 - name: Add 'Second_Tag' tag to 1.1.1.1
@@ -86,8 +86,8 @@ EXAMPLES = '''
     ip_address: '{{ fw_ip_address }}'
     username: '{{ fw_username }}'
     password: '{{ fw_password }}'
-    registered_ip: '1.1.1.1'
-    tag_names: ['Second_Tag']
+    ips: ['1.1.1.1']
+    tags: ['Second_Tag']
     state: 'present'
 
 - name: Remove 'Second_Tag' from 1.1.1.1
@@ -95,8 +95,8 @@ EXAMPLES = '''
     ip_address: '{{ fw_ip_address }}'
     username: '{{ fw_username }}'
     password: '{{ fw_password }}'
-    registered_ip: '1.1.1.1'
-    tag_names: ['Second_Tag']
+    ips: ['1.1.1.1']
+    tags: ['Second_Tag']
     state: 'absent'
 
 - name: Remove 'First_Tag' from 1.1.1.2 (will unregister entirely)
@@ -104,14 +104,14 @@ EXAMPLES = '''
     ip_address: '{{ fw_ip_address }}'
     username: '{{ fw_username }}'
     password: '{{ fw_password }}'
-    registered_ip: '1.1.1.2'
-    tag_names: ['First_Tag']
+    ips: ['1.1.1.2']
+    tags: ['First_Tag']
     state: 'absent'
 '''
 
 RETURN = '''
 results:
-    description: After performing action, returns tags for registered IP.  IP addresses as keys,
+    description: After performing action, returns tags for given IPs.  IP addresses as keys,
         tags as values.
     returned: always
     type: dict
@@ -135,8 +135,8 @@ def main():
         username=dict(default='admin'),
         password=dict(no_log=True),
         api_key=dict(no_log=True),
-        registered_ip=dict(type='str', required=True),
-        tag_names=dict(type='list', required=True),
+        ips=dict(type='list', required=True),
+        tags=dict(type='list', required=True),
         state=dict(default='present', choices=['present', 'absent'])
     )
 
@@ -148,27 +148,29 @@ def main():
     username = module.params['username']
     password = module.params['password']
     api_key = module.params['api_key']
-    registered_ip = module.params['registered_ip']
-    tag_names = module.params['tag_names']
+    ips = module.params['ips']
+    tags = module.params['tags']
     state = module.params['state']
 
     changed = False
 
     try:
         device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
-        registered_ips = device.userid.get_registered_ip(tags=tag_names)
+        registered_ips = device.userid.get_registered_ip(tags=tags)
 
         if state == 'present':
-            if registered_ip not in registered_ips:
-                device.userid.register(registered_ip, tags=tag_names)
+            to_add = ips - registered_ips.keys()
+            if to_add:
+                device.userid.register(to_add, tags=tags)
                 changed = True
 
         elif state == 'absent':
-            if registered_ip in registered_ips:
-                device.userid.unregister(registered_ip, tags=tag_names)
+            to_remove = ips & registered_ips.keys()
+            if to_remove:
+                device.userid.unregister(to_remove, tags=tags)
                 changed = True
 
-        results = device.userid.get_registered_ip(registered_ip)
+        results = device.userid.get_registered_ip(ips)
 
     except PanXapiError:
         module.fail_json(msg=get_exception())
