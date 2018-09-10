@@ -24,7 +24,8 @@ DOCUMENTATION = '''
 module: panos_ipsec_profile
 short_description: Configures IPSec Crypto profile on the firewall with subset of settings.
 description:
-    - IPSec Crypto profiles specify protocols and algorithms for authentication and encryption in VPN tunnels based on IPSec SA negotiation (Phase 2).
+    - IPSec Crypto profiles specify protocols and algorithms for authentication and encryption in VPN tunnels based on
+    - IPSec SA negotiation (Phase 2).
 author: "Ivan Bojer (@ivanbojer)"
 version_added: "2.6"
 requirements:
@@ -76,7 +77,7 @@ options:
         default: ['aes-256-cbc', '3des']
     lifetime_hrs:
         description:
-            - Select units and enter the length of time (default is one hour) that the negotiated key will stay effective.
+            - Select units and enter the length of time (default is 1hr) that the negotiated key will stay effective.
         default: 1
 '''
 

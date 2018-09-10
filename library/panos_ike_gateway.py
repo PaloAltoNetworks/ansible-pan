@@ -24,7 +24,8 @@ DOCUMENTATION = '''
 module: panos_ike_gateway
 short_description: Configures IKE gateway on the firewall with subset of settings.
 description:
-    - Use this to manage or define a gateway, including the configuration information necessary to perform Internet Key Exchange (IKE) protocol negotiation with a peer gateway. This is the Phase 1 portion of the IKE/IPSec VPN setup.
+    - Use this to manage or define a gateway, including the configuration information necessary to perform Internet Key
+    - Exchange (IKE) protocol negotiation with a peer gateway. This is the Phase 1 portion of the IKE/IPSec VPN setup.
 author: "Ivan Bojer (@ivanbojer)"
 version_added: "2.6"
 requirements:
@@ -76,7 +77,8 @@ options:
         default: True
     liveness_check:
         description:
-            - The IKEv2 Liveness Check is always on; all IKEv2 packets serve the purpose of a liveness check. Click this box to have the system send empty informational packets after the peer has been idle for a specified number of seconds.
+            - The IKEv2 Liveness Check is always on; all IKEv2 packets serve the purpose of a liveness check. Use
+            - this to have the system send empty informational packets after the peer has been idle for a number of sec.
         default: 5
     peer_ip_value:
         description:

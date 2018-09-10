@@ -12,5 +12,4 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-__author__ = 'Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer), Vinay Venkataraghavan (@vinayvenkat)'
-__version__ = '1.0.8'
+__version__ = '2.0.0'
