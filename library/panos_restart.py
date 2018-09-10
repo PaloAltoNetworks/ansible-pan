@@ -45,7 +45,8 @@ options:
             - Password credentials to use for auth unless I(api_key) is set.
     devicegroup:
         description:
-            - Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama. If device group is not define we assume that we are contacting Firewall.
+            - Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama.
+            - If device group is not define we assume that we are contacting Firewall.
         default: None
 '''
 
@@ -72,11 +73,9 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.basic import get_exception
 
 try:
-    import pan.xapi
     from pan.xapi import PanXapiError
     import pandevice
     from pandevice import base
-    from pandevice import firewall
     from pandevice import panorama
     HAS_LIB = True
 except ImportError:
@@ -131,6 +130,7 @@ def main():
         module.fail_json(msg=exc.message)
 
     module.exit_json(changed=True, msg="okey dokey")
+
 
 if __name__ == '__main__':
     main()

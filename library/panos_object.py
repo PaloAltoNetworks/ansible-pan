@@ -22,9 +22,8 @@ DOCUMENTATION = '''
 ---
 module: panos_object
 short_description: create/read/update/delete object in PAN-OS or Panorama
-description: >
-    - Policy objects form the match criteria for policy rules and many other functions in PAN-OS. These may include
-    address object, address groups, service objects, service groups, and tag.
+description:
+    - Policy objects form the match criteria for policy rules and many other functions in PAN-OS. These may include address object, address groups, service objects, service groups, and tag.
 author: "Bob Hagen (@rnh556)"
 version_added: "2.4"
 requirements:
@@ -164,11 +163,9 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.basic import get_exception
 
 try:
-    import pan.xapi
     from pan.xapi import PanXapiError
     import pandevice
     from pandevice import base
-    from pandevice import firewall
     from pandevice import panorama
     from pandevice import objects
     import xmltodict
@@ -254,9 +251,11 @@ def create_object(**kwargs):
         else:
             return False
     elif kwargs['tag_name']:
+        t = objects.Tag
+        c = t.color_code(kwargs['color'])
         newobject = objects.Tag(
             name=kwargs['tag_name'],
-            color=kwargs['color'],
+            color=c,
             comments=kwargs['description']
         )
         if newobject.name:

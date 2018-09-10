@@ -14,6 +14,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'}
@@ -22,7 +25,8 @@ DOCUMENTATION = '''
 ---
 module: panos_op
 short_description: execute arbitrary OP commands on PANW devices (e.g. show interface all)
-description: This module will allow user to pass and execute any supported OP command on the PANW device.
+description:
+    - This module will allow user to pass and execute any supported OP command on the PANW device.
 author: "Ivan Bojer (@ivanbojer)"
 version_added: "2.5"
 requirements:
@@ -52,22 +56,34 @@ options:
         description:
             - The OP command to be performed.
         required: true
+    cmd_is_xml:
+        description:
+            - The cmd is already given in XML format, so don't convert it.
+        default: false
+        type: bool
 '''
 
 EXAMPLES = '''
 - name: show list of all interfaces
-  panos_object:
+  panos_op:
     ip_address: '{{ ip_address }}'
     username: '{{ username }}'
     password: '{{ password }}'
     cmd: 'show interfaces all'
 
 - name: show system info
-  panos_object:
+  panos_op:
     ip_address: '{{ ip_address }}'
     username: '{{ username }}'
     password: '{{ password }}'
     cmd: 'show system info'
+
+- name: show system info as XML command
+  panos_op:
+    ip_address: '{{ ip_address }}'
+    username: '{{ username }}'
+    password: '{{ password }}'
+    cmd: '<show><system><info/></system></show>'
 '''
 
 RETURN = '''
@@ -84,16 +100,13 @@ stdout_xml:
     sample: "<response status=success><result><system><hostname>fw2</hostname>"
 '''
 
+
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.basic import get_exception
 
 try:
-    import pan.xapi
     from pan.xapi import PanXapiError
-    import pandevice
     from pandevice import base
-    from pandevice import firewall
-    from pandevice import panorama
     import xmltodict
     import json
 
@@ -105,49 +118,51 @@ except ImportError:
 def main():
     argument_spec = dict(
         ip_address=dict(required=True),
-        password=dict(no_log=True),
         username=dict(default='admin'),
+        password=dict(no_log=True),
         api_key=dict(no_log=True),
-        cmd=dict(required=True)
+        cmd=dict(required=True),
+        cmd_is_xml=dict(default=False, type='bool'),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
                            required_one_of=[['api_key', 'password']])
     if not HAS_LIB:
         module.fail_json(msg='Missing required libraries.')
 
-    ip_address = module.params["ip_address"]
-    password = module.params["password"]
-    username = module.params['username']
-    api_key = module.params['api_key']
+    auth = [module.params[x] for x in
+            ('ip_address', 'username', 'password', 'api_key')]
     cmd = module.params['cmd']
+    cmd_is_xml = module.params['cmd_is_xml']
 
     # Create the device with the appropriate pandevice type
-    device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
+    dev = PanDevice.create_from_device(*auth)
 
     changed = False
+    xml_output = []
     try:
-        xml_output = device.op(cmd, xml=True)
+        xml_output = dev.op(cmd, xml=True, cmd_xml=(not cmd_is_xml))
         changed = True
-    except PanXapiError:
-        exc = get_exception()
-
-        if 'non NULL value' in exc.message:
-            # rewrap and call again
-            cmd_array = cmd.split()
-            cmd_array_len = len(cmd_array)
-            cmd_array[cmd_array_len - 1] = '\"' + cmd_array[cmd_array_len - 1] + '\"'
-            cmd2 = ' '.join(cmd_array)
-            try:
-                xml_output = device.op(cmd2, xml=True)
-                changed = True
-            except PanXapiError:
-                exc = get_exception()
-                module.fail_json(msg=exc.message)
+    except PanDeviceError:
+        if cmd_is_xml:
+            e = get_exception()
+            module.fail_json(
+                msg='Failed to run XML command : {0} : {1}'.format(cmd, e))
+        tokens = cmd.split()
+        tokens[-1] = '"{0}"'.format(tokens[-1])
+        cmd2 = ' '.join(tokens)
+        try:
+            xml_output = dev.op(cmd2, xml=True)
+            changed = True
+        except PanDeviceError:
+            e = get_exception()
+            module.fail_json(msg='Failed to run command : {0} : {1}'.format(
+                             cmd2, e))
 
     obj_dict = xmltodict.parse(xml_output)
     json_output = json.dumps(obj_dict)
 
-    module.exit_json(changed=changed, msg="Done", stdout=json_output, stdout_xml=xml_output)
+    module.exit_json(changed=changed, msg="Done",
+                     stdout=json_output, stdout_xml=xml_output)
 
 
 if __name__ == '__main__':

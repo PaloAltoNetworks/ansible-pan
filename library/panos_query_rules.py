@@ -22,10 +22,8 @@ DOCUMENTATION = '''
 ---
 module: panos_query_rules
 short_description: PANOS module that allows search for security rules in PANW NGFW devices.
-description: >
-    - Security policies allow you to enforce rules and take action, and can be as general or specific as needed. The
-    policy rules are compared against the incoming traffic in sequence, and because the first rule that matches the
-    traffic is applied, the more specific rules must precede the more general ones.
+description:
+    - Security policies allow you to enforce rules and take action, and can be as general or specific as needed. The policy rules are compared against the incoming traffic in sequence, and because the first rule that matches the traffic is applied, the more specific rules must precede the more general ones.
 author: "Bob Hagen (@rnh556)"
 version_added: "2.5"
 requirements:
@@ -136,11 +134,8 @@ RETURN = '''
 '''
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.basic import get_exception
 
 try:
-    import pan.xapi
-    from pan.xapi import PanXapiError
     import pandevice
     from pandevice import base
     from pandevice import firewall
@@ -319,7 +314,7 @@ def main():
     password = module.params["password"]
     username = module.params['username']
     api_key = module.params['api_key']
-    application = module.params['application']
+    # application = module.params['application']
     source_zone = module.params['source_zone']
     source_ip = module.params['source_ip']
     source_port = module.params['source_port']

@@ -179,7 +179,6 @@ from ansible.module_utils.basic import get_exception
 
 try:
     from pan.xapi import PanXapiError
-    from pan.xapi import PanXapiError
     from pandevice import base
     from pandevice import policies
     from pandevice import panorama

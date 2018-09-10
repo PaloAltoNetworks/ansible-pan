@@ -38,6 +38,11 @@ options:
             - Location of the filename that is used for the auth. Either I(key_filename) or I(password) is required.
         required: true
         default: null
+    username:
+        description:
+            - User name to use for auth. Default is admin.
+        required: false
+        default: "admin"
     password:
         description:
             - Password credentials to use for auth. Either I(key_filename) or I(password) is required.
@@ -70,13 +75,14 @@ EXAMPLES = '''
 - name: generate self signed certificate
   panos_cert_gen_ssh:
     ip_address: "192.168.1.1"
+    username: "admin"
     password: "paloalto"
     cert_cn: "1.1.1.1"
     cert_friendly_name: "test123"
     signed_by: "root-ca"
 '''
 
-RETURN='''
+RETURN = '''
 # Default return values
 '''
 
@@ -91,9 +97,9 @@ import time
 
 try:
     import paramiko
-    HAS_LIB=True
+    HAS_LIB = True
 except ImportError:
-    HAS_LIB=False
+    HAS_LIB = False
 
 _PROMPTBUFF = 4096
 
@@ -108,14 +114,14 @@ def wait_with_timeout(module, shell, prompt, timeout=60):
             if len(endresult) != 0 and endresult[-1] == prompt:
                 break
 
-        if time.time()-now > timeout:
+        if time.time() - now > timeout:
             module.fail_json(msg="Timeout waiting for prompt")
 
     return result
 
 
-def generate_cert(module, ip_address, key_filename, password,
-                  cert_cn, cert_friendly_name, signed_by, rsa_nbits ):
+def generate_cert(module, ip_address, username, key_filename, password,
+                  cert_cn, cert_friendly_name, signed_by, rsa_nbits):
     stdout = ""
 
     client = paramiko.SSHClient()
@@ -125,9 +131,9 @@ def generate_cert(module, ip_address, key_filename, password,
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
     if not key_filename:
-        client.connect(ip_address, username="admin", password=password)
+        client.connect(ip_address, username=username, password=password)
     else:
-        client.connect(ip_address, username="admin", key_filename=key_filename)
+        client.connect(ip_address, username=username, key_filename=key_filename)
 
     shell = client.invoke_shell()
     # wait for the shell to start
@@ -137,8 +143,15 @@ def generate_cert(module, ip_address, key_filename, password,
     # generate self-signed certificate
     if isinstance(cert_cn, list):
         cert_cn = cert_cn[0]
-    cmd = 'request certificate generate signed-by {0} certificate-name {1} name {2} algorithm RSA rsa-nbits {3}\n'.format(
-        signed_by, cert_friendly_name, cert_cn, rsa_nbits)
+    cmd = ' '.join([
+        'request certificate generate signed-by',
+        signed_by,
+        'certificate-name',
+        cert_friendly_name,
+        'name',
+        cert_cn,
+        'algorithm RSA rsa-nbits {0}\n'.format(rsa_nbits),
+    ])
     shell.send(cmd)
 
     # wait for the shell to complete
@@ -149,7 +162,7 @@ def generate_cert(module, ip_address, key_filename, password,
     shell.send('exit\n')
 
     if 'Success' not in buff:
-        module.fail_json(msg="Error generating self signed certificate: "+stdout)
+        module.fail_json(msg="Error generating self signed certificate: " + stdout)
 
     client.close()
     return stdout
@@ -158,6 +171,7 @@ def generate_cert(module, ip_address, key_filename, password,
 def main():
     argument_spec = dict(
         ip_address=dict(required=True),
+        username=dict(default='admin'),
         key_filename=dict(),
         password=dict(no_log=True),
         cert_cn=dict(required=True),
@@ -172,6 +186,7 @@ def main():
         module.fail_json(msg='paramiko is required for this module')
 
     ip_address = module.params["ip_address"]
+    username = module.params["username"]
     key_filename = module.params["key_filename"]
     password = module.params["password"]
     cert_cn = module.params["cert_cn"]
@@ -180,19 +195,15 @@ def main():
     rsa_nbits = module.params["rsa_nbits"]
 
     try:
-        stdout = generate_cert(module,
-                               ip_address,
-                               key_filename,
-                               password,
-                               cert_cn,
-                               cert_friendly_name,
-                               signed_by,
-                               rsa_nbits)
+        generate_cert(module, ip_address, username, key_filename,
+                      password, cert_cn, cert_friendly_name,
+                      signed_by, rsa_nbits)
     except Exception:
         exc = get_exception()
         module.fail_json(msg=exc.message)
 
     module.exit_json(changed=True, msg="okey dokey")
+
 
 if __name__ == '__main__':
     main()

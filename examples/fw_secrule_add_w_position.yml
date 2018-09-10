@@ -1,0 +1,72 @@
+- name: Add some security rules to the firewall
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+#  roles:
+#    - role: PaloAltoNetworks.paloaltonetworks
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: Add test rule 1 to the firewall
+    panos_security_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      operation: 'add'
+      rule_name: 'Ansible test 1'
+      description: 'An Ansible test rule'
+      source_zone: ['internal']
+      destination_zone: ['external']
+      source_ip: ['1.2.3.4']
+      source_user: ['any']
+      destination_ip: ['any']
+      category: ['any']
+      application: ['any']
+      service: ['service-http']
+      hip_profiles: ['any']
+      action: 'allow'
+      commit: 'False'
+
+  - name: Add test rule 2 to the firewall
+    panos_security_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      operation: 'add'
+      rule_name: 'Ansible test 2'
+      description: 'Another Ansible test rule'
+      source_zone: ['internal']
+      source_ip: ['192.168.100.100']
+      source_user: ['any']
+      hip_profiles: ['any']
+      destination_zone: ['external']
+      destination_ip: ['any']
+      category: ['any']
+      application: ['any']
+      service: ['service-https']
+      action: 'allow'
+      commit: 'False'
+
+  - name: add a rule at a specific location in the rulebase
+    panos_security_rule:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      operation: 'add'
+      rule_name: 'SSH permit'
+      description: 'SSH rule test'
+      source_zone: ['internal']
+      destination_zone: ['external']
+      source_ip: ['any']
+      source_user: ['any']
+      destination_ip: ['1.1.1.1']
+      category: ['any']
+      application: ['ssh']
+      service: ['application-default']
+      action: 'allow'
+      location: 'before'
+      existing_rule: 'Ansible test 2'

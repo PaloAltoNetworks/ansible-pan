@@ -11,63 +11,53 @@
     include_vars: 'panorama-secrets.yml'
     no_log: 'yes'
 
-  - name: Add test rule 1 to Panorama
+  - name: Add test pre-rule to Panorama
     panos_security_rule:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
       password: '{{ password }}'
       operation: 'add'
       rule_name: 'Ansible test 1'
-      description: 'An Ansible test rule'
+      description: 'An Ansible test pre-rule'
       source_zone: ['internal']
       destination_zone: ['external']
-      source_ip: ['host-1.2.3.4']
+      source_ip: ['1.2.3.4']
       source_user: ['any']
       destination_ip: ['any']
       category: ['any']
       application: ['any']
-      service: ['service-xyz']
+      service: ['service-http']
       hip_profiles: ['any']
       action: 'allow'
-      devicegroup: 'shared_services_11022'
+      devicegroup: 'DeviceGroupA'
+      commit: 'False'
 
-  - name: Add test rule 2 to Panorama
+  - name: Add test post-rule to Panorama
     panos_security_rule:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
       password: '{{ password }}'
       operation: 'add'
       rule_name: 'Ansible test 2'
-      description: 'Another Ansible test rule'
+      description: 'Another Ansible test post-rule'
       source_zone: ['internal']
-      source_ip: ['range-192.168.100.100-200']
+      source_ip: ['192.168.100.100']
       source_user: ['any']
       hip_profiles: ['any']
       destination_zone: ['external']
       destination_ip: ['any']
       category: ['any']
       application: ['any']
-      service: ['service-abc']
+      service: ['service-https']
       action: 'allow'
-      group_profile: 'default'
-      devicegroup: 'shared_services_11022'
+      devicegroup: 'DeviceGroupA'
+      is_post_rule: "True"
+      commit: 'True'
 
-  - name: Add test rule 3 to Panorama
-    panos_security_rule:
-      ip_address: '{{ ip_address }}'
-      username: '{{ username }}'
-      password: '{{ password }}'
-      operation: 'add'
-      rule_name: 'Ansible test 3'
-      description: 'Yet another Ansible test rule'
-      source_zone: ['internal']
-      source_ip: ['net-10.0.0.0-8']
-      source_user: ['any']
-      hip_profiles: ['any']
-      destination_zone: ['external']
-      destination_ip: ['any']
-      category: ['any']
-      application: ['any']
-      service: ['test-service-group']
-      action: 'allow'
-      devicegroup: 'shared_services_11022'
+
+#  - name: push configuration to firewall(s)
+#    panos_commit:
+#      ip_address: '{{ ip_address }}'
+#      username: '{{ username }}'
+#      password: '{{ password }}'
+#      devicegroup: 'DeviceGroupA'

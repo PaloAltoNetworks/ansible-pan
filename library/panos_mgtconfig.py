@@ -78,7 +78,8 @@ options:
         description:
             - The domain of the device
     devicegroup:
-        description: Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama.
+        description:
+            - Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama.
     commit:
         description:
             - Commit configuration if changed.
@@ -99,7 +100,7 @@ EXAMPLES = '''
     ntp_server_secondary: "1.1.1.6"
 '''
 
-RETURN='''
+RETURN = '''
 # Default return values
 '''
 
@@ -111,11 +112,9 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.basic import get_exception
 
 try:
-    import pan.xapi
     from pan.xapi import PanXapiError
     import pandevice
     from pandevice import base
-    from pandevice import firewall
     from pandevice import panorama
     from pandevice.device import SystemSettings
     HAS_LIB = True
@@ -206,7 +205,7 @@ def main():
         ss = SystemSettings.refreshall(device)[0]
 
         if dns_server_primary is not None:
-            ss.dns_primary=dns_server_primary
+            ss.dns_primary = dns_server_primary
             changed = True
         if dns_server_secondary is not None:
             ss.dns_secondary = dns_server_secondary
@@ -246,6 +245,7 @@ def main():
         module.fail_json(msg=exc.message)
 
     module.exit_json(changed=changed, msg="okey dokey")
+
 
 if __name__ == '__main__':
     main()

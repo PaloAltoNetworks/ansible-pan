@@ -21,14 +21,15 @@
       description: 'An Ansible test rule'
       source_zone: ['internal']
       destination_zone: ['external']
-      source_ip: ['host-1.2.3.4']
+      source_ip: ['1.2.3.4']
       source_user: ['any']
       destination_ip: ['any']
       category: ['any']
       application: ['any']
-      service: ['service-xyz']
+      service: ['service-http']
       hip_profiles: ['any']
       action: 'allow'
+      commit: 'False'
 
   - name: Add test rule 2 to the firewall
     panos_security_rule:
@@ -39,32 +40,13 @@
       rule_name: 'Ansible test 2'
       description: 'Another Ansible test rule'
       source_zone: ['internal']
-      source_ip: ['range-192.168.100.100-200']
+      source_ip: ['192.168.100.100']
       source_user: ['any']
       hip_profiles: ['any']
       destination_zone: ['external']
       destination_ip: ['any']
       category: ['any']
       application: ['any']
-      service: ['service-abc']
+      service: ['service-https']
       action: 'allow'
-      group_profile: 'default'
-
-  - name: Add test rule 3 to the firewall
-    panos_security_rule:
-      ip_address: '{{ ip_address }}'
-      username: '{{ username }}'
-      password: '{{ password }}'
-      operation: 'add'
-      rule_name: 'Ansible test 3'
-      description: 'Yet another Ansible test rule'
-      source_zone: ['internal']
-      source_ip: ['net-10.0.0.0-8']
-      source_user: ['any']
-      hip_profiles: ['any']
-      destination_zone: ['external']
-      destination_ip: ['any']
-      category: ['any']
-      application: ['any']
-      service: ['test-service-group']
-      action: 'allow'
+      commit: 'False'

@@ -21,6 +21,9 @@
 from __future__ import print_function
 __metaclass__ = type
 
+# import pydevd
+# pydevd.settrace('localhost', port=50974, stdoutToServer=True, stderrToServer=True)
+
 import os
 import glob
 import sys
@@ -78,6 +81,24 @@ def rst_ify(text):
         raise AnsibleError("Could not process (%s) : %s" % (str(text), str(e)))
 
     return t
+
+
+#####################################################################################
+
+def md_ify(text):
+    ''' convert symbols like I(this is in italics) to valid restructured text '''
+
+    try:
+        t = _ITALIC.sub(r'*' + r"\1" + r"*", text)
+        t = _BOLD.sub(r'**' + r"\1" + r"**", t)
+        t = _MODULE.sub(r':ref:`' + r"\1 <\1>" + r"`", t)
+        t = _URL.sub(r"\1", t)
+        t = _CONST.sub(r'``' + r"\1" + r"``", t)
+    except Exception as e:
+        raise AnsibleError("Could not process (%s) : %s" % (str(text), str(e)))
+
+    return t
+
 
 #####################################################################################
 
@@ -190,7 +211,7 @@ def generate_parser():
     p.add_option("-A", "--ansible-version", action="store", dest="ansible_version", default="unknown", help="Ansible version number")
     p.add_option("-M", "--module-dir", action="store", dest="module_dir", default=MODULEDIR, help="Ansible library path")
     p.add_option("-T", "--template-dir", action="store", dest="template_dir", default="hacking/templates", help="directory containing Jinja2 templates")
-    p.add_option("-t", "--type", action='store', dest='type', choices=['rst'], default='rst', help="Document type")
+    p.add_option("-t", "--type", action='store', dest='type', choices=['rst', 'md'], default='rst', help="Document type")
     p.add_option("-v", "--verbose", action='store_true', default=False, help="Verbose")
     p.add_option("-o", "--output-dir", action="store", dest="output_dir", default=None, help="Output directory for module files")
     p.add_option("-I", "--includes-file", action="store", dest="includes_file", default=None, help="Create a file containing list of processed modules")
@@ -205,6 +226,7 @@ def jinja2_environment(template_dir, typ):
         variable_start_string="@{",
         variable_end_string="}@",
         trim_blocks=True,
+        lstrip_blocks=True
     )
     env.globals['xline'] = rst_xline
 
@@ -215,6 +237,14 @@ def jinja2_environment(template_dir, typ):
         env.filters['xline'] = rst_xline
         template = env.get_template('rst.j2')
         outputname = "%s_module.rst"
+    elif typ == 'md':
+        env.filters['convert_symbols_to_format'] = md_ify
+        env.filters['html_ify'] = html_ify
+        env.filters['rst_ify'] = rst_ify
+        env.filters['fmt'] = rst_fmt
+        env.filters['xline'] = rst_xline
+        template = env.get_template('md.j2')
+        outputname = "%s_module.md"
     else:
         raise Exception("unknown module format type: %s" % typ)
 

@@ -184,6 +184,7 @@ def add_address_group(device, dev_group, ag_object):
 
     return True, exc
 
+
 def get_all_address_group(device):
     """
     Retrieve all the tag to IP address mappings
@@ -193,17 +194,18 @@ def get_all_address_group(device):
     exc = None
     try:
         ret = objects.AddressGroup.refreshall(device)
-    except Exception, e:
+    except Exception:
         exc = get_exception()
 
     if exc:
         return (False, exc)
     else:
-        l = []
+        sl = []
         for item in ret:
-            l.append(item.name)
-        s = ",".join(l)
-    return (s, exc)
+            sl.append(item.name)
+        s = ",".join(sl)
+    return s, exc
+
 
 def delete_address_group(device, dev_group, obj_name):
     """
