@@ -30,7 +30,8 @@ requirements:
     - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
 notes:
-    - Panorama is not supported.
+    - Panorama is supported.
+    - Check mode is not supported.
 options:
     ip_address:
         description:
