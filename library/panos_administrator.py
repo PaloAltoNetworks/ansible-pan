@@ -115,8 +115,8 @@ EXAMPLES = '''
     panos_administrator:
       ip_address: "192.168.1.1"
       password: "admin"
-      admin_username: admin
-      admin_password: "badpassword"
+      admin_username: 'foo'
+      admin_password: 'secret'
       superuser: true
       commit: false
 '''
