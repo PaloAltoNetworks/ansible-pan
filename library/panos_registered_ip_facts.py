@@ -14,6 +14,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'}
@@ -80,7 +83,7 @@ from ansible.module_utils.basic import AnsibleModule, get_exception
 
 try:
     from pandevice import base
-    from pan.xapi import PanXapiError
+    from pandevice.errors import PanDeviceError
 
     HAS_LIB = True
 except ImportError:
@@ -110,7 +113,7 @@ def main():
         device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
         registered_ips = device.userid.get_registered_ip(tags=tags)
 
-    except PanXapiError:
+    except PanDeviceError:
         module.fail_json(msg=get_exception())
 
     module.exit_json(changed=False, results=registered_ips)
