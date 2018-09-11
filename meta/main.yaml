@@ -1,0 +1,19 @@
+galaxy_info:
+  author: Palo Alto Networks Ansible modules
+  description: Palo Alto Networks Ansible modules
+  company: Palo Alto Networks
+
+  license: Apache 2.0
+
+  min_ansible_version: 2.6
+  platforms:
+    - name: panos
+      version:
+        - any
+
+  galaxy_tags:
+    - network
+    - paloaltonetworks
+    - panos
+
+dependencies: []
