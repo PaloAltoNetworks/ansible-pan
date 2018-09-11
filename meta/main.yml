@@ -1,4 +1,5 @@
 galaxy_info:
+  role_name: paloaltonetworks
   author: Palo Alto Networks Ansible modules
   description: Palo Alto Networks Ansible modules
   company: Palo Alto Networks
