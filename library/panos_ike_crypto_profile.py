@@ -191,13 +191,20 @@ def main():
 
     changed = False
     try:
+        # fetch all crypto profiles
+        profiles = network.IkeCryptoProfile.refreshall(device)
         if state == "present":
-            device.add(ike_crypto_prof)
-            ike_crypto_prof.create()
-            changed = True
+            for p in profiles:
+                if p.name == ike_crypto_prof.name:
+                    if not ike_crypto_prof.equal(p):
+                        device.add(ike_crypto_prof)
+                        ike_crypto_prof.apply()
+                        changed = True
+                    break
+            else:
+                ike_crypto_prof.create()
+                changed = True
         elif state == "absent":
-            # fetch all crypto profiles
-            network.IkeCryptoProfile.refreshall(device)
             ike_crypto_prof = device.find(ikeProfile.name, network.IkeCryptoProfile)
             if ike_crypto_prof:
                 ike_crypto_prof.delete()
@@ -208,7 +215,7 @@ def main():
         exc = get_exception()
         module.fail_json(msg=exc.message)
 
-    if commit:
+    if commit and changed:
         device.commit(sync=True)
 
     module.exit_json(msg='IKE Crypto profile config successful.', changed=changed)
