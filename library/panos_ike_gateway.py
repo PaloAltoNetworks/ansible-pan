@@ -231,13 +231,20 @@ def main():
 
     changed = False
     try:
+        # fetch all IKE gateways
+        gateways = network.IkeGateway.refreshall(device)
         if state == "present":
             device.add(ike_gateway)
-            ike_gateway.create()
-            changed = True
+            for g in gateways:
+                if g.name == ike_gateway.name:
+                    if not ike_gateway.equal(g):
+                        ike_gateway.apply()
+                        changed = True
+                    break
+            else:
+                ike_gateway.create()
+                changed = True
         elif state == "absent":
-            # fetch all crypto profiles
-            network.IkeGateway.refreshall(device)
             ike_gateway = device.find(ikeGtwy.name, network.IkeGateway)
             if ike_gateway:
                 ike_gateway.delete()
@@ -248,7 +255,7 @@ def main():
         exc = get_exception()
         module.fail_json(msg=exc.message)
 
-    if commit:
+    if commit and changed:
         device.commit(sync=True)
 
     module.exit_json(msg='IKE gateway config successful.', changed=changed)

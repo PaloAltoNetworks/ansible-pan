@@ -183,13 +183,19 @@ def main():
 
     changed = False
     try:
+        # fetch all Ipsec tunnels
+        tunnels = network.IpsecTunnel.refreshall(device)
         if state == "present":
             device.add(ipsec_tunnel)
-            ipsec_tunnel.create()
-            changed = True
+            for t in tunnels:
+                if t.name == ipsec_tunnel.name:
+                    if not ipsec_tunnel.equals(t):
+                        ipsec_tunnel.apply()
+                        changed = True
+            else:
+                ipsec_tunnel.create()
+                changed = True
         elif state == "absent":
-            # fetch all crypto profiles
-            network.IpsecTunnel.refreshall(device)
             ipsec_tunnel = device.find(ipsec_tunnel.name, network.IpsecTunnel)
             if ipsec_tunnel:
                 ipsec_tunnel.delete()
@@ -200,7 +206,7 @@ def main():
         exc = get_exception()
         module.fail_json(msg=exc.message)
 
-    if commit:
+    if commit and changed:
         device.commit(sync=True)
 
     module.exit_json(msg='ipsec tunnel config successful.', changed=changed)

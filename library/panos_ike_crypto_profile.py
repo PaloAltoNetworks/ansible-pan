@@ -194,10 +194,10 @@ def main():
         # fetch all crypto profiles
         profiles = network.IkeCryptoProfile.refreshall(device)
         if state == "present":
+            device.add(ike_crypto_prof)
             for p in profiles:
                 if p.name == ike_crypto_prof.name:
                     if not ike_crypto_prof.equal(p):
-                        device.add(ike_crypto_prof)
                         ike_crypto_prof.apply()
                         changed = True
                     break

@@ -188,13 +188,20 @@ def main():
 
     changed = False
     try:
+        # fetch all IpsecCryptoProfiles
+        crypto_profiles = network.IpsecCryptoProfile.refreshall(device)
         if state == "present":
             device.add(ipsec_crypto_prof)
-            ipsec_crypto_prof.create()
-            changed = True
+            for p in crypto_profiles:
+                if p.name == ipsec_crypto_prof.name:
+                    if not ipsec_crypto_prof.equal(p):
+                        ipsec_crypto_prof.apply()
+                        changed = True
+                    break
+            else:
+                ipsec_crypto_prof.create()
+                changed = True
         elif state == "absent":
-            # fetch all profiles
-            network.IpsecCryptoProfile.refreshall(device)
             ipsec_crypto_prof = device.find(ipsecProfile.name, network.IpsecCryptoProfile)
             if ipsec_crypto_prof:
                 ipsec_crypto_prof.delete()
@@ -205,7 +212,7 @@ def main():
         exc = get_exception()
         module.fail_json(msg=exc.message)
 
-    if commit:
+    if commit and changed:
         device.commit(sync=True)
 
     module.exit_json(msg='IPSec crypto profile config successful.', changed=changed)
