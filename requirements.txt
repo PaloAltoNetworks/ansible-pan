@@ -1,4 +1,4 @@
-ansible==2.3.0.0
+ansible==2.4.2.0
 appdirs==1.4.3
 asn1crypto==0.22.0
 boto3==1.4.4
