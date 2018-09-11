@@ -1,0 +1,48 @@
+- name: This is composite script that creates VPN IPSec profile and tunnel on NGFW
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+#  roles:
+#    - role: PaloAltoNetworks.paloaltonetworks
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: Delete IPSec tunnel from gateway
+    panos_ipsec_tunnel:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      state: 'absent'
+      name: 'IPSecTunnel-Ansible'
+      commit: 'False'
+
+  - name: Delete IKE gateway config from the firewall
+    panos_ike_gateway:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      state: 'absent'
+      name: 'IKEGW-Ansible'
+      commit: 'False'
+
+  - name: Delete IPSec crypto config from the firewall
+    panos_ipsec_profile:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      state: 'absent'
+      name: 'IPSec-Ansible'
+      commit: 'False'
+
+  - name: Delete IKE crypto config from the firewall
+    panos_ike_crypto_profile:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      state: 'absent'
+      name: 'IKE-Ansible'
+      commit: 'False'

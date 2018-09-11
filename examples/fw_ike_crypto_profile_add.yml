@@ -1,0 +1,24 @@
+- hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+#  roles:
+#    - role: PaloAltoNetworks.paloaltonetworks
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: Add IKE crypto config to the firewall
+    panos_ike_crypto_profile:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      state: 'present'
+      name: 'IKE-Ansible'
+      dhgroup: 'group2'
+      authentication: 'sha1'
+      encryption: ['aes-256-cbc', '3des']
+      lifetime_sec: '28800'
+      commit: 'False'
