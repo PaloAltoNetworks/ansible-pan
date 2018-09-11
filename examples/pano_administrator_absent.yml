@@ -1,5 +1,5 @@
-- name: Make sure the given user is present and has the specified password
-  hosts: my-firewall
+- name: Make sure the given user is not present
+  hosts: my-panorama
   connection: local
   gather_facts: False
 
@@ -8,14 +8,13 @@
 
   tasks:
   - name: Grab the credentials from ansible-vault
-    include_vars: 'firewall-secrets.yml'
+    include_vars: 'panorama-secrets.yml'
     no_log: 'yes'
 
-  - name: 'Admin "joe" as a device admin administrator'
+  - name: 'Make sure "joe" is not an admin'
     panos_admin:
       ip_address: '{{ ip_address }}'
       password: '{{ password }}'
       admin_username: 'joe'
-      admin_password: 'secret'
-      device_admin: true
+      state: 'absent'
       commit: false

@@ -17,4 +17,4 @@
       password: '{{ password }}'
       admin_username: 'joe'
       state: 'absent'
-      commit: False
+      commit: false
