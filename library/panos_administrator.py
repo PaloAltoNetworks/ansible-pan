@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 #  Copyright 2016 Palo Alto Networks, Inc
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
