@@ -1,5 +1,5 @@
 galaxy_info:
-  role
+  role_name: paloaltonetworks
   author: Ivan Bojer
   description: ansible-pan modules from https://github.com/Paloaltonetworks/ansible-pan
   company: Palo Alto Networks
