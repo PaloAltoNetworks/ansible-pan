@@ -7,7 +7,7 @@ API calls that are wrapped within the Ansible framework.
 
 -   Free software: Apache 2.0 License
 -   Documentation:
-    <https://pages.github.io/PaloAltoNetwokrs/ansible-pan>
+    <http://paloaltonetworks.github.io/ansible-pan/>
 -   PANW community supported live page:
     <http://live.paloaltonetworks.com/ansible>
 
@@ -44,5 +44,5 @@ More comprehensive playbooks can be found under:
 
 Each module is documented in docs/modules, you can also look at the
 documentation online at
-<https://pages.github.io/PaloAltoNetwokrs/ansible-pan> under *modules*
+<http://paloaltonetworks.github.io/ansible-pan/> under *modules*
 section
