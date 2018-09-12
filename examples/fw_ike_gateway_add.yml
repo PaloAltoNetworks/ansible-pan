@@ -1,0 +1,27 @@
+- hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+#  roles:
+#    - role: PaloAltoNetworks.paloaltonetworks
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: Add IKE gateway config to the firewall
+    panos_ike_gateway:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      state: 'present'
+      name: 'IKEGW-Ansible'
+      protocol_version: 'ikev2'
+      interface: 'ethernet1/1'
+      pasive_mode: 'True'
+      liveness_check: '5'
+      peer_ip_value: '1.2.3.4'
+      psk: 'CHANGEME'
+      crypto_profile_name: 'IKE-Ansible'
+      commit: 'False'

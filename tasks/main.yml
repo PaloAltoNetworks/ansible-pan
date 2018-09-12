@@ -1,0 +1,10 @@
+---
+# tasks file for ansible-pan-galaxy/
+
+# install required libraries
+- pip:
+    name: pan-python
+- pip:
+    name: pandevice
+- pip:
+    name: xmltodict
