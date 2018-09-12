@@ -1,0 +1,26 @@
+galaxy_info:
+  role_name: paloaltonetworks
+  author: Ivan Bojer
+  description: ansible-pan modules from https://github.com/Paloaltonetworks/ansible-pan
+  company: Palo Alto Networks
+
+  license: Apache
+
+  min_ansible_version: 2.1
+
+  github_branch: master
+
+  platforms:
+    - name: GenericLinux
+      versions:
+        - all
+
+
+  galaxy_tags: [
+    networking,
+    paloaltonetworks,
+    panw,
+    security
+  ]
+
+dependencies: []

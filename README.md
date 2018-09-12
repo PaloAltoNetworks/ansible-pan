@@ -7,7 +7,7 @@ API calls that are wrapped within the Ansible framework.
 
 -   Free software: Apache 2.0 License
 -   Documentation:
-    <https://pages.github.io/PaloAltoNetwokrs/ansible-pan>
+    <http://paloaltonetworks.github.io/ansible-pan/>
 -   PANW community supported live page:
     <http://live.paloaltonetworks.com/ansible>
 
@@ -27,7 +27,7 @@ every new Ansible release.
 
 Or as ansible role installed from ansible-galaxy
 
-> ansible-galaxy install PaloAltoNetworks.paloaltonetworks
+    ansible-galaxy install PaloAltoNetworks.paloaltonetworks
 
 ## Sample playbooks
 
@@ -38,11 +38,18 @@ Sample playbooks can be found within this repo under:
 
 More comprehensive playbooks can be found under:
 
-> ansible-playbooks/
+    /ansible-playbooks/
 
 ## Documentation
 
 Each module is documented in docs/modules, you can also look at the
 documentation online at
-<https://pages.github.io/PaloAltoNetwokrs/ansible-pan> under *modules*
+<http://paloaltonetworks.github.io/ansible-pan/> under *modules*
 section
+
+## Ansible galaxy role
+
+The Palo Alto Networks Ansible modules project is a collection of Ansible modules to automate configuration and
+operational tasks on Palo Alto Networks *Next Generation Firewalls*. The underlying protocol uses API calls that are wrapped within Ansible framework.
+
+> <https://github.com/PaloAltoNetworks/ansible-pan/>
