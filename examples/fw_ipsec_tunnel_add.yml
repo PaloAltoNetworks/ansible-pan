@@ -1,0 +1,23 @@
+- hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+#  roles:
+#    - role: PaloAltoNetworks.paloaltonetworks
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: Add IPSec tunnel to IKE gateway profile
+    panos_ipsec_tunnel:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      state: 'present'
+      name: 'IPSecTunnel-Ansible'
+      tunnel_interface: 'tunnel.2'
+      ike_gtw_name: 'IKEGW-Ansible'
+      ipsec_profile: 'IPSec-Ansible'
+      commit: 'False'
