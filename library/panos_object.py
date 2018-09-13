@@ -99,12 +99,21 @@ options:
         description: >
             - The color of the tag object.  Valid values are I(red, green, blue, yellow, copper, orange, purple, gray,
             light green, cyan, light gray, blue gray, lime, black, gold, and brown).
+    vsys:
+        description:
+            - The vsys to put the object into.
+            - Firewall only.
+        default: "vsys1"
     devicegroup:
-        description: >
-            - The name of the Panorama device group. The group must exist on Panorama. If device group is not defined it
-            is assumed that we are contacting a firewall.
+        description:
+            - The name of the (preexisting) Panorama device group.
+            - If undefined and ip_address is Panorama, this defaults to shared.
         required: false
         default: None
+    commit:
+        description:
+            - Commit the config change.
+        default: False
 '''
 
 EXAMPLES = '''
@@ -165,7 +174,7 @@ from ansible.module_utils.basic import get_exception
 try:
     from pan.xapi import PanXapiError
     import pandevice
-    from pandevice import base
+    from pandevice.base import PanDevice
     from pandevice import panorama
     from pandevice import objects
     import xmltodict
@@ -299,7 +308,9 @@ def main():
         color=dict(default=None, choices=['red', 'green', 'blue', 'yellow', 'copper', 'orange', 'purple',
                                           'gray', 'light green', 'cyan', 'light gray', 'blue gray',
                                           'lime', 'black', 'gold', 'brown']),
-        devicegroup=dict(default=None)
+        vsys=dict(default='vsys1'),
+        devicegroup=dict(default=None),
+        commit=dict(type='bool', default=False),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
                            required_one_of=[['api_key', 'password']],
@@ -330,19 +341,29 @@ def main():
     description = module.params['description']
     tag_name = module.params['tag_name']
     color = module.params['color']
+    vsys = module.params['vsys']
     devicegroup = module.params['devicegroup']
+    commit = module.params['commit']
 
     # Create the device with the appropriate pandevice type
-    device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
+    device = PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
 
     # If Panorama, validate the devicegroup
     dev_group = None
-    if devicegroup and isinstance(device, panorama.Panorama):
-        dev_group = get_devicegroup(device, devicegroup)
-        if dev_group:
-            device.add(dev_group)
-        else:
-            module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
+    if hasattr(device, 'refresh_devices'):
+        # Panorama: set the device group.
+        if devicegroup == 'shared':
+            # Device group of None is "shared" scope for Panorama.
+            devicegroup = None
+        if devicegroup is not None:
+            dev_group = get_devicegroup(device, devicegroup)
+            if dev_group:
+                device.add(dev_group)
+            else:
+                module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
+    else:
+        # Firewall: set the targetted vsys.
+        device.vsys = vsys
 
     # What type of object are we talking about?
     if addressobject:
@@ -364,6 +385,7 @@ def main():
         module.fail_json(msg='No object type defined!')
 
     # Which operation shall we perform on the object?
+    msg = None
     if operation == "find":
         # Search for the object
         match = find_object(device, dev_group, obj_name, obj_type)
@@ -389,7 +411,7 @@ def main():
                 exc = get_exception()
                 module.fail_json(msg=exc.message)
 
-            module.exit_json(changed=True, msg='Object \'%s\' successfully deleted' % obj_name)
+            msg = "Object '{0}' successfully deleted".format(obj_name)
         else:
             module.fail_json(msg='Object \'%s\' not found. Is the name correct?' % obj_name)
     elif operation == "add":
@@ -420,7 +442,7 @@ def main():
             except PanXapiError:
                 exc = get_exception()
                 module.fail_json(msg=exc.message)
-        module.exit_json(changed=changed, msg='Object \'%s\' successfully added' % obj_name)
+        msg = "Object '{0}' successfully added".format(obj_name)
     elif operation == "update":
         # Search for the object. Update if found.
         match = find_object(device, dev_group, obj_name, obj_type)
@@ -447,9 +469,19 @@ def main():
             except PanXapiError:
                 exc = get_exception()
                 module.fail_json(msg=exc.message)
-            module.exit_json(changed=changed, msg='Object \'%s\' successfully updated.' % obj_name)
+            msg = "Object '{0}' successfully updated.".format(obj_name)
         else:
             module.fail_json(msg='Object \'%s\' does not exist. Use operation: \'add\' to add it.' % obj_name)
+
+    # Optional: commit the change.
+    if commit:
+        try:
+            device.commit(sync=True)
+        except PanDeviceError as e:
+            module.fail_json(msg='Failed to commit: {0}'.format(e))
+
+    # Done.
+    module.exit_json(changed=True, msg=msg)
 
 
 if __name__ == '__main__':

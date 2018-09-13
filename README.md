@@ -7,7 +7,7 @@ API calls that are wrapped within the Ansible framework.
 
 -   Free software: Apache 2.0 License
 -   Documentation:
-    <http://paloaltonetworks.github.io/ansible-pan/>
+    <https://paloaltonetworks.github.io/ansible-pan/>
 -   PANW community supported live page:
     <http://live.paloaltonetworks.com/ansible>
 
@@ -44,8 +44,7 @@ More comprehensive playbooks can be found under:
 
 Each module is documented in docs/modules, you can also look at the
 documentation online at
-<http://paloaltonetworks.github.io/ansible-pan/> under *modules*
-section
+<https://paloaltonetworks.github.io/ansible-pan/> under *modules* section
 
 ## Ansible galaxy role
 

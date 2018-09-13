@@ -1,0 +1,66 @@
+- name: This is composite script that creates VPN IPSec profile and tunnel on NGFW
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+#  roles:
+#    - role: PaloAltoNetworks.paloaltonetworks
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: Add IKE crypto config to the firewall
+    panos_ike_crypto_profile:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      state: 'present'
+      name: 'IKE-Ansible'
+      dhgroup: 'group2'
+      authentication: 'sha1'
+      encryption: ['aes-256-cbc', '3des']
+      lifetime_sec: '28800'
+      commit: 'False'
+
+  - name: Add IPSec crypto config to the firewall
+    panos_ipsec_profile:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      state: 'present'
+      name: 'IPSec-Ansible'
+      encryption: ['aes-256-cbc', '3des']
+      authentication: 'sha1'
+      dhgroup: 'group2'
+      lifetime_hrs: '1'
+      commit: 'False'
+
+  - name: Add IKE gateway config to the firewall
+    panos_ike_gateway:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      state: 'present'
+      name: 'IKEGW-Ansible'
+      protocol_version: 'ikev2'
+      interface: 'ethernet1/1'
+      pasive_mode: 'True'
+      liveness_check: '5'
+      peer_ip_value: '1.2.3.4'
+      psk: 'CHANGEME'
+      crypto_profile_name: 'IKE-Ansible'
+      commit: 'False'
+
+  - name: Add IPSec tunnel to IKE gateway profile
+    panos_ipsec_tunnel:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      state: 'present'
+      name: 'IPSecTunnel-Ansible'
+      tunnel_interface: 'tunnel.2'
+      ike_gtw_name: 'IKEGW-Ansible'
+      ipsec_profile: 'IPSec-Ansible'
+      commit: 'False'
