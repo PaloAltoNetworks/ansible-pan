@@ -1,0 +1,20 @@
+- name: Make sure the given user is not present
+  hosts: my-panorama
+  connection: local
+  gather_facts: False
+
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'panorama-secrets.yml'
+    no_log: 'yes'
+
+  - name: 'Make sure "joe" is not an admin'
+    panos_admin:
+      ip_address: '{{ ip_address }}'
+      password: '{{ password }}'
+      admin_username: 'joe'
+      state: 'absent'
+      commit: false

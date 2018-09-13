@@ -45,7 +45,12 @@ options:
     operation:
         description:
             - The action to be taken.  Supported values are I(add)/I(update)/I(delete).
+            - This is used only if "state" is unspecified.
         default: "add"
+    state:
+        description:
+            - The state.  Can be either I(present)/I(absent).
+            - If this is defined, then "operation" is ignored.
     if_name:
         description:
             - Name of the interface to configure.
@@ -170,16 +175,17 @@ from ansible.module_utils.basic import get_exception
 
 
 try:
-    from pandevice import base
-    from pandevice import network
-    from pandevice import device
-    from pandevice import errors
+    from pandevice.base import PanDevice
+    from pandevice.network import EthernetInterface, Zone, VirtualRouter
+    from pandevice.device import Vsys
+    from pandevice.errors import PanDeviceError
     HAS_LIB = True
 except ImportError:
     HAS_LIB = False
 
 
 def set_zone(con, eth, zone_name, zones):
+    changed = False
     desired_zone = None
 
     # Remove the interface from the zone.
@@ -189,6 +195,7 @@ def set_zone(con, eth, zone_name, zones):
         elif eth.name in z.interface:
             z.interface.remove(eth.name)
             z.update('interface')
+            changed = True
 
     if desired_zone is not None:
         if desired_zone.mode != eth.mode:
@@ -198,13 +205,18 @@ def set_zone(con, eth, zone_name, zones):
         if eth.name not in desired_zone.interface:
             desired_zone.interface.append(eth.name)
             desired_zone.update('interface')
+            changed = True
     elif zone_name is not None:
-        z = network.Zone(zone_name, interface=[eth.name, ], mode=eth.mode)
+        z = Zone(zone_name, interface=[eth.name, ], mode=eth.mode)
         con.add(z)
         z.create()
+        changed = True
+
+    return changed
 
 
 def set_virtual_router(con, eth, vr_name, routers):
+    changed = False
     desired_vr = None
 
     for vr in routers:
@@ -213,6 +225,7 @@ def set_virtual_router(con, eth, vr_name, routers):
         elif eth.name in vr.interface:
             vr.interface.remove(eth.name)
             vr.update('interface')
+            changed = True
 
     if desired_vr is not None:
         if desired_vr.interface is None:
@@ -220,8 +233,11 @@ def set_virtual_router(con, eth, vr_name, routers):
         if eth.name not in desired_vr.interface:
             desired_vr.interface.append(eth.name)
             desired_vr.update('interface')
+            changed = True
     elif vr_name is not None:
         raise ValueError('Virtual router {0} does not exist'.format(vr_name))
+
+    return changed
 
 
 def main():
@@ -231,6 +247,7 @@ def main():
         username=dict(default='admin'),
         api_key=dict(no_log=True),
         operation=dict(default='add', choices=['add', 'update', 'delete']),
+        state=dict(choices=['present', 'absent']),
         if_name=dict(required=True),
         mode=dict(default='layer3',
                   choices=['layer3', 'layer2', 'virtual-wire', 'tap', 'ha', 'decrypt-mirror', 'aggregate-group']),
@@ -264,12 +281,8 @@ def main():
         module.fail_json(msg='Missing required libraries.')
 
     # Get the firewall / panorama auth.
-    auth = (
-        module.params['ip_address'],
-        module.params['username'],
-        module.params['password'],
-        module.params['api_key'],
-    )
+    auth = [module.params[x] for x in
+            ('ip_address', 'username', 'password', 'api_key')]
 
     # Get the object params.
     spec = {
@@ -298,13 +311,14 @@ def main():
 
     # Get other info.
     operation = module.params['operation']
+    state = module.params['state']
     zone_name = module.params['zone_name']
     vr_name = module.params['vr_name']
     vsys_dg = module.params['vsys_dg']
     commit = module.params['commit']
 
     # Open the connection to the PANOS device.
-    con = base.PanDevice.create_from_device(*auth)
+    con = PanDevice.create_from_device(*auth)
 
     # Set vsys if firewall, device group if panorama.
     if hasattr(con, 'refresh_devices'):
@@ -332,20 +346,60 @@ def main():
 
     # Retrieve the current config.
     try:
-        interfaces = network.EthernetInterface.refreshall(con, add=False, name_only=True)
-        zones = network.Zone.refreshall(con)
-        routers = network.VirtualRouter.refreshall(con)
-        vsys_list = device.Vsys.refreshall(con)
-    except errors.PanDeviceError:
+        interfaces = EthernetInterface.refreshall(con, add=False, name_only=True)
+        zones = Zone.refreshall(con)
+        routers = VirtualRouter.refreshall(con)
+        vsys_list = Vsys.refreshall(con)
+    except PanDeviceError:
         e = get_exception()
         module.fail_json(msg=e.message)
 
     # Build the object based on the user spec.
-    eth = network.EthernetInterface(**spec)
+    eth = EthernetInterface(**spec)
     con.add(eth)
 
     # Which action should we take on the interface?
-    if operation == 'delete':
+    changed = False
+    if state == 'present':
+        if eth.name in [x.name for x in interfaces]:
+            i = EthernetInterface(eth.name)
+            con.add(i)
+            try:
+                i.refresh()
+            except PanDeviceError as e:
+                module.fail_json(msg='Failed "present" refresh: {0}'.format(e))
+            if not i.equal(eth, compare_children=False):
+                eth.extend(i.children)
+                try:
+                    eth.apply()
+                    changed = True
+                except PanDeviceError as e:
+                    module.fail_json(msg='Failed "present" apply: {0}'.format(e))
+        else:
+            try:
+                eth.create()
+                changed = True
+            except PanDeviceError as e:
+                module.fail_json(msg='Failed "present" create: {0}'.format(e))
+        try:
+            changed |= set_zone(con, eth, zone_name, zones)
+            changed |= set_virtual_router(con, eth, vr_name, routers)
+        except PanDeviceError as e:
+            module.fail_json(msg='Failed zone/vr assignment: {0}'.format(e))
+    elif state == 'absent':
+        try:
+            changed |= set_zone(con, eth, None, zones)
+            changed |= set_virtual_router(con, eth, None, routers)
+        except PanDeviceError as e:
+            module.fail_json(msg='Failed "absent" zone/vr cleanup: {0}'.format(e))
+            changed = True
+        if eth.name in [x.name for x in interfaces]:
+            try:
+                eth.delete()
+                changed = True
+            except PanDeviceError as e:
+                module.fail_json(msg='Failed "absent" delete: {0}'.format(e))
+    elif operation == 'delete':
         if eth.name not in [x.name for x in interfaces]:
             module.fail_json(msg='Interface {0} does not exist, and thus cannot be deleted'.format(eth.name))
 
@@ -354,7 +408,8 @@ def main():
             set_zone(con, eth, None, zones)
             set_virtual_router(con, eth, None, routers)
             eth.delete()
-        except (errors.PanDeviceError, ValueError):
+            changed = True
+        except (PanDeviceError, ValueError):
             e = get_exception()
             module.fail_json(msg=e.message)
     elif operation == 'add':
@@ -367,7 +422,8 @@ def main():
             eth.create()
             set_zone(con, eth, zone_name, zones)
             set_virtual_router(con, eth, vr_name, routers)
-        except (errors.PanDeviceError, ValueError):
+            changed = True
+        except (PanDeviceError, ValueError):
             e = get_exception()
             module.fail_json(msg=e.message)
     elif operation == 'update':
@@ -377,13 +433,13 @@ def main():
         # If the interface is in the wrong vsys, remove it from the old vsys.
         try:
             con.organize_into_vsys()
-        except errors.PanDeviceError:
+        except PanDeviceError:
             e = get_exception()
             module.fail_json(msg=e.message)
         if eth.vsys != vsys_dg:
             try:
                 eth.delete_import()
-            except errors.PanDeviceError:
+            except PanDeviceError:
                 e = get_exception()
                 module.fail_json(msg=e.message)
 
@@ -400,22 +456,23 @@ def main():
             eth.apply()
             set_zone(con, eth, zone_name, zones)
             set_virtual_router(con, eth, vr_name, routers)
-        except (errors.PanDeviceError, ValueError):
+            changed = True
+        except (PanDeviceError, ValueError):
             e = get_exception()
             module.fail_json(msg=e.message)
     else:
         module.fail_json(msg="Unsupported operation '{0}'".format(operation))
 
     # Commit if we were asked to do so.
-    if commit:
+    if changed and commit:
         try:
             con.commit(sync=True, exceptions=True)
-        except errors.PanDeviceError:
+        except PanDeviceError:
             e = get_exception()
             module.fail_json(msg='Performed {0} but commit failed: {1}'.format(operation, e.message))
 
     # Done!
-    module.exit_json(changed=True, msg='okey dokey')
+    module.exit_json(changed=changed, msg='okey dokey')
 
 
 if __name__ == '__main__':
