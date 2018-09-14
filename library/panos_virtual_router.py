@@ -14,6 +14,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'}
@@ -25,7 +28,7 @@ short_description: Create a virtual router on the device.
 description:
     - Create static routes on PAN-OS devices.
 author: "Ken Celenza (@itdependsnetworks)"
-version_added: "2.6"
+version_added: "2.8"
 requirements:
     - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
@@ -56,10 +59,14 @@ options:
             - Create or remove static route.
         choices: ['present', 'absent']
         default: 'present'
+    commit:
+        description:
+            - Commit if changed
+        default: true
 '''
 
 EXAMPLES = '''
-- name: Create the zone trust'
+- name: Create the virtual router trust'
   panos_virtual_router:
     ip_address: '{{ fw_ip_address }}'
     username: '{{ fw_username }}'
@@ -67,7 +74,7 @@ EXAMPLES = '''
     name: 'trust'
     state: 'present'
 
-- name: Create the zone dmz'
+- name: Create the virtual router dmz'
   panos_virtual_router:
     ip_address: '{{ fw_ip_address }}'
     username: '{{ fw_username }}'
@@ -75,7 +82,7 @@ EXAMPLES = '''
     name: 'dmz'
     state: 'present'
 
-- name: Delete the zone web_app'
+- name: Delete the virtual router web_app'
   panos_virtual_router:
     ip_address: '{{ fw_ip_address }}'
     username: '{{ fw_username }}'
@@ -91,7 +98,7 @@ RETURN = '''
 from ansible.module_utils.basic import AnsibleModule
 
 try:
-    from pandevice import base
+    from pandevice.base import PanDevice
     from pandevice import firewall
     from pandevice import panorama
     from pandevice import network
@@ -103,15 +110,6 @@ except ImportError:
     HAS_LIB = False
 
 
-def find_object(device, obj_name, obj_type):
-    obj_type.refreshall(device)
-
-    if isinstance(device, firewall.Firewall):
-        return device.find(obj_name, obj_type)
-    else:
-        return None
-
-
 def main():
     argument_spec = dict(
         ip_address=dict(required=True),
@@ -120,8 +118,9 @@ def main():
         api_key=dict(no_log=True),
         name=dict(type='str', required=True),
         devicegroup=dict(type='str', required=False),
-        panorama_template=dict(),
-        state=dict(default='present', choices=['present', 'absent'])
+        template=dict(),
+        state=dict(default='present', choices=['present', 'absent']),
+        commit=dict(type='bool', default=True)
     )
 
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
@@ -140,15 +139,15 @@ def main():
     changed = False
 
     try:
-        device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
+        device = PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
 
-        dev_group = None
-        if devicegroup and isinstance(device, panorama.Panorama):
-            dev_group = get_devicegroup(device, devicegroup)
-            if dev_group:
-                device.add(dev_group)
-            else:
-                module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
+        #dev_group = None
+        #if devicegroup and isinstance(device, panorama.Panorama):
+        #    dev_group = get_devicegroup(device, devicegroup)
+        #    if dev_group:
+        #        device.add(dev_group)
+        #    else:
+        #        module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
 
         network.VirtualRouter(name)
         active_virtual_routers = network.VirtualRouter.refreshall(device)
