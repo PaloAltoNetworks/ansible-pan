@@ -24,8 +24,10 @@ DOCUMENTATION = '''
 module: panos_security_rule
 short_description: Create security rule policy on PAN-OS devices or Panorama management console.
 description:
-    - Security policies allow you to enforce rules and take action, and can be as general or specific as needed. The policy rules are compared against the incoming traffic in sequence, and because the first rule that matches the traffic is applied, the more specific rules must precede the more general ones.
-author: "Ivan Bojer (@ivanbojer), Robert Hagen (@rnh556), Michael Richardson (@mrichardson03)"
+    - Security policies allow you to enforce rules and take action, and can be as general or specific as needed. 
+    - The policy rules are compared against the incoming traffic in sequence, and because the first rule that matches 
+    - the traffic is applied, the more specific rules must precede the more general ones.
+author: "Ivan Bojer (@ivanbojer), Robert Hagen (@stealthllama), Michael Richardson (@mrichardson03)"
 version_added: "2.4"
 requirements:
     - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
@@ -50,33 +52,13 @@ options:
     api_key:
         description:
             - API key that can be used instead of I(username)/I(password) credentials.
-    operation:
-        description:
-            - The action to be taken.  Supported values are I(add)/I(update)/I(find)/I(delete).
-        default: 'add'
     rule_name:
         description:
             - Name of the security rule.
         required: true
-    rule_type:
-        description:
-            - Type of security rule (version 6.1 of PanOS and above).
-        default: "universal"
-    description:
-        description:
-            - Description for the security rule.
-        default: "None"
-    tag_name:
-        description:
-            - Administrative tags that can be added to the rule. Note, tags must be already defined.
-        default: "None"
     source_zone:
         description:
             - List of source zones.
-        default: "any"
-    destination_zone:
-        description:
-            - List of destination zones.
         default: "any"
     source_ip:
         description:
@@ -92,6 +74,10 @@ options:
             on information collected by GlobalProtect. For example, the user access level can be determined HIP that
             notifies the firewall about the user's local configuration.
         default: "any"
+    destination_zone:
+        description:
+            - List of destination zones.
+        default: "any"
     destination_ip:
         description:
             - List of destination addresses.
@@ -104,6 +90,16 @@ options:
         description:
             - List of services.
         default: "application-default"
+    category:
+        description:
+            - Destination URL categories
+    action:
+        description:
+            - Action to apply once rules matches.
+        default: "allow"
+    log_setting:
+        description:
+            - Log forwarding profile
     log_start:
         description:
             - Whether to log at session start.
@@ -112,13 +108,41 @@ options:
         description:
             - Whether to log at session end.
         default: true
-    log_setting:
+    description:
         description:
-            - Log forwarding profile
-    action:
+            - Description for the security rule.
+        default: "None"
+    rule_type:
         description:
-            - Action to apply once rules maches.
-        default: "allow"
+            - Type of security rule (version 6.1 of PanOS and above).
+        default: "universal"
+    tag_name:
+        description:
+            - Administrative tags that can be added to the rule. Note, tags must be already defined.
+        default: "None"
+    negate_source:
+        description:
+            - Match on the reverse of the 'source' attribute
+        default: false
+    negate_destination:
+        description:
+            - Match on the reverse of the 'destination' attribute
+        default: false
+    disabled:
+        description:
+            - Disable this rule
+        default: false
+    schedule:
+        description:
+            - Schedule profile
+    icmp_unreachable:
+        description:
+            - Send 'ICMP Unreachable'. Used with 'deny', 'drop', and 'reset' actions.
+        default: false
+    disable_server_response_inspection:
+        description:
+            - Disables packet inspection from the server to the client. Useful under heavy server load conditions.
+        default: false
     group_profile:
         description: >
             - Security profile group that is already defined in the system. This property supersedes antivirus,
@@ -152,28 +176,47 @@ options:
         description:
             - Name of the already defined wildfire_analysis profile.
         default: None
-    devicegroup:
-        description: >
-            - Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama.
-            If device group is not define we assume that we are contacting Firewall.
-        default: None
     location:
         description:
             - Position to place the created rule in the rule base.  Supported values are
               I(top)/I(bottom)/I(before)/I(after).
+        default: "bottom"
     existing_rule:
         description:
             - If 'location' is set to 'before' or 'after', this option specifies an existing
               rule name.  The new rule will be created in the specified position relative to this
               rule.  If 'location' is set to 'before' or 'after', this option is required.
-    panorama_post_rule:
+    devicegroup:
+        description: >
+            - Device groups are logical groups of firewalls in Panorama.
+            - If the device group is not defined actions will affect the Shared Panorama context.
+        default: None
+    pre_rule:
         description:
-            - If the security rule is applied against panorama, set this to True in order to inject it into post rule.
+            - If the security rule is applied against Panorama, set this to True to create a pre-rule.
+        default: True
+    post_rule:
+        description:
+            - If the security rule is applied against Panorama, set this to True to create a post-rule.
         default: False
+    target:
+        description:
+            - Apply this rule exclusively to the listed firewalls in Panorama.
+    negate_target:
+        description:
+            - Exclude this rule from the listed firewalls in Panorama.
+    state:
+        description:
+            - The state of the rule.  Can be either I(present)/I(absent).
+    operation:
+        description:
+            - The action to be taken.  Supported values are I(add)/I(update)/I(find)/I(delete).
+            - I(Deprecated - use 'state' instead.) 
+        default: 'add'
     commit:
         description:
             - Commit configuration if changed.
-        default: true
+        default: false
 '''
 
 EXAMPLES = '''
@@ -182,7 +225,6 @@ EXAMPLES = '''
     ip_address: '{{ ip_address }}'
     username: '{{ username }}'
     password: '{{ password }}'
-    operation: 'add'
     rule_name: 'SSH permit'
     description: 'SSH rule test'
     tag_name: ['ProjectX']
@@ -197,13 +239,14 @@ EXAMPLES = '''
     hip_profiles: ['any']
     action: 'allow'
     devicegroup: 'Cloud Edge'
+    rulebase: true
+
 
 - name: add a rule to allow HTTP multimedia only from CDNs
   panos_security_rule:
     ip_address: '10.5.172.91'
     username: 'admin'
     password: 'paloalto'
-    operation: 'add'
     rule_name: 'HTTP Multimedia'
     description: 'Allow HTTP multimedia only to host at 1.1.1.1'
     source_zone: ['public']
@@ -222,8 +265,7 @@ EXAMPLES = '''
     ip_address: '{{ ip_address }}'
     username: '{{ username }}'
     password: '{{ password }}'
-    operation: 'add'
-    rule_name: 'Allow HTTP w profile'
+    rule_name: 'Allow HTTP'
     log_start: false
     log_end: true
     action: 'allow'
@@ -232,6 +274,25 @@ EXAMPLES = '''
     spyware: 'default'
     url_filtering: 'default'
     wildfire_analysis: 'default'
+    
+- name: disable a Panorama pre-rule 
+  panos_security_rule:
+    ip_address: '{{ ip_address }}'
+    username: '{{ username }}'
+    password: '{{ password }}'
+    rule_name: 'Allow telnet'
+    source_zone: ['public']
+    destination_zone: ['private']
+    source: ['any']
+    source_user: ['any']
+    destination: ['1.1.1.1']
+    log_start: false
+    log_end: true
+    action: 'allow'
+    devicegroup: 'Production edge'
+    rulebase: 'pre'
+    disabled: true
+
 
 - name: delete a devicegroup security rule
   panos_security_rule:
@@ -240,15 +301,8 @@ EXAMPLES = '''
     operation: 'delete'
     rule_name: 'Allow telnet'
     devicegroup: 'DC Firewalls'
-
-- name: find a specific security rule
-  panos_security_rule:
-    ip_address: '{{ ip_address }}'
-    password: '{{ password }}'
-    operation: 'find'
-    rule_name: 'Allow RDP to DCs'
-  register: result
-- debug: msg='{{result.stdout_lines}}'
+    rulebase: 'pre'
+    state: absent
 
 - name: add a rule at a specific location in the rulebase
   panos_security_rule:
@@ -268,15 +322,7 @@ EXAMPLES = '''
     service: ['application-default']
     action: 'allow'
     location: 'before'
-    existing_rule: 'Prod-Legacy 1'
-
-- name: disable a specific security rule
-  panos_security_rule:
-    ip_address: '{{ ip_address }}'
-    username: '{{ username }}'
-    password: '{{ password }}'
-    operation: 'disable'
-    rule_name: 'Prod-Legacy 1'
+    existing_rule: 'Allow MySQL'
 '''
 
 RETURN = '''
@@ -287,19 +333,15 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.basic import get_exception
 
 try:
-    from pan.xapi import PanXapiError
-    import pandevice
-    from pandevice import base
-    from pandevice import panorama
-    from pandevice import policies
+    from pandevice.base import PanDevice
+    from pandevice.policies import Rulebase, SecurityRule, PreRulebase, PostRulebase
+    from pandevice.device import Vsys
+    from pandevice.firewall import Firewall
+    from pandevice.panorama import Panorama, DeviceGroup
     from pandevice.errors import PanDeviceError
-    import xmltodict
-    import json
-
     HAS_LIB = True
 except ImportError:
     HAS_LIB = False
-
 
 ACCEPTABLE_MOVE_ERRORS = (
     'already at the top',
@@ -310,340 +352,285 @@ ACCEPTABLE_MOVE_ERRORS = (
 def get_devicegroup(device, devicegroup):
     dg_list = device.refresh_devices()
     for group in dg_list:
-        if isinstance(group, pandevice.panorama.DeviceGroup):
+        if isinstance(group, DeviceGroup):
             if group.name == devicegroup:
                 return group
     return False
 
 
-def get_rulebase(device, devicegroup, is_post_rule):
-    # Build the rulebase
-    if isinstance(device, pandevice.firewall.Firewall):
-        rulebase = pandevice.policies.Rulebase()
-        device.add(rulebase)
-    elif isinstance(device, pandevice.panorama.Panorama):
-        dg = panorama.DeviceGroup(devicegroup)
+def get_rulebase(device, devicegroup, rulebase):
+    # Determine the rulebase type and attach it to the device
+    if isinstance(device, Firewall):
+        rb = Rulebase()
+        device.add(rb)
+    elif isinstance(device, Panorama):
+        dg = DeviceGroup(devicegroup)
         device.add(dg)
-        if is_post_rule:
-            rulebase = policies.PostRulebase()
-        else:
-            rulebase = policies.PreRulebase()
-
-        dg.add(rulebase)
-    else:
-        return False
-    policies.SecurityRule.refreshall(rulebase)
-    return rulebase
+        if rulebase == 'pre':
+            rb = PreRulebase()
+        elif rulebase == 'post':
+            rb = PostRulebase()
+        dg.add(rb)
+    return rb
 
 
-def find_rule(rulebase, rule_name):
-    # Search for the rule name
-    rule = rulebase.find(rule_name)
-    if rule:
-        return rule
-    else:
-        return False
+def find_rule(rules, new_rule):
+    for r in rules:
+        if r.name == new_rule.name:
+            return r
 
 
-def rule_is_match(propose_rule, current_rule):
-
-    match_check = ['name', 'description', 'group_profile', 'antivirus', 'vulnerability'
-                   'spyware', 'url_filtering', 'file_blocking', 'data_filtering',
-                   'wildfire_analysis', 'type', 'action', 'tag', 'log_start', 'log_end',
-                   'log_setting']
-    list_check = ['tozone', 'fromzone', 'source', 'source_user', 'destination', 'category',
-                  'application', 'service', 'hip_profiles']
-
-    for check in match_check:
-        propose_check = getattr(propose_rule, check, None)
-        current_check = getattr(current_rule, check, None)
-        if propose_check != current_check:
-            return False
-    for check in list_check:
-        propose_check = getattr(propose_rule, check, [])
-        current_check = getattr(current_rule, check, [])
-        if set(propose_check) != set(current_check):
-            return False
-    return True
-
-
-def create_security_rule(**kwargs):
-    security_rule = policies.SecurityRule(
-        name=kwargs['rule_name'],
-        description=kwargs['description'],
-        fromzone=kwargs['source_zone'],
-        source=kwargs['source_ip'],
-        source_user=kwargs['source_user'],
-        hip_profiles=kwargs['hip_profiles'],
-        tozone=kwargs['destination_zone'],
-        destination=kwargs['destination_ip'],
-        application=kwargs['application'],
-        service=kwargs['service'],
-        category=kwargs['category'],
-        log_start=kwargs['log_start'],
-        log_end=kwargs['log_end'],
-        log_setting=kwargs['log_setting'],
-        action=kwargs['action'],
-        type=kwargs['rule_type']
-    )
-
-    if 'tag_name' in kwargs:
-        security_rule.tag = kwargs['tag_name']
-
-    # profile settings
-    if 'group_profile' in kwargs:
-        security_rule.group = kwargs['group_profile']
-    else:
-        if 'antivirus' in kwargs:
-            security_rule.virus = kwargs['antivirus']
-        if 'vulnerability' in kwargs:
-            security_rule.vulnerability = kwargs['vulnerability']
-        if 'spyware' in kwargs:
-            security_rule.spyware = kwargs['spyware']
-        if 'url_filtering' in kwargs:
-            security_rule.url_filtering = kwargs['url_filtering']
-        if 'file_blocking' in kwargs:
-            security_rule.file_blocking = kwargs['file_blocking']
-        if 'data_filtering' in kwargs:
-            security_rule.data_filtering = kwargs['data_filtering']
-        if 'wildfire_analysis' in kwargs:
-            security_rule.wildfire_analysis = kwargs['wildfire_analysis']
-    return security_rule
-
-
+# TODO: Remove operation parameter and all associated code
 def main():
     argument_spec = dict(
         ip_address=dict(required=True),
-        password=dict(no_log=True),
         username=dict(default='admin'),
+        password=dict(no_log=True),
         api_key=dict(no_log=True),
-        operation=dict(default='add', choices=['add', 'update', 'delete', 'find']),
         rule_name=dict(required=True),
-        description=dict(default=''),
-        tag_name=dict(type='list'),
-        destination_zone=dict(type='list', default=['any']),
         source_zone=dict(type='list', default=['any']),
         source_ip=dict(type='list', default=["any"]),
         source_user=dict(type='list', default=['any']),
+        hip_profiles=dict(type='list', default=['any']),
+        destination_zone=dict(type='list', default=['any']),
         destination_ip=dict(type='list', default=["any"]),
-        category=dict(type='list', default=['any']),
         application=dict(type='list', default=['any']),
         service=dict(type='list', default=['application-default']),
-        hip_profiles=dict(type='list', default=['any']),
-        group_profile=dict(),
-        antivirus=dict(),
-        vulnerability=dict(),
-        spyware=dict(),
-        url_filtering=dict(),
-        file_blocking=dict(),
-        data_filtering=dict(),
-        wildfire_analysis=dict(),
+        category=dict(type='list', default=['any']),
+        action=dict(default='allow', choices=['allow', 'deny', 'drop', 'reset-client', 'reset-server', 'reset-both']),
+        log_setting=dict(),
         log_start=dict(type='bool', default=False),
         log_end=dict(type='bool', default=True),
-        log_setting=dict(),
-        rule_type=dict(default='universal'),
-        action=dict(default='allow'),
-        devicegroup=dict(),
-        location=dict(default='bottom', choices=['top', 'bottom', 'before', 'after']),
+        description=dict(default=''),
+        rule_type=dict(default='universal', choices=['universal', 'intrazone', 'interzone']),
+        tag_name=dict(type='list'),
+        negate_source=dict(type='bool', default=False),
+        negate_destination=dict(type='bool', default=False),
+        disabled=dict(type='bool', default=False),
+        schedule=dict(),
+        icmp_unreachable=dict(type='bool', default=False),
+        disable_server_response_inspection=dict(type=bool, default=False),
+        group_profile=dict(),
+        antivirus=dict(),
+        spyware=dict(),
+        vulnerability=dict(),
+        url_filtering=dict(),
+        file_blocking=dict(),
+        wildfire_analysis=dict(),
+        data_filtering=dict(),
+        target=dict(type='list'),
+        negate_target=dict(type='bool', default=False),
+        location=dict(choices=['top', 'bottom', 'before', 'after']),
         existing_rule=dict(),
-        commit=dict(type='bool', default=True),
-        is_post_rule=dict(type='bool', default=False)
+        devicegroup=dict(),
+        rulebase=dict(default='pre', choices=['pre', 'post']),
+        state=dict(default='present', choices=['present', 'absent']),
+        operation=dict(default='add', choices=['add', 'update', 'delete', 'find']),
+        commit=dict(type='bool', default=False)
     )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True,
                            required_one_of=[['api_key', 'password']])
+
     if not HAS_LIB:
         module.fail_json(msg='Missing required libraries.')
-    elif not hasattr(policies.SecurityRule, 'move'):
+    elif not hasattr(SecurityRule, 'move'):
         module.fail_json(msg='Python library pandevice needs to be updated.')
 
-    ip_address = module.params['ip_address']
-    password = module.params['password']
-    username = module.params['username']
-    api_key = module.params['api_key']
-    operation = module.params['operation']
-    rule_name = module.params['rule_name']
-    description = module.params['description']
-    tag_name = module.params['tag_name']
-    source_zone = module.params['source_zone']
-    source_ip = module.params['source_ip']
-    source_user = module.params['source_user']
-    hip_profiles = module.params['hip_profiles']
-    destination_zone = module.params['destination_zone']
-    destination_ip = module.params['destination_ip']
-    application = module.params['application']
-    service = module.params['service']
-    category = module.params['category']
-    log_start = module.params['log_start']
-    log_end = module.params['log_end']
-    log_setting = module.params['log_setting']
-    action = module.params['action']
-    group_profile = module.params['group_profile']
-    antivirus = module.params['antivirus']
-    vulnerability = module.params['vulnerability']
-    spyware = module.params['spyware']
-    url_filtering = module.params['url_filtering']
-    file_blocking = module.params['file_blocking']
-    data_filtering = module.params['data_filtering']
-    wildfire_analysis = module.params['wildfire_analysis']
-    rule_type = module.params['rule_type']
+    # Get the firewall / panorama auth.
+    auth = [module.params[x] for x in
+            ('ip_address', 'username', 'password', 'api_key')]
+
+    # Create the device with the appropriate pandevice type
+    device = PanDevice.create_from_device(*auth)
+
+    # If Panorama, validate the devicegroup if its defined
     devicegroup = module.params['devicegroup']
+    dg = None
+    if devicegroup and isinstance(device, Panorama):
+        dg = get_devicegroup(device, devicegroup)
+        if dg:
+            device.add(dg)
+        else:
+            module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
+
+    # Get the params needed to build the rule object
+    rule_spec = {
+        'name': module.params['rule_name'],
+        'fromzone': module.params['source_zone'],
+        'tozone': module.params['destination_zone'],
+        'source': module.params['source_ip'],
+        'source_user': module.params['source_user'],
+        'hip_profiles': module.params['hip_profiles'],
+        'destination': module.params['destination_ip'],
+        'application': module.params['application'],
+        'service': module.params['service'],
+        'category': module.params['category'],
+        'action': module.params['action'],
+        'log_setting': module.params['log_setting'],
+        'log_start': module.params['log_start'],
+        'log_end': module.params['log_end'],
+        'description': module.params['description'],
+        'type': module.params['rule_type'],
+        'tag': module.params['tag_name'],
+        'negate_source': module.params['negate_source'],
+        'negate_destination': module.params['negate_destination'],
+        'disabled': module.params['disabled'],
+        'schedule': module.params['schedule'],
+        'icmp_unreachable': module.params['icmp_unreachable'],
+        'disable_server_response_inspection': module.params['disable_server_response_inspection'],
+        'group': module.params['group_profile'],
+        'virus': module.params['antivirus'],
+        'spyware': module.params['spyware'],
+        'vulnerability': module.params['vulnerability'],
+        'url_filtering': module.params['url_filtering'],
+        'file_blocking': module.params['file_blocking'],
+        'wildfire_analysis': module.params['wildfire_analysis'],
+        'data_filtering': module.params['data_filtering'],
+    }
+
+    # Add additional rule params if Panorama
+    if isinstance(device, Panorama):
+        rule_spec['target'] = module.params['target']
+        rule_spec['negate_target'] = module.params['negate_target']
+
+    # Get additional rule info
     location = module.params['location']
     existing_rule = module.params['existing_rule']
-    is_post_rule = module.params['is_post_rule']
-
+    rulebase = module.params['rulebase']
+    state = module.params['state']
+    operation = module.params['operation']
     commit = module.params['commit']
 
     # Sanity check the location / existing_rule params.
     if location in ('before', 'after') and not existing_rule:
         module.fail_json(msg="'existing_rule' must be specified if location is 'before' or 'after'.")
 
-    # Create the device with the appropriate pandevice type
-    device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
+    # Get the rulebase and grab its security rules
+    parent = get_rulebase(device, dg, rulebase)
+    rules = SecurityRule.refreshall(parent)
 
-    # If Panorama, validate the devicegroup
-    dev_group = None
-    if devicegroup and isinstance(device, panorama.Panorama):
-        dev_group = get_devicegroup(device, devicegroup)
-        if dev_group:
-            device.add(dev_group)
+    # Create new rule object from the params and add to rulebase
+    new_rule = SecurityRule(**rule_spec)
+    if not new_rule:
+        module.fail_json(msg='Incorrect rule parameters specified; quitting')
+    parent.add(new_rule)
+
+    # Which action shall we take on the rule object?
+    changed = False
+    if state == 'present':
+        match = find_rule(rules, new_rule)
+        if match:
+            # Change an existing rule
+            if not match.equal(new_rule):
+                # Change existing rule values
+                try:
+                    if not module.check_mode:
+                        new_rule.create()
+                except PanDeviceError as e:
+                    module.fail_json(msg='Failed "present" create: {0}'.format(e))
+                else:
+                    changed = True
         else:
-            module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
-
-    # Get the rulebase
-    rulebase = get_rulebase(device, dev_group, is_post_rule)
-    if not rulebase:
-        module.fail_json(msg="No rulebase found")
-
-    # Which action shall we take on the object?
-    if operation == "find":
-        # Search for the object
-        match = find_rule(rulebase, rule_name)
+            # Add a new rule
+            try:
+                if not module.check_mode:
+                    new_rule.apply()
+            except PanDeviceError as e:
+                module.fail_json(msg='Failed "present" apply: {0}'.format(e))
+            else:
+                changed = True
+        # Move the rule if location is defined
+        if location:
+            try:
+                if not module.check_mode:
+                    new_rule.move(location, existing_rule)
+            except PanDeviceError as e:
+                if '{0}'.format(e) not in ACCEPTABLE_MOVE_ERRORS:
+                    module.fail_json(msg='Failed move: {0}'.format(e))
+            else:
+                changed = True
+    elif state == 'absent':
+        match = find_rule(rules, new_rule)
+        if match:
+            # Delete an existing rule
+            try:
+                if not module.check_mode:
+                    new_rule.delete()
+            except PanDeviceError as e:
+                module.fail_json(msg='Failed "absent" delete: {0}'.format(e))
+            else:
+                changed = True
+    elif operation == "find":
+        # Search for the rule
+        match = find_rule(rules, new_rule)
         # If found, format and return the result
         if match:
-            match_dict = xmltodict.parse(match.element_str())
             module.exit_json(
-                stdout_lines=json.dumps(match_dict, indent=2),
+                stdout_lines=match.about(),
                 msg='Rule matched'
             )
         else:
-            module.fail_json(msg='Rule \'%s\' not found. Is the name correct?' % rule_name)
+            module.fail_json(msg='Rule \'%s\' not found. Is the name correct?' % new_rule.name)
     elif operation == "delete":
         # Search for the object
-        match = find_rule(rulebase, rule_name)
-        # If found, delete it
-        if match:
-            try:
-                match.delete()
-                if commit:
-                    device.commit(sync=True)
-            except PanXapiError:
-                exc = get_exception()
-                module.fail_json(msg=exc.message)
-
-            module.exit_json(changed=True, msg='Rule \'%s\' successfully deleted' % rule_name)
+        match = find_rule(rules, new_rule)
+        if match is None:
+            module.fail_json(msg='Rule \'%s\' not found. Is the name correct?' % new_rule.name)
+        try:
+            if not module.check_mode:
+                new_rule.delete()
+        except PanDeviceError as e:
+            module.fail_json(msg='Failed "delete" delete: {0}'.format(e))
         else:
-            module.fail_json(msg='Rule \'%s\' not found. Is the name correct?' % rule_name)
+            changed = True
     elif operation == "add":
-        new_rule = create_security_rule(
-            rule_name=rule_name,
-            description=description,
-            tag_name=tag_name,
-            source_zone=source_zone,
-            destination_zone=destination_zone,
-            source_ip=source_ip,
-            source_user=source_user,
-            destination_ip=destination_ip,
-            category=category,
-            application=application,
-            service=service,
-            hip_profiles=hip_profiles,
-            group_profile=group_profile,
-            antivirus=antivirus,
-            vulnerability=vulnerability,
-            spyware=spyware,
-            url_filtering=url_filtering,
-            file_blocking=file_blocking,
-            data_filtering=data_filtering,
-            wildfire_analysis=wildfire_analysis,
-            log_start=log_start,
-            log_end=log_end,
-            log_setting=log_setting,
-            rule_type=rule_type,
-            action=action
-        )
-
         # Search for the rule. Fail if found.
-        match = find_rule(rulebase, rule_name)
+        match = find_rule(rules, new_rule)
         if match:
-            if rule_is_match(match, new_rule):
-                module.exit_json(changed=False, msg='Rule \'%s\' is already in place' % rule_name)
-            else:
-                module.fail_json(msg='Rule \'%s\' already exists. Use operation: \'update\' to change it.' % rule_name)
-        else:
-            try:
-                rulebase.add(new_rule)
+            module.fail_json(msg='Rule \'%s\' already exists. Use operation: \'update\' to change it.' % new_rule.name)
+        try:
+            if not module.check_mode:
                 new_rule.create()
-                changed = True
+        except PanDeviceError as e:
+            module.fail_json(msg='Failed "add" create: {0}'.format(e))
+        else:
+            changed = True
+            if location:
                 try:
-                    new_rule.move(location, existing_rule)
+                    if not module.check_mode:
+                        new_rule.move(location, existing_rule)
                 except PanDeviceError as e:
                     if '{0}'.format(e) not in ACCEPTABLE_MOVE_ERRORS:
-                        raise
-                if changed and commit:
-                    device.commit(sync=True)
-            except PanXapiError:
-                exc = get_exception()
-                module.fail_json(msg=exc.message)
-            module.exit_json(changed=changed, msg='Rule \'%s\' successfully added' % rule_name)
+                        module.fail_json(msg='Failed move: {0}'.format(e))
     elif operation == 'update':
         # Search for the rule. Update if found.
-        match = find_rule(rulebase, rule_name)
-        if match:
-            try:
-                new_rule = create_security_rule(
-                    rule_name=rule_name,
-                    description=description,
-                    tag_name=tag_name,
-                    source_zone=source_zone,
-                    destination_zone=destination_zone,
-                    source_ip=source_ip,
-                    source_user=source_user,
-                    destination_ip=destination_ip,
-                    category=category,
-                    application=application,
-                    service=service,
-                    hip_profiles=hip_profiles,
-                    group_profile=group_profile,
-                    antivirus=antivirus,
-                    vulnerability=vulnerability,
-                    spyware=spyware,
-                    url_filtering=url_filtering,
-                    file_blocking=file_blocking,
-                    data_filtering=data_filtering,
-                    wildfire_analysis=wildfire_analysis,
-                    log_start=log_start,
-                    log_end=log_end,
-                    log_setting=log_setting,
-                    rule_type=rule_type,
-                    action=action
-                )
-
-                rulebase.add(new_rule)
+        match = find_rule(rulebase, new_rule.name)
+        if not match:
+            module.fail_json(msg='Rule \'%s\' does not exist. Use operation: \'add\' to add it.' % new_rule.name)
+        try:
+            if not module.check_mode:
                 new_rule.apply()
-                changed = True
+        except PanDeviceError as e:
+            module.fail_json(msg='Failed "update" apply: {0}'.format(e))
+        else:
+            changed = True
+            if location:
                 try:
-                    new_rule.move(location, existing_rule)
+                    if not module.check_mode:
+                        new_rule.move(location, existing_rule)
                 except PanDeviceError as e:
                     if '{0}'.format(e) not in ACCEPTABLE_MOVE_ERRORS:
-                        raise
-                if changed and commit:
-                    device.commit(sync=True)
-            except PanXapiError:
-                exc = get_exception()
-                module.fail_json(msg=exc.message)
-            module.exit_json(changed=changed, msg='Rule \'%s\' successfully updated' % rule_name)
-        else:
-            module.fail_json(msg='Rule \'%s\' does not exist. Use operation: \'add\' to add it.' % rule_name)
+                        module.fail_json(msg='Failed move: {0}'.format(e))
+
+    # Optional commit.
+    # FIXME: Commits should be done using the separate commit module
+    if changed and commit:
+        try:
+            device.commit(sync=True)
+        except PanDeviceError as e:
+            module.fail_json(msg='Failed commit: {0}'.format(e))
+
+    module.exit_json(changed=changed, msg='Done')
 
 
 if __name__ == '__main__':

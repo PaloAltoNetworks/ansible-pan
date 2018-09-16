@@ -20,7 +20,7 @@ module: panos_nat_rule
 short_description: create a policy NAT rule
 description:
     - Create a policy nat rule. Keep in mind that we can either end up configuring source NAT, destination NAT, or both. Instead of splitting it into two we will make a fair attempt to determine which one the user wants.
-author: "Luigi Mori (@jtschichold),Ivan Bojer (@ivanbojer),Robert Hagen (@rnh556),Michael Richardson (@mrichardson03)"
+author: "Luigi Mori (@jtschichold),Ivan Bojer (@ivanbojer),Robert Hagen (@stealthllama),Michael Richardson (@mrichardson03)"
 version_added: "2.4"
 requirements:
     - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
@@ -65,10 +65,10 @@ options:
         default: "vsys1"
     rulebase:
         description:
-            - The rulebase to put the NAT rule into.
-            - Values are I(pre-rulebase)/I(post-rulebase).
+            - The Panorama rulebase to put the NAT rule into.
+            - Values are I(pre)/I(post).
             - Panorama only; ignored for firewalls.
-        default: "pre-rulebase"
+        default: "pre"
     rule_name:
         description:
             - name of the SNAT rule
@@ -150,6 +150,7 @@ options:
         description:
             - Position to place the created rule in the rule base.  Supported values are
               I(top)/I(bottom)/I(before)/I(after).
+        default: "bottom"
     existing_rule:
         description:
             - If 'location' is set to 'before' or 'after', this option specifies an existing
@@ -158,7 +159,7 @@ options:
     commit:
         description:
             - Commit configuration if changed.
-        default: true
+        default: false
 '''
 
 EXAMPLES = '''
@@ -178,14 +179,6 @@ EXAMPLES = '''
       snat_interface: "ethernet1/2"
       dnat_address: "10.0.1.101"
       dnat_port: "22"
-
-  - name: disable a specific security rule
-    panos_nat_rule:
-      ip_address: '{{ ip_address }}'
-      username: '{{ username }}'
-      password: '{{ password }}'
-      operation: 'disable'
-      rule_name: 'Prod-Legacy 1'
 '''
 
 RETURN = '''
@@ -317,11 +310,11 @@ def main():
         dnat_address=dict(),
         dnat_port=dict(),
         devicegroup=dict(default='shared'),
-        rulebase=dict(default='pre-rulebase', choices=['pre-rulebase', 'post-rulebase']),
+        rulebase=dict(default='pre', choices=['pre', 'post']),
         vsys=dict(default='vsys1'),
-        location=dict(default='bottom', choices=['top', 'bottom', 'before', 'after']),
+        location=dict(choices=['top', 'bottom', 'before', 'after']),
         existing_rule=dict(),
-        commit=dict(type='bool', default=True)
+        commit=dict(type='bool', default=False)
     )
 
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
@@ -381,11 +374,11 @@ def main():
             if not dev_group:
                 module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
             parent = dev_group
-        if module.params['rulebase'] in (None, 'pre-rulebase'):
+        if module.params['rulebase'] == 'pre':
             rulebase = PreRulebase()
             parent.add(rulebase)
             parent = rulebase
-        elif module.params['rulebase'] == 'post-rulebase':
+        elif module.params['rulebase'] == 'post':
             rulebase = PostRulebase()
             parent.add(rulebase)
             parent = rulebase
