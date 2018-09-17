@@ -54,7 +54,7 @@ options:
         description:
             - Name of object to retrieve.
         required: true
-    type:
+    object_type:
         description:
             - Type of object to retrieve.
         choices: ['address', 'address-group', 'service', 'service-group', 'tag']
@@ -65,20 +65,20 @@ options:
 EXAMPLES = '''
 - name: Retrieve address group object 'Prod'
   panos_object_facts:
-    ip_address: '{{ fw_ip_address }}'
-    username: '{{ fw_username }}'
-    password: '{{ fw_password }}'
+    ip_address: '{{ ip_address }}'
+    username: '{{ username }}'
+    password: '{{ password }}'
     name: 'Prod'
-    type: 'address-group'
+    object_type: 'address-group'
   register: result
 
 - name: Retrieve service group object 'Prod-Services'
   panos_object_facts:
-    ip_address: '{{ fw_ip_address }}'
-    username: '{{ fw_username }}'
-    password: '{{ fw_password }}'
+    ip_address: '{{ ip_address }}'
+    username: '{{ username }}'
+    password: '{{ password }}'
     name: 'Prod-Services'
-    type: 'service-group'
+    object_type: 'service-group'
   register: result
 '''
 
@@ -146,7 +146,7 @@ def main():
         password=dict(no_log=True),
         api_key=dict(no_log=True),
         name=dict(type='str', required=True),
-        type=dict(
+        object_type=dict(
             type='str',
             choices=['address', 'address-group', 'service', 'service-group', 'tag'],
             required=True
@@ -162,7 +162,7 @@ def main():
     username = module.params['username']
     password = module.params['password']
     api_key = module.params['api_key']
-    type = module.params['type']
+    object_type = module.params['object_type']
     name = module.params['name']
     device_group = module.params['device_group']
 
@@ -178,15 +178,15 @@ def main():
         obj = None
         obj_type = None
 
-        if type == 'address':
+        if object_type == 'address':
             obj_type = objects.AddressObject
-        elif type == 'address-group':
+        elif object_type == 'address-group':
             obj_type = objects.AddressGroup
-        elif type == 'service':
+        elif object_type == 'service':
             obj_type = objects.ServiceObject
-        elif type == 'service-group':
+        elif object_type == 'service-group':
             obj_type = objects.ServiceGroup
-        elif type == 'tag':
+        elif object_type == 'tag':
             obj_type = objects.Tag
 
         obj = find_object(device, name, obj_type, device_group)
@@ -195,7 +195,7 @@ def main():
             results = obj.about()
 
             # If the object type was a tag, convert the color id back into the name.
-            if type == 'tag':
+            if object_type == 'tag':
                 color_index = int(results['entry']['color'][5:]) - 1
                 results['entry']['color'] = COLOR_NAMES[color_index]
 
