@@ -81,6 +81,12 @@ options:
             - Create or remove address group object.
         choices: ['present', 'absent']
         default: 'present'
+    commit:
+        description:
+            - Commit changes after creating object.  If I(ip_address) is a Panorama device, and I(device_group) is
+              also set, perform a commit to Panorama and a commit-all to the device group.
+        required: false
+        default: true
 '''
 
 EXAMPLES = '''
@@ -172,6 +178,49 @@ def get_devicegroup(device, device_group):
     return None
 
 
+def perform_commit(module, device, device_group):
+    changed = False
+    results = []
+
+    if isinstance(device, firewall.Firewall):
+        result = device.commit(sync=True)
+
+        if result:
+            check_commit_result(module, result)
+            changed = True
+            results.append(result)
+
+    elif isinstance(device, panorama.Panorama):
+        result = device.commit(sync=True)
+
+        if result:
+            check_commit_result(module, result)
+            changed = True
+            results.append(result)
+
+        if device_group:
+            result = device.commit_all(sync=True, sync_all=True, devicegroup=device_group)
+
+            if result:
+                check_commit_result(module, result)
+                changed = True
+                results.append(result)
+
+    for result in results:
+        if 'xml' in result:
+            result.pop('xml')
+
+    return (changed, results)
+
+
+def check_commit_result(module, result):
+    if result['result'] == 'FAIL':
+        if 'xml' in result:
+            result.pop('xml')
+
+        module.fail_json(msg='Commit failed', result=result)
+
+
 def main():
     argument_spec = dict(
         ip_address=dict(required=True),
@@ -185,7 +234,8 @@ def main():
         description=dict(type='str'),
         tag=dict(type='list'),
         device_group=dict(type='str'),
-        state=dict(default='present', choices=['present', 'absent'])
+        state=dict(default='present', choices=['present', 'absent']),
+        commit=dict(type='bool', default=True)
     )
 
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
@@ -205,8 +255,10 @@ def main():
     tag = module.params['tag']
     device_group = module.params['device_group']
     state = module.params['state']
+    commit = module.params['commit']
 
     changed = False
+    results = []
 
     try:
         device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
@@ -256,10 +308,13 @@ def main():
                 existing_obj.delete()
                 changed = True
 
+        if commit and changed:
+            (changed, results) = perform_commit(module, device, device_group)
+
     except PanDeviceError as e:
         module.fail_json(msg=e.message)
 
-    module.exit_json(changed=changed)
+    module.exit_json(changed=changed, result=results)
 
 
 if __name__ == '__main__':
