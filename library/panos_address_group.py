@@ -76,6 +76,11 @@ options:
     device_group:
         description:
             - If I(ip_address) is a Panorama device, create object in this device group.
+    vsys:
+        description:
+            - If I(ip_address) is a firewall, create object in this virtual system.
+        type: string
+        default: 'vsys1'
     state:
         description:
             - Create or remove address group object.
@@ -234,6 +239,7 @@ def main():
         description=dict(type='str'),
         tag=dict(type='list'),
         device_group=dict(type='str'),
+        vsys=dict(type='str', default='vsys1'),
         state=dict(default='present', choices=['present', 'absent']),
         commit=dict(type='bool', default=True)
     )
@@ -254,6 +260,7 @@ def main():
     description = module.params['description']
     tag = module.params['tag']
     device_group = module.params['device_group']
+    vsys = module.params['vsys']
     state = module.params['state']
     commit = module.params['commit']
 
@@ -262,6 +269,9 @@ def main():
 
     try:
         device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
+
+        if isinstance(device, firewall.Firewall):
+            device.vsys = vsys
 
         if device_group:
             if not get_devicegroup(device, device_group):
