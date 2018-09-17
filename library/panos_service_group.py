@@ -28,7 +28,7 @@ short_description: Create service group objects on PAN-OS devices.
 description:
     - Create service group objects on PAN-OS devices.
 author: "Michael Richardson (@mrichardson03)"
-version_added: "2.7"
+version_added: "2.8"
 requirements:
     - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
