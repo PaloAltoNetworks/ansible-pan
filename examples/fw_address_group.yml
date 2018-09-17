@@ -10,27 +10,27 @@
     no_log: 'yes'
 
   - name: Create static address group
-    panos_address_group_object:
-      ip_address: '{{ fw_ip_address }}'
-      username: '{{ fw_username }}'
-      password: '{{ fw_password }}'
+    panos_address_group:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
       name: 'Prod-Instances'
       static_value: ['Test-1.1.1.1', 'Test-2.2.2.2', 'Test-3.3.3.3']
       tag: ['Prod']
 
   - name: Create dynamic address group
-    panos_address_group_object:
-      ip_address: '{{ fw_ip_address }}'
-      username: '{{ fw_username }}'
-      password: '{{ fw_password }}'
+    panos_address_group:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
       name: 'SI-Web-EPG'
       dynamic_value: 'SI-Web-EPG'
       tag: ['SI']
 
   - name: Delete address group
-    panos_address_group_object:
-      ip_address: '{{ fw_ip_address }}'
-      username: '{{ fw_username }}'
-      password: '{{ fw_password }}'
+    panos_address_group:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
       name: 'Old-Prod-Instances'
       state: 'absent'

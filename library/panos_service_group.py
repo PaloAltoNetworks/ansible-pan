@@ -23,10 +23,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = '''
 ---
-module: panos_address_group_object
-short_description: Create address group objects on PAN-OS devices.
+module: panos_service_group
+short_description: Create service group objects on PAN-OS devices.
 description:
-    - Create address group objects on PAN-OS devices.
+    - Create service group objects on PAN-OS devices.
 author: "Michael Richardson (@mrichardson03)"
 version_added: "2.7"
 requirements:
@@ -52,63 +52,43 @@ options:
             - API key to be used instead of I(username) and I(password).
     name:
         description:
-            - Name of address group to create.
+            - Name of service group.
         required: true
-    type:
+    value:
         description:
-            - Whether the group is static or dynamic.
-        choices: ['static', 'dynamic']
-        default: 'static'
-    static_value:
-        description:
-            - List of address objects to be included in the group.  Required if type is 'static'.
+            - List of service objects to be included in the group.  Must specify if state is
+              present.
         type: list
-    dynamic_value:
-        description:
-            - Registered IP tags for a dynamic address group.  Required if type is 'dynamic'.
-        type: string
-    description:
-        description:
-            - Descriptive name for this address group.
+        required: true
     tag:
         description:
-            - List of tags to add to this address group.
+            - List of tags for this service group.
+        type: list
     device_group:
         description:
             - If I(ip_address) is a Panorama device, create object in this device group.
     state:
         description:
-            - Create or remove address group object.
+            - Create or remove service group object.
         choices: ['present', 'absent']
         default: 'present'
 '''
 
 EXAMPLES = '''
-- name: Create object group 'Prod'
-  panos_address_group_object:
-    ip_address: '{{ fw_ip_address }}'
-    username: '{{ fw_username }}'
-    password: '{{ fw_password }}'
-    name: 'Prod'
-    static_value: ['Test-One', 'Test-Three']
-    tag: ['Prod']
+- name: Create service group 'Prod-Services'
+  panos_service_group:
+    ip_address: '{{ ip_address }}'
+    username: '{{ username }}'
+    password: '{{ password }}'
+    name: 'Prod-Services'
+    value: ['ssh-tcp-22', 'mysql-tcp-3306']
 
-- name: Create object group 'SI'
-  panos_address_group_object:
-    ip_address: '{{ fw_ip_address }}'
-    username: '{{ fw_username }}'
-    password: '{{ fw_password }}'
-    name: 'SI'
-    type: 'dynamic'
-    dynamic_value: "'SI_Instances'"
-    tag: ['SI']
-
-- name: Delete object group 'SI'
-  panos_address_group_object:
-    ip_address: '{{ fw_ip_address }}'
-    username: '{{ fw_username }}'
-    password: '{{ fw_password }}'
-    name: 'SI'
+- name: Delete service group 'Prod-Services'
+  panos_service_group:
+    ip_address: '{{ ip_address }}'
+    username: '{{ username }}'
+    password: '{{ password }}'
+    name: 'Prod-Services'
     state: 'absent'
 '''
 
@@ -179,10 +159,7 @@ def main():
         password=dict(no_log=True),
         api_key=dict(no_log=True),
         name=dict(type='str', required=True),
-        type=dict(default='static', choices=['static', 'dynamic']),
-        static_value=dict(type='list'),
-        dynamic_value=dict(type='str'),
-        description=dict(type='str'),
+        value=dict(type='list'),
         tag=dict(type='list'),
         device_group=dict(type='str'),
         state=dict(default='present', choices=['present', 'absent'])
@@ -198,10 +175,7 @@ def main():
     password = module.params['password']
     api_key = module.params['api_key']
     name = module.params['name']
-    type = module.params['type']
-    static_value = module.params['static_value']
-    dynamic_value = module.params['dynamic_value']
-    description = module.params['description']
+    value = module.params['value']
     tag = module.params['tag']
     device_group = module.params['device_group']
     state = module.params['state']
@@ -216,41 +190,24 @@ def main():
                 module.fail_json(msg='Could not find {} device group.'.format(device_group))
 
         if state == 'present':
-            existing_obj = find_object(device, name, objects.AddressGroup, device_group)
+            if not value:
+                module.fail_json(msg='Must specify \'value\' if \'state\' is \'present\'.')
 
-            if type == 'static':
-                if not static_value:
-                    module.fail_json(msg='Must specify \'static_value\' if \'type\' is \'static\' '
-                                         'and \'state\' is \'present.')
-
-                new_obj = objects.AddressGroup(name, static_value=static_value,
-                                               description=description, tag=tag)
-
-            elif type == 'dynamic':
-                if not dynamic_value:
-                    module.fail_json(msg='Must specify \'dynamic_value\' if \'type\' is '
-                                         '\'dynamic\' and \'state\' is \'present\'.')
-
-                new_obj = objects.AddressGroup(name, dynamic_value=dynamic_value,
-                                               description=description, tag=tag)
+            existing_obj = find_object(device, name, objects.ServiceGroup, device_group)
+            new_obj = objects.ServiceGroup(name=name, value=value, tag=tag)
 
             if not existing_obj:
                 add_object(device, new_obj, device_group)
                 new_obj.create()
                 changed = True
             elif not existing_obj.equal(new_obj):
-                if type == 'static':
-                    existing_obj.static_value = static_value
-                elif type == 'dynamic':
-                    existing_obj.dynamic_value = dynamic_value
-
-                existing_obj.description = description
+                existing_obj.value = value
                 existing_obj.tag = tag
                 existing_obj.apply()
                 changed = True
 
         elif state == 'absent':
-            existing_obj = find_object(device, name, objects.AddressGroup, device_group)
+            existing_obj = find_object(device, name, objects.ServiceGroup, device_group)
 
             if existing_obj:
                 existing_obj.delete()
