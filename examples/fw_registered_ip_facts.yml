@@ -1,0 +1,25 @@
+---
+- name: Manipulate registered IPs on the firewall
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: Get facts for all registered IPs
+    panos_registered_ip_facts:
+      ip_address: '{{ fw_ip_address }}'
+      username: '{{ fw_username }}'
+      password: '{{ fw_password }}'
+    register: registered_ip_facts
+
+  - name: Get facts for specific tag
+    panos_registered_ip_facts:
+      ip_address: '{{ fw_ip_address }}'
+      username: '{{ fw_username }}'
+      password: '{{ fw_password }}'
+      tags: ['First_Tag']
+    register: first_tag_registered_ip_facts
