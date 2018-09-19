@@ -1,0 +1,28 @@
+---
+- name: Retrieve data about objects from the firewall
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: Retrieve address group object 'Prod'
+    panos_object_facts:
+      ip_address: '{{ fw_ip_address }}'
+      username: '{{ fw_username }}'
+      password: '{{ fw_password }}'
+      name: 'Prod'
+      object_type: 'address-group'
+    register: result
+
+  - name: Retrieve service group object 'Prod-Services'
+    panos_object_facts:
+      ip_address: '{{ fw_ip_address }}'
+      username: '{{ fw_username }}'
+      password: '{{ fw_password }}'
+      name: 'Prod-Services'
+      object_type: 'service-group'
+    register: result
