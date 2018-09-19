@@ -83,28 +83,47 @@ options:
 '''
 
 EXAMPLES = '''
-# Create L3 DMZ zone.
-- name: create DMZ zone and add L3 interface
+# Create an L3 zone.
+- name: create DMZ zone on a firewall
   panos_zone:
     ip_address: {{ ip_address }}
     api_key: {{ api_key }}
     zone: 'dmz'
     mode: 'layer3'
-    interface: 'ethernet1/1'
-    zone_profile: "public"
-    create_default_route: "yes"
+    zone_profile: 'strict'
 
-# Update ethernet1/2 with a static IP address in zone dmz.
-- name: ethernet1/2 as static in zone dmz
+# Add an interface to the zone.
+- name: add ethernet1/2 to zone dmz
   panos_interface:
-    ip_address: "192.168.1.1"
-    username: "ansible"
-    password: "secret"
-    if_name: "ethernet1/2"
-    mode: "layer3"
-    ip: ["10.1.1.1/24"]
-    enable_dhcp: false
-    zone_name: "dmz"
+    ip_address: '192.168.1.1'
+    username: 'ansible'
+    password: 'secret'
+    zone: 'dmz'
+    mode: 'layer3'
+    interface: 'ethernet1/2'
+    zone_profile: 'strict'
+    
+# Delete the zone.
+- name: delete the DMZ zone
+  panos_interface:
+    ip_address: '192.168.1.1'
+    username: 'ansible'
+    password: 'secret'
+    zone: 'dmz'
+    state: 'absent'
+    
+# Add a zone to a multi-VSYS Panorama template
+- name: add Cloud zone to template
+  panos_interface:
+    ip_address: {{ ip_address }}
+    api_key: {{ api_key }}
+    zone: 'datacenter'
+    mode: 'layer3'
+    enable_userid: true
+    exclude_ip: '10.0.200.0/24'
+    template: 'Datacenter Template'
+    vsys: 'vsys4'
+    
 '''
 
 RETURN = '''
@@ -121,7 +140,7 @@ from ansible.module_utils.basic import get_exception
 
 try:
     from pandevice.base import PanDevice
-    from pandevice.network import Zone, Interface
+    from pandevice.network import Zone
     from pandevice.device import Vsys
     from pandevice.firewall import Firewall
     from pandevice.panorama import Panorama, Template
