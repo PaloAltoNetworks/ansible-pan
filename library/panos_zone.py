@@ -145,7 +145,7 @@ try:
     from pandevice.firewall import Firewall
     from pandevice.panorama import Panorama, Template
     from pandevice.errors import PanDeviceError
-    from pandevice.ha import *
+    from pandevice import ha
     HAS_LIB = True
 except ImportError:
     HAS_LIB = False
@@ -161,12 +161,6 @@ def get_template(template, template_list):
     for t in template_list:
         if t.name == template:
             return t
-
-
-def get_interface(interface, interface_list):
-    for i in interface_list:
-        if i.name == interface:
-            return i
 
 
 def find_zone(zones, new_zone):
