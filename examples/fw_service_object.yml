@@ -1,0 +1,37 @@
+---
+- name: Add some service objects to the firewall
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: Create service object 'ssh-tcp-22'
+    panos_service_object:
+      ip_address: '{{ fw_ip_address }}'
+      username: '{{ fw_username }}'
+      password: '{{ fw_password }}'
+      name: 'ssh-tcp-22'
+      destination_port: '22'
+      description: 'SSH on tcp/22'
+      tag: ['Prod']
+
+  - name: Create service object 'mysql-tcp-3306'
+    panos_service_object:
+      ip_address: '{{ fw_ip_address }}'
+      username: '{{ fw_username }}'
+      password: '{{ fw_password }}'
+      name: 'mysql-tcp-3306'
+      destination_port: '3306'
+      description: 'MySQL on tcp/3306'
+
+  - name: Delete service object 'mysql-tcp-3306'
+    panos_service_object:
+      ip_address: '{{ fw_ip_address }}'
+      username: '{{ fw_username }}'
+      password: '{{ fw_password }}'
+      name: 'mysql-tcp-3306'
+      state: 'absent'
