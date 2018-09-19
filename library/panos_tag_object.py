@@ -248,8 +248,11 @@ def main():
             device.vsys = vsys
 
         if device_group:
-            if not get_devicegroup(device, device_group):
-                module.fail_json(msg='Could not find {} device group.'.format(device_group))
+            if device_group.lower() == 'shared':
+                device_group = None
+            else:
+                if not get_devicegroup(device, device_group):
+                    module.fail_json(msg='Could not find {} device group.'.format(device_group))
 
         if state == 'present':
             existing_obj = find_object(device, name, objects.Tag, device_group)

@@ -25,7 +25,7 @@
     username: '{{ fw_username }}'
     password: '{{ fw_password }}'
     name: 'Test-Two'
-    type: 'ip-range'
+    address_type: 'ip-range'
     value: '1.1.1.1-2.2.2.2'
     description: 'Description Two'
     tag: ['SI']
@@ -36,7 +36,7 @@
     username: '{{ fw_username }}'
     password: '{{ fw_password }}'
     name: 'Test-Three'
-    type: 'fqdn'
+    address_type: 'fqdn'
     value: 'foo.bar.baz'
     description: 'Description Three'
 

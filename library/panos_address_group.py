@@ -54,18 +54,13 @@ options:
         description:
             - Name of address group to create.
         required: true
-    type:
-        description:
-            - Whether the group is static or dynamic.
-        choices: ['static', 'dynamic']
-        default: 'static'
     static_value:
         description:
-            - List of address objects to be included in the group.  Required if type is 'static'.
+            - List of address objects to be included in the group.
         type: list
     dynamic_value:
         description:
-            - Registered IP tags for a dynamic address group.  Required if type is 'dynamic'.
+            - Registered IP tags for a dynamic address group.
         type: string
     description:
         description:
@@ -110,7 +105,6 @@ EXAMPLES = '''
     username: '{{ username }}'
     password: '{{ password }}'
     name: 'SI'
-    type: 'dynamic'
     dynamic_value: "'SI_Instances'"
     tag: ['SI']
 
@@ -220,10 +214,7 @@ def perform_commit(module, device, device_group):
 
 def check_commit_result(module, result):
     if result['result'] == 'FAIL':
-        if 'xml' in result:
-            result.pop('xml')
-
-        module.fail_json(msg='Commit failed', result=result)
+        module.fail_json(msg='Commit failed')
 
 
 def main():
@@ -233,7 +224,6 @@ def main():
         password=dict(no_log=True),
         api_key=dict(no_log=True),
         name=dict(type='str', required=True),
-        type=dict(default='static', choices=['static', 'dynamic']),
         static_value=dict(type='list'),
         dynamic_value=dict(type='str'),
         description=dict(type='str'),
@@ -243,8 +233,17 @@ def main():
         state=dict(default='present', choices=['present', 'absent']),
         commit=dict(type='bool', default=True)
     )
+    required_one_of = [
+        ['static_value', 'dynamic_value']
+    ]
+    mutually_exclusive = [
+        ['static_value', 'dynamic_value']
+    ]
 
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
+    module = AnsibleModule(
+        argument_spec=argument_spec, required_one_of=required_one_of, 
+        mutually_exclusive=mutually_exclusive, supports_check_mode=False
+    )
 
     if not HAS_LIB:
         module.fail_json(msg='pan-python and pandevice are required for this module.')
@@ -254,7 +253,6 @@ def main():
     password = module.params['password']
     api_key = module.params['api_key']
     name = module.params['name']
-    type = module.params['type']
     static_value = module.params['static_value']
     dynamic_value = module.params['dynamic_value']
     description = module.params['description']
@@ -274,25 +272,19 @@ def main():
             device.vsys = vsys
 
         if device_group:
-            if not get_devicegroup(device, device_group):
-                module.fail_json(msg='Could not find {} device group.'.format(device_group))
+            if device_group.lower() == 'shared':
+                device_group = None
+            else:
+                if not get_devicegroup(device, device_group):
+                    module.fail_json(msg='Could not find {} device group.'.format(device_group))
 
         if state == 'present':
             existing_obj = find_object(device, name, objects.AddressGroup, device_group)
 
-            if type == 'static':
-                if not static_value:
-                    module.fail_json(msg='Must specify \'static_value\' if \'type\' is \'static\' '
-                                         'and \'state\' is \'present.')
-
+            if static_value:
                 new_obj = objects.AddressGroup(name, static_value=static_value,
                                                description=description, tag=tag)
-
-            elif type == 'dynamic':
-                if not dynamic_value:
-                    module.fail_json(msg='Must specify \'dynamic_value\' if \'type\' is '
-                                         '\'dynamic\' and \'state\' is \'present\'.')
-
+            elif dynamic_value:
                 new_obj = objects.AddressGroup(name, dynamic_value=dynamic_value,
                                                description=description, tag=tag)
 
@@ -301,9 +293,9 @@ def main():
                 new_obj.create()
                 changed = True
             elif not existing_obj.equal(new_obj):
-                if type == 'static':
+                if static_value:
                     existing_obj.static_value = static_value
-                elif type == 'dynamic':
+                elif dynamic_value:
                     existing_obj.dynamic_value = dynamic_value
 
                 existing_obj.description = description

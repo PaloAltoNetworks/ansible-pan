@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#  Copyright 2017 Palo Alto Networks, Inc
+#  Copyright 2018 Palo Alto Networks, Inc
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ options:
         description:
             - IP address, IP range, or FQDN for the object.  Must specify if state is I(present).
         required: true
-    type:
+    address_type:
         description:
             - Type of address object.
         choices: ['ip-netmask', 'ip-range', 'fqdn']
@@ -107,7 +107,7 @@ EXAMPLES = '''
     username: '{{ fw_username }}'
     password: '{{ fw_password }}'
     name: 'Test-Two'
-    type: 'ip-range'
+    address_type: 'ip-range'
     value: '1.1.1.1-2.2.2.2'
     description: 'Description Two'
     tag: ['SI']
@@ -118,7 +118,7 @@ EXAMPLES = '''
     username: '{{ fw_username }}'
     password: '{{ fw_password }}'
     name: 'Test-Three'
-    type: 'fqdn'
+    address_type: 'fqdn'
     value: 'foo.bar.baz'
     description: 'Description Three'
 
@@ -135,7 +135,7 @@ RETURN = '''
 # Default return values
 '''
 
-from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.basic import AnsibleModule, get_exception
 
 try:
     from pandevice import base
@@ -242,7 +242,7 @@ def main():
         api_key=dict(no_log=True),
         name=dict(type='str', required=True),
         value=dict(type='str'),
-        type=dict(default='ip-netmask', choices=['ip-netmask', 'ip-range', 'fqdn']),
+        address_type=dict(default='ip-netmask', choices=['ip-netmask', 'ip-range', 'fqdn']),
         description=dict(type='str'),
         tag=dict(type='list'),
         device_group=dict(type='str'),
@@ -262,7 +262,7 @@ def main():
     api_key = module.params['api_key']
     name = module.params['name']
     value = module.params['value']
-    type = module.params['type']
+    address_type = module.params['address_type']
     description = module.params['description']
     tag = module.params['tag']
     device_group = module.params['device_group']
@@ -280,15 +280,18 @@ def main():
             device.vsys = vsys
 
         if device_group:
-            if not get_devicegroup(device, device_group):
-                module.fail_json(msg='Could not find {} device group.'.format(device_group))
+            if device_group.lower() == 'shared':
+                device_group = None
+            else:
+                if not get_devicegroup(device, device_group):
+                    module.fail_json(msg='Could not find {} device group.'.format(device_group))
 
         if state == 'present':
             if not value:
                 module.fail_json(msg='Must specify \'value\' if state is \'present\'.')
 
             existing_obj = find_object(device, name, objects.AddressObject, device_group)
-            new_obj = objects.AddressObject(name, value, type=type, description=description, tag=tag)
+            new_obj = objects.AddressObject(name, value, type=address_type, description=description, tag=tag)
 
             if not existing_obj:
                 add_object(device, new_obj, device_group)
@@ -296,7 +299,7 @@ def main():
                 changed = True
             elif not existing_obj.equal(new_obj):
                 existing_obj.value = value
-                existing_obj.type = type
+                existing_obj.type = address_type
                 existing_obj.description = description
                 existing_obj.tag = tag
                 existing_obj.apply()
