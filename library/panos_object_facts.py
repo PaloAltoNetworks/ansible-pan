@@ -172,8 +172,11 @@ def main():
         device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
 
         if device_group:
-            if not get_devicegroup(device, device_group):
-                module.fail_json(msg='Could not find {} device group.'.format(device_group))
+            if device_group.lower() == 'shared':
+                device_group = None
+            else:
+                if not get_devicegroup(device, device_group):
+                    module.fail_json(msg='Could not find {} device group.'.format(device_group))
 
         obj = None
         obj_type = None
