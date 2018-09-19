@@ -178,38 +178,23 @@ def get_devicegroup(device, device_group):
 
 
 def perform_commit(module, device, device_group):
-    changed = False
-    results = []
-
     if isinstance(device, firewall.Firewall):
         result = device.commit(sync=True)
 
         if result:
             check_commit_result(module, result)
-            changed = True
-            results.append(result)
 
     elif isinstance(device, panorama.Panorama):
         result = device.commit(sync=True)
 
         if result:
             check_commit_result(module, result)
-            changed = True
-            results.append(result)
 
         if device_group:
             result = device.commit_all(sync=True, sync_all=True, devicegroup=device_group)
 
             if result:
                 check_commit_result(module, result)
-                changed = True
-                results.append(result)
-
-    for result in results:
-        if 'xml' in result:
-            result.pop('xml')
-
-    return (changed, results)
 
 
 def check_commit_result(module, result):
@@ -241,7 +226,7 @@ def main():
     ]
 
     module = AnsibleModule(
-        argument_spec=argument_spec, required_one_of=required_one_of, 
+        argument_spec=argument_spec, required_one_of=required_one_of,
         mutually_exclusive=mutually_exclusive, supports_check_mode=False
     )
 
@@ -263,7 +248,6 @@ def main():
     commit = module.params['commit']
 
     changed = False
-    results = []
 
     try:
         device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
@@ -311,12 +295,12 @@ def main():
                 changed = True
 
         if commit and changed:
-            (changed, results) = perform_commit(module, device, device_group)
+            perform_commit(module, device, device_group)
 
     except PanDeviceError as e:
         module.fail_json(msg=e.message)
 
-    module.exit_json(changed=changed, result=results)
+    module.exit_json(changed=changed)
 
 
 if __name__ == '__main__':
