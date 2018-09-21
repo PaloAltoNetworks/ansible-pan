@@ -190,7 +190,7 @@ options:
     rulebase:
         description:
             - The Panorama rulebase in which the rule will be created. Only used with Panorama.
-        default: 'pre'
+        default: 'pre-rulebase'
     target:
         description:
             - Apply this rule exclusively to the listed firewalls in Panorama.
@@ -232,7 +232,7 @@ EXAMPLES = '''
     application: ['ssh']
     action: 'allow'
     devicegroup: 'Cloud Edge'
-    rulebase: 'pre'
+    rulebase: 'pre-rulebase'
 
 
 - name: add a rule to allow HTTP multimedia only to CDNs
@@ -279,7 +279,7 @@ EXAMPLES = '''
     log_end: true
     action: 'allow'
     devicegroup: 'Production edge'
-    rulebase: 'pre'
+    rulebase: 'pre-rulebase'
     disabled: true
 
 
@@ -290,7 +290,7 @@ EXAMPLES = '''
     operation: 'delete'
     rule_name: 'Allow telnet'
     devicegroup: 'DC Firewalls'
-    rulebase: 'pre'
+    rulebase: 'pre-rulebase'
     state: 'absent'
 
 - name: add a rule at a specific location in the rulebase
@@ -404,12 +404,14 @@ def main():
         devicegroup=dict(),
         rulebase=dict(default='pre-rulebase', choices=['pre-rulebase', 'post-rulebase']),
         vsys=dict(default='vsys1'),
-        state=dict(default='present', choices=['present', 'absent']),
+        state=dict(choices=['present', 'absent']),
         operation=dict(default='add', choices=['add', 'update', 'delete', 'find']),
-        commit=dict(type='bool', default=False)
+        commit=dict(type='bool', default=True)
     )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True,
-                           required_one_of=[['api_key', 'password']])
+    module = AnsibleModule(argument_spec=argument_spec,
+                           supports_check_mode=True,
+                           required_one_of=[['api_key', 'password']]
+                           )
 
     if not HAS_LIB:
         module.fail_json(msg='Missing required libraries.')
@@ -496,24 +498,24 @@ def main():
                 module.fail_json(msg='VSYS not found: {0}'.format(vsys))
             parent = parent.add(Rulebase())
     elif isinstance(parent, Panorama):
+        if devicegroup == 'shared':
+            devicegroup = None
         if devicegroup is not None:
+            parent = parent.add(Rulebase())
+        else:
             parent = get_devicegroup(parent, devicegroup)
             if parent is None:
                 module.fail_json(msg='Device group not found: {0}'.format(devicegroup))
-            if rulebase == 'pre-rulebase':
-                parent = parent.add(PreRulebase())
-            elif rulebase == 'post-rulebase':
-                parent = parent.add(PostRulebase())
-        else:
-            module.fail_json(msg='A devicegroup parameter is required when device type is Panorama')
+        if rulebase == 'pre-rulebase':
+            parent = parent.add(PreRulebase())
+        elif rulebase == 'post-rulebase':
+            parent = parent.add(PostRulebase())
 
     # Now that we have the rulebase let's grab its security rules
     rules = SecurityRule.refreshall(parent)
 
     # Create new rule object from the params and add to rulebase
     new_rule = SecurityRule(**rule_spec)
-    if not new_rule:
-        module.fail_json(msg='Incorrect rule parameters specified; quitting')
     parent.add(new_rule)
 
     # Which action shall we take on the rule object?
@@ -525,16 +527,16 @@ def main():
             if not match.equal(new_rule):
                 try:
                     if not module.check_mode:
-                        new_rule.create()
+                        new_rule.apply()
                 except PanDeviceError as e:
-                    module.fail_json(msg='Failed "present" create: {0}'.format(e))
+                    module.fail_json(msg='Failed "present" apply: {0}'.format(e))
                 else:
                     changed = True
         else:
             # Add a new rule
             try:
                 if not module.check_mode:
-                    new_rule.apply()
+                    new_rule.create()
             except PanDeviceError as e:
                 module.fail_json(msg='Failed "present" apply: {0}'.format(e))
             else:
