@@ -192,7 +192,7 @@ def main():
             device.add(ipsec_tunnel)
             for t in tunnels:
                 if t.name == ipsec_tunnel.name:
-                    if not ipsec_tunnel.equals(t):
+                    if not ipsec_tunnel.equal(t):
                         ipsec_tunnel.apply()
                         changed = True
             else:
