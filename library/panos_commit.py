@@ -27,7 +27,7 @@ module: panos_commit
 short_description: Commit a PAN-OS device's candidate configuration.
 description:
     - Module that will commit the candidate configuration of a PAN-OS device.
-      The new configuration will become active immediately.
+    - The new configuration will become active immediately.
 author: "Michael Richardson (@mrichardson03)"
 version_added: "2.3"
 requirements:
@@ -116,7 +116,10 @@ def main():
         device_group=dict(type='str')
     )
 
-    module = AnsibleModule(argument_spec=argument_spec)
+    module = AnsibleModule(
+        argument_spec=argument_spec, supports_check_mode=False,
+        required_one_of=[['api_key', 'password']]
+    )
 
     if not HAS_LIB:
         module.fail_json(msg='pan-python and pandevice are required for this module.')
