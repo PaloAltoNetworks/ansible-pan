@@ -15,7 +15,7 @@
 #  limitations under the License.
 
 ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
+                    'status': ['deprecated'],
                     'supported_by': 'community'}
 
 DOCUMENTATION = '''
@@ -23,12 +23,23 @@ DOCUMENTATION = '''
 module: panos_object
 short_description: create/read/update/delete object in PAN-OS or Panorama
 description:
-    - Policy objects form the match criteria for policy rules and many other functions in PAN-OS. These may include address object, address groups, service objects, service groups, and tag.
+    - Policy objects form the match criteria for policy rules and many other functions in PAN-OS. These may include
+    - address object, address groups, service objects, service groups, and tag.
 author: "Bob Hagen (@rnh556)"
 version_added: "2.4"
 requirements:
     - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
+deprecated:
+  removed_in: "2.9"
+  why: Updated to idempotent modules
+  alternative:
+    - Use the any of the following alternatives
+    - M(panos_address_object)
+    - M(panos_address_group)
+    - M(panos_service_object)
+    - M(panos_service_group)
+    - M(panos_tag_object)
 notes:
     - Checkmode is not supported.
     - Panorama is supported.

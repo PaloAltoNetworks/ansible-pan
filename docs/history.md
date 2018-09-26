@@ -5,11 +5,45 @@ title: History and changelog
 History
 =======
 
-V1.0.8
+V2.0.0
 ------
 
 -   Released: In-development
 -   Status: In-development
+
+*New modules*
+
+- panos\_administrator: Manages Panorama / NGFW administrators
+- panos\_registered\_ip: Use this instead of panos\_dag\_tags
+- panos\_registered\_ip\_facts: Use this instead of panos\_dag\_tags
+- panos\_address\_object: Use this instead of panos\_object
+- panos\_address\_group: Use this instead of panos\_object
+- panos\_service\_object: Use this instead of panos\_object
+- panos\_service\_group: Use this instead of panos\_object
+- panos\_tag\_object: Use this instead of panos\_object
+- panos\_object\_facts: Get facts about objects
+
+*Removed modules*
+
+*Refactored modules*
+
+**Now supporting state / idempotency**
+- panos\_interface
+- panos\_nat\_rule
+- panos\_
+
+*Miscellanies / Fixes*
+
+- merged Ansible role repo together with this one
+- https://github.com/PaloAltoNetworks/ansible-pan/issues/44
+- adding beta support for connections lib
+- https://github.com/PaloAltoNetworks/ansible-pan/issues/150
+
+V1.0.8
+------
+
+-   Released: 2018-09-13
+-   Status: Released
 
 *New modules*
 
@@ -28,6 +62,7 @@ identification, authentication, and encryption (IKEv1 or IKEv2, Phase 1).
 
 -   *panos\_security\_rule* - New [log\_setting]{.title-ref} param added
     to specify the log forwarding profile to be used
+-   re-wrote documentation 
 
 V1.0.7
 ------

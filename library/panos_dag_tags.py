@@ -15,7 +15,7 @@
 #  limitations under the License.
 
 ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
+                    'status': ['deprecated'],
                     'supported_by': 'community'}
 
 DOCUMENTATION = '''
@@ -29,9 +29,14 @@ version_added: "2.5"
 requirements:
     - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
+deprecated:
+  removed_in: "2.9"
+  why: Using new modern API calls in the panos_registered_ip
+  alternative: Use M(panos_registered_ip) instead.
 notes:
     - Checkmode is not supported.
     - Panorama is not supported.
+    - use panos_registered_ip from now on
 options:
     ip_address:
         description:
