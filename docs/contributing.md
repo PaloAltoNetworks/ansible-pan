@@ -1,3 +1,7 @@
+---
+title: Contributing to PANW Ansible modules
+---
+
 # Developing Palo Alto Networks Ansible Modules
 
 (draft)
