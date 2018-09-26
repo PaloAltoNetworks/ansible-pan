@@ -27,7 +27,6 @@ speeds up the review and merge process.
 The functionality you want may be too large for a single module. You might want to split it into separate modules or
 enhance already existing module.
 
-
 ## Contributing to codebase
 
 If your use case isn't covered by an existing module or an open PR then you're ready to start developing a new module.
@@ -36,7 +35,7 @@ In order to do this you need to (draft):
 1. fork develop branch (**NOT MASTER**)
 2. do your changes
     - update / change module
-    - update history.md with changes
+    - update [history.md](https://github.com/PaloAltoNetworks/ansible-pan/blob/develop/docs/history.md) with changes
     - make sure you run code through linter (TBD)
 3. create pull request against **DEVELOP** branch
     - sometimes it is necessary to rebase your changes. If you need more info on how to this here is a good write-up
