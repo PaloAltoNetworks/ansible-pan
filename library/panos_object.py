@@ -28,8 +28,8 @@ description:
 author: "Bob Hagen (@rnh556)"
 version_added: "2.4"
 requirements:
-    - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
-    - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
+    - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
+    - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
 deprecated:
   removed_in: "2.9"
   why: Updated to idempotent modules
