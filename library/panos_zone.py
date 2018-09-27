@@ -52,7 +52,7 @@ options:
     mode:
         description:
             - The mode of the security zone. Must match the mode of the interface.
-            - Possible values: I(tap), I(virtual-wire), I(layer2), I(layer3), I(external)
+            - Possible values I(tap)/I(virtual-wire)/I(layer2)/I(layer3)/I(external)
         default: "layer3"
     interface:
         description:
@@ -82,7 +82,7 @@ options:
     state:
         description:
             - The state of the zone.
-            - Possible values: I(present) or I(absent).
+            - Possible values I(present)/I(absent).
 '''
 
 EXAMPLES = '''
