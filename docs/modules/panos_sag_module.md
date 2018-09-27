@@ -13,9 +13,9 @@ Create a static address group object in the firewall used for policy rules.
 
 ## Requirements (on host that executes module)
 
-- pan-python can be obtained from PyPi https://pypi.python.org/pypi/pan-python
-- pandevice can be obtained from PyPi https://pypi.python.org/pypi/pandevice
-- xmltodict can be obtained from PyPi https://pypi.python.org/pypi/xmltodict
+- pan-python can be obtained from PyPI https://pypi.python.org/pypi/pan-python
+- pandevice can be obtained from PyPI https://pypi.python.org/pypi/pandevice
+- xmltodict can be obtained from PyPI https://pypi.python.org/pypi/xmltodict
 
 ## Options
 
