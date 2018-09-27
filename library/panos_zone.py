@@ -105,7 +105,7 @@ EXAMPLES = '''
     mode: 'layer3'
     interface: ['ethernet1/2']
     zone_profile: 'strict'
-
+    
 # Delete the zone.
 - name: delete the DMZ zone
   panos_interface:
@@ -114,7 +114,7 @@ EXAMPLES = '''
     password: 'secret'
     zone: 'dmz'
     state: 'absent'
-
+    
 # Add a zone to a multi-VSYS Panorama template
 - name: add Cloud zone to template
   panos_interface:
@@ -126,6 +126,7 @@ EXAMPLES = '''
     exclude_ip: '10.0.200.0/24'
     template: 'Datacenter Template'
     vsys: 'vsys4'
+    
 '''
 
 RETURN = '''

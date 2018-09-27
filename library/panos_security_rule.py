@@ -234,7 +234,6 @@ EXAMPLES = '''
     devicegroup: 'Cloud Edge'
     rulebase: 'pre-rulebase'
 
-
 - name: add a rule to allow HTTP multimedia only to CDNs
   panos_security_rule:
     ip_address: '{{ ip_address }}'
