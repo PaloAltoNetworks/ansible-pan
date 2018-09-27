@@ -13,9 +13,9 @@ Security policies allow you to enforce rules and take action, and can be as gene
 
 ## Requirements (on host that executes module)
 
-- pan-python can be obtained from PyPi https://pypi.python.org/pypi/pan-python
-- pandevice can be obtained from PyPi https://pypi.python.org/pypi/pandevice
-- xmltodict can be obtains from PyPi https://pypi.python.org/pypi/xmltodict
+- pan-python can be obtained from PyPI https://pypi.python.org/pypi/pan-python
+- pandevice can be obtained from PyPI https://pypi.python.org/pypi/pandevice
+- xmltodict can be obtains from PyPI https://pypi.python.org/pypi/xmltodict
 
 ## Options
 
