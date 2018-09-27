@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 #  Copyright 2018 Palo Alto Networks, Inc
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +24,7 @@ short_description: configure security zone
 description:
     - Configure security zones on PAN-OS firewall or in Panorama template.
 author: "Robert Hagen (@stealthllama)"
-version_added: "2.6"
+version_added: "2.8"
 requirements:
     - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
@@ -100,7 +103,7 @@ EXAMPLES = '''
     password: 'secret'
     zone: 'dmz'
     mode: 'layer3'
-    interface: 'ethernet1/2'
+    interface: ['ethernet1/2']
     zone_profile: 'strict'
     
 # Delete the zone.
@@ -181,8 +184,8 @@ def main():
         zone_profile=dict(),
         log_setting=dict(),
         enable_userid=dict(type='bool', default=False),
-        include_acl=dict(),
-        exclude_acl=dict(),
+        include_acl=dict(type='list'),
+        exclude_acl=dict(type='list'),
         vsys=dict(default='vsys1'),
         template=dict(),
         state=dict(choices=['present', 'absent'], default='present')
@@ -238,14 +241,16 @@ def main():
         else:
             module.fail_json(msg='A template parameter is required when device type is Panorama')
     if vsys is not None:
-        vsys_list = Vsys.refreshall(parent)
-        parent = get_vsys(vsys, vsys_list)
-        if parent is None:
-
-            module.fail_json(msg='VSYS not found: {0}'.format(vsys))
+        v = Vsys(vsys)
+        parent.add(v)
+        parent = v
 
     # Retrieve the current list of zones
-    zones = Zone.refreshall(parent)
+    try:
+        zones = Zone.refreshall(parent)
+    except PanDeviceError:
+        e = get_exception()
+        module.fail_json(msg=e.message)
 
     # Build the zone and attach to the parent
     new_zone = Zone(**zone_spec)
