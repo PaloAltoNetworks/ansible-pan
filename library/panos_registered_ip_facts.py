@@ -14,24 +14,26 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
-module: panos_software
-short_description: Install specific release of PAN-OS.
+module: panos_registered_ip_facts
+short_description: Retrieve facts about registered IPs on PAN-OS devices.
 description:
-    - Install specific release of PAN-OS.
+    - Retrieves tag information about registered IPs on PAN-OS devices.
 author: "Michael Richardson (@mrichardson03)"
-version_added: "2.6"
+version_added: "2.7"
 requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
 notes:
-    - Checkmode is not supported.
-    - Panorama is supported.
+    - Panorama is not supported.
 options:
     ip_address:
         description:
@@ -47,39 +49,41 @@ options:
     api_key:
         description:
             - API key to be used instead of I(username) and I(password).
-    version:
+    tags:
         description:
-            - Desired PAN-OS release.
-        required: true
-    restart:
-        description:
-            - Restart device after installing desired version.  Use in conjunction with
-              panos_check to determine when firewall is ready again.
-        default: false
+            - List of tags to retrieve facts for.  If not specified, retrieve all tags.
 '''
 
 EXAMPLES = '''
-- name: Install PAN-OS 7.1.16 and restart
-  panos_software:
+- name: Get facts for all registered IPs
+  panos_registered_ip_facts:
     ip_address: '{{ fw_ip_address }}'
     username: '{{ fw_username }}'
     password: '{{ fw_password }}'
-    version: '7.1.16'
-    restart: true
+  register: registered_ip_facts
+
+- name: Get facts for specific tag
+  panos_registered_ip_facts:
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    tags: ['First_Tag']
+  register: first_tag_registered_ip_facts
 '''
 
 RETURN = '''
-version:
-    description: After performing the software install, returns the version installed on the
-        device.
+results:
+    description: IP addresses as keys, tags as values.
+    returned: always
+    type: dict
+    sample: { '1.1.1.1': ['First_Tag', 'Second_Tag'] }
 '''
 
-from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.basic import AnsibleModule, get_exception
 
 try:
-    from pandevice import PanOSVersion
-    from pandevice.errors import PanDeviceError
     from pandevice import base
+    from pandevice.errors import PanDeviceError
 
     HAS_LIB = True
 except ImportError:
@@ -92,8 +96,7 @@ def main():
         username=dict(default='admin'),
         password=dict(no_log=True),
         api_key=dict(no_log=True),
-        version=dict(type='str', required=True),
-        restart=dict(type='bool', default=False)
+        tags=dict(type='list')
     )
 
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
@@ -104,29 +107,16 @@ def main():
     username = module.params['username']
     password = module.params['password']
     api_key = module.params['api_key']
-    version = module.params['version']
-    restart = module.params['restart']
-
-    changed = False
+    tags = module.params['tags']
 
     try:
         device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
-        device.software.check()
+        registered_ips = device.userid.get_registered_ip(tags=tags)
 
-        if PanOSVersion(version) != PanOSVersion(device.version):
+    except PanDeviceError:
+        module.fail_json(msg=get_exception())
 
-            # Method only performs install if sync is set to true.
-            device.software.download_install(version, sync=True)
-
-            if restart:
-                device.restart()
-
-            changed = True
-
-    except PanDeviceError as e:
-        module.fail_json(msg=e.message)
-
-    module.exit_json(changed=changed, version=version)
+    module.exit_json(changed=False, results=registered_ips)
 
 
 if __name__ == '__main__':

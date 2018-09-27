@@ -30,8 +30,8 @@ description:
 author: "Ivan Bojer (@ivanbojer)"
 version_added: "2.5"
 requirements:
-    - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
-    - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
+    - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
+    - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
 notes:
     - Checkmode is NOT supported.
     - Panorama is NOT supported.
@@ -105,8 +105,8 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.basic import get_exception
 
 try:
-    from pan.xapi import PanXapiError
     from pandevice.base import PanDevice
+    from pandevice.errors import PanDeviceError
     import xmltodict
     import json
 
@@ -135,7 +135,10 @@ def main():
     cmd_is_xml = module.params['cmd_is_xml']
 
     # Create the device with the appropriate pandevice type
-    dev = PanDevice.create_from_device(*auth)
+    try:
+        dev = PanDevice.create_from_device(*auth)
+    except PanDeviceError as e:
+        module.fail_json(msg='Failed to connect: {0}'.format(e))
 
     changed = False
     xml_output = []

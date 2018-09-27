@@ -1,0 +1,27 @@
+---
+- name: Add some tags to the firewall
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: Create tag object 'Prod'
+    panos_tag_object:
+      ip_address: '{{ fw_ip_address }}'
+      username: '{{ fw_username }}'
+      password: '{{ fw_password }}'
+      name: 'Prod'
+      color: 'red'
+      comments: 'Prod Environment'
+
+  - name: Remove tag object 'Prod'
+    panos_tag_object:
+      ip_address: '{{ fw_ip_address }}'
+      username: '{{ fw_username }}'
+      password: '{{ fw_password }}'
+      name: 'Prod'
+      state: 'absent'

@@ -23,9 +23,9 @@ description:
 author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer), Vinay Venkataraghavan (@vinayvenkat)"
 version_added: "2.3"
 requirements:
-    - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
-    - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
-    - xmltodict can be obtained from PyPi U(https://pypi.python.org/pypi/xmltodict)
+    - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
+    - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
+    - xmltodict can be obtained from PyPI U(https://pypi.python.org/pypi/xmltodict)
 options:
     ip_address:
         description:
