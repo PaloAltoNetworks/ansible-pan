@@ -13,8 +13,8 @@ Configure data-port (DP) network interface for DHCP. By default DP interfaces ar
 
 ## Requirements (on host that executes module)
 
-- pan-python can be obtained from PyPi https://pypi.python.org/pypi/pan-python
-- pandevice can be obtained from PyPi https://pypi.python.org/pypi/pandevice
+- pan-python can be obtained from PyPI https://pypi.python.org/pypi/pan-python
+- pandevice can be obtained from PyPI https://pypi.python.org/pypi/pandevice
 
 ## Options
 
@@ -44,8 +44,9 @@ Configure data-port (DP) network interface for DHCP. By default DP interfaces ar
 | mtu |  |  |  | MTU for layer3 interface. |
 | netflow_profile |  |  |  | Netflow profile for layer3 interface. |
 | netflow_profile_l2 |  |  |  | Netflow profile name for layer2 interface. |
-| operation |  | add |  | The action to be taken.  Supported values are *add*/*update*/*delete*. |
+| operation |  | add |  | The action to be taken.  Supported values are *add*/*update*/*delete*.This is used only if "state" is unspecified. |
 | password |  |  |  | Password credentials to use for auth. |
+| state |  |  |  | The state.  Can be either *present*/*absent*.If this is defined, then "operation" is ignored. |
 | username |  | admin |  | Username credentials to use for auth. |
 | vr_name |  | default |  | Name of the virtual router; it must already exist. |
 | vsys_dg |  | vsys1 |  | Name of the vsys (if firewall) or device group (if panorama) to put this object. |

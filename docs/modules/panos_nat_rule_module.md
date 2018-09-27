@@ -13,8 +13,8 @@ Create a policy nat rule. Keep in mind that we can either end up configuring sou
 
 ## Requirements (on host that executes module)
 
-- pan-python can be obtained from PyPi https://pypi.python.org/pypi/pan-python
-- pandevice can be obtained from PyPi https://pypi.python.org/pypi/pandevice
+- pan-python can be obtained from PyPI https://pypi.python.org/pypi/pan-python
+- pandevice can be obtained from PyPI https://pypi.python.org/pypi/pandevice
 
 ## Options
 
@@ -24,14 +24,17 @@ Create a policy nat rule. Keep in mind that we can either end up configuring sou
 | commit |  | True |  | Commit configuration if changed. |
 | destination_ip |  | [u'any'] |  | list of destination addresses |
 | destination_zone | yes |  |  | destination zone |
+| devicegroup |  | shared |  | The device group to place the NAT rule into.Panorama only; ignored for firewalls. |
 | dnat_address |  | None |  | dnat translated address |
 | dnat_port |  | None |  | dnat translated port |
 | existing_rule |  |  |  | If 'location' is set to 'before' or 'after', this option specifies an existing rule name.  The new rule will be created in the specified position relative to this rule.  If 'location' is set to 'before' or 'after', this option is required. |
 | ip_address | yes |  |  | IP address (or hostname) of PAN-OS device being configured. |
 | location |  |  |  | Position to place the created rule in the rule base.  Supported values are *top*/*bottom*/*before*/*after*. |
-| operation |  |  |  | The action to be taken.  Supported values are *add*/*update*/*find*/*delete*/*disable*. |
+| nat_type |  | ipv4 |  | Type of NAT.Values are *ipv4*/*nat64*/*nptv6*. |
+| operation |  |  |  | The action to be taken.  Supported values are *add*/*update*/*find*/*delete*/*disable*.This is used only if "state" is unspecified. |
 | password | yes |  |  | Password credentials to use for auth unless *api_key* is set. |
 | rule_name | yes |  |  | name of the SNAT rule |
+| rulebase |  | pre-rulebase |  | The rulebase to put the NAT rule into.Values are *pre-rulebase*/*post-rulebase*.Panorama only; ignored for firewalls. |
 | service |  | any |  | service |
 | snat_address_type |  | translated-address |  | type of source translation. Supported values are *translated-address*/*interface-address*. |
 | snat_bidirectional |  | false |  | bidirectional flag |
@@ -42,7 +45,9 @@ Create a policy nat rule. Keep in mind that we can either end up configuring sou
 | snat_type |  | None |  | type of source translation |
 | source_ip |  | [u'any'] |  | list of source addresses |
 | source_zone | yes |  |  | list of source zones |
+| state |  | present |  | The state.  Can be either *present*/*absent*.If this is defined, then "operation" is ignored. |
 | username |  | admin |  | Username credentials to use for auth unless *api_key* is set. |
+| vsys |  | vsys1 |  | The vsys to place the NAT rule into.Firewall only; ignored for Panorama. |
 
 ## Examples
 

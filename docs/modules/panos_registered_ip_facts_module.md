@@ -1,14 +1,14 @@
 ---
-title: panos_software
+title: panos_registered_ip_facts
 ---
-# panos_software
+# panos_registered_ip_facts
 
-_(versionadded:: 2.6)_
+_(versionadded:: 2.7)_
 
 
 ## Synopsis
 
-Install specific release of PAN-OS.
+Retrieves tag information about registered IPs on PAN-OS devices.
 
 
 ## Requirements (on host that executes module)
@@ -23,31 +23,36 @@ Install specific release of PAN-OS.
 | api_key |  |  |  | API key to be used instead of *username* and *password*. |
 | ip_address | yes |  |  | IP address or hostname of PAN-OS device. |
 | password |  |  |  | Password for authentication for PAN-OS device.  Optional if *api_key* is used. |
-| restart |  |  |  | Restart device after installing desired version.  Use in conjunction with panos_check to determine when firewall is ready again. |
+| tags |  |  |  | List of tags to retrieve facts for.  If not specified, retrieve all tags. |
 | username |  | admin |  | Username for authentication for PAN-OS device.  Optional if *api_key* is used. |
-| version | yes |  |  | Desired PAN-OS release. |
 
 ## Examples
 
-    - name: Install PAN-OS 7.1.16 and restart
-      panos_software:
+    - name: Get facts for all registered IPs
+      panos_registered_ip_facts:
         ip_address: '{{ fw_ip_address }}'
         username: '{{ fw_username }}'
         password: '{{ fw_password }}'
-        version: '7.1.16'
-        restart: true
+      register: registered_ip_facts
+    
+    - name: Get facts for specific tag
+      panos_registered_ip_facts:
+        ip_address: '{{ fw_ip_address }}'
+        username: '{{ fw_username }}'
+        password: '{{ fw_password }}'
+        tags: ['First_Tag']
+      register: first_tag_registered_ip_facts
 #### Return Values
 
 The following are the fields unique to this module:
 
 | name | description | returned | type | sample |
 | --- | --- | --- | --- | --- |
-| version | After performing the software install, returns the version installed on the device. |  |  |  |
+| results | IP addresses as keys, tags as values. | always | dict | {'1.1.1.1': ['First_Tag', 'Second_Tag']} |
 
 #### Notes
 
-- Checkmode is not supported.
-- Panorama is supported.
+- Panorama is not supported.
 
 
 

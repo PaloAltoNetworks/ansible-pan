@@ -13,8 +13,8 @@ Configure management settings of device. Not all configuration options are confi
 
 ## Requirements (on host that executes module)
 
-- pan-python can be obtained from PyPi https://pypi.python.org/pypi/pan-python
-- pandevice can be obtained from PyPi https://pypi.python.org/pypi/pandevice
+- pan-python can be obtained from PyPI https://pypi.python.org/pypi/pan-python
+- pandevice can be obtained from PyPI https://pypi.python.org/pypi/pandevice
 
 ## Options
 
