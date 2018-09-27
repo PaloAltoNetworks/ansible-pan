@@ -1,14 +1,14 @@
 ---
-title: panos_software
+title: panos_object_facts
 ---
-# panos_software
+# panos_object_facts
 
-_(versionadded:: 2.6)_
+_(versionadded:: 2.8)_
 
 
 ## Synopsis
 
-Install specific release of PAN-OS.
+Retrieves tag information objects on PAN-OS devices.
 
 
 ## Requirements (on host that executes module)
@@ -22,32 +22,42 @@ Install specific release of PAN-OS.
 | --- | --- | --- | --- | --- |
 | api_key |  |  |  | API key to be used instead of *username* and *password*. |
 | ip_address | yes |  |  | IP address or hostname of PAN-OS device. |
+| name | yes |  |  | Name of object to retrieve. |
+| object_type | yes | address | address, address-group, service, service-group, tag | Type of object to retrieve. |
 | password |  |  |  | Password for authentication for PAN-OS device.  Optional if *api_key* is used. |
-| restart |  |  |  | Restart device after installing desired version.  Use in conjunction with panos_check to determine when firewall is ready again. |
 | username |  | admin |  | Username for authentication for PAN-OS device.  Optional if *api_key* is used. |
-| version | yes |  |  | Desired PAN-OS release. |
 
 ## Examples
 
-    - name: Install PAN-OS 7.1.16 and restart
-      panos_software:
-        ip_address: '{{ fw_ip_address }}'
-        username: '{{ fw_username }}'
-        password: '{{ fw_password }}'
-        version: '7.1.16'
-        restart: true
+    - name: Retrieve address group object 'Prod'
+      panos_object_facts:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        name: 'Prod'
+        object_type: 'address-group'
+      register: result
+    
+    - name: Retrieve service group object 'Prod-Services'
+      panos_object_facts:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        name: 'Prod-Services'
+        object_type: 'service-group'
+      register: result
 #### Return Values
 
 The following are the fields unique to this module:
 
 | name | description | returned | type | sample |
 | --- | --- | --- | --- | --- |
-| version | After performing the software install, returns the version installed on the device. |  |  |  |
+| results | Dict containing object attributes.  Empty if object is not found. | always | dict |  |
 
 #### Notes
 
-- Checkmode is not supported.
 - Panorama is supported.
+- Check mode is not supported.
 
 
 

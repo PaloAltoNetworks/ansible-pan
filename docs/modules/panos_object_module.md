@@ -8,13 +8,14 @@ _(versionadded:: 2.4)_
 
 ## Synopsis
 
-Policy objects form the match criteria for policy rules and many other functions in PAN-OS. These may include address object, address groups, service objects, service groups, and tag.
+Policy objects form the match criteria for policy rules and many other functions in PAN-OS. These may include
+address object, address groups, service objects, service groups, and tag.
 
 
 ## Requirements (on host that executes module)
 
-- pan-python can be obtained from PyPi https://pypi.python.org/pypi/pan-python
-- pandevice can be obtained from PyPi https://pypi.python.org/pypi/pandevice
+- pan-python can be obtained from PyPI https://pypi.python.org/pypi/pan-python
+- pandevice can be obtained from PyPI https://pypi.python.org/pypi/pandevice
 
 ## Options
 
@@ -27,10 +28,10 @@ Policy objects form the match criteria for policy rules and many other functions
 | api_key |  |  |  | API key that can be used instead of *username*/*password* credentials. |
 | color |  |  |  | - The color of the tag object.  Valid values are *red, green, blue, yellow, copper, orange, purple, gray, light green, cyan, light gray, blue gray, lime, black, gold, and brown*.
  |
+| commit |  |  |  | Commit the config change. |
 | description |  |  |  | The description of the object. |
 | destination_port |  |  |  | The destination port to be used in a service object definition. |
-| devicegroup |  | None |  | - The name of the Panorama device group. The group must exist on Panorama. If device group is not defined it is assumed that we are contacting a firewall.
- |
+| devicegroup |  | None |  | The name of the (preexisting) Panorama device group.If undefined and ip_address is Panorama, this defaults to shared. |
 | dynamic_value |  |  |  | The filter match criteria to be used in a dynamic addressgroup definition. |
 | ip_address | yes |  |  | IP address (or hostname) of PAN-OS device or Panorama management console being configured. |
 | operation | yes |  |  | The operation to be performed.  Supported values are *add*/*delete*/*find*. |
@@ -43,6 +44,7 @@ Policy objects form the match criteria for policy rules and many other functions
 | static_value |  |  |  | A group of address objects to be used in an addressgroup definition. |
 | tag_name |  |  |  | The name of an object or rule tag. |
 | username |  | admin |  | Username credentials to use for authentication. |
+| vsys |  | vsys1 |  | The vsys to put the object into.Firewall only. |
 
 ## Examples
 
@@ -101,5 +103,5 @@ Policy objects form the match criteria for policy rules and many other functions
 
 #### Status
 
-This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
+This module is flagged as **deprecated** which means that .
 
