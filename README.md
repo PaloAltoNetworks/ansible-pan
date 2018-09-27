@@ -46,7 +46,6 @@ Each module is documented in docs/modules, you can also look at the
 documentation online at
 <https://paloaltonetworks.github.io/ansible-pan/> under *modules* section
 
-
 ## Developing modules / contributing to codebase
 
 Please see:
