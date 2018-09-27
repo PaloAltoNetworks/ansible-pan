@@ -5,11 +5,17 @@ title: History and changelog
 History
 =======
 
+V2.0.1
+------
+
+-   Released: In development
+-   Status: In development
+
 V2.0.0
 ------
 
--   Released: In-development
--   Status: In-development
+-   Released: 2018-09-27
+-   Status: Released
 
 *New modules*
 
@@ -30,7 +36,7 @@ V2.0.0
 **Now supporting state / idempotency**
 - panos\_interface
 - panos\_nat\_rule
-- panos\_
+- panos\_security\_rule
 
 *Miscellanies / Fixes*
 
