@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#  Copyright 2018 Palo Alto Networks, Inc
+#  Copyright 2017 Palo Alto Networks, Inc
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -113,7 +113,7 @@ def main():
         username=dict(default='admin'),
         password=dict(no_log=True),
         api_key=dict(no_log=True),
-        device_group=dict(type='str')
+        device_group=dict(type='str', aliases=['devicegroup'])
     )
 
     module = AnsibleModule(
@@ -137,8 +137,11 @@ def main():
         device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
 
         if device_group:
-            if not get_devicegroup(device, device_group):
-                module.fail_json(msg='Could not find {} device group.'.format(device_group))
+            if device_group.lower() == 'shared':
+                device_group = None
+            else:
+                if not get_devicegroup(device, device_group):
+                    module.fail_json(msg='Could not find {} device group.'.format(device_group))
 
         if isinstance(device, firewall.Firewall):
             result = device.commit(sync=True)
