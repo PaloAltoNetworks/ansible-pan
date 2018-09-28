@@ -75,7 +75,7 @@ options:
         default: 'default'
     interface:
         description:
-            - The interface to use.
+            - The Interface to use.
     state:
         description:
             - Create or remove static route.
