@@ -12,6 +12,8 @@ install:
   - pip install ansible
   # install galaxy role
   - ansible-galaxy install PaloAltoNetworks.paloaltonetworks
+  # instasll pep8
+  - pip install pep8
 
 script:
-  - echo noop
+  - cd library; find . -name \*.py -exec pep8 --ignore=E402 {} +
