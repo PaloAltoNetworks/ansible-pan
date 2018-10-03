@@ -1,17 +1,2 @@
 language:
   - python
-
-# Install ansible
-addons:
-  apt:
-    packages:
-    - python-pip
-
-install:
-  # Install ansible
-  - pip install ansible
-  # install galaxy role
-  - ansible-galaxy install PaloAltoNetworks.paloaltonetworks
-
-script:
-  - echo noop
