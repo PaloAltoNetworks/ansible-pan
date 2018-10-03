@@ -14,4 +14,4 @@ install:
   - ansible-galaxy install PaloAltoNetworks.paloaltonetworks
 
 script:
-  - echo phony
+  - echo noop
