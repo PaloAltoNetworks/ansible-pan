@@ -1,12 +1,23 @@
 language:
   - python
 
+# blocklist
+branches:
+  except:
+  - legacy
+  - experimental
+
+# safelist
+branches:
+  only:
+  - master
+
 # Install ansible
 addons:
   apt:
     packages:
     - python-pip
-    
+
 install:
   # Install ansible
   - pip install ansible
