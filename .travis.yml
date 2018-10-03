@@ -13,7 +13,7 @@ install:
   # install galaxy role
   - ansible-galaxy install PaloAltoNetworks.paloaltonetworks
   # instasll pep8
-  - pip install pep8
+  - pip install pycodestyle
 
 script:
-  - cd library; find . -name \*.py -exec pep8 --ignore=E402 {} +
+  - cd library; find . -name \*.py -exec pycodestyle --ignore=E402 {} +
