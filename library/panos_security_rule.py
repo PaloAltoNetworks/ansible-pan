@@ -388,7 +388,7 @@ def main():
         disabled=dict(type='bool', default=False),
         schedule=dict(),
         icmp_unreachable=dict(type='bool'),
-        disable_server_response_inspection=dict(type=bool, default=False),
+        disable_server_response_inspection=dict(type='bool', default=False),
         group_profile=dict(),
         antivirus=dict(),
         spyware=dict(),
