@@ -5,11 +5,20 @@ title: History and changelog
 History
 =======
 
-V2.0.1
+V2.0.2
 ------
 
 -   Released: In development
 -   Status: In development
+
+V2.0.1
+------
+
+-   Released: 2018-10-08
+-   Status: Released (minor)
+
+This is minor release to address issue 
+https://github.com/PaloAltoNetworks/ansible-pan/issues/163
 
 V2.0.0
 ------
