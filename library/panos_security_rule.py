@@ -30,7 +30,7 @@ description:
 author: "Ivan Bojer (@ivanbojer), Robert Hagen (@stealthllama), Michael Richardson (@mrichardson03)"
 version_added: "2.4"
 requirements:
-    - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
+    - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
 notes:
     - Checkmode is not supported.
     - Panorama is supported.
@@ -388,7 +388,7 @@ def main():
         disabled=dict(type='bool', default=False),
         schedule=dict(),
         icmp_unreachable=dict(type='bool'),
-        disable_server_response_inspection=dict(type=bool, default=False),
+        disable_server_response_inspection=dict(type='bool', default=False),
         group_profile=dict(),
         antivirus=dict(),
         spyware=dict(),
