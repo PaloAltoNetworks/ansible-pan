@@ -2,10 +2,10 @@ language:
   - python
 
 # Install ansible
-addons:
-  apt:
-    packages:
-    - python-pip
+#addons:
+#  apt:
+#    packages:
+#    - python-pip
 
 install:
   # Install ansible
