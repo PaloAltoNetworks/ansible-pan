@@ -169,8 +169,8 @@ def main():
         module.fail_json(msg='Missing required libraries.')
 
     # Get PAN-OS auth info.
-    auth = [module.params[x] for x in 
-        ['ip_address', 'username', 'password', 'api_key']]
+    auth = [module.params[x] for x in
+            ['ip_address', 'username', 'password', 'api_key']]
 
     # Open the connection to the PAN-OS device.
     con = PanDevice.create_from_device(*auth)
