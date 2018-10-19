@@ -12,7 +12,7 @@
     no_log: 'yes'
 
   - name: Retrieve API Key
-    panos_admin:
+    panos_api_key:
       ip_address: '{{ ip_address }}'
       password: '{{ password }}'
     register: auth

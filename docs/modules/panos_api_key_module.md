@@ -27,7 +27,7 @@ PanOS module that allows fetching the api_key for a user account by doing API ca
 
     # Get the api_key of user admin
       - name: retrieve admin api_key
-        panos_admin:
+        panos_api_key:
           ip_address: "192.168.1.1"
           password: "admin"
         register: auth
