@@ -39,6 +39,7 @@ Modules list
 - [panos_software_module](modules/panos_software_module.md)
 - [panos_static_route_module](modules/panos_static_route_module.md)
 - [panos_tag_object_module](modules/panos_tag_object_module.md)
+- [panos_tunnel](modules/panos_tunnel_module.md)
 - [panos_userid_module](modules/panos_userid_module.md)
 - [panos_zone](modules/panos_zone_module.md)
 
