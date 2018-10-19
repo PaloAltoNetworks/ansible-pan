@@ -266,16 +266,20 @@ def main():
     #     else:
     #         module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
 
-    ikeGtwy = IKEGateway(name=name, protocol_version=protocol_version, ikev1_exchange_mode=ikev1_exchange_mode, interface=interface,
-                         local_ip_address_type=local_ip_address_type, local_ip_address=local_ip_address, enable_nat_traversal=nat_traversal,
-                         dead_peer_detection=dead_peer_detection, dead_peer_detection_interval=dead_peer_detection_interval, enable_fragmentation=fragmentation,
-                         dead_peer_detection_retry=dead_peer_detection_retry, enable_passive_mode=passive_mode, liveness_check=liveness_check, peer_ip_value=peer_ip_value, psk=psk)
+    ikeGtwy = IKEGateway(name=name, protocol_version=protocol_version, ikev1_exchange_mode=ikev1_exchange_mode,
+                         interface=interface, local_ip_address_type=local_ip_address_type,
+                         local_ip_address=local_ip_address, enable_nat_traversal=nat_traversal,
+                         dead_peer_detection=dead_peer_detection,
+                         dead_peer_detection_interval=dead_peer_detection_interval, enable_fragmentation=fragmentation,
+                         dead_peer_detection_retry=dead_peer_detection_retry, enable_passive_mode=passive_mode,
+                         liveness_check=liveness_check, peer_ip_value=peer_ip_value, psk=psk)
 
     ike_gateway = network.IkeGateway(name=ikeGtwy.name, version=ikeGtwy.protocol_version, enable_ipv6=False,
                                      disabled=False,
                                      peer_ip_type=ikeGtwy.peer_ip_type, peer_ip_value=ikeGtwy.peer_ip_value,
                                      interface=ikeGtwy.interface,
-                                     local_ip_address_type=ikeGtwy.local_ip_address_type, local_ip_address=ikeGtwy.local_ip_address,
+                                     local_ip_address_type=ikeGtwy.local_ip_address_type,
+                                     local_ip_address=ikeGtwy.local_ip_address,
                                      auth_type=ikeGtwy.auth_type, pre_shared_key=ikeGtwy.psk,
                                      local_id_type=None, local_id_value=None, peer_id_type=None, peer_id_value=None,
                                      peer_id_check=None,
