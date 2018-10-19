@@ -110,8 +110,8 @@ def main():
     try:
         api_key = dev.api_key
     except PanDeviceError:
-      e = get_exception()
-      module.fail_json(msg='Failed to retrieve api_key: {0}'.format(e))
+        e = get_exception()
+        module.fail_json(msg='Failed to retrieve api_key: {0}'.format(e))
 
     module.exit_json(changed=False, msg="Done",
                      api_key=api_key)
