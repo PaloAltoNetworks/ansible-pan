@@ -5,11 +5,12 @@ title: Modules list
 Modules list
 ============
 
-- [panos_address_group_module](modules/panos_address_group_module)
-- [panos_address_object_module](modules/panos_address_object_module)
+- [panos_address_group_module](modules/panos_address_group_module.md)
+- [panos_address_object_module](modules/panos_address_object_module.md)
 - [panos_admin_module](modules/panos_admin_module.md)
 - [panos_administrator_module](modules/panos_administrator_module.md)
 - [panos_admpwd_module](modules/panos_admpwd_module.md)
+- [panos_api_key_module](modules/panos_api_key_module.md)
 - [panos_cert_gen_ssh_module](modules/panos_cert_gen_ssh_module.md)
 - [panos_check_module](modules/panos_check_module.md)
 - [panos_commit_module](modules/panos_commit_module.md)
