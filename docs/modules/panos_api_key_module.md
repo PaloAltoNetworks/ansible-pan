@@ -1,7 +1,7 @@
 ---
 title: panos_api_key
 ---
-# panos_admin
+# panos_api_key
 
 _(versionadded:: 2.3)_
 
