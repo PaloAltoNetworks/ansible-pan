@@ -206,7 +206,7 @@ def main():
             existing_route = vr.find(name, network.StaticRoute)
             new_route = network.StaticRoute(name, destination, nexthop=nexthop,
                                             nexthop_type=nexthop_type, admin_dist=admin_dist,
-                                            metric=metric, interface=interface)
+                                            metric=metric,interface=interface)
 
             if not existing_route:
                 vr.add(new_route)
