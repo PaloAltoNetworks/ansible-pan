@@ -129,41 +129,58 @@ except ImportError:
 
 def main():
     argument_spec = dict(
-        ip_address=dict(required=True,
+        ip_address=dict(
+            required=True,
             help='IP address (or hostname) of PAN-OS device being configured'),
-        password=dict(no_log=True,
+        password=dict(
+            no_log=True,
             help='Password credentials to use for auth unless I(api_key) is set'),
-        username=dict(default='admin',
+        username=dict(
+            default='admin',
             help='Username credentials to use for auth unless I(api_key) is set'),
-        api_key=dict(no_log=True,
+        api_key=dict(
+            no_log=True,
             help='API key that can be used instead of I(username)/I(password) credentials'),
-        state=dict(default='present', choices=['present', 'absent'],
+        state=dict(
+            default='present', choices=['present', 'absent'],
             help='Add or remove virtual router'),
 
-        name=dict(type='str', default='default',
+        name=dict(
+            type='str', default='default',
             help='Name of virtual router'),
-        interface=dict(type='list',
-			help='List of interface names'),
-        ad_static=dict(type='int',
-			help='Administrative distance for this protocol'),
-        ad_static_ipv6=dict(type='int',
-			help='Administrative distance for this protocol'),
-        ad_ospf_int=dict(type='int',
-			help='Administrative distance for this protocol'),
-        ad_ospf_ext=dict(type='int',
-			help='Administrative distance for this protocol'),
-        ad_ospfv3_int=dict(type='int',
-			help='Administrative distance for this protocol'),
-        ad_ospfv3_ext=dict(type='int',
-			help='Administrative distance for this protocol'),
-        ad_ibgp=dict(type='int',
-			help='Administrative distance for this protocol'),
-        ad_ebgp=dict(type='int',
-			help='Administrative distance for this protocol'),
-        ad_rip=dict(type='int',
-			help='Administrative distance for this protocol'),
+        interface=dict(
+            type='list',
+            help='List of interface names'),
+        ad_static=dict(
+            type='int',
+            help='Administrative distance for this protocol'),
+        ad_static_ipv6=dict(
+            type='int',
+            help='Administrative distance for this protocol'),
+        ad_ospf_int=dict(
+            type='int',
+            help='Administrative distance for this protocol'),
+        ad_ospf_ext=dict(
+            type='int',
+            help='Administrative distance for this protocol'),
+        ad_ospfv3_int=dict(
+            type='int',
+            help='Administrative distance for this protocol'),
+        ad_ospfv3_ext=dict(
+            type='int',
+            help='Administrative distance for this protocol'),
+        ad_ibgp=dict(
+            type='int',
+            help='Administrative distance for this protocol'),
+        ad_ebgp=dict(
+            type='int',
+            help='Administrative distance for this protocol'),
+        ad_rip=dict(
+            type='int',
+            help='Administrative distance for this protocol'),
 
-        commit=dict(type='bool', default=True),
+        commit=dict(
+            type='bool', default=True),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
                            required_one_of=[['api_key', 'password']])
@@ -198,8 +215,7 @@ def main():
 
         # compare differences between the current state vs desired state
         if state == 'present':
-            if (vr is None or not
-            virtual_router.equal(vr, compare_children=False)):
+            if vr is None or not virtual_router.equal(vr, compare_children=False):
                 device.add(virtual_router)
                 virtual_router.create()
                 changed = True

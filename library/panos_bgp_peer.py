@@ -130,7 +130,7 @@ options:
             - Use specific local port for outgoing BGP connections
     enable_sender_side_loop_detection (bool):
         description:
-            -
+            - Enable sender side loop detection
     reflector_client (str):
         description:
             - non-client
@@ -202,82 +202,119 @@ except ImportError:
 
 def main():
     argument_spec = dict(
-        ip_address=dict(required=True,
-			help='IP address (or hostname) of PAN-OS device being configured'),
-        password=dict(no_log=True,
-			help='Password credentials to use for auth unless I(api_key) is set'),
-        username=dict(default='admin',
-			help='Username credentials to use for auth unless I(api_key) is set'),
-        api_key=dict(no_log=True,
-			help='API key that can be used instead of I(username)/I(password) credentials'),
-        state=dict(default='present', choices=['present', 'absent'],
-			help='Add or remove BGP peer configuration'),
+        ip_address=dict(
+            required=True,
+            help='IP address (or hostname) of PAN-OS device being configured'),
+        password=dict(
+            no_log=True,
+            help='Password credentials to use for auth unless I(api_key) is set'),
+        username=dict(
+            default='admin',
+            help='Username credentials to use for auth unless I(api_key) is set'),
+        api_key=dict(
+            no_log=True,
+            help='API key that can be used instead of I(username)/I(password) credentials'),
+        state=dict(
+            default='present', choices=['present', 'absent'],
+            help='Add or remove BGP peer configuration'),
 
-        name=dict(type='str', required=True,
-			help='Name of BGP Peer'),
-        enable=dict(default=True, type='bool',
-			help='Enable BGP Peer'),
-        peer_as=dict(type='str',
-			help='Peer AS number'),
-        enable_mp_bgp=dict(type='bool',
-			help='Enable MP-BGP extentions'),
-        address_family_identifier=dict(type='str', choices=['ipv4', 'ipv6'],
-			help='Peer address family type'),
-        subsequent_address_unicast=dict(type='bool',
-			help='Select SAFI for this peer'),
-        subsequent_address_multicast=dict(type='bool',
-			help='Select SAFI for this peer'),
-        local_interface=dict(type='str',
-			help='Interface to accept BGP session'),
-        local_interface_ip=dict(type='str',
-			help='Specify exact IP address if interface has multiple addresses'),
-        peer_address_ip=dict(type='str',
-			help='IP address of peer'),
-        connection_authentication=dict(type='str',
-			help='BGP auth profile name'),
-        connection_keep_alive_interval=dict(type='int',
-			help='Keep-alive interval (in seconds)'),
-        connection_min_route_adv_interval=dict(type='int',
-			help='Minimum Route Advertisement Interval (in seconds)'),
-        connection_multihop=dict(type='int',
-			help='IP TTL value used for sending BGP packet. set to 0 means eBGP use 2, iBGP use 255'),
-        connection_open_delay_time=dict(type='int',
-			help='Open delay time (in seconds)'),
-        connection_hold_time=dict(type='int',
-			help='Hold time (in seconds)'),
-        connection_idle_hold_time=dict(type='int',
-			help='Idle hold time (in seconds)'),
-        connection_incoming_allow=dict(type='bool',
-			help='Allow incoming connections'),
-        connection_outgoing_allow=dict(type='bool',
-			help='Allow outgoing connections'),
-        connection_incoming_remote_port=dict(type='int',
-			help='Restrict remote port for incoming BGP connections'),
-        connection_outgoing_local_port=dict(type='int',
-			help='Use specific local port for outgoing BGP connections'),
-        enable_sender_side_loop_detection=dict(type='bool',
-			help='Enable sender side loop detection'),
-        reflector_client=dict(type='str', choices=['non-client', 'client', 'meshed-client'],
-			help='Reflector client type'),
-        peering_type=dict(type='str', choices=['unspecified', 'bilateral'],
-			help='Peering type'),
-        # aggregated_confed_as_path=dict(type='bool',
-		# 	help='This peer understands aggregated confederation AS path'),
-        max_prefixes=dict(type='int',
-			help='Maximum of prefixes to receive from peer'),
-        # max_orf_entries=dict(type='int',
-		# 	help='Maximum of ORF entries accepted from peer'),
-        # soft_reset_with_stored_info=dict(type='bool',
-		# 	help='Enable soft reset with stored info'),
-        bfd_profile=dict(type='str',
-			help='BFD profile configuration'),
+        name=dict(
+            type='str', required=True,
+            help='Name of BGP Peer'),
+        enable=dict(
+            default=True, type='bool',
+            help='Enable BGP Peer'),
+        peer_as=dict(
+            type='str',
+            help='Peer AS number'),
+        enable_mp_bgp=dict(
+            type='bool',
+            help='Enable MP-BGP extentions'),
+        address_family_identifier=dict(
+            type='str', choices=['ipv4', 'ipv6'],
+            help='Peer address family type'),
+        subsequent_address_unicast=dict(
+            type='bool',
+            help='Select SAFI for this peer'),
+        subsequent_address_multicast=dict(
+            type='bool',
+            help='Select SAFI for this peer'),
+        local_interface=dict(
+            type='str',
+            help='Interface to accept BGP session'),
+        local_interface_ip=dict(
+            type='str',
+            help='Specify exact IP address if interface has multiple addresses'),
+        peer_address_ip=dict(
+            type='str',
+            help='IP address of peer'),
+        connection_authentication=dict(
+            type='str',
+            help='BGP auth profile name'),
+        connection_keep_alive_interval=dict(
+            type='int',
+            help='Keep-alive interval (in seconds)'),
+        connection_min_route_adv_interval=dict(
+            type='int',
+            help='Minimum Route Advertisement Interval (in seconds)'),
+        connection_multihop=dict(
+            type='int',
+            help='IP TTL value used for sending BGP packet. set to 0 means eBGP use 2, iBGP use 255'),
+        connection_open_delay_time=dict(
+            type='int',
+            help='Open delay time (in seconds)'),
+        connection_hold_time=dict(
+            type='int',
+            help='Hold time (in seconds)'),
+        connection_idle_hold_time=dict(
+            type='int',
+            help='Idle hold time (in seconds)'),
+        connection_incoming_allow=dict(
+            type='bool',
+            help='Allow incoming connections'),
+        connection_outgoing_allow=dict(
+            type='bool',
+            help='Allow outgoing connections'),
+        connection_incoming_remote_port=dict(
+            type='int',
+            help='Restrict remote port for incoming BGP connections'),
+        connection_outgoing_local_port=dict(
+            type='int',
+            help='Use specific local port for outgoing BGP connections'),
+        enable_sender_side_loop_detection=dict(
+            type='bool',
+            help='Enable sender side loop detection'),
+        reflector_client=dict(
+            type='str', choices=['non-client', 'client', 'meshed-client'],
+            help='Reflector client type'),
+        peering_type=dict(
+            type='str', choices=['unspecified', 'bilateral'],
+            help='Peering type'),
+        # aggregated_confed_as_path=dict(
+        #     type='bool',
+        #     help='This peer understands aggregated confederation AS path'),
+        max_prefixes=dict(
+            type='int',
+            help='Maximum of prefixes to receive from peer'),
+        # max_orf_entries=dict(
+        #     type='int',
+        #     help='Maximum of ORF entries accepted from peer'),
+        # soft_reset_with_stored_info=dict(
+        #     type='bool',
+        #     help='Enable soft reset with stored info'),
+        bfd_profile=dict(
+            type='str',
+            help='BFD profile configuration'),
 
-        peer_group=dict(required=True,
-			help='Name of the peer group; it must already exist; see panos_bgp_peer_group'),
-        vr_name=dict(default='default',
-			help='Name of the virtual router; it must already exist; see panos_virtual_router'),
-        commit=dict(type='bool', default=True,
-			help='Commit configuration if changed'),
+        peer_group=dict(
+            required=True,
+            help='Name of the peer group; it must already exist; see panos_bgp_peer_group'),
+        vr_name=dict(
+            default='default',
+            help='Name of the virtual router; it must already exist; see panos_virtual_router'),
+        commit=dict(
+            type='bool', default=True,
+            help='Commit configuration if changed'),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
                            required_one_of=[['api_key', 'password']])
@@ -320,7 +357,7 @@ def main():
         pg = vr.find(peer_group, network.BgpPeerGroup, recursive=True)
         if pg is None and state == 'present':
             raise ValueError('Peer group {0} does not exist'.format(peer_group))
-        
+
         # fetch the current settings
         current_peer = None
         if pg is not None:
@@ -328,8 +365,7 @@ def main():
 
         # compare differences between the current state vs desired state
         if state == 'present':
-            if (current_peer is None or not
-            peer.equal(current_peer, compare_children=False)):
+            if current_peer is None or not peer.equal(current_peer, compare_children=False):
                 pg.add(peer)
                 pg.apply()
                 changed = True

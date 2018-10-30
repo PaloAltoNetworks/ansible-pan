@@ -129,36 +129,51 @@ except ImportError:
 
 def main():
     argument_spec = dict(
-        ip_address=dict(required=True,
-			help='IP address (or hostname) of PAN-OS device being configured'),
-        password=dict(no_log=True,
-			help='Password credentials to use for auth unless I(api_key) is set'),
-        username=dict(default='admin',
-			help='Username credentials to use for auth unless I(api_key) is set'),
-        api_key=dict(no_log=True,
-			help='API key that can be used instead of I(username)/I(password) credentials'),
-        state=dict(default='present', choices=['present', 'absent'],
-			help='Add or remove BGP Peer Group configuration'),
-        name=dict(type='str', required=True,
-			help='Name of the BGP peer group'),
-        enable=dict(default=True, type='bool',
-			help='Enable BGP peer group'),
-        aggregated_confed_as_path=dict(type='bool',
-			help='The peers understand Aggregated Confederation AS Path'),
-        soft_reset_with_stored_info=dict(type='bool',
-			help='Enable soft reset with stored info'),
-        type=dict(type='str', default='ebgp', choices=['ebgp', 'ibgp', 'ebgp-confed', 'ibgp-confed'],
-			help='Peer group type I("ebgp")/I("ibgp")/I("ebgp-confed")/I("ibgp-confed")'),
-        export_nexthop=dict(type='str', default='resolve', choices=['resolve', 'use-self'],
-			help='Export locally resolved nexthop I("resolve")/I("use-self")'),
-        import_nexthop=dict(type='str', default='original', choices=['original', 'use-peer'],
-			help='Override nexthop with peer address I("original")/I("use-peer"), only with "ebgp"'),
-        remove_private_as=dict(type='bool',
-			help='Remove private AS when exporting route, only with "ebgp"'),
-        vr_name=dict(default='default',
-			help='Name of the virtual router; it must already exist; see panos_virtual_router'),
-        commit=dict(type='bool', default=True,
-			help='Name of the virtual router; it must already exist; see panos_virtual_router'),
+        ip_address=dict(
+            required=True,
+            help='IP address (or hostname) of PAN-OS device being configured'),
+        password=dict(
+            no_log=True,
+            help='Password credentials to use for auth unless I(api_key) is set'),
+        username=dict(
+            default='admin',
+            help='Username credentials to use for auth unless I(api_key) is set'),
+        api_key=dict(
+            no_log=True,
+            help='API key that can be used instead of I(username)/I(password) credentials'),
+        state=dict(
+            default='present', choices=['present', 'absent'],
+            help='Add or remove BGP Peer Group configuration'),
+        name=dict(
+            type='str', required=True,
+            help='Name of the BGP peer group'),
+        enable=dict(
+            default=True, type='bool',
+            help='Enable BGP peer group'),
+        aggregated_confed_as_path=dict(
+            type='bool',
+            help='The peers understand Aggregated Confederation AS Path'),
+        soft_reset_with_stored_info=dict(
+            type='bool',
+            help='Enable soft reset with stored info'),
+        type=dict(
+            type='str', default='ebgp', choices=['ebgp', 'ibgp', 'ebgp-confed', 'ibgp-confed'],
+            help='Peer group type I("ebgp")/I("ibgp")/I("ebgp-confed")/I("ibgp-confed")'),
+        export_nexthop=dict(
+            type='str', default='resolve', choices=['resolve', 'use-self'],
+            help='Export locally resolved nexthop I("resolve")/I("use-self")'),
+        import_nexthop=dict(
+            type='str', default='original', choices=['original', 'use-peer'],
+            help='Override nexthop with peer address I("original")/I("use-peer"), only with "ebgp"'),
+        remove_private_as=dict(
+            type='bool',
+            help='Remove private AS when exporting route, only with "ebgp"'),
+        vr_name=dict(
+            default='default',
+            help='Name of the virtual router; it must already exist; see panos_virtual_router'),
+        commit=dict(
+            type='bool', default=True,
+            help='Name of the virtual router; it must already exist; see panos_virtual_router'),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
                            required_one_of=[['api_key', 'password']])
@@ -212,8 +227,7 @@ def main():
             changed = True
 
         if state == 'present':
-            if (current_group is None or not
-            group.equal(current_group, compare_children=False)):
+            if current_group is None or not group.equal(current_group, compare_children=False):
                 bgp.add(group)
                 vr.add(bgp)
                 bgp.apply()

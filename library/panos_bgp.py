@@ -115,15 +115,12 @@ options:
     gr_stale_route_time:
         description:
             - Time to remove stale routes after peer restart (in seconds).
-        default: 
     gr_local_restart_time:
         description:
             - Local restart time to advertise to peer (in seconds).
-        default: 
     gr_max_peer_restart_time:
         description:
             - Maximum of peer restart time accepted (in seconds).
-        default: 
     reflector_cluster_id:
         description:
             - Route reflector cluster ID.
@@ -133,7 +130,6 @@ options:
     aggregate_med:
         description:
             - Aggregate route only if they have same MED attributes.
-        default: 
     vr_name:
         description:
             - Name of the virtual router; it must already exist.
@@ -174,58 +170,84 @@ except ImportError:
 
 def main():
     argument_spec = dict(
-        ip_address=dict(required=True,
-			help='IP address (or hostname) of PAN-OS device being configured'),
-        password=dict(no_log=True,
-			help='Password credentials to use for auth unless I(api_key) is set'),
-        username=dict(default='admin',
-			help='Username credentials to use for auth unless I(api_key) is set'),
-        api_key=dict(no_log=True,
-			help='API key that can be used instead of I(username)/I(password) credentials'),
-        state=dict(default='present', choices=['present', 'absent'],
-			help='Add or remove BGP configuration'),
-        enable=dict(default=True, type='bool',
-			help='Enable BGP'),
-        router_id=dict(type='str',
-			help='Router ID in IP format (eg. 1.1.1.1)'),
-        reject_default_route=dict(type='bool', default=True,
-			help='Reject default route'),
-        allow_redist_default_route=dict(type='bool', default=False,
-			help='Allow redistribute default route to BGP'),
-        install_route=dict(type='bool', default=False,
-			help='Populate BGP learned route to global route table'),
-        ecmp_multi_as=dict(type='bool', default=False,
-			help='Support multiple AS in ECMP'),
-        enforce_first_as=dict(type='bool', default=True,
-			help='Enforce First AS for EBGP'),
-        local_as=dict(type='str',
-			help='Local Autonomous System (AS) number'),
-        as_format=dict(type='str', default='2-byte', choices=['2-byte', '4-byte'],
-			help='AS format I("2-byte")/I("4-byte")'),
-        always_compare_med=dict(type='bool', default=False,
-			help='Always compare MEDs'),
-        deterministic_med_comparison=dict(type='bool', default=True,
-			help='Deterministic MEDs comparison'),
-        default_local_preference=dict(type='int',
-			help='Default local preference'),
-        graceful_restart_enable=dict(type='bool', default=True,
-			help='Enable graceful restart'),
-        gr_stale_route_time=dict(type='int',
-			help='Time to remove stale routes after peer restart (in seconds)'),
-        gr_local_restart_time=dict(type='int',
-			help='Local restart time to advertise to peer (in seconds)'),
-        gr_max_peer_restart_time=dict(type='int',
-			help='Maximum of peer restart time accepted (in seconds)'),
-        reflector_cluster_id=dict(type='str',
-			help='Route reflector cluster ID'),
-        confederation_member_as=dict(type='str',
-			help='Confederation requires member-AS number'),
-        aggregate_med=dict(type='bool', default=True,
-			help='Aggregate route only if they have same MED attributes'),
-        vr_name=dict(default='default',
-			help='Name of the virtual router; it must already exist'),
-        commit=dict(type='bool', default=True,
-			help='Commit configuration if changed'),
+        ip_address=dict(
+            required=True,
+            help='IP address (or hostname) of PAN-OS device being configured'),
+        password=dict(
+            no_log=True,
+            help='Password credentials to use for auth unless I(api_key) is set'),
+        username=dict(
+            default='admin',
+            help='Username credentials to use for auth unless I(api_key) is set'),
+        api_key=dict(
+            no_log=True,
+            help='API key that can be used instead of I(username)/I(password) credentials'),
+        state=dict(
+            default='present', choices=['present', 'absent'],
+            help='Add or remove BGP configuration'),
+        enable=dict(
+            default=True, type='bool',
+            help='Enable BGP'),
+        router_id=dict(
+            type='str',
+            help='Router ID in IP format (eg. 1.1.1.1)'),
+        reject_default_route=dict(
+            type='bool', default=True,
+            help='Reject default route'),
+        allow_redist_default_route=dict(
+            type='bool', default=False,
+            help='Allow redistribute default route to BGP'),
+        install_route=dict(
+            type='bool', default=False,
+            help='Populate BGP learned route to global route table'),
+        ecmp_multi_as=dict(
+            type='bool', default=False,
+            help='Support multiple AS in ECMP'),
+        enforce_first_as=dict(
+            type='bool', default=True,
+            help='Enforce First AS for EBGP'),
+        local_as=dict(
+            type='str',
+            help='Local Autonomous System (AS) number'),
+        as_format=dict(
+            type='str', default='2-byte', choices=['2-byte', '4-byte'],
+            help='AS format I("2-byte")/I("4-byte")'),
+        always_compare_med=dict(
+            type='bool', default=False,
+            help='Always compare MEDs'),
+        deterministic_med_comparison=dict(
+            type='bool', default=True,
+            help='Deterministic MEDs comparison'),
+        default_local_preference=dict(
+            type='int',
+            help='Default local preference'),
+        graceful_restart_enable=dict(
+            type='bool', default=True,
+            help='Enable graceful restart'),
+        gr_stale_route_time=dict(
+            type='int',
+            help='Time to remove stale routes after peer restart (in seconds)'),
+        gr_local_restart_time=dict(
+            type='int',
+            help='Local restart time to advertise to peer (in seconds)'),
+        gr_max_peer_restart_time=dict(
+            type='int',
+            help='Maximum of peer restart time accepted (in seconds)'),
+        reflector_cluster_id=dict(
+            type='str',
+            help='Route reflector cluster ID'),
+        confederation_member_as=dict(
+            type='str',
+            help='Confederation requires member-AS number'),
+        aggregate_med=dict(
+            type='bool', default=True,
+            help='Aggregate route only if they have same MED attributes'),
+        vr_name=dict(
+            default='default',
+            help='Name of the virtual router; it must already exist'),
+        commit=dict(
+            type='bool', default=True,
+            help='Commit configuration if changed'),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
                            required_one_of=[['api_key', 'password']])
@@ -241,7 +263,7 @@ def main():
         'enable', 'router_id', 'reject_default_route', 'allow_redist_default_route',
         'install_route', 'ecmp_multi_as', 'enforce_first_as', 'local_as'
     ]
-    
+
     bgp_spec = dict((k, module.params[k]) for k in bgp_params)
 
     # generate the kwargs for network.BgpRoutingOptions
@@ -276,9 +298,8 @@ def main():
         current_options = current_bgp.find('', network.BgpRoutingOptions) or network.BgpRoutingOptions()
 
         # compare differences between the current state vs desired state
-        if not (bgp.equal(current_bgp, compare_children=False)
-            and bgp_routing_options.equal(current_options, compare_children=False)):
-            changed = True
+        changed |= not bgp.equal(current_bgp, compare_children=False)
+        changed |= not bgp_routing_options.equal(current_options, compare_children=False)
 
         if state == 'present':
             if changed:
