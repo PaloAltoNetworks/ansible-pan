@@ -11,6 +11,9 @@ Modules list
 - [panos_administrator_module](modules/panos_administrator_module.md)
 - [panos_admpwd_module](modules/panos_admpwd_module.md)
 - [panos_api_key_module](modules/panos_api_key_module.md)
+- [panos_bgp_module](modules/panos_bgp_module.md)
+- [panos_bgp_peer_module](modules/panos_bgp_peer_module.md)
+- [panos_bgp_peer_group_module](modules/panos_bgp_peer_group_module.md)
 - [panos_cert_gen_ssh_module](modules/panos_cert_gen_ssh_module.md)
 - [panos_check_module](modules/panos_check_module.md)
 - [panos_commit_module](modules/panos_commit_module.md)
@@ -41,5 +44,6 @@ Modules list
 - [panos_static_route_module](modules/panos_static_route_module.md)
 - [panos_tag_object_module](modules/panos_tag_object_module.md)
 - [panos_userid_module](modules/panos_userid_module.md)
+- [panos_virtual_router_module](modules/panos_virtual_router_module.md)
 - [panos_zone](modules/panos_zone_module.md)
 
