@@ -144,6 +144,9 @@ def main():
         state=dict(
             default='present', choices=['present', 'absent'],
             help='Add or remove virtual router'),
+        commit=dict(
+            type='bool', default=True,
+            help='Commit configuration if changed'),
 
         name=dict(
             type='str', default='default',
@@ -179,8 +182,6 @@ def main():
             type='int',
             help='Administrative distance for this protocol'),
 
-        commit=dict(
-            type='bool', default=True),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
                            required_one_of=[['api_key', 'password']])

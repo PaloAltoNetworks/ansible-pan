@@ -14,6 +14,7 @@ Modules list
 - [panos_bgp_module](modules/panos_bgp_module.md)
 - [panos_bgp_peer_module](modules/panos_bgp_peer_module.md)
 - [panos_bgp_peer_group_module](modules/panos_bgp_peer_group_module.md)
+- [panos_bgp_policy_rule_module](modules/panos_bgp_policy_rule_module.md)
 - [panos_cert_gen_ssh_module](modules/panos_cert_gen_ssh_module.md)
 - [panos_check_module](modules/panos_check_module.md)
 - [panos_commit_module](modules/panos_commit_module.md)
