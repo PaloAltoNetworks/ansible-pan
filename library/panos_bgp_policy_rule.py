@@ -179,17 +179,48 @@ options:
 '''
 
 EXAMPLES = '''
-- name: Create BGP Peer Group
+# Add a BGP Policy
+  - name: Create Policy Import Rule
     panos_bgp_policy_rule:
-      ip_address: '{{ ip_address }}'
-      username: '{{ username }}'
-      password: '{{ password }}'
-      state: 'present'
-      name: peer-group-1
+      ip_address: "192.168.1.1"
+      password: "admin"
+      state: present
+      vr_name: default
+      name: import-rule-001
+      type: import
       enable: true
-      aggregated_confed_as_path: true
-      soft_reset_with_stored_info: false
-      commit: true
+      action: allow
+      action_dampening: dampening-profile
+
+  - name: Create Policy Export Rule
+    panos_bgp_policy_rule:
+      ip_address: "192.168.1.1"
+      password: "admin"
+      state: present
+      vr_name: default
+      name: export-rule-001
+      type: export
+      enable: true
+      action: allow
+
+  - name: Disable Import Rule
+    panos_bgp_policy_rule:
+      ip_address: "192.168.1.1"
+      password: "admin"
+      state: present
+      vr_name: default
+      name: import-rule-001
+      type: import
+      enable: false
+
+  - name: Remove Export Rule
+    panos_bgp_policy_rule:
+      ip_address: "192.168.1.1"
+      password: "admin"
+      state: absent
+      vr_name: default
+      name: export-rule-001
+      type: export
 '''
 
 RETURN = '''
