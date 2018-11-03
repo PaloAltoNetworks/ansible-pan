@@ -466,7 +466,7 @@ def main():
     # Commit if we were asked to do so.
     if changed and commit:
         try:
-            con.commit(sync=True, exceptions=True)
+            con.commit(sync=True, exception=True)
         except PanDeviceError:
             e = get_exception()
             module.fail_json(msg='Performed {0} but commit failed: {1}'.format(operation, e.message))
