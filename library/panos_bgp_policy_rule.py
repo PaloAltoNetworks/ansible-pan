@@ -421,18 +421,18 @@ def main():
             if action_as_path_type in ['prepend', 'remove-and-prepend']:
                 if action_as_path_prepend_times is None:
                     raise ValueError(
-                        "An action_as_path_type of 'prepend'|'remove-and-prepend' "
-                        + 'requires action_as_path_prepend_times be set')
+                        "An action_as_path_type of 'prepend'|'remove-and-prepend' " +
+                        'requires action_as_path_prepend_times be set')
             if action_community_type in ['remove-regex', 'append', 'overwrite']:
                 if action_community_argument is None:
                     raise ValueError(
-                        "An action_community_type of 'remove-regex'|'append'|'overwrite' "
-                        + 'requires action_community_argument be set')
+                        "An action_community_type of 'remove-regex'|'append'|'overwrite' " +
+                        'requires action_community_argument be set')
             if action_extended_community_type in ['remove-regex', 'append', 'overwrite']:
                 if action_extended_community_argument is None:
                     raise ValueError(
-                        "An action_extended_community_type of 'remove-regex'|'append'|'overwrite' "
-                        + 'requires action_extended_community_argument be set')
+                        "An action_extended_community_type of 'remove-regex'|'append'|'overwrite' " +
+                        'requires action_extended_community_argument be set')
 
             # it seems all is well, preceed with update
             if cur_obj is None or not new_obj.equal(cur_obj, compare_children=True):

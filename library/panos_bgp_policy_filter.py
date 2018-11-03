@@ -158,10 +158,11 @@ try:
 except ImportError:
     HAS_LIB = False
 
+
 def purge_stale_prefixes(cur_filter, new_prefixes):
     if cur_filter is None:
         return
-    
+
     new_names = set(p.get('name') for p in new_prefixes if 'name' in p)
     cur_names = set(p.name for p in cur_filter.findall(network.BgpPolicyAddressPrefix))
 
@@ -300,7 +301,7 @@ def main():
             cur_policy = vr.find(policy_name, network.BgpPolicyAggregationAddress, recursive=True)
         else:
             raise ValueError('Policy type {0} is not supported'.format(policy_type))
-        
+
         # find the current state object
         if cur_policy is None and state != 'return-object':
             raise ValueError("Policy {0} '{1}' not found".format(policy_type, policy_name))
@@ -315,9 +316,6 @@ def main():
         elif filter_type == 'suppress':
             new_obj = network.BgpPolicySuppressFilter(**obj_spec)
             cur_obj = cur_policy.find(name, network.BgpPolicySuppressFilter) if cur_policy is not None else None
-        
-        # get the current prefix names
-        # cur_prefixes = [p.name for p in cur_obj.findall(network.BgpPolicyAddressPrefix)] if cur_obj is not None else []
 
         # add the address prefixes
         for prefix in prefixes:

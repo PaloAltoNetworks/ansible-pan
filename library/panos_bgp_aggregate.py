@@ -311,18 +311,18 @@ def main():
             if attr_as_path_type in ['prepend', 'remove-and-prepend']:
                 if attr_as_path_prepend_times is None:
                     raise ValueError(
-                        "An attr_as_path_type of 'prepend'|'remove-and-prepend' "
-                        + 'requires attr_as_path_prepend_times be set')
+                        "An attr_as_path_type of 'prepend'|'remove-and-prepend' " +
+                        'requires attr_as_path_prepend_times be set')
             if attr_community_type in ['remove-regex', 'append', 'overwrite']:
                 if attr_community_argument is None:
                     raise ValueError(
-                        "An attr_community_type of 'remove-regex'|'append'|'overwrite' "
-                        + 'requires attr_community_argument be set')
+                        "An attr_community_type of 'remove-regex'|'append'|'overwrite' " +
+                        'requires attr_community_argument be set')
             if attr_extended_community_type in ['remove-regex', 'append', 'overwrite']:
                 if attr_extended_community_argument is None:
                     raise ValueError(
-                        "An attr_extended_community_type of 'remove-regex'|'append'|'overwrite' "
-                        + 'requires attr_extended_community_argument be set')
+                        "An attr_extended_community_type of 'remove-regex'|'append'|'overwrite' " +
+                        'requires attr_extended_community_argument be set')
 
             # it seems all is well, preceed with update
             if cur_obj is None or not new_obj.equal(cur_obj, compare_children=True):

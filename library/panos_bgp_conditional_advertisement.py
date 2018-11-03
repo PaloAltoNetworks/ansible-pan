@@ -221,8 +221,8 @@ def main():
             if cur_obj is None or not new_obj.equal(cur_obj, compare_children=False):
                 if cur_obj is None and (ne_filter is None or ad_filter is None):
                     raise ValueError(
-                        'Creating a new Conditional Advertisement policy requires: '
-                        + 'non_exist_filter and advertise_filter')
+                        'Creating a new Conditional Advertisement policy requires: ' +
+                        'non_exist_filter and advertise_filter')
                 elif cur_obj is None:
                     import pickle
                     from base64 import b64decode

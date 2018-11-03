@@ -67,7 +67,8 @@ options:
             required: True
     replace:
         description:
-            - The secret is encrypted so the state cannot be compared;this option forces removal of a matching item before applying the new config.
+            - The secret is encrypted so the state cannot be compared
+            -  this option forces removal of a matching item before applying the new config.
             default: False
     secret:
         description:
@@ -86,7 +87,7 @@ EXAMPLES = '''
       password: '{{ password }}'
       state: 'present'
       name: auth-profile-1
-      enable: true
+      secret: SuperSecretCode
       commit: true
 '''
 
@@ -136,8 +137,8 @@ def main():
             help='Name of the virtual router; it must already exist; see panos_virtual_router'),
         replace=dict(
             type='bool', default=False,
-            help='The secret is encrypted so the state cannot be compared; '
-            + 'this option forces removal of a matching item before applying the new config'),
+            help='The secret is encrypted so the state cannot be compared; ' +
+            'this option forces removal of a matching item before applying the new config'),
 
         name=dict(
             type='str', required=True,
