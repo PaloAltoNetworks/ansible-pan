@@ -11,6 +11,20 @@ V2.0.2
 -   Released: In development
 -   Status: In development
 
+*New modules*
+
+- panos\_bgp: Manages basic BGP configuration settings
+- panos\_bgp\_aggregate: Manages BGP Aggregation Policy Rules
+- panos\_bgp\_auth: Manages BGP Authentication Profiles
+- panos\_bgp\_conditional\_advertisement: Manages BGP Conditional Advertisement Policy Rules
+- panos\_bgp\_dampening: Manages BGP Dampening Profiles
+- panos\_bgp\_peer: Manages BGP Peers
+- panos\_bgp\_peer\_group: Manages BGP Peer Groups
+- panos\_bgp\_policy\_filter: Manages BGP Policy Filters, children of Aggregate and Conditional Advertisement
+- panos\_bgp\_policy\_rule: Manage BGP Import/Export Rules
+- panos\_bgp\_redistribute: Manages BGP Redistribution Rules
+- panos_redistribution: Manages virtual router Redistribution Profiles
+
 *Refactored modules*
 
 - panos\_ike\_gateway: fixed misspelling of passive_mode and added additional module arguments to support more advanced configurations

@@ -5,6 +5,9 @@
 #  roles:
 #    - role: PaloAltoNetworks.paloaltonetworks
 
+  vars:
+    ip_address: '{{ ansible_host }}'
+
   tasks:
   - name: Grab the credentials from ansible-vault
     include_vars: 'firewall-secrets.yml'

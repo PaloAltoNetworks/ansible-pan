@@ -5,11 +5,9 @@ title: panos_bgp_policy_rule
 
 _(versionadded:: 2.9)_
 
-
 ## Synopsis
 
 PanOS module for configuring BGP Policy Import and Export rules
-
 
 ## Requirements (on host that executes module)
 
@@ -56,52 +54,55 @@ PanOS module for configuring BGP Policy Import and Export rules
 | name | str | True |  |  | Name of filter |
 | type | str | True |  | ['import', 'export'] | The type of rule |
 | used_by | list |  |  |  | Peer-groups that use this rule |
+| | | | | | |
 
 ## Examples
 
-    # Add a BGP Policy
-      - name: Create Policy Import Rule
-        panos_bgp_policy_rule:
-          ip_address: "192.168.1.1"
-          password: "admin"
-          state: present
-          vr_name: default
-          name: import-rule-001
-          type: import
-          enable: true
-          action: allow
-          action_dampening: dampening-profile
+    - name: Create BGP Policy Import Rule
+      panos_bgp_policy_rule:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        state: present
+        vr_name: default
+        name: import-rule-001
+        type: import
+        enable: true
+        action: allow
+        action_dampening: dampening-profile
 
-      - name: Create Policy Export Rule
-        panos_bgp_policy_rule:
-          ip_address: "192.168.1.1"
-          password: "admin"
-          state: present
-          vr_name: default
-          name: export-rule-001
-          type: export
-          enable: true
-          action: allow
-      
-      - name: Disable Import Rule
-        panos_bgp_policy_rule:
-          ip_address: "192.168.1.1"
-          password: "admin"
-          state: present
-          vr_name: default
-          name: import-rule-001
-          type: import
-          enable: false
-      
-      - name: Remove Export Rule
-        panos_bgp_policy_rule:
-          ip_address: "192.168.1.1"
-          password: "admin"
-          state: absent
-          vr_name: default
-          name: export-rule-001
-          type: export
+    - name: Create BGP Policy Export Rule
+      panos_bgp_policy_rule:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        state: present
+        vr_name: default
+        name: export-rule-001
+        type: export
+        enable: true
+        action: allow
 
+    - name: Disable BGP Import Rule
+      panos_bgp_policy_rule:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        state: present
+        vr_name: default
+        name: import-rule-001
+        type: import
+        enable: false
+
+    - name: Remove BGP Export Rule
+      panos_bgp_policy_rule:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        state: absent
+        vr_name: default
+        name: export-rule-001
+        type: export
 
 #### Return Values
 
@@ -115,9 +116,6 @@ The following are the fields unique to this module:
 
 - Checkmode is not supported.
 
-
-
 #### Status
 
 This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
-

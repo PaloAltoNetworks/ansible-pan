@@ -47,6 +47,7 @@ PanOS module for configuring basic BGP in a virtual router.
 | reflector_cluster_id | str |  |  |  | Route reflector cluster ID |
 | reject_default_route | bool |  | True |  | Reject default route |
 | router_id | str |  |  |  | Router ID in IP format (eg. 1.1.1.1) |
+| | | | | | |
 
 ## Examples
 

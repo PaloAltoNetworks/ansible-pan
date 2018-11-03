@@ -5,11 +5,9 @@ title: panos_bgp_peer_group
 
 _(versionadded:: 2.9)_
 
-
 ## Synopsis
 
 PanOS module for configuring a BGP Peer Group.
-
 
 ## Requirements (on host that executes module)
 
@@ -23,7 +21,7 @@ PanOS module for configuring a BGP Peer Group.
 | username | str |  | admin |  | Username credentials to use for auth unless I(api_key) is set |
 | password | str |  |  |  | Password credentials to use for auth unless I(api_key) is set |
 | api_key | str |  |  |  | API key that can be used instead of I(username)/I(password) credentials |
-| state | str |  | present | ['present', 'absent'] | Add or remove BGP peer configuration |
+| state | str |  | present | ['present', 'absent'] | Add or remove BGP Peer Group configuration |
 | commit | bool |  | True |  | Commit configuration if changed |
 | | | | | | |
 | vr_name | str |  | default |  | Name of the virtual router; it must already exist; see panos_virtual_router |
@@ -36,6 +34,7 @@ PanOS module for configuring a BGP Peer Group.
 | remove_private_as | bool |  |  |  | Remove private AS when exporting route, only with "ebgp" |
 | soft_reset_with_stored_info | bool |  |  |  | Enable soft reset with stored info |
 | type | str |  | ebgp | ['ebgp', 'ibgp', 'ebgp-confed', 'ibgp-confed'] | Peer group type I("ebgp")/I("ibgp")/I("ebgp-confed")/I("ibgp-confed") |
+| | | | | | |
 
 ## Examples
 
@@ -51,7 +50,6 @@ PanOS module for configuring a BGP Peer Group.
           aggregated_confed_as_path: true
           soft_reset_with_stored_info: false
 
-
 #### Return Values
 
 The following are the fields unique to this module:
@@ -64,8 +62,6 @@ The following are the fields unique to this module:
 
 - Checkmode is not supported.
 
-
 #### Status
 
 This module is flagged as **preview** which means that it is not guaranteed to have a backwards compatible interface.
-

@@ -24,10 +24,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = '''
 ---
-module: panos_bgp_peer_group
-short_description: Configures a BGP Peer Group
+module: panos_redistribution
+short_description: Configures a Redistribution Profile on a virtual router
 description:
-    - Use BGP to publish and consume routes from disparate networks.
+    - Configures a Redistribution Profile on a virtual router
 author: "Joshua Colson (@freakinhippie)"
 version_added: "2.9"
 requirements:
@@ -53,7 +53,7 @@ options:
             - API key that can be used instead of I(username)/I(password) credentials.
     state:
         description:
-            - Add or remove BGP Peer Group configuration.
+            - Add or remove Route Redistribution Rule.
                 - present
                 - absent
             default: present
@@ -61,43 +61,52 @@ options:
         description:
             - Commit configuration if changed.
             default: True
-    aggregated_confed_as_path:
+    action:
         description:
-            - The peers understand Aggregated Confederation AS Path.
-    enable:
+            - Rule action.
+                - no-redist
+                - redist
+            default: no-redist
+    bgp_filter_community:
         description:
-            - Enable BGP peer group.
-            default: True
-    export_nexthop:
+            - BGP filter on community.
+    bgp_filter_extended_community:
         description:
-            - Export locally resolved nexthop I("resolve")/I("use-self").
-                - resolve
-                - use-self
-            default: resolve
-    import_nexthop:
+            - BGP filter on extended community.
+    filter_destination:
         description:
-            - Override nexthop with peer address I("original")/I("use-peer"), only with "ebgp".
-                - original
-                - use-peer
-            default: original
+            - Filter destination.
+    filter_interface:
+        description:
+            - Filter interface.
+    filter_nexthop:
+        description:
+            - Filter nexthop.
+    filter_type:
+        description:
+            - Any of 'static', 'connect', 'rip', 'ospf', or 'bgp'.
     name:
         description:
-            - Name of the BGP peer group.
+            - Name of rule.
             required: True
-    remove_private_as:
+    ospf_filter_area:
         description:
-            - Remove private AS when exporting route, only with "ebgp".
-    soft_reset_with_stored_info:
+            - OSPF filter on area.
+    ospf_filter_pathtype:
         description:
-            - Enable soft reset with stored info.
+            - Any of 'intra-area', 'inter-area', 'ext-1', or 'ext-2'.
+    ospf_filter_tag:
+        description:
+            - OSPF filter on tag.
+    priority:
+        description:
+            - Priority ID.
     type:
         description:
-            - Peer group type I("ebgp")/I("ibgp")/I("ebgp-confed")/I("ibgp-confed").
-                - ebgp
-                - ibgp
-                - ebgp-confed
-                - ibgp-confed
-            default: ebgp
+            - Name of rule.
+                - ipv4
+                - ipv6
+            default: ipv4
     vr_name:
         description:
             - Name of the virtual router; it must already exist; see panos_virtual_router.
@@ -105,17 +114,12 @@ options:
 '''
 
 EXAMPLES = '''
-- name: Create BGP Peer Group
-    panos_bgp_peer_group:
+- name: Create Redistribution Profile
+    panos_redistribution:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
       password: '{{ password }}'
       state: 'present'
-      name: peer-group-1
-      enable: true
-      aggregated_confed_as_path: true
-      soft_reset_with_stored_info: false
-      commit: true
 '''
 
 RETURN = '''
@@ -154,37 +158,54 @@ def main():
             help='API key that can be used instead of I(username)/I(password) credentials'),
         state=dict(
             default='present', choices=['present', 'absent'],
-            help='Add or remove BGP Peer Group configuration'),
-        name=dict(
-            type='str', required=True,
-            help='Name of the BGP peer group'),
-        enable=dict(
-            default=True, type='bool',
-            help='Enable BGP peer group'),
-        aggregated_confed_as_path=dict(
-            type='bool',
-            help='The peers understand Aggregated Confederation AS Path'),
-        soft_reset_with_stored_info=dict(
-            type='bool',
-            help='Enable soft reset with stored info'),
-        type=dict(
-            type='str', default='ebgp', choices=['ebgp', 'ibgp', 'ebgp-confed', 'ibgp-confed'],
-            help='Peer group type I("ebgp")/I("ibgp")/I("ebgp-confed")/I("ibgp-confed")'),
-        export_nexthop=dict(
-            type='str', default='resolve', choices=['resolve', 'use-self'],
-            help='Export locally resolved nexthop I("resolve")/I("use-self")'),
-        import_nexthop=dict(
-            type='str', default='original', choices=['original', 'use-peer'],
-            help='Override nexthop with peer address I("original")/I("use-peer"), only with "ebgp"'),
-        remove_private_as=dict(
-            type='bool',
-            help='Remove private AS when exporting route, only with "ebgp"'),
-        vr_name=dict(
-            default='default',
-            help='Name of the virtual router; it must already exist; see panos_virtual_router'),
+            help='Add or remove Route Redistribution Rule'),
         commit=dict(
             type='bool', default=True,
             help='Commit configuration if changed'),
+
+        vr_name=dict(
+            default='default',
+            help='Name of the virtual router; it must already exist; see panos_virtual_router'),
+        type=dict(
+            type='str', default='ipv4', choices=['ipv4', 'ipv6'],
+            help='Name of rule'),
+
+        name=dict(
+            type='str', required=True,
+            help='Name of rule'),
+        priority=dict(
+            type='int',
+            help='Priority ID'),
+        action=dict(
+            type='str', default='no-redist', choices=['no-redist', 'redist'],
+            help='Rule action'),
+        filter_type=dict(
+            type='list',
+            help="Any of 'static', 'connect', 'rip', 'ospf', or 'bgp'"),
+        filter_interface=dict(
+            type='list',
+            help='Filter interface'),
+        filter_destination=dict(
+            type='list',
+            help='Filter destination'),
+        filter_nexthop=dict(
+            type='list',
+            help='Filter nexthop'),
+        ospf_filter_pathtype=dict(
+            type='list',
+            help="Any of 'intra-area', 'inter-area', 'ext-1', or 'ext-2'"),
+        ospf_filter_area=dict(
+            type='list',
+            help='OSPF filter on area'),
+        ospf_filter_tag=dict(
+            type='list',
+            help='OSPF filter on tag'),
+        bgp_filter_community=dict(
+            type='list',
+            help='BGP filter on community'),
+        bgp_filter_extended_community=dict(
+            type='list',
+            help='BGP filter on extended community'),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
                            required_one_of=[['api_key', 'password']])
@@ -198,25 +219,16 @@ def main():
     # exclude the default items from kwargs passed to the object
     exclude_list = ['ip_address', 'username', 'password', 'api_key', 'state', 'commit']
     # exclude these items from the kwargs passed to the object
-    exclude_list += ['vr_name']
+    exclude_list += ['vr_name', 'type']
 
-    # generate the kwargs for network.BgpPeer
+    # generate the kwargs for network.BgpPolicyRule
     obj_spec = dict((k, module.params[k]) for k in argument_spec.keys() if k not in exclude_list)
-
-    # # generate the kwargs for network.BgpPeerGroup
-    # group_params = [
-    #     'name', 'enable', 'aggregated_confed_as_path', 'soft_reset_with_stored_info',
-    #     'type', 'export_nexthop', 'import_nexthop', 'remove_private_as'
-    # ]
-    # group_spec = dict((k, module.params[k]) for k in group_params)
 
     name = module.params['name']
     state = module.params['state']
     vr_name = module.params['vr_name']
     commit = module.params['commit']
-
-    # create the new state object
-    group = network.BgpPeerGroup(**obj_spec)
+    filter_type = module.params['type']
 
     changed = False
     try:
@@ -231,21 +243,26 @@ def main():
 
         # fetch the current settings
         bgp = vr.find('', network.Bgp) or network.Bgp()
-        current_group = vr.find(name, network.BgpPeerGroup, recursive=True)
+
+        if filter_type == 'ipv4':
+            new_obj = network.RedistributionProfile(**obj_spec)
+            cur_obj = vr.find(name, network.RedistributionProfile, recursive=True)
+        elif filter_type == 'ipv6':
+            new_obj = network.RedistributionProfileIPv6(**obj_spec)
+            cur_obj = vr.find(name, network.RedistributionProfileIPv6, recursive=True)
+        else:
+            raise ValueError("Filter type '{0}' is unsupported".format(filter_type))
 
         # compare differences between the current state vs desired state
-        if not group.equal(current_group, compare_children=False):
-            changed = True
-
         if state == 'present':
-            if current_group is None or not group.equal(current_group, compare_children=False):
-                bgp.add(group)
-                vr.add(bgp)
-                group.create()
+            # it seems all is well, preceed with update
+            if cur_obj is None or not new_obj.equal(cur_obj, compare_children=True):
+                vr.add(new_obj)
+                new_obj.apply()
                 changed = True
         elif state == 'absent':
-            if current_group is not None:
-                current_group.delete()
+            if cur_obj is not None:
+                cur_obj.delete()
                 changed = True
         else:
             module.fail_json(msg='[%s] state is not implemented yet' % state)
@@ -257,7 +274,7 @@ def main():
         device.commit(sync=True, exception=True)
 
     if changed:
-        module.exit_json(msg='BGP peer group update successful.', changed=changed)
+        module.exit_json(msg='Redistribution policy rule update successful.', changed=changed)
     else:
         module.exit_json(msg='no changes required.', changed=changed)
 

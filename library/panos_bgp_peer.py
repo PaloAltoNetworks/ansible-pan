@@ -40,128 +40,122 @@ options:
     ip_address:
         description:
             - IP address (or hostname) of PAN-OS device being configured.
-        required: true
+            required: True
     username:
         description:
             - Username credentials to use for auth unless I(api_key) is set.
-        default: "admin"
+            default: admin
     password:
         description:
             - Password credentials to use for auth unless I(api_key) is set.
-        required: true
     api_key:
         description:
             - API key that can be used instead of I(username)/I(password) credentials.
     state:
         description:
-            - Manage BGP peer configuration.
-        choices: ['present', 'absent']
-        default: 'present'
+            - Add or remove BGP peer configuration.
+                - present
+                - absent
+            default: present
     commit:
         description:
             - Commit configuration if changed.
-        default: true
-    name (str):
+            default: True
+    address_family_identifier:
         description:
-            - Name of BGP Peer.
-        required: true
-    enable (bool):
+            - Peer address family type.
+                - ipv4
+                - ipv6
+    bfd_profile:
+        description:
+            - BFD profile configuration.
+    connection_authentication:
+        description:
+            - BGP auth profile name.
+    connection_hold_time:
+        description:
+            - Hold time (in seconds).
+    connection_idle_hold_time:
+        description:
+            - Idle hold time (in seconds).
+    connection_incoming_allow:
+        description:
+            - Allow incoming connections.
+    connection_incoming_remote_port:
+        description:
+            - Restrict remote port for incoming BGP connections.
+    connection_keep_alive_interval:
+        description:
+            - Keep-alive interval (in seconds).
+    connection_min_route_adv_interval:
+        description:
+            - Minimum Route Advertisement Interval (in seconds).
+    connection_multihop:
+        description:
+            - IP TTL value used for sending BGP packet. set to 0 means eBGP use 2, iBGP use 255.
+    connection_open_delay_time:
+        description:
+            - Open delay time (in seconds).
+    connection_outgoing_allow:
+        description:
+            - Allow outgoing connections.
+    connection_outgoing_local_port:
+        description:
+            - Use specific local port for outgoing BGP connections.
+    enable:
         description:
             - Enable BGP Peer.
-        default: true
-    peer_as (str):
+            default: True
+    enable_mp_bgp:
         description:
-            - Peer AS number
-    enable_mp_bgp (bool):
+            - Enable MP-BGP extentions.
+    enable_sender_side_loop_detection:
         description:
-            - Enable MP-BGP extentions
-    address_family_identifier (str):
+            - Enable sender side loop detection.
+    local_interface:
         description:
-            - peer address family type
-                * ipv4
-                * ipv6
-    subsequent_address_unicast (bool):
+            - Interface to accept BGP session.
+    local_interface_ip:
         description:
-            - select SAFI for this peer
-    subsequent_address_multicast (bool):
+            - Specify exact IP address if interface has multiple addresses.
+    max_prefixes:
         description:
-            - select SAFI for this peer
-    local_interface (str):
+            - Maximum of prefixes to receive from peer.
+    name:
         description:
-            - interface to accept BGP session
-    local_interface_ip (str):
+            - Name of BGP Peer.
+            required: True
+    peer_address_ip:
         description:
-            - specify exact IP address if interface has multiple addresses
-    peer_address_ip (str):
+            - IP address of peer.
+    peer_as:
         description:
-            - IP address of peer
-    connection_authentication (str):
+            - Peer AS number.
+    peer_group:
         description:
-            - BGP auth profile name
-    connection_keep_alive_interval (int):
+            - Name of the peer group; it must already exist; see panos_bgp_peer_group.
+            required: True
+    peering_type:
         description:
-            - Keep-alive interval (in seconds)
-    connection_min_route_adv_interval (int):
+            - Peering type.
+                - unspecified
+                - bilateral
+    reflector_client:
         description:
-            - Minimum Route Advertisement Interval (in seconds)
-    connection_multihop (int):
+            - Reflector client type.
+                - non-client
+                - client
+                - meshed-client
+    subsequent_address_multicast:
         description:
-            - IP TTL value used for sending BGP packet. set to 0 means eBGP use 2, iBGP use 255
-    connection_open_delay_time (int):
+            - Select SAFI for this peer.
+    subsequent_address_unicast:
         description:
-            - Open delay time (in seconds)
-    connection_hold_time (int):
-        description:
-            - Hold time (in seconds)
-    connection_idle_hold_time (int):
-        description:
-            - Idle hold time (in seconds)
-    connection_incoming_allow (bool):
-        description:
-            - Allow incoming connections
-    connection_outgoing_allow (bool):
-        description:
-            - Allow outgoing connections
-    connection_incoming_remote_port (int):
-        description:
-            - Restrict remote port for incoming BGP connections
-    connection_outgoing_local_port (int):
-        description:
-            - Use specific local port for outgoing BGP connections
-    enable_sender_side_loop_detection (bool):
-        description:
-            - Enable sender side loop detection
-    reflector_client (str):
-        description:
-            - non-client
-            - client
-            - meshed-client
-    peering_type (str):
-        description:
-            - unspecified
-            - bilateral
-    # aggregated_confed_as_path (bool): This peer understands aggregated confederation AS path
-    max_prefixes (int):
-        description:
-            - Maximum of prefixes to receive from peer
-    # max_orf_entries (int):
-        description:
-            - Maximum of ORF entries accepted from peer
-    # soft_reset_with_stored_info (bool): soft reset with stored info
-    bfd_profile (str):
-        description:
-            - BFD configuration
-            - Inherit-vr-global-setting
-            - None
-            - Pre-existing BFD profile name
-            - None
-    peer_group (str):
-        description:
-            - Name of the peer group; it must already exist.
+            - Select SAFI for this peer.
     vr_name:
         description:
             - Name of the virtual router; it must already exist; see panos_virtual_router.
-        default: "default"
+            default: default
 '''
 
 EXAMPLES = '''
@@ -340,7 +334,7 @@ def main():
     commit = module.params['commit']
 
     # create the new state object
-    peer = network.BgpPeer(**obj_spec)
+    new_obj = network.BgpPeer(**obj_spec)
 
     changed = False
     try:
@@ -359,19 +353,19 @@ def main():
             raise ValueError('Peer group {0} does not exist'.format(peer_group))
 
         # fetch the current settings
-        current_peer = None
+        cur_obj = None
         if pg is not None:
-            current_peer = pg.find(name, network.BgpPeer)
+            cur_obj = pg.find(name, network.BgpPeer)
 
         # compare differences between the current state vs desired state
         if state == 'present':
-            if current_peer is None or not peer.equal(current_peer, compare_children=False):
-                pg.add(peer)
-                pg.apply()
+            if cur_obj is None or not new_obj.equal(cur_obj, compare_children=False):
+                pg.add(new_obj)
+                new_obj.apply()
                 changed = True
         elif state == 'absent':
-            if current_peer is not None:
-                current_peer.delete()
+            if cur_obj is not None:
+                cur_obj.delete()
                 changed = True
         else:
             module.fail_json(msg='[%s] state is not implemented yet' % state)

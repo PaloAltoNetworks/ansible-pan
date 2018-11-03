@@ -1,10 +1,10 @@
-- name: Configure BGP Peer Group
+- name: Configure BGP Redistribution Rule
   hosts: my-firewall
   connection: local
   gather_facts: False
 
-#  roles:
-#    - role: PaloAltoNetworks.paloaltonetworks
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
 
   vars:
     ip_address: '{{ ansible_host }}'
@@ -14,40 +14,30 @@
       include_vars: 'firewall-secrets.yml'
       no_log: 'yes'
 
-    - name: Configure BGP Peer Group
-      panos_bgp_peer_group:
+    - name: Create BGP Redistribution Rule
+      panos_bgp_redistribute:
         ip_address: '{{ ip_address }}'
         username: '{{ username }}'
         password: '{{ password }}'
-        state: present
-        name: peer-group-1
         vr_name: default
+        name: redist-rule-01
         enable: false
-        commit: true
 
-    - name: Update BGP Peer Group
-      panos_bgp_peer_group:
+    - name: Update BGP Redistribution Rule
+      panos_bgp_redistribute:
         ip_address: '{{ ip_address }}'
         username: '{{ username }}'
         password: '{{ password }}'
-        state: present
-        name: peer-group-1
         vr_name: default
+        name: redist-rule-01
         enable: true
-        aggregated_confed_as_path: true
-        export_nexthop: use-self
-        import_nexthop: original
-        remove_private_as: false
-        soft_reset_with_stored_info: false
-        type: ebgp
-        commit: true
+        set_as_path_limit: 255
 
-    - name: Remove BGP Peer Group
-      panos_bgp_peer_group:
+    - name: Remove BGP Redistribution Rule
+      panos_bgp_redistribute:
         ip_address: '{{ ip_address }}'
         username: '{{ username }}'
         password: '{{ password }}'
         state: absent
-        name: peer-group-1
         vr_name: default
-        commit: true
+        name: redist-rule-01

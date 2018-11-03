@@ -305,7 +305,7 @@ def main():
             if changed:
                 bgp.add(bgp_routing_options)
                 vr.add(bgp)
-                bgp.apply()
+                bgp.create()
             else:
                 module.exit_json(msg='no changes required.', changed=changed)
         elif state == 'absent':

@@ -24,8 +24,8 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = '''
 ---
-module: panos_bgp_peer_group
-short_description: Configures a BGP Peer Group
+module: panos_bgp_conditional_advertisement
+short_description: Configures a BGP Authentication Profile
 description:
     - Use BGP to publish and consume routes from disparate networks.
 author: "Joshua Colson (@freakinhippie)"
@@ -53,7 +53,7 @@ options:
             - API key that can be used instead of I(username)/I(password) credentials.
     state:
         description:
-            - Add or remove BGP Peer Group configuration.
+            - Add or remove BGP Conditional Advertisement Policy.
                 - present
                 - absent
             default: present
@@ -61,61 +61,57 @@ options:
         description:
             - Commit configuration if changed.
             default: True
-    aggregated_confed_as_path:
-        description:
-            - The peers understand Aggregated Confederation AS Path.
-    enable:
-        description:
-            - Enable BGP peer group.
-            default: True
-    export_nexthop:
-        description:
-            - Export locally resolved nexthop I("resolve")/I("use-self").
-                - resolve
-                - use-self
-            default: resolve
-    import_nexthop:
-        description:
-            - Override nexthop with peer address I("original")/I("use-peer"), only with "ebgp".
-                - original
-                - use-peer
-            default: original
-    name:
-        description:
-            - Name of the BGP peer group.
-            required: True
-    remove_private_as:
-        description:
-            - Remove private AS when exporting route, only with "ebgp".
-    soft_reset_with_stored_info:
-        description:
-            - Enable soft reset with stored info.
-    type:
-        description:
-            - Peer group type I("ebgp")/I("ibgp")/I("ebgp-confed")/I("ibgp-confed").
-                - ebgp
-                - ibgp
-                - ebgp-confed
-                - ibgp-confed
-            default: ebgp
     vr_name:
         description:
             - Name of the virtual router; it must already exist; see panos_virtual_router.
             default: default
+    advertisement_filter:
+        description:
+            - Advertisement filter object returned by panos_bgp_policy_filter; only needed on creation.
+    non_exist_filter:
+        description:
+            - Non-Exist filter object returned by panos_bgp_policy_filter; only needed on creation.
+    enable:
+        description:
+            - Enable this policy.
+    name:
+        description:
+            - Name of Conditional Advertisement policy.
+            required: True
+    used_by:
+        description:
+            - List of Peer Groups using this policy.
 '''
 
 EXAMPLES = '''
-- name: Create BGP Peer Group
-    panos_bgp_peer_group:
-      ip_address: '{{ ip_address }}'
-      username: '{{ username }}'
-      password: '{{ password }}'
-      state: 'present'
-      name: peer-group-1
-      enable: true
-      aggregated_confed_as_path: true
-      soft_reset_with_stored_info: false
-      commit: true
+    - name: Create BGP Conditional Advertisement Rule
+      panos_bgp_conditional_advertisement:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        vr_name: default
+        name: cond-rule-01
+        enable: true
+        non_exist_filter: '{{ non_exist.panos_obj }}'
+        advertise_filter: '{{ advertise.panos_obj }}'
+
+    - name: Update BGP Conditional Advertisement Rule
+      panos_bgp_conditional_advertisement:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        vr_name: default
+        name: cond-rule-01
+        enable: false
+
+    - name: Remove BGP Conditional Advertisement Rule
+      panos_bgp_conditional_advertisement:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        state: absent
+        vr_name: default
+        name: cond-rule-01
 '''
 
 RETURN = '''
@@ -154,37 +150,30 @@ def main():
             help='API key that can be used instead of I(username)/I(password) credentials'),
         state=dict(
             default='present', choices=['present', 'absent'],
-            help='Add or remove BGP Peer Group configuration'),
-        name=dict(
-            type='str', required=True,
-            help='Name of the BGP peer group'),
-        enable=dict(
-            default=True, type='bool',
-            help='Enable BGP peer group'),
-        aggregated_confed_as_path=dict(
-            type='bool',
-            help='The peers understand Aggregated Confederation AS Path'),
-        soft_reset_with_stored_info=dict(
-            type='bool',
-            help='Enable soft reset with stored info'),
-        type=dict(
-            type='str', default='ebgp', choices=['ebgp', 'ibgp', 'ebgp-confed', 'ibgp-confed'],
-            help='Peer group type I("ebgp")/I("ibgp")/I("ebgp-confed")/I("ibgp-confed")'),
-        export_nexthop=dict(
-            type='str', default='resolve', choices=['resolve', 'use-self'],
-            help='Export locally resolved nexthop I("resolve")/I("use-self")'),
-        import_nexthop=dict(
-            type='str', default='original', choices=['original', 'use-peer'],
-            help='Override nexthop with peer address I("original")/I("use-peer"), only with "ebgp"'),
-        remove_private_as=dict(
-            type='bool',
-            help='Remove private AS when exporting route, only with "ebgp"'),
-        vr_name=dict(
-            default='default',
-            help='Name of the virtual router; it must already exist; see panos_virtual_router'),
+            help='Add or remove BGP Conditional Advertisement Policy'),
         commit=dict(
             type='bool', default=True,
             help='Commit configuration if changed'),
+
+        vr_name=dict(
+            default='default',
+            help='Name of the virtual router; it must already exist; see panos_virtual_router'),
+        non_exist_filter=dict(
+            type='str',
+            help='Non-Exist filter object returned by panos_bgp_policy_filter; only needed on creation'),
+        advertise_filter=dict(
+            type='str',
+            help='Advertise filter object returned by panos_bgp_policy_filter; only needed on creation'),
+
+        name=dict(
+            type='str', required=True,
+            help='Name of Conditional Advertisement policy'),
+        enable=dict(
+            type='bool',
+            help='Enable this policy'),
+        used_by=dict(
+            type='list',
+            help='List of Peer Groups using this policy'),
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
                            required_one_of=[['api_key', 'password']])
@@ -198,25 +187,20 @@ def main():
     # exclude the default items from kwargs passed to the object
     exclude_list = ['ip_address', 'username', 'password', 'api_key', 'state', 'commit']
     # exclude these items from the kwargs passed to the object
-    exclude_list += ['vr_name']
+    exclude_list += ['vr_name', 'non_exist_filter', 'advertise_filter']
 
-    # generate the kwargs for network.BgpPeer
+    # generate the kwargs for the object
     obj_spec = dict((k, module.params[k]) for k in argument_spec.keys() if k not in exclude_list)
-
-    # # generate the kwargs for network.BgpPeerGroup
-    # group_params = [
-    #     'name', 'enable', 'aggregated_confed_as_path', 'soft_reset_with_stored_info',
-    #     'type', 'export_nexthop', 'import_nexthop', 'remove_private_as'
-    # ]
-    # group_spec = dict((k, module.params[k]) for k in group_params)
 
     name = module.params['name']
     state = module.params['state']
     vr_name = module.params['vr_name']
     commit = module.params['commit']
+    ne_filter = module.params['non_exist_filter']
+    ad_filter = module.params['advertise_filter']
 
     # create the new state object
-    group = network.BgpPeerGroup(**obj_spec)
+    new_obj = network.BgpPolicyConditionalAdvertisement(**obj_spec)
 
     changed = False
     try:
@@ -231,21 +215,31 @@ def main():
 
         # fetch the current settings
         bgp = vr.find('', network.Bgp) or network.Bgp()
-        current_group = vr.find(name, network.BgpPeerGroup, recursive=True)
-
-        # compare differences between the current state vs desired state
-        if not group.equal(current_group, compare_children=False):
-            changed = True
+        cur_obj = vr.find(name, network.BgpPolicyConditionalAdvertisement, recursive=True)
 
         if state == 'present':
-            if current_group is None or not group.equal(current_group, compare_children=False):
-                bgp.add(group)
-                vr.add(bgp)
-                group.create()
+            if cur_obj is None or not new_obj.equal(cur_obj, compare_children=False):
+                if cur_obj is None and (ne_filter is None or ad_filter is None):
+                    raise ValueError(
+                        'Creating a new Conditional Advertisement policy requires: '
+                        + 'non_exist_filter and advertise_filter')
+                elif cur_obj is None:
+                    import pickle
+                    from base64 import b64decode
+                    # deserialize BgpPolicyNonExistFilter object
+                    ne_filter_obj = pickle.loads(b64decode(ne_filter))
+                    # deserialize BgpPolicyAdvertisementFilter object
+                    ad_filter_obj = pickle.loads(b64decode(ad_filter))
+                    # add them both to the new policy
+                    new_obj.add(ne_filter_obj)
+                    new_obj.add(ad_filter_obj)
+                bgp.add(new_obj)
+                # use create() here instead of apply because the children are required
+                new_obj.create()
                 changed = True
         elif state == 'absent':
-            if current_group is not None:
-                current_group.delete()
+            if cur_obj is not None:
+                cur_obj.delete()
                 changed = True
         else:
             module.fail_json(msg='[%s] state is not implemented yet' % state)
@@ -257,7 +251,7 @@ def main():
         device.commit(sync=True, exception=True)
 
     if changed:
-        module.exit_json(msg='BGP peer group update successful.', changed=changed)
+        module.exit_json(msg='BGP conditional advertisement policy update successful.', changed=changed)
     else:
         module.exit_json(msg='no changes required.', changed=changed)
 

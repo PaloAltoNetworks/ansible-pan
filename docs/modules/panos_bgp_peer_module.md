@@ -55,21 +55,52 @@ PanOS module for configuring a BGP Peer in a peer group.
 | reflector_client | str |  |  | ['non-client', 'client', 'meshed-client'] | Reflector client type |
 | subsequent_address_multicast | bool |  |  |  | Select SAFI for this peer |
 | subsequent_address_unicast | bool |  |  |  | Select SAFI for this peer |
+| | | | | | |
 
 ## Examples
 
-    # Add a BGP peer to a group
-      - name: Create BGP peer
-        panos_bgp_peer:
-          ip_address: "192.168.1.1"
-          password: "admin"
-          state: present
-          vr_name: default
-          name: peer-1
-          enable: true
-          local_interface: ethernet1/1
-          peer_as: 64550
+    - name: Configure BGP Peer
+      panos_bgp_peer:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        state: present
+        name: peer-1
+        enable: false
+        peer_as: 64550
+        local_interface: ethernet1/1
+        peer_address_ip: 192.168.1.1
+        peer_group: peer-group-1
+        vr_name: default
+        commit: true
 
+    - name: Update BGP Peer
+      panos_bgp_peer:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        state: present
+        name: peer-1
+        peer_group: peer-group-1
+        vr_name: default
+        enable: true
+        local_interface: ethernet1/1
+        max_prefixes: 1000
+        peer_address_ip: 192.168.1.1
+        peer_as: 64555
+        reflector_client: non-client
+        commit: true
+
+    - name: Remove BGP Peer
+      panos_bgp_peer:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        state: absent
+        name: peer-1
+        peer_group: peer-group-1
+        vr_name: default
+        commit: true
 
 #### Return Values
 
