@@ -127,8 +127,8 @@ except ImportError:
     HAS_LIB = False
 
 
-def main():
-    argument_spec = dict(
+def setup_args():
+    return dict(
         ip_address=dict(
             required=True,
             help='IP address (or hostname) of PAN-OS device being configured'),
@@ -181,8 +181,12 @@ def main():
         ad_rip=dict(
             type='int',
             help='Administrative distance for this protocol'),
-
     )
+
+
+def main():
+    argument_spec = setup_args()
+
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
                            required_one_of=[['api_key', 'password']])
     if not HAS_LIB:
