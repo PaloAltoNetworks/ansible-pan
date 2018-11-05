@@ -253,7 +253,7 @@ def setup_args():
 
 def main():
     argument_spec = setup_args()
-    
+
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
                            required_one_of=[['api_key', 'password']])
     if not HAS_LIB:
