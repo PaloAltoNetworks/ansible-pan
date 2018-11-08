@@ -1,5 +1,7 @@
 # Palo Alto Networks Ansible modules
 
+[![Build Status](https://travis-ci.com/PaloAltoNetworks/ansible-pan.svg?branch=develop)](https://travis-ci.com/PaloAltoNetworks/ansible-pan)
+
 A collection of Ansible modules that automate configuration and
 operational tasks on Palo Alto Networks Next Generation Firewalls --
 both physical and virtualized form factor. The underlying protocol uses
