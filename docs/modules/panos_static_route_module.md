@@ -27,7 +27,7 @@ Create static routes on PAN-OS devices.
 | metric |  | 10 |  | Metric for route. |
 | name | yes |  |  | Name of static route. |
 | nexthop |  |  |  | Next hop IP address.  Required if *state* is *present*. |
-| nexthop_type |  | ip-address | ip-address, discard | Type of next hop. |
+| nexthop_type |  | ip-address | ip-address, discard, null | Type of next hop. |
 | password |  |  |  | Password for authentication for PAN-OS device.  Optional if *api_key* is used. |
 | state |  | present | present, absent | Create or remove static route. |
 | username |  | admin |  | Username for authentication for PAN-OS device.  Optional if *api_key* is used. |
@@ -79,6 +79,16 @@ Create static routes on PAN-OS devices.
         destination: '4.4.4.0/24'
         nexthop: '10.0.0.1'
         virtual_router: 'VR-Two'
+
+    - name: Create route 'Test-Five'
+      panos_static_route:
+        ip_address: '{{ fw_ip_address }}'
+        username: '{{ fw_username }}'
+        password: '{{ fw_password }}'
+        name: 'Test-Five'
+        destination: '5.5.5.0/24'
+        # use null for a nexthop type of 'None'
+        nexthop_type: null
 
 #### Notes
 

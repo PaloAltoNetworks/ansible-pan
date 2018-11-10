@@ -57,7 +57,7 @@ options:
     nexthop_type:
         description:
             - Type of next hop.
-        choices: ['ip-address', 'discard']
+        choices: ['ip-address', 'discard', null]
         default: 'ip-address'
     nexthop:
         description:
@@ -164,7 +164,7 @@ def main():
         api_key=dict(no_log=True),
         name=dict(type='str', required=True),
         destination=dict(type='str'),
-        nexthop_type=dict(default='ip-address', choices=['ip-address', 'discard']),
+        nexthop_type=dict(default='ip-address', choices=['ip-address', 'discard', '']),
         nexthop=dict(type='str'),
         admin_dist=dict(type='str'),
         metric=dict(default='10'),
@@ -191,6 +191,9 @@ def main():
     virtual_router = module.params['virtual_router']
     state = module.params['state']
     interface = module.params['interface']
+
+    # allow None for nexthop_type
+    nexthop_type = nexthop_type if nexthop_type else None
 
     changed = False
 
