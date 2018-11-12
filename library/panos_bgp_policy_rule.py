@@ -372,6 +372,10 @@ def main():
     # exclude these items from the kwargs passed to the object
     exclude_list += ['type', 'vr_name', 'address_prefix']
 
+    # export rules don't support action_weight or action_dampening
+    if module.params['type'] == 'export':
+        exclude_list += ['action_weight', 'action_dampening']
+
     # generate the kwargs for network.BgpPolicyRule
     obj_spec = dict((k, module.params[k]) for k in argument_spec.keys() if k not in exclude_list)
 
