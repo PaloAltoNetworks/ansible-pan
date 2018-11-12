@@ -223,7 +223,7 @@ def main():
         dead_peer_detection=dict(type='bool', default=False),
         dead_peer_detection_interval=dict(type='int', default=99),
         dead_peer_detection_retry=dict(type='int', default=10),
-        psk=dict(default='CHANGEME'),
+        psk=dict(no_log=True, default='CHANGEME'),
         crypto_profile_name=dict(default='default'),
         ikev1_exchange_mode=dict(default=None, choices=['auto', 'main', 'aggressive']),
         commit=dict(type='bool', default=True)
