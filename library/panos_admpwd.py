@@ -91,7 +91,7 @@ def wait_with_timeout(module, shell, prompt, timeout=60):
     result = ""
     while True:
         if shell.recv_ready():
-            result += shell.recv(_PROMPTBUFF)
+            result += (shell.recv(_PROMPTBUFF)).decode()
             endresult = result.strip()
             if len(endresult) != 0 and endresult[-1] == prompt:
                 break
