@@ -128,16 +128,6 @@ EXAMPLES = '''
     destination: '4.4.4.0/24'
     nexthop: '10.0.0.1'
     virtual_router: 'VR-Two'
-- name: Create route to Next-VR
-  panos_static_route:
-    ip_address: '{{ fw_ip_address }}'
-    username: '{{ fw_username }}'
-    password: '{{ fw_password }}'
-    name: 'Test-NextVR'
-    destination: '5.5.5.0/24'
-    nexthop: 'vr2_name'
-    virtual_router: 'vr1_name'
-    nexthop_type: 'next-vr'
 '''
 
 RETURN = '''
@@ -174,7 +164,7 @@ def main():
         api_key=dict(no_log=True),
         name=dict(type='str', required=True),
         destination=dict(type='str'),
-        nexthop_type=dict(default='ip-address', choices=['ip-address', 'discard', 'next-vr']),
+        nexthop_type=dict(default='ip-address', choices=['ip-address', 'discard']),
         nexthop=dict(type='str'),
         admin_dist=dict(type='str'),
         metric=dict(default='10'),
