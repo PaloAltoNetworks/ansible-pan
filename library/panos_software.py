@@ -116,7 +116,7 @@ def main():
         if PanOSVersion(version) != PanOSVersion(device.version):
 
             # Method only performs install if sync is set to true.
-            device.software.download_install(version, sync=True)
+            device.software.upgrade_to_version(version)
 
             if restart:
                 device.restart()

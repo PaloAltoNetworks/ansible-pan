@@ -16,12 +16,12 @@
 
 DOCUMENTATION = '''
 ---
-module: panos_admpwd
-short_description: change admin password of PAN-OS device using SSH with SSH key
+module: panrama_pass_serial
+short_description: change password & serial number of Panorama VM using SSH with SSH key
 description:
-    - Change the admin password of PAN-OS via SSH using a SSH key for authentication.
+    - Change the password and serial number of Panorama VM
     - Useful for AWS instances where the first login should be done via SSH.
-author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
+author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer), Francesco Vigo (@fvigo)"
 version_added: "2.3"
 requirements:
     - paramiko
@@ -41,12 +41,16 @@ options:
         required: true
     newpassword:
         description:
-            - password to configure for admin on the PAN-OS device
+            - password to configure for admin on the Panorama device
+        required: true
+    serial:
+        description:
+            - serial number to add to Panorama VM
         required: true
 '''
 
 EXAMPLES = '''
-# Tries for 10 times to set the admin password of 192.168.1.1 to "badpassword"
+# Tries for 10 times to set the admin password of 192.168.1.1 to "badpassword" and serial to "1234567"
 # via SSH, authenticating using key /tmp/ssh.key
 - name: set admin password
   panos_admpwd:
@@ -54,6 +58,7 @@ EXAMPLES = '''
     username: "admin"
     key_filename: "/tmp/ssh.key"
     newpassword: "badpassword"
+    serial: 1234567
   register: result
   until: not result|failed
   retries: 10
@@ -103,7 +108,7 @@ def wait_with_timeout(module, shell, prompt, timeout=60):
     return resultstr
 
 
-def set_panwfw_password(module, ip_address, key_filename, newpassword, username):
+def set_panwfw_password(module, ip_address, key_filename, newpassword, username, serial):
     stdout = ""
 
     ssh = paramiko.SSHClient()
@@ -118,6 +123,14 @@ def set_panwfw_password(module, ip_address, key_filename, newpassword, username)
     # wait for the shell to start
     buff = wait_with_timeout(module, shell, ">")
     stdout += buff
+
+    # set serial number
+    shell.send('set serial-number ' + serial + '\n')
+    # wait for the prompt
+    buff = wait_with_timeout(module, shell, ">")
+    stdout += buff
+    if 'cfg.platform.serial' not in buff:
+        module.fail_json(msg="Error setting serial number: " + stdout)
 
     # step into config mode
     shell.send('configure\n')
@@ -175,7 +188,8 @@ def main():
         ip_address=dict(required=True),
         username=dict(default='admin'),
         key_filename=dict(required=True),
-        newpassword=dict(no_log=True, required=True)
+        newpassword=dict(no_log=True, required=True),
+        serial=dict(no_log=True, required=True)
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
     if not HAS_LIB:
@@ -191,9 +205,12 @@ def main():
     if not newpassword:
         module.fail_json(msg="newpassword is required")
     username = module.params['username']
+    serial = module.params["serial"]
+    if not serial:
+        module.fail_json(msg="serial is required")
 
     try:
-        changed, stdout = set_panwfw_password(module, ip_address, key_filename, newpassword, username)
+        changed, stdout = set_panwfw_password(module, ip_address, key_filename, newpassword, username, serial)
         module.exit_json(changed=changed, stdout=stdout)
     except Exception:
         x = sys.exc_info()[1]
