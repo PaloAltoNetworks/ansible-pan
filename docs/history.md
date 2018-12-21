@@ -11,6 +11,11 @@ V2.0.2
 -   Released: In development
 -   Status: In development
 
+*Refactored modules*
+
+- panos\_ike\_gateway: fixed misspelling of passive_mode and added additional module arguments to support more advanced configurations
+
+
 V2.0.1
 ------
 

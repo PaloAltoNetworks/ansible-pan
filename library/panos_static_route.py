@@ -73,6 +73,9 @@ options:
         description:
             - Virtual router to use.
         default: 'default'
+    interface:
+        description:
+            - The Interface to use.
     state:
         description:
             - Create or remove static route.
@@ -166,6 +169,7 @@ def main():
         admin_dist=dict(type='str'),
         metric=dict(default='10'),
         virtual_router=dict(default='default'),
+        interface=dict(type='str'),
         state=dict(default='present', choices=['present', 'absent'])
     )
 
@@ -186,6 +190,7 @@ def main():
     metric = module.params['metric']
     virtual_router = module.params['virtual_router']
     state = module.params['state']
+    interface = module.params['interface']
 
     changed = False
 
@@ -201,7 +206,7 @@ def main():
             existing_route = vr.find(name, network.StaticRoute)
             new_route = network.StaticRoute(name, destination, nexthop=nexthop,
                                             nexthop_type=nexthop_type, admin_dist=admin_dist,
-                                            metric=metric)
+                                            metric=metric,interface=interface)
 
             if not existing_route:
                 vr.add(new_route)
@@ -213,6 +218,7 @@ def main():
                 existing_route.nexthop_type = nexthop_type
                 existing_route.admin_dist = admin_dist
                 existing_route.metric = metric
+                existing_route.interface = interface
                 existing_route.apply()
                 changed = True
 

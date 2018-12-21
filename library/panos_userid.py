@@ -66,7 +66,7 @@ EXAMPLES = '''
       username: '{{ username }}'
       password: '{{ password }}'
       operation: 'login'
-      userid: 'ACMECORP\ivanb'
+      userid: 'ACMECORP\\ivanb'
       register_ip: '10.0.1.101'
 '''
 
