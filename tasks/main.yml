@@ -5,6 +5,6 @@
 - pip:
     name: pan-python
 - pip:
-    name: pandevice
+    name: git+https://github.com/fvigo/pandevice#develop
 - pip:
     name: xmltodict
