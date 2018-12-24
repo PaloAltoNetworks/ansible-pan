@@ -248,7 +248,7 @@ def main():
         if update_server and ss.update_server != update_server:
             ss.update_server = update_server
             changed = True
-        if hostname and ss.hostame != hostname:
+        if hostname and ss.hostname != hostname:
             ss.hostname = hostname
             changed = True
         if domain and ss.domain != domain:
