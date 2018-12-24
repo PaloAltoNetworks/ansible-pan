@@ -197,7 +197,7 @@ def main():
     login_banner = module.params['login_banner']
     update_server = module.params['update_server']
     hostname = module.params['hostname']
-    domain = module.params['hostname']
+    domain = module.params['domain']
     devicegroup = module.params['devicegroup']
 
     # Create the device with the appropriate pandevice type
