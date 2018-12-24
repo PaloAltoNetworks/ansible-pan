@@ -147,7 +147,7 @@ EXAMPLES = '''
     password: "secret"
     if_name: "ethernet1/1"
     zone_name: "public"
-    create_default_route: "yes"
+    create_default_route: true
 
 # Update ethernet1/2 with a static IP address in zone dmz.
 - name: ethernet1/2 as static in zone dmz
@@ -304,8 +304,8 @@ def main():
         'comment': module.params['comment'],
         'ipv4_mss_adjust': module.params['ipv4_mss_adjust'],
         'ipv6_mss_adjust': module.params['ipv6_mss_adjust'],
-        'enable_dhcp': module.params['enable_dhcp'] or None,
-        'create_dhcp_default_route': module.params['create_default_route'] or None,
+        'enable_dhcp': module.params['enable_dhcp'] or False,
+        'create_dhcp_default_route': module.params['create_default_route'] or False,
         'dhcp_default_route_metric': module.params['dhcp_default_route_metric'],
     }
 
@@ -466,7 +466,7 @@ def main():
     # Commit if we were asked to do so.
     if changed and commit:
         try:
-            con.commit(sync=True, exceptions=True)
+            con.commit(sync=True, exception=True)
         except PanDeviceError:
             e = get_exception()
             module.fail_json(msg='Performed {0} but commit failed: {1}'.format(operation, e.message))
