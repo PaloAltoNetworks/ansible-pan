@@ -254,6 +254,7 @@ def create_object(**kwargs):
             protocol=kwargs['protocol'],
             source_port=kwargs['source_port'],
             destination_port=kwargs['destination_port'],
+            description=kwargs['description'],
             tag=kwargs['tag_name']
         )
         if newobject.protocol and newobject.destination_port:
