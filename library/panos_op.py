@@ -40,6 +40,11 @@ options:
         description:
             - IP address (or hostname) of PAN-OS device or Panorama management console being configured.
         required: true
+    api_port:
+        description:
+            - API port used to connect to the PAN-OS device being configured.
+        required: false
+        default: 443
     username:
         description:
             - Username credentials to use for authentication.
@@ -118,6 +123,7 @@ except ImportError:
 def main():
     argument_spec = dict(
         ip_address=dict(required=True),
+        api_port=dict(default=443),
         username=dict(default='admin'),
         password=dict(no_log=True),
         api_key=dict(no_log=True),
@@ -130,7 +136,7 @@ def main():
         module.fail_json(msg='Missing required libraries.')
 
     auth = [module.params[x] for x in
-            ('ip_address', 'username', 'password', 'api_key')]
+            ('ip_address', 'username', 'password', 'api_key', 'api_port')]
     cmd = module.params['cmd']
     cmd_is_xml = module.params['cmd_is_xml']
 
