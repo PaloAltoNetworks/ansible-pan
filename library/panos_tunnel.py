@@ -163,7 +163,7 @@ def set_virtual_router(con, eth, vr_name, routers):
     for vr in routers:
         if vr.name == vr_name:
             desired_vr = vr
-        elif eth.name in vr.interface:
+        elif vr.interface is not None and eth.name in vr.interface:
             vr.interface.remove(eth.name)
             vr.update('interface')
             changed = True
