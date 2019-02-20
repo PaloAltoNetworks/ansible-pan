@@ -306,8 +306,8 @@ def main():
         'comment': module.params['comment'],
         'ipv4_mss_adjust': module.params['ipv4_mss_adjust'],
         'ipv6_mss_adjust': module.params['ipv6_mss_adjust'],
-        'enable_dhcp': module.params['enable_dhcp'] or None,
-        'create_dhcp_default_route': module.params['create_default_route'] or None,
+        'enable_dhcp': module.params['enable_dhcp'],
+        'create_dhcp_default_route': module.params['create_default_route'],
         'dhcp_default_route_metric': module.params['dhcp_default_route_metric'],
     }
 
