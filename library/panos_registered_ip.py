@@ -162,13 +162,13 @@ def main():
         registered_ips = device.userid.get_registered_ip(tags=tags)
 
         if state == 'present':
-            to_add = ips - registered_ips.keys()
+            to_add = ips
             if to_add:
                 device.userid.register(to_add, tags=tags)
                 changed = True
 
         elif state == 'absent':
-            to_remove = ips & registered_ips.keys()
+            to_remove = ips
             if to_remove:
                 device.userid.unregister(to_remove, tags=tags)
                 changed = True
