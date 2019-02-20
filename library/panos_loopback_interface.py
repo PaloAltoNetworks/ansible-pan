@@ -182,7 +182,7 @@ def main():
         password=dict(no_log=True),
         username=dict(default='admin'),
         api_key=dict(no_log=True),
-        state=dict(default='present',choices=['present', 'absent']),
+        state=dict(default='present', choices=['present', 'absent']),
         if_name=dict(required=True),
         ip=dict(type='list'),
         ipv6_enabled=dict(type='bool'),
