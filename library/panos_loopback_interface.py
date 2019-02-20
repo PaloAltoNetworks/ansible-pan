@@ -182,18 +182,17 @@ def main():
         password=dict(no_log=True),
         username=dict(default='admin'),
         api_key=dict(no_log=True),
-        operation=dict(default='add', choices=['add', 'update', 'delete']),
-        state=dict(choices=['present', 'absent']),
+        state=dict(default='present',choices=['present', 'absent']),
         if_name=dict(required=True),
         ip=dict(type='list'),
-        ipv6_enabled=dict(),
+        ipv6_enabled=dict(type='bool'),
         management_profile=dict(),
-        mtu=dict(),
-        adjust_tcp_mss=dict(),
+        mtu=dict(type='int'),
+        adjust_tcp_mss=dict(type='bool'),
         netflow_profile=dict(),
         comment=dict(),
-        ipv4_mss_adjust=dict(),
-        ipv6_mss_adjust=dict(),
+        ipv4_mss_adjust=dict(type='int'),
+        ipv6_mss_adjust=dict(type='int'),
         zone_name=dict(required=True),
         vr_name=dict(default='default'),
         vsys_dg=dict(default='vsys1'),
@@ -227,7 +226,6 @@ def main():
     }
 
     # Get other info.
-    operation = module.params['operation']
     state = module.params['state']
     zone_name = module.params['zone_name']
     vr_name = module.params['vr_name']
@@ -320,7 +318,7 @@ def main():
             con.commit(sync=True)
         except errors.PanDeviceError:
             e = get_exception()
-            module.fail_json(msg='Performed {0} but commit failed: {1}'.format(operation, e.message))
+            module.fail_json(msg='Performed {0} but commit failed: {1}'.format(state, e.message))
 
     # Done!
     module.exit_json(changed=True, msg='Done')
