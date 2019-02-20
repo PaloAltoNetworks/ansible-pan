@@ -14,6 +14,7 @@ V2.0.2
 *New Modules*
 
 - panos\_api\_key: retrieve api_key for username/password combination
+- panos\_loopback\_interface: manage loopback interfaces
 
 *Refactored modules*
 
