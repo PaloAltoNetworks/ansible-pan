@@ -1,7 +1,7 @@
 ---
-title: panos_interface
+title: panos_loopback_interface
 ---
-# panos_interface
+# panos_loopback_interface
 
 _(versionadded:: 2.0.2)_
 
