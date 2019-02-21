@@ -1,0 +1,59 @@
+- name: Configure Aggregation Rules
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+
+  vars:
+    ip_address: '{{ ansible_host }}'
+
+  tasks:
+    - name: Grab the credentials from ansible-vault
+      include_vars: 'firewall-secrets.yml'
+      no_log: 'yes'
+
+    - name: Create BGP Aggregation Rule
+      panos_bgp_aggregate:
+        ip_address: '{{ ip_address }}'
+        password: '{{ password }}'
+        vr_name: default
+        name: aggr-rule-01
+        prefix: 10.0.0.0/24
+        enable: true
+        summary: true
+
+    - name: Update BGP Aggregation Rule
+      panos_bgp_aggregate:
+        ip_address: '{{ ip_address }}'
+        password: '{{ password }}'
+        vr_name: default
+        name: aggr-rule-01
+        prefix: 10.0.0.0/24
+        enable: true
+        summary: true
+        attr_med: 10
+        attr_as_path_type: prepend
+        attr_as_path_prepend_times: 1
+
+    - name: Disable BGP Aggregation Rule
+      panos_bgp_aggregate:
+        ip_address: '{{ ip_address }}'
+        password: '{{ password }}'
+        vr_name: default
+        name: aggr-rule-01
+        prefix: 10.0.0.0/24
+        enable: false
+        summary: true
+        attr_med: 10
+        attr_as_path_type: prepend
+        attr_as_path_prepend_times: 1
+
+    - name: Remove BGP Aggregation Rule
+      panos_bgp_aggregate:
+        ip_address: '{{ ip_address }}'
+        password: '{{ password }}'
+        state: absent
+        vr_name: default
+        name: aggr-rule-01

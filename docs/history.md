@@ -11,10 +11,21 @@ V2.0.2
 -   Released: In development
 -   Status: In development
 
-*New Modules*
+*New modules*
 
 - panos\_api\_key: retrieve api_key for username/password combination
+- panos\_bgp: Manages basic BGP configuration settings
+- panos\_bgp\_aggregate: Manages BGP Aggregation Policy Rules
+- panos\_bgp\_auth: Manages BGP Authentication Profiles
+- panos\_bgp\_conditional\_advertisement: Manages BGP Conditional Advertisement Policy Rules
+- panos\_bgp\_dampening: Manages BGP Dampening Profiles
+- panos\_bgp\_peer: Manages BGP Peers
+- panos\_bgp\_peer\_group: Manages BGP Peer Groups
+- panos\_bgp\_policy\_filter: Manages BGP Policy Filters, children of Aggregate and Conditional Advertisement
+- panos\_bgp\_policy\_rule: Manage BGP Import/Export Rules
+- panos\_bgp\_redistribute: Manages BGP Redistribution Rules
 - panos\_loopback\_interface: manage loopback interfaces
+- panos_redistribution: Manages virtual router Redistribution Profiles
 
 *Refactored modules*
 

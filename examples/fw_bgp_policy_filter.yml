@@ -1,0 +1,94 @@
+- name: Configure BGP Policy Filter
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+
+  vars:
+    ip_address: '{{ ansible_host }}'
+
+  tasks:
+    - name: Grab the credentials from ansible-vault
+      include_vars: 'firewall-secrets.yml'
+      no_log: 'yes'
+
+    - name: Return BGP Advertise Policy Filter Object
+      panos_bgp_policy_filter:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        state: return-object
+        vr_name: default
+        name: ad-filter-01
+        enable: false
+        filter_type: advertise
+        policy_type: conditional-advertisement
+        policy_name: cond-advert-01
+        address_prefix:
+          - name: 10.1.1.0/24
+      register: ad_filter
+        
+    - name: Create BGP Advertise Policy Filter
+      panos_bgp_policy_filter:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        state: present
+        vr_name: default
+        name: ad-filter-02
+        enable: false
+        filter_type: advertise
+        policy_type: conditional-advertisement
+        policy_name: cond-advert-01
+        address_prefix:
+          - name: 10.2.1.0/24
+
+    - name: Update BGP Advertise Policy Filter
+      panos_bgp_policy_filter:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        state: present
+        vr_name: default
+        name: ad-filter-02
+        enable: false
+        filter_type: advertise
+        policy_type: conditional-advertisement
+        policy_name: cond-advert-01
+        match_med: 8
+        address_prefix:
+          - name: 10.2.1.0/24
+          - name: 10.2.2.0/24
+
+    - name: Create BGP Suppress Policy Filter
+      panos_bgp_policy_filter:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        state: present
+        vr_name: default
+        name: sup-filter-01
+        enable: false
+        filter_type: suppress
+        policy_type: aggregate
+        policy_name: aggr-rule-01
+        address_prefix:
+          - name: 10.10.1.0/24
+            exact: true
+          - name: 10.10.2.0/24
+            exact: false
+
+    - name: Remove BGP Advertise Policy Filter
+      panos_bgp_policy_filter:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        state: absent
+        vr_name: default
+        name: ad-filter-02
+        enable: false
+        filter_type: advertise
+        policy_type: conditional-advertisement
+        policy_name: cond-advert-01
