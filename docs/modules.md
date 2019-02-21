@@ -24,6 +24,7 @@ Modules list
 - [panos_ipsec_tunnel_module](modules/panos_ipsec_tunnel_module.md)
 - [panos_lic_module](modules/panos_lic_module.md)
 - [panos_loadcfg_module](modules/panos_loadcfg_module.md)
+- [panos_loopback_interface_module](modules/panos_loopback_interface_module.md)
 - [panos_management_module](modules/panos_management_profile_module.md)
 - [panos_match_rule_module](modules/panos_match_rule_module.md)
 - [panos_mgtconfig_module](modules/panos_mgtconfig_module.md)

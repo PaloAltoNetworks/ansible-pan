@@ -11,6 +11,11 @@ V2.0.2
 -   Released: In development
 -   Status: In development
 
+*New Modules*
+
+- panos\_api\_key: retrieve api_key for username/password combination
+- panos\_loopback\_interface: manage loopback interfaces
+
 *Refactored modules*
 
 - panos\_ike\_gateway: fixed misspelling of passive_mode and added additional module arguments to support more advanced configurations
