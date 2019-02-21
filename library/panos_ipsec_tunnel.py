@@ -135,10 +135,10 @@ class IPSecTunnel:
         self.name = kwargs.get('name')
         self.key_type = 'auto-key'
         self.tunnel_interface = kwargs.get('tunnel_interface')
-        self.ike_gw = args[0]
-        self.ipsec_profile = args[1]
-        self.enable_tunnel_monitor = args[2]
-        self.tunnel_monitor_dest_ip = args[3]
+        self.ike_gw = kwargs.get('ike_gw')
+        self.ipsec_profile = kwargs.get('ipsec_profile')
+        self.enable_tunnel_monitor = kwargs.get('enable_tunnel_monitor')
+        self.tunnel_monitor_dest_ip = kwargs.get('tunnel_monitor_dest_ip')
 
 
 def main():
@@ -186,8 +186,12 @@ def main():
     #     else:
     #         module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
 
-    ipsecTunnel = IPSecTunnel(ike_gtw_name, ipsec_profile, enable_tunnel_monitor, tunnel_monitor_dest_ip,
-                              name=name, tunnel_interface=tunnel_interface)
+    ipsecTunnel = IPSecTunnel(name=name,
+                              ike_gtw_name=ike_gtw_name,
+                              ipsec_profile=ipsec_profile,
+                              enable_tunnel_monitor=enable_tunnel_monitor,
+                              tunnel_monitor_dest_ip=tunnel_monitor_dest_ip,
+                              tunnel_interface=tunnel_interface)
 
     ipsec_tunnel = network.IpsecTunnel(name=ipsecTunnel.name, tunnel_interface=ipsecTunnel.tunnel_interface,
                                        type=ipsecTunnel.key_type,
