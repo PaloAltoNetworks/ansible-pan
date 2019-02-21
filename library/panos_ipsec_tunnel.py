@@ -78,6 +78,13 @@ options:
         description:
             - Name of the existing IPsec profile or use default.
         default: 'default'
+    enable_tunnel_monitor:
+       description:
+           - Enable tunnel monitoring on this tunnel
+       dafult: False
+    tunnel_monitor_dest_ip:
+       description:
+           - Destination IP to send ICMP probe
 '''
 
 EXAMPLES = '''
@@ -130,6 +137,8 @@ class IPSecTunnel:
         self.tunnel_interface = kwargs.get('tunnel_interface')
         self.ike_gw = args[0]
         self.ipsec_profile = args[1]
+        self.enable_tunnel_monitor = args[2]
+        self.tunnel_monitor_dest_ip = args[3]
 
 
 def main():
@@ -143,6 +152,8 @@ def main():
         tunnel_interface=dict(default='tunnel.1'),
         ike_gtw_name=dict(default='default'),
         ipsec_profile=dict(default='default'),
+        enable_tunnel_monitor=dict(type='bool', default=False),
+        tunnel_monitor_dest_ip=dict(),
         commit=dict(type='bool', default=True)
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
@@ -159,7 +170,12 @@ def main():
     tunnel_interface = module.params['tunnel_interface']
     ike_gtw_name = module.params['ike_gtw_name']
     ipsec_profile = module.params['ipsec_profile']
+    enable_tunnel_monitor = module.params['enable_tunnel_monitor']
+    tunnel_monitor_dest_ip = module.params['tunnel_monitor_dest_ip']
     commit = module.params['commit']
+
+    if enable_tunnel_monitor is True and tunnel_monitor_dest_ip is None:
+        module.fail_json(msg='You must set tunnel_monitor_dest_ip when using enable_tunnel_monitor.')
 
     # If Panorama, validate the devicegroup
     # dev_group = None
@@ -170,15 +186,16 @@ def main():
     #     else:
     #         module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
 
-    ipsecTunnel = IPSecTunnel(ike_gtw_name, ipsec_profile, name=name,
-                              tunnel_interface=tunnel_interface)
+    ipsecTunnel = IPSecTunnel(ike_gtw_name, ipsec_profile, enable_tunnel_monitor, tunnel_monitor_dest_ip,
+                              name=name, tunnel_interface=tunnel_interface)
 
     ipsec_tunnel = network.IpsecTunnel(name=ipsecTunnel.name, tunnel_interface=ipsecTunnel.tunnel_interface,
                                        type=ipsecTunnel.key_type,
                                        ak_ike_gateway=ipsecTunnel.ike_gw,
                                        ak_ipsec_crypto_profile=ipsecTunnel.ipsec_profile,
                                        ipv6=False,
-                                       enable_tunnel_monitor=False,
+                                       enable_tunnel_monitor=ipsecTunnel.enable_tunnel_monitor,
+                                       tunnel_monitor_dest_ip=ipsecTunnel.tunnel_monitor_dest_ip,
                                        disabled=False)
 
     # Create the device with the appropriate pandevice type

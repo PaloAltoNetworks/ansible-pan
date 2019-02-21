@@ -31,6 +31,8 @@ IKE/IPSec VPN setup.
 | state |  | present | present, absent | Create or remove static route. |
 | tunnel_interface |  | tunnel.1 |  | Specify existing tunnel interface that will be used. |
 | username |  | admin |  | Username credentials to use for auth unless *api_key* is set. |
+| enable_tunnel_monitor |  | False | True, False | Enable tunnel monitoring on this tunnel |
+| tunnel_monitor_dest_ip |  | False |  | Destination IP to send ICMP probe. |
 
 ## Examples
 

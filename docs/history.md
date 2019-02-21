@@ -19,7 +19,7 @@ V2.0.2
 *Refactored modules*
 
 - panos\_ike\_gateway: fixed misspelling of passive_mode and added additional module arguments to support more advanced configurations
-
+- panos\_ipsec\_tunnel: added enable_tunnel_monitor and tunnel_monitor_dest_ip
 
 V2.0.1
 ------
