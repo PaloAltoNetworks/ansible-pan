@@ -137,8 +137,11 @@ def setup_args():
             help='Name of the virtual router; it must already exist; see panos_virtual_router'),
         replace=dict(
             type='bool', default=False,
-            help='The secret is encrypted so the state cannot be compared; ' +
-            'this option forces removal of a matching item before applying the new config'),
+            help=' '.join(
+                [
+                    'The secret is encrypted so the state cannot be compared; this option',
+                    'forces removal of a matching item before applying the new config'
+                ])),
 
         name=dict(
             type='str', required=True,
