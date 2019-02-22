@@ -20,9 +20,8 @@ module: panos_tunnel
 short_description: configure tunnel interfaces
 description:
     - Configure tunnel interfaces on PanOS
-author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer), Geraint Jones (@nexus_moneky_nz)"
 author: "Joshua Colson (@freakinhippie)"
-version_added: "2.9"
+version_added: "2.8"
 requirements:
     - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
@@ -106,7 +105,6 @@ EXAMPLES = '''
     if_name: "tunnel.1"
     ip: ["10.1.1.1/32"]
     comment: "tunnel interface"
-    operation: update
 
 '''
 
@@ -190,9 +188,9 @@ def main():
         state=dict(default='present', choices=['present', 'absent']),
         if_name=dict(required=True),
         ip=dict(type='list'),
-        ipv6_enabled=dict(),
+        ipv6_enabled=dict(type='bool'),
         management_profile=dict(),
-        mtu=dict(),
+        mtu=dict(type='int'),
         netflow_profile=dict(),
         comment=dict(),
         zone_name=dict(default=None),
@@ -328,7 +326,7 @@ def main():
             module.fail_json(msg='Performed {0} but commit failed: {1}'.format(state, e.message))
 
     # Done!
-    module.exit_json(changed=True, msg='okey dokey')
+    module.exit_json(changed=True, msg='Done')
 
 
 if __name__ == '__main__':
