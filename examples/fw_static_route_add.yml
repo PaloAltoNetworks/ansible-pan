@@ -46,15 +46,15 @@
       name: 'Test-Two'
       state: 'absent'
 
-- name: Create route 'Test-Four'
-  panos_static_route:
-    ip_address: '{{ fw_ip_address }}'
-    username: '{{ fw_username }}'
-    password: '{{ fw_password }}'
-    name: 'Test-Four'
-    destination: '4.4.4.0/24'
-    nexthop: '10.0.0.1'
-    virtual_router: 'VR-Two'
+  - name: Create route 'Test-Four'
+    panos_static_route:
+      ip_address: '{{ fw_ip_address }}'
+      username: '{{ fw_username }}'
+      password: '{{ fw_password }}'
+      name: 'Test-Four'
+      destination: '4.4.4.0/24'
+      nexthop: '10.0.0.1'
+      virtual_router: 'VR-Two'
 
   - name: Create route 'Test-Five'
     panos_static_route:
@@ -63,5 +63,4 @@
       password: '{{ fw_password }}'
       name: 'Test-Five'
       destination: '5.5.5.0/24'
-      # use null for a nexthop type of 'None'
-      nexthop_type: null
+      nexthop_type: 'none'

@@ -87,8 +87,7 @@ Create static routes on PAN-OS devices.
         password: '{{ fw_password }}'
         name: 'Test-Five'
         destination: '5.5.5.0/24'
-        # use 'none' for a nexthop type of 'None'
-        nexthop_type: none
+        nexthop_type: 'none'
 
 #### Notes
 

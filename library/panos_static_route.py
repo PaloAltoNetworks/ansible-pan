@@ -136,7 +136,7 @@ EXAMPLES = '''
     password: '{{ fw_password }}'
     name: 'Test-Five'
     destination: '5.5.5.0/24'
-    nexthop_type: none
+    nexthop_type: 'none'
 '''
 
 RETURN = '''
