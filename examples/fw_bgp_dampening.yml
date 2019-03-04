@@ -1,0 +1,54 @@
+- name: Configure BGP Dampening Profile
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+
+  vars:
+    ip_address: '{{ ansible_host }}'
+
+  tasks:
+    - name: Grab the credentials from ansible-vault
+      include_vars: 'firewall-secrets.yml'
+      no_log: 'yes'
+
+    - name: Create BGP Dampening Profile
+      panos_bgp_dampening:
+        ip_address: '{{ ip_address }}'
+        password: '{{ password }}'
+        vr_name: default
+        name: damp-profile-01
+        enable: true
+        reuse: 1.0
+        max_hold_time: 60
+
+    - name: Update BGP Dampening Profile
+      panos_bgp_dampening:
+        ip_address: '{{ ip_address }}'
+        password: '{{ password }}'
+        vr_name: default
+        name: damp-profile-01
+        enable: true
+        reuse: 0.5
+        max_hold_time: 90
+
+    - name: Disable BGP Dampening Profile
+      panos_bgp_dampening:
+        ip_address: '{{ ip_address }}'
+        password: '{{ password }}'
+        vr_name: default
+        name: damp-profile-01
+        enable: false
+        reuse: 0.5
+        max_hold_time: 90
+
+    - name: Remove BGP Dampening Profile
+      panos_bgp_dampening:
+        ip_address: '{{ ip_address }}'
+        password: '{{ password }}'
+        vr_name: default
+        state: absent
+        name: damp-profile-01
+
