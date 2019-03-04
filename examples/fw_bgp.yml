@@ -1,0 +1,49 @@
+- hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+#  roles:
+#    - role: PaloAltoNetworks.paloaltonetworks
+
+  vars:
+    ip_address: '{{ ansible_host }}'
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: Configure BGP on a Virtual Router
+    panos_bgp:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      state: present
+      vr_name: default
+      enable: false
+      router_id: 192.168.1.1
+      local_as: 64512
+      commit: true
+
+  - name: Update BGP configuration
+    panos_bgp:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      state: present
+      vr_name: default
+      enable: true
+      router_id: 192.168.1.1
+      local_as: 64512
+      reject_default_route: true
+      install_route: true
+      graceful_restart_enable: false
+      commit: true
+
+  - name: Remove BGP configuration
+    panos_bgp:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      state: absent
+      commit: true

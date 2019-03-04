@@ -1,0 +1,61 @@
+- name: Configure BGP Policy Filter
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+
+  vars:
+    ip_address: '{{ ansible_host }}'
+
+  tasks:
+    - name: Grab the credentials from ansible-vault
+      include_vars: 'firewall-secrets.yml'
+      no_log: 'yes'
+
+    - name: Create BGP Policy Import Rule
+      panos_bgp_policy_rule:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        state: present
+        vr_name: default
+        name: import-rule-001
+        type: import
+        enable: true
+        action: allow
+        action_dampening: dampening-profile
+
+    - name: Create BGP Policy Export Rule
+      panos_bgp_policy_rule:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        state: present
+        vr_name: default
+        name: export-rule-001
+        type: export
+        enable: true
+        action: allow
+
+    - name: Disable BGP Import Rule
+      panos_bgp_policy_rule:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        state: present
+        vr_name: default
+        name: import-rule-001
+        type: import
+        enable: false
+
+    - name: Remove BGP Export Rule
+      panos_bgp_policy_rule:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        state: absent
+        vr_name: default
+        name: export-rule-001
+        type: export

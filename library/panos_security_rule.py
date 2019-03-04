@@ -501,8 +501,6 @@ def main():
         if devicegroup == 'shared':
             devicegroup = None
         if devicegroup is not None:
-            parent = parent.add(Rulebase())
-        else:
             parent = get_devicegroup(parent, devicegroup)
             if parent is None:
                 module.fail_json(msg='Device group not found: {0}'.format(devicegroup))
