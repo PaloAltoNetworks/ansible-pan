@@ -57,7 +57,7 @@ options:
     nexthop_type:
         description:
             - Type of next hop.
-        choices: ['ip-address', 'discard', 'none']
+        choices: ['ip-address', 'discard', 'none', 'next-vr']
         default: 'ip-address'
     nexthop:
         description:
@@ -173,7 +173,7 @@ def main():
         api_key=dict(no_log=True),
         name=dict(type='str', required=True),
         destination=dict(type='str'),
-        nexthop_type=dict(default='ip-address', choices=['ip-address', 'discard', 'none']),
+        nexthop_type=dict(default='ip-address', choices=['ip-address', 'discard', 'none', 'next-vr']),
         nexthop=dict(type='str'),
         admin_dist=dict(type='str'),
         metric=dict(default='10'),
