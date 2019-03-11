@@ -16,6 +16,14 @@ V3.0.0
 *Refactored modules*
 
 
+V2.0.4
+-----
+
+-   Released: 2019-03-11
+-   Status: Released (minor)
+
+- Fixes the DHCP param handling of panos\_interface
+
 V2.0.3
 ------
 
