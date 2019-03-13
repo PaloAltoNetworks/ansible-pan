@@ -123,7 +123,7 @@ def main():
         hostname=ip_address,
         api_username=username,
         api_password=password,
-        timeout=60
+        timeout=timeout
     )
 
     checkpnt = time.time() + timeout
