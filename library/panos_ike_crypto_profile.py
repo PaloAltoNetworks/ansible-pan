@@ -92,7 +92,7 @@ options:
               specified, default to 8 hours.
     lifetime_days:
         description:
-            - IKE phase 1 key lifetime in days. 
+            - IKE phase 1 key lifetime in days.
 '''
 
 EXAMPLES = '''
@@ -191,8 +191,9 @@ def main():
 
     # Reflect GUI behavior.  Default is 8 hour key lifetime if nothing else is
     # specified.
-    if (lifetime_seconds is None and lifetime_minutes is None and
-            lifetime_hours is None and lifetime_days is None):
+    if not any([
+        lifetime_seconds, lifetime_minutes, lifetime_hours, lifetime_days
+    ]):
         lifetime_hours = 8
 
     ike_crypto_prof = network.IkeCryptoProfile(
