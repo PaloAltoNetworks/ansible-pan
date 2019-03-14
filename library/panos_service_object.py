@@ -30,8 +30,8 @@ description:
 author: "Michael Richardson (@mrichardson03)"
 version_added: "2.8"
 requirements:
-    - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
-    - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
+    - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
+    - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
 notes:
     - Panorama is supported.
     - Check mode is not supported.
@@ -60,7 +60,7 @@ options:
         choices: ['tcp', 'udp']
         default: 'tcp'
     source_port:
-        description
+        description:
             - Source port of the service object.
     destination_port:
         description:
@@ -88,7 +88,6 @@ options:
         description:
             - Commit changes after creating object.  If I(ip_address) is a Panorama device, and I(device_group) is
               also set, perform a commit to Panorama and a commit-all to the device group.
-        required: false
         default: true
 '''
 

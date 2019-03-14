@@ -27,8 +27,8 @@ description:
 author: "Michael Richardson (@mrichardson03)"
 version_added: "2.6"
 requirements:
-    - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
-    - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
+    - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
+    - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
 notes:
     - Panorama is not supported.
     - IPv6 is not supported.
@@ -57,7 +57,7 @@ options:
     nexthop_type:
         description:
             - Type of next hop.
-        choices: ['ip-address', 'discard']
+        choices: ['ip-address', 'discard', 'none']
         default: 'ip-address'
     nexthop:
         description:
@@ -73,6 +73,9 @@ options:
         description:
             - Virtual router to use.
         default: 'default'
+    interface:
+        description:
+            - The Interface to use.
     state:
         description:
             - Create or remove static route.
@@ -125,6 +128,15 @@ EXAMPLES = '''
     destination: '4.4.4.0/24'
     nexthop: '10.0.0.1'
     virtual_router: 'VR-Two'
+
+- name: Create route 'Test-Five'
+    panos_static_route:
+    ip_address: '{{ fw_ip_address }}'
+    username: '{{ fw_username }}'
+    password: '{{ fw_password }}'
+    name: 'Test-Five'
+    destination: '5.5.5.0/24'
+    nexthop_type: 'none'
 '''
 
 RETURN = '''
@@ -161,11 +173,12 @@ def main():
         api_key=dict(no_log=True),
         name=dict(type='str', required=True),
         destination=dict(type='str'),
-        nexthop_type=dict(default='ip-address', choices=['ip-address', 'discard']),
+        nexthop_type=dict(default='ip-address', choices=['ip-address', 'discard', 'none']),
         nexthop=dict(type='str'),
         admin_dist=dict(type='str'),
         metric=dict(default='10'),
         virtual_router=dict(default='default'),
+        interface=dict(type='str'),
         state=dict(default='present', choices=['present', 'absent'])
     )
 
@@ -186,6 +199,10 @@ def main():
     metric = module.params['metric']
     virtual_router = module.params['virtual_router']
     state = module.params['state']
+    interface = module.params['interface']
+
+    # allow None for nexthop_type
+    nexthop_type = nexthop_type if nexthop_type.lower() != 'none' else None
 
     changed = False
 
@@ -201,7 +218,7 @@ def main():
             existing_route = vr.find(name, network.StaticRoute)
             new_route = network.StaticRoute(name, destination, nexthop=nexthop,
                                             nexthop_type=nexthop_type, admin_dist=admin_dist,
-                                            metric=metric)
+                                            metric=metric, interface=interface)
 
             if not existing_route:
                 vr.add(new_route)
@@ -213,6 +230,7 @@ def main():
                 existing_route.nexthop_type = nexthop_type
                 existing_route.admin_dist = admin_dist
                 existing_route.metric = metric
+                existing_route.interface = interface
                 existing_route.apply()
                 changed = True
 

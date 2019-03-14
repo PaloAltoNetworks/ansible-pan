@@ -23,8 +23,8 @@ description:
 author: "Ivan Bojer (@ivanbojer)"
 version_added: "2.6"
 requirements:
-    - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
-    - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
+    - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
+    - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
 notes:
     - Checkmode is not supported.
     - Panorama is not supported.
@@ -66,7 +66,7 @@ EXAMPLES = '''
       username: '{{ username }}'
       password: '{{ password }}'
       operation: 'login'
-      userid: 'ACMECORP\ivanb'
+      userid: 'ACMECORP\\ivanb'
       register_ip: '10.0.1.101'
 '''
 

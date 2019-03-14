@@ -30,8 +30,8 @@ description:
 author: "Michael Richardson (@mrichardson03)"
 version_added: "2.7"
 requirements:
-    - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
-    - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
+    - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
+    - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
 notes:
     - Panorama is not supported.
 options:

@@ -13,7 +13,7 @@ PanOS module that allows changes to the user account passwords by doing API call
 
 ## Requirements (on host that executes module)
 
-- pan-python can be obtained from PyPi https://pypi.python.org/pypi/pan-python
+- pan-python can be obtained from PyPI https://pypi.python.org/pypi/pan-python
 
 ## Options
 

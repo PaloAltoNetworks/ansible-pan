@@ -30,8 +30,8 @@ description:
 author: "Michael Richardson (@mrichardson03)"
 version_added: "2.7"
 requirements:
-    - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
-    - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
+    - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
+    - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
 notes:
     - Checkmode is not supported.
     - Panorama is not supported.
@@ -162,13 +162,13 @@ def main():
         registered_ips = device.userid.get_registered_ip(tags=tags)
 
         if state == 'present':
-            to_add = ips - registered_ips.keys()
+            to_add = ips
             if to_add:
                 device.userid.register(to_add, tags=tags)
                 changed = True
 
         elif state == 'absent':
-            to_remove = ips & registered_ips.keys()
+            to_remove = ips
             if to_remove:
                 device.userid.unregister(to_remove, tags=tags)
                 changed = True

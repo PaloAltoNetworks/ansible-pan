@@ -5,11 +5,66 @@ title: History and changelog
 History
 =======
 
+V3.0.0
+------
+
+-   Released: In development
+-   Status: In development
+
+*New modules*
+
+*Refactored modules*
+
+
+V2.0.4
+-----
+
+-   Released: 2019-03-11
+-   Status: Released (minor)
+
+- Fixes the DHCP param handling of panos\_interface
+
+V2.0.3
+------
+
+-   Released: 2019-03-04
+-   Status: Released
+
+*New modules*
+
+- panos\_api\_key: retrieve api\_key for username/password combination
+- panos\_bgp: Manages basic BGP configuration settings
+- panos\_bgp\_aggregate: Manages BGP Aggregation Policy Rules
+- panos\_bgp\_auth: Manages BGP Authentication Profiles
+- panos\_bgp\_conditional\_advertisement: Manages BGP Conditional Advertisement Policy Rules
+- panos\_bgp\_dampening: Manages BGP Dampening Profiles
+- panos\_bgp\_peer: Manages BGP Peers
+- panos\_bgp\_peer\_group: Manages BGP Peer Groups
+- panos\_bgp\_policy\_filter: Manages BGP Policy Filters, children of Aggregate and Conditional Advertisement
+- panos\_bgp\_policy\_rule: Manage BGP Import/Export Rules
+- panos\_bgp\_redistribute: Manages BGP Redistribution Rules
+- panos\_loopback\_interface: manage loopback interfaces
+- panos\_redistribution: Manages virtual router Redistribution Profiles
+
+*Refactored modules*
+
+- panos\_ike\_gateway: fixed misspelling of passive_mode and added additional module arguments to support more advanced configurations
+
+
+V2.0.1
+------
+
+-   Released: 2018-10-08
+-   Status: Released (minor)
+
+This is minor release to address issue 
+https://github.com/PaloAltoNetworks/ansible-pan/issues/163
+
 V2.0.0
 ------
 
--   Released: In-development
--   Status: In-development
+-   Released: 2018-09-27
+-   Status: Released
 
 *New modules*
 
@@ -30,7 +85,7 @@ V2.0.0
 **Now supporting state / idempotency**
 - panos\_interface
 - panos\_nat\_rule
-- panos\_
+- panos\_security\_rule
 
 *Miscellanies / Fixes*
 

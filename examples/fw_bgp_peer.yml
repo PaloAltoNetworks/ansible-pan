@@ -1,0 +1,57 @@
+- hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+#  roles:
+#    - role: PaloAltoNetworks.paloaltonetworks
+
+  vars:
+    ip_address: '{{ ansible_host }}'
+
+  tasks:
+    - name: Grab the credentials from ansible-vault
+      include_vars: 'firewall-secrets.yml'
+      no_log: 'yes'
+
+    - name: Configure BGP Peer
+      panos_bgp_peer:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        state: present
+        name: peer-1
+        enable: false
+        peer_as: 64550
+        local_interface: ethernet1/1
+        peer_address_ip: 192.168.1.1
+        peer_group: peer-group-1
+        vr_name: default
+        commit: true
+
+    - name: Update BGP Peer
+      panos_bgp_peer:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        state: present
+        name: peer-1
+        peer_group: peer-group-1
+        vr_name: default
+        enable: true
+        local_interface: ethernet1/1
+        max_prefixes: 1000
+        peer_address_ip: 192.168.1.1
+        peer_as: 64555
+        reflector_client: non-client
+        commit: true
+
+    - name: Remove BGP Peer
+      panos_bgp_peer:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        state: absent
+        name: peer-1
+        peer_group: peer-group-1
+        vr_name: default
+        commit: true

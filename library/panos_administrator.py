@@ -30,8 +30,8 @@ description:
 author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
 version_added: "2.8"
 requirements:
-    - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
-    - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
+    - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
+    - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
 notes:
     - Checkmode is not supported.
 options:
@@ -169,8 +169,8 @@ def main():
         module.fail_json(msg='Missing required libraries.')
 
     # Get PAN-OS auth info.
-    auth = [module.params[x] for x in 
-        ['ip_address', 'username', 'password', 'api_key']]
+    auth = [module.params[x] for x in
+            ['ip_address', 'username', 'password', 'api_key']]
 
     # Open the connection to the PAN-OS device.
     con = PanDevice.create_from_device(*auth)

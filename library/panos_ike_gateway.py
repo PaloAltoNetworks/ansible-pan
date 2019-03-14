@@ -32,8 +32,8 @@ description:
 author: "Ivan Bojer (@ivanbojer)"
 version_added: "2.8"
 requirements:
-    - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
-    - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
+    - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
+    - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
 notes:
     - Checkmode is not supported.
     - Panorama is NOT supported.
@@ -74,10 +74,19 @@ options:
         description:
             - Specify the outgoing firewall interface to the VPN tunnel.
         default: 'ethernet1/1'
-    pasive_mode:
+    passive_mode:
         description:
             - True to have the firewall only respond to IKE connections and never initiate them.
         default: True
+    nat_traversal:
+        description:
+            - True to NAT Traversal mode
+        default: False
+    fragmentation:
+        description:
+            - True to enable IKE fragmentation
+            - Incompatible with pre-shared keys, or 'aggressive' exchange mode
+        default: False
     liveness_check:
         description:
             - The IKEv2 Liveness Check is always on; all IKEv2 packets serve the purpose of a liveness check. Use
@@ -87,6 +96,28 @@ options:
         description:
             - IPv4 address of the peer gateway.
         default: '127.0.0.1'
+    dead_peer_detection:
+        description:
+            - True to enable Dead Peer Detection on the gateway.
+        default: false
+    dead_peer_detection_interval:
+        description:
+            - Time in seconds to check for a dead peer.
+        default: 99
+    dead_peer_detection_retry:
+        description:
+            - Retry attempts before peer is marked dead.
+        default: 10
+    local_ip_address:
+        description:
+            - Bind IKE gateway to the specified interface IP address
+            - It should include the mask, eg: '192.168.1.1/24'
+        default: None
+    local_ip_address_type:
+        description:
+            - The address type of the bound interface IP address
+            - Valid options: 'ip' | 'floating-ip'
+        default: None
     psk:
         description:
             - Specify pre-shared key.
@@ -95,6 +126,11 @@ options:
         description:
             - Select an existing profile or keep the default profile.
         default: 'default'
+    ikev1_exchange_mode:
+        description:
+            - The IKE exchange mode to use
+            - Valid options: 'auto' | 'main' | 'aggressive'
+        default: None
 '''
 
 EXAMPLES = '''
@@ -107,7 +143,7 @@ EXAMPLES = '''
       name: 'IKEGW-Ansible'
       protocol_version: 'ikev2'
       interface: 'ethernet1/1'
-      pasive_mode: 'True'
+      passive_mode: 'True'
       liveness_check: '5'
       peer_ip_value: '1.2.3.4'
       psk: 'CHANGEME'
@@ -149,11 +185,19 @@ class IKEGateway:
         self.name = kwargs.get('name')
         self.protocol_version = kwargs.get('protocol_version')
         self.interface = kwargs.get('interface')
+        self.local_ip_address_type = kwargs.get('local_ip_address_type')
+        self.local_ip_address = kwargs.get('local_ip_address')
+        self.ikev1_exchange_mode = kwargs.get('ikev1_exchange_mode')
         self.auth_type = 'pre-shared-key'
         self.enable_passive_mode = kwargs.get('enable_passive_mode')
+        self.enable_nat_traversal = kwargs.get('enable_nat_traversal')
+        self.enable_fragmentation = kwargs.get('enable_fragmentation')
         self.liveness_check = kwargs.get('liveness_check')
         self.peer_ip_type = 'ip'
         self.peer_ip_value = kwargs.get('peer_ip_value')
+        self.dead_peer_detection = kwargs.get('dead_peer_detection')
+        self.dead_peer_detection_interval = kwargs.get('dead_peer_detection_interval')
+        self.dead_peer_detection_retry = kwargs.get('dead_peer_detection_retry')
         self.psk = kwargs.get('psk')
 
 
@@ -167,12 +211,21 @@ def main():
         name=dict(required=True),
         protocol_version=dict(default='ikev2'),
         interface=dict(default='ethernet1/1'),
+        local_ip_address_type=dict(default=None, choices=['ip', 'floating-ip']),
+        local_ip_address=dict(default=None),
         # auth_type=dict(default='pre-shared-key'),
-        pasive_mode=dict(type='bool', default=True),
+        # pasive_mode=dict(type='bool', default=True),
+        passive_mode=dict(type='bool', default=True),
+        nat_traversal=dict(type='bool', default=False),
+        fragmentation=dict(type='bool', default=False),
         liveness_check=dict(type='int', default=5),
         peer_ip_value=dict(default='127.0.0.1'),
-        psk=dict(default='CHANGEME'),
+        dead_peer_detection=dict(type='bool', default=False),
+        dead_peer_detection_interval=dict(type='int', default=99),
+        dead_peer_detection_retry=dict(type='int', default=10),
+        psk=dict(no_log=True, default='CHANGEME'),
         crypto_profile_name=dict(default='default'),
+        ikev1_exchange_mode=dict(default=None, choices=['auto', 'main', 'aggressive']),
         commit=dict(type='bool', default=True)
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
@@ -188,12 +241,20 @@ def main():
     name = module.params['name']
     protocol_version = module.params['protocol_version']
     interface = module.params['interface']
+    local_ip_address_type = module.params['local_ip_address_type']
+    local_ip_address = module.params['local_ip_address']
     # auth_type = module.params['auth_type']
-    pasive_mode = module.params['pasive_mode']
+    passive_mode = module.params['passive_mode']
+    nat_traversal = module.params['nat_traversal']
+    fragmentation = module.params['fragmentation']
     liveness_check = module.params['liveness_check']
     peer_ip_value = module.params['peer_ip_value']
+    dead_peer_detection = module.params['dead_peer_detection']
+    dead_peer_detection_interval = module.params['dead_peer_detection_interval']
+    dead_peer_detection_retry = module.params['dead_peer_detection_retry']
     psk = module.params['psk']
     crypto_profile_name = module.params['crypto_profile_name']
+    ikev1_exchange_mode = module.params['ikev1_exchange_mode']
     commit = module.params['commit']
 
     # If Panorama, validate the devicegroup
@@ -205,25 +266,34 @@ def main():
     #     else:
     #         module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
 
-    ikeGtwy = IKEGateway(name=name, protocol_version=protocol_version, interface=interface, pasive_mode=pasive_mode,
-                         liveness_check=liveness_check, peer_ip_value=peer_ip_value,
-                         psk=psk)
+    ikeGtwy = IKEGateway(name=name, protocol_version=protocol_version, ikev1_exchange_mode=ikev1_exchange_mode,
+                         interface=interface, local_ip_address_type=local_ip_address_type,
+                         local_ip_address=local_ip_address, enable_nat_traversal=nat_traversal,
+                         dead_peer_detection=dead_peer_detection,
+                         dead_peer_detection_interval=dead_peer_detection_interval, enable_fragmentation=fragmentation,
+                         dead_peer_detection_retry=dead_peer_detection_retry, enable_passive_mode=passive_mode,
+                         liveness_check=liveness_check, peer_ip_value=peer_ip_value, psk=psk)
 
     ike_gateway = network.IkeGateway(name=ikeGtwy.name, version=ikeGtwy.protocol_version, enable_ipv6=False,
                                      disabled=False,
                                      peer_ip_type=ikeGtwy.peer_ip_type, peer_ip_value=ikeGtwy.peer_ip_value,
                                      interface=ikeGtwy.interface,
+                                     local_ip_address_type=ikeGtwy.local_ip_address_type,
+                                     local_ip_address=ikeGtwy.local_ip_address,
                                      auth_type=ikeGtwy.auth_type, pre_shared_key=ikeGtwy.psk,
                                      local_id_type=None, local_id_value=None, peer_id_type=None, peer_id_value=None,
                                      peer_id_check=None,
                                      local_cert=None, cert_enable_hash_and_url=False, cert_base_url=None,
                                      cert_use_management_as_source=False, cert_permit_payload_mismatch=False,
                                      cert_profile=None, cert_enable_strict_validation=False,
-                                     enable_passive_mode=True,
-                                     enable_fragmentation=False,
-                                     ikev1_exchange_mode=None, ikev1_crypto_profile=None,
-                                     enable_dead_peer_detection=False, dead_peer_detection_interval=99,
-                                     dead_peer_detection_retry=10,
+                                     enable_passive_mode=ikeGtwy.enable_passive_mode,
+                                     enable_nat_traversal=ikeGtwy.enable_nat_traversal,
+                                     enable_fragmentation=ikeGtwy.enable_fragmentation,
+                                     ikev1_crypto_profile=crypto_profile_name,
+                                     ikev1_exchange_mode=ikeGtwy.ikev1_exchange_mode,
+                                     enable_dead_peer_detection=ikeGtwy.dead_peer_detection,
+                                     dead_peer_detection_interval=ikeGtwy.dead_peer_detection_interval,
+                                     dead_peer_detection_retry=ikeGtwy.dead_peer_detection_retry,
                                      ikev2_crypto_profile=crypto_profile_name,
                                      ikev2_cookie_validation=False,
                                      ikev2_send_peer_id=False, enable_liveness_check=True,

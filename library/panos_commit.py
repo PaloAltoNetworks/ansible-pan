@@ -14,6 +14,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'}
@@ -21,37 +24,36 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 DOCUMENTATION = '''
 ---
 module: panos_commit
-short_description: commit firewall's candidate configuration
+short_description: Commit a PAN-OS device's candidate configuration.
 description:
-    - PanOS module that will commit firewall's candidate configuration on
-    - the device. The new configuration will become active immediately.
-author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer), Robert Hagen (@rnh556)"
+    - Module that will commit the candidate configuration of a PAN-OS device.
+    - The new configuration will become active immediately.
+author: "Michael Richardson (@mrichardson03)"
 version_added: "2.3"
 requirements:
-    - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
-    - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
+    - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
+    - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
 options:
     ip_address:
         description:
-            - The IP address (or hostname) of the PAN-OS device or Panorama management console.
+            - IP address or hostname of PAN-OS device.
         required: true
     username:
         description:
-            - Username credentials to use for authentication.
-        required: false
-        default: "admin"
+            - Username for authentication for PAN-OS device.  Optional if I(api_key) is used.
+        default: 'admin'
     password:
         description:
-            - Password credentials to use for authentication.
-        required: true
+            - Password for authentication for PAN-OS device.  Optional if I(api_key) is used.
     api_key:
         description:
-            - API key that can be used instead of I(username)/I(password) credentials.
-        required: false
-    devicegroup:
+            - API key to be used instead of I(username) and I(password).
+    device_group:
         description:
-            - The Panorama device group to be committed.
-        required: false
+            - If I(ip_address) is a Panorama device, perform a commit-all to the devices in this
+              device group in addition to commiting to Panorama.
+        type: str
+        aliases: ['devicegroup']
 '''
 
 EXAMPLES = '''
@@ -65,86 +67,122 @@ EXAMPLES = '''
   panos_commit:
     ip_address: '{{ ip_address }}'
     api_key: '{{ api_key }}'
-    devicegroup: 'Cloud-Edge'
+    device_group: 'Cloud-Edge'
 '''
 
 RETURN = '''
-status:
-    description: success status
-    returned: success
-    type: string
-    sample: "Commit successful"
+# Default return values
 '''
-
-from ansible.module_utils.basic import AnsibleModule
-
 try:
-    import pandevice
     from pandevice import base
+    from pandevice import firewall
     from pandevice import panorama
+    from pandevice.errors import PanDeviceError
 
     HAS_LIB = True
 except ImportError:
     HAS_LIB = False
 
 
-def devicegroup_exists(device, devicegroup):
-    dev_grps = device.refresh_devices()
-    for grp in dev_grps:
-        if isinstance(grp, pandevice.panorama.DeviceGroup):
-            if grp.name == devicegroup:
-                return True
-    return False
+from ansible.module_utils.basic import AnsibleModule
 
 
-def do_commit(device, devicegroup):
-    try:
-        if isinstance(device, panorama.Panorama):
-            result = device.commit_all(sync=True, sync_all=True, exception=True, devicegroup=devicegroup)
-        else:
-            result = device.commit(sync=True, exception=True)
-        return result
-    except Exception:
-        return False
+def get_devicegroup(device, device_group):
+    if isinstance(device, panorama.Panorama):
+        dgs = device.refresh_devices()
+
+        for dg in dgs:
+            if isinstance(dg, panorama.DeviceGroup):
+                if dg.name == device_group:
+                    return dg
+
+    return None
+
+
+def check_commit_result(module, result):
+    if result['result'] == 'FAIL':
+        if 'xml' in result:
+            result.pop('xml')
+
+        module.fail_json(msg='Commit failed', result=result)
 
 
 def main():
     argument_spec = dict(
         ip_address=dict(required=True),
-        password=dict(no_log=True),
         username=dict(default='admin'),
+        password=dict(no_log=True),
         api_key=dict(no_log=True),
-        devicegroup=dict()
+        device_group=dict(type='str', aliases=['devicegroup'])
     )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
-                           required_one_of=[['api_key', 'password']])
+
+    module = AnsibleModule(
+        argument_spec=argument_spec, supports_check_mode=False,
+        required_one_of=[['api_key', 'password']]
+    )
+
     if not HAS_LIB:
-        module.fail_json(msg='Missing required libraries.')
+        module.fail_json(msg='pan-python and pandevice are required for this module.')
 
-    ip_address = module.params["ip_address"]
-    password = module.params["password"]
+    ip_address = module.params['ip_address']
     username = module.params['username']
+    password = module.params['password']
     api_key = module.params['api_key']
-    devicegroup = module.params['devicegroup']
+    device_group = module.params['device_group']
 
-    # Create the device with the appropriate pandevice type
-    device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
+    changed = False
+    results = []
 
-    # If Panorama, validate the devicegroup
-    if isinstance(device, panorama.Panorama):
-        if devicegroup_exists(device, devicegroup):
-            pass
-        else:
-            module.fail_json(
-                failed=1,
-                msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup
-            )
+    try:
+        device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
 
-    # Commit the configs
-    if do_commit(device, devicegroup):
-        module.exit_json(changed=True, msg='Commit successful')
-    else:
-        module.fail_json(changed=False, msg='Commit failed')
+        if device_group:
+            if device_group.lower() == 'shared':
+                device_group = None
+            else:
+                if not get_devicegroup(device, device_group):
+                    module.fail_json(msg='Could not find {} device group.'.format(device_group))
+
+        if isinstance(device, firewall.Firewall):
+            result = device.commit(sync=True)
+
+            if result:
+                check_commit_result(module, result)
+
+                changed = True
+                results.append(result)
+
+        elif isinstance(device, panorama.Panorama):
+            # Panorama commit is two potential steps, one to Panorama itself, and one to the
+            # device group.
+            result = device.commit(sync=True)
+
+            if result:
+                check_commit_result(module, result)
+
+                changed = True
+                results.append(result)
+
+            if device_group:
+                result = device.commit_all(
+                    sync=True, sync_all=True, devicegroup=device_group
+                )
+
+                if result:
+                    check_commit_result(module, result)
+
+                    changed = True
+                    results.append(result)
+
+        # Clean XML out of results becasue Ansible doesn't like it.
+        for result in results:
+            if 'xml' in result:
+                result.pop('xml')
+
+    except PanDeviceError as e:
+        module.fail_json(msg=e.message)
+
+    module.exit_json(changed=changed, result=results)
 
 
 if __name__ == '__main__':

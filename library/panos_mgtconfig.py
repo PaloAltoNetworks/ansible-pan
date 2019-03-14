@@ -23,8 +23,8 @@ description:
 author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer), Patrik Malinen (@pmalinen)"
 version_added: "2.4"
 requirements:
-    - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
-    - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
+    - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
+    - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
 notes:
     - Checkmode is not supported.
     - Panorama is supported
@@ -185,7 +185,7 @@ def main():
     login_banner = module.params['login_banner']
     update_server = module.params['update_server']
     hostname = module.params['hostname']
-    domain = module.params['hostname']
+    domain = module.params['domain']
     devicegroup = module.params['devicegroup']
 
     # Create the device with the appropriate pandevice type

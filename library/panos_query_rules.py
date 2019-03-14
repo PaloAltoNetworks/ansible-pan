@@ -23,13 +23,15 @@ DOCUMENTATION = '''
 module: panos_query_rules
 short_description: PANOS module that allows search for security rules in PANW NGFW devices.
 description:
-    - Security policies allow you to enforce rules and take action, and can be as general or specific as needed. The policy rules are compared against the incoming traffic in sequence, and because the first rule that matches the traffic is applied, the more specific rules must precede the more general ones.
+    - Security policies allow you to enforce rules and take action, and can be as general or specific as needed.
+    - The policy rules are compared against the incoming traffic in sequence, and because the first rule that matches
+    - the traffic is applied, the more specific rules must precede the more general ones.
 author: "Bob Hagen (@rnh556)"
 version_added: "2.5"
 requirements:
-    - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
-    - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
-    - xmltodict can be obtains from PyPi U(https://pypi.python.org/pypi/xmltodict)
+    - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
+    - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
+    - xmltodict can be obtains from PyPI U(https://pypi.python.org/pypi/xmltodict)
 notes:
     - Checkmode is not supported.
     - Panorama is supported.
