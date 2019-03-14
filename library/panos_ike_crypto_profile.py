@@ -66,10 +66,11 @@ options:
         description:
             - Name for the profile.
         required: true
-    dhgroup:
+    dh_group:
         description:
             - Specify the priority for Diffie-Hellman (DH) groups.
         default: group2
+        aliases: dhgroup
     authentication:
         description:
             - Specify the priority for hash algorithms.
@@ -78,10 +79,20 @@ options:
         description:
             - Select the appropriate Encapsulating Security Payload (ESP) authentication options.
         default: ['aes-256-cbc', '3des']
-    lifetime_sec:
+    lifetime_seconds:
         description:
-            - Select unit of time and enter the length of time that the negotiated IKE Phase 1 key will be effective.
-        default: 28800
+            - IKE phase 1 key lifetime in seconds.
+        aliases: lifetime_sec
+    lifetime_minutes:
+        description:
+            - IKE phase 1 key lifetime in minutes.  Minimum value is 3 minutes.
+    lifetime_hours:
+        description:
+            - IKE phase 1 key lifetime in hours.  If no key lifetime is
+              specified, default to 8 hours.
+    lifetime_days:
+        description:
+            - IKE phase 1 key lifetime in days. 
 '''
 
 EXAMPLES = '''
@@ -92,10 +103,10 @@ EXAMPLES = '''
       password: '{{ password }}'
       state: 'present'
       name: 'IKE-Ansible'
-      dhgroup: 'group2'
+      dh_group: 'group2'
       authentication: 'sha1'
       encryption: ['aes-256-cbc', '3des']
-      lifetime_sec: '28800'
+      lifetime_seconds: '28800'
       commit: 'False'
 '''
 
@@ -128,15 +139,6 @@ except ImportError:
 #     return False
 
 
-class IKEProfile:
-    def __init__(self, *args, **kwargs):
-        self.name = kwargs.get('name')
-        self.authentication = kwargs.get('authentication')
-        self.encryption = kwargs.get('encryption')
-        self.dh_group = kwargs.get('dh_group')
-        self.lifetime_secs = kwargs.get('lifetime_secs')
-
-
 def main():
     argument_spec = dict(
         ip_address=dict(required=True),
@@ -145,14 +147,30 @@ def main():
         api_key=dict(no_log=True),
         state=dict(default='present', choices=['present', 'absent']),
         name=dict(required=True),
-        dhgroup=dict(default='group2'),
-        authentication=dict(default='sha1'),
+        dh_group=dict(default='group2', aliases=['dhgroup']),
+        authentication=dict(type='list', default=['sha1']),
         encryption=dict(type='list', default=['aes-256-cbc', '3des']),
-        lifetime_sec=dict(type='int', default=28800),
+        lifetime_seconds=dict(type='int', aliases=['lifetime_sec']),
+        lifetime_minutes=dict(type='int'),
+        lifetime_hours=dict(type='int'),
+        lifetime_days=dict(type='int'),
         commit=dict(type='bool', default=True)
     )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
-                           required_one_of=[['api_key', 'password']])
+    module = AnsibleModule(
+        argument_spec=argument_spec,
+        supports_check_mode=False,
+        required_one_of=[
+            ['api_key', 'password'],
+        ],
+        mutually_exclusive=[
+            [
+                'lifetime_seconds',
+                'lifetime_minutes',
+                'lifetime_hours',
+                'lifetime_days'
+            ]
+        ]
+    )
     if not HAS_LIB:
         module.fail_json(msg='Missing required libraries.')
 
@@ -161,33 +179,32 @@ def main():
     username = module.params['username']
     api_key = module.params['api_key']
     state = module.params['state']
-    ike_profile_name = module.params['name']
-    ike_dhgroup = module.params['dhgroup']
-    ike_authentication = module.params['authentication']
-    ike_encryption = module.params['encryption']
-    ike_lifetime_sec = module.params['lifetime_sec']
+    name = module.params['name']
+    dh_group = module.params['dh_group']
+    authentication = module.params['authentication']
+    encryption = module.params['encryption']
+    lifetime_seconds = module.params['lifetime_seconds']
+    lifetime_minutes = module.params['lifetime_minutes']
+    lifetime_hours = module.params['lifetime_hours']
+    lifetime_days = module.params['lifetime_days']
     commit = module.params['commit']
 
-    # If Panorama, validate the devicegroup
-    # dev_group = None
-    # if devicegroup and isinstance(device, panorama.Panorama):
-    #     dev_group = get_devicegroup(device, devicegroup)
-    #     if dev_group:
-    #         device.add(dev_group)
-    #     else:
-    #         module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
+    # Reflect GUI behavior.  Default is 8 hour key lifetime if nothing else is
+    # specified.
+    if (lifetime_seconds is None and lifetime_minutes is None and
+            lifetime_hours is None and lifetime_days is None):
+        lifetime_hours = 8
 
-    ikeProfile = IKEProfile(name=ike_profile_name,
-                            authentication=ike_authentication,
-                            encryption=ike_encryption,
-                            dh_group=ike_dhgroup, lifetime_secs=ike_lifetime_sec)
-
-    ike_crypto_prof = network.IkeCryptoProfile(ikeProfile.name,
-                                               ikeProfile.dh_group,
-                                               ikeProfile.authentication,
-                                               ikeProfile.encryption,
-                                               ikeProfile.lifetime_secs,
-                                               None, None, None, 0)
+    ike_crypto_prof = network.IkeCryptoProfile(
+        name=name,
+        dh_group=dh_group,
+        authentication=authentication,
+        encryption=encryption,
+        lifetime_seconds=lifetime_seconds,
+        lifetime_minutes=lifetime_minutes,
+        lifetime_hours=lifetime_hours,
+        lifetime_days=lifetime_days
+    )
 
     # Create the device with the appropriate pandevice type
     device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
@@ -208,7 +225,7 @@ def main():
                 ike_crypto_prof.create()
                 changed = True
         elif state == "absent":
-            ike_crypto_prof = device.find(ikeProfile.name, network.IkeCryptoProfile)
+            ike_crypto_prof = device.find(name, network.IkeCryptoProfile)
             if ike_crypto_prof:
                 ike_crypto_prof.delete()
                 changed = True
