@@ -147,6 +147,7 @@ def main():
         state=dict(default='present', choices=['present', 'absent']),
         name=dict(required=True),
         dh_group=dict(
+            type='list',
             default='group2',
             choices=[
                 'group1', 'group2', 'group5', 'group14', 'group19', 'group20'
