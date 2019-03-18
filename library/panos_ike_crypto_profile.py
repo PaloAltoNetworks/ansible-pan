@@ -55,7 +55,7 @@ options:
             - API key that can be used instead of I(username)/I(password) credentials.
     state:
         description:
-            - Create or remove static route.
+            - Create or remove IKE profile.
         choices: ['present', 'absent']
         default: 'present'
     commit:
@@ -70,14 +70,17 @@ options:
         description:
             - Specify the priority for Diffie-Hellman (DH) groups.
         default: group2
+        choices: ['group1', 'group2', 'group5', 'group14', 'group19', 'group20']
         aliases: dhgroup
     authentication:
         description:
             - Specify the priority for hash algorithms.
+        choices: ['md5', 'sha1', 'sha256', 'sha384', 'sha512']
         default: sha1
     encryption:
         description:
             - Select the appropriate Encapsulating Security Payload (ESP) authentication options.
+        choices: ['des', '3des', 'aes-128-cbc', 'aes-192-cbc', 'aes-256-cbc']
         default: ['aes-256-cbc', '3des']
     lifetime_seconds:
         description:
@@ -85,7 +88,7 @@ options:
         aliases: lifetime_sec
     lifetime_minutes:
         description:
-            - IKE phase 1 key lifetime in minutes.  Minimum value is 3 minutes.
+            - IKE phase 1 key lifetime in minutes.
     lifetime_hours:
         description:
             - IKE phase 1 key lifetime in hours.  If no key lifetime is
@@ -102,12 +105,11 @@ EXAMPLES = '''
       username: '{{ username }}'
       password: '{{ password }}'
       state: 'present'
-      name: 'IKE-Ansible'
+      name: 'vpn-0cc61dd8c06f95cfd-0'
       dh_group: 'group2'
       authentication: 'sha1'
-      encryption: ['aes-256-cbc', '3des']
+      encryption: 'aes-128-cbc'
       lifetime_seconds: '28800'
-      commit: 'False'
 '''
 
 RETURN = '''
@@ -118,10 +120,7 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.basic import get_exception
 
 try:
-    from pan.xapi import PanXapiError
-    import pandevice
     from pandevice import base
-    from pandevice import panorama
     from pandevice.errors import PanDeviceError
     from pandevice import network
 
@@ -147,9 +146,27 @@ def main():
         api_key=dict(no_log=True),
         state=dict(default='present', choices=['present', 'absent']),
         name=dict(required=True),
-        dh_group=dict(default='group2', aliases=['dhgroup']),
-        authentication=dict(type='list', default=['sha1']),
-        encryption=dict(type='list', default=['aes-256-cbc', '3des']),
+        dh_group=dict(
+            default='group2',
+            choices=[
+                'group1', 'group2', 'group5', 'group14', 'group19', 'group20'
+            ],
+            aliases=['dhgroup']
+        ),
+        authentication=dict(
+            type='list',
+            choices=[
+                'md5', 'sha1', 'sha256', 'sha384', 'sha512'
+            ],
+            default=['sha1']
+        ),
+        encryption=dict(
+            type='list',
+            choices=[
+                'des', '3des', 'aes-128-cbc', 'aes-192-cbc', 'aes-256-cbc'
+            ],
+            default=['aes-256-cbc', '3des']
+        ),
         lifetime_seconds=dict(type='int', aliases=['lifetime_sec']),
         lifetime_minutes=dict(type='int'),
         lifetime_hours=dict(type='int'),
