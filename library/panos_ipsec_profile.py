@@ -122,8 +122,8 @@ EXAMPLES = '''
       password: '{{ password }}'
       state: 'present'
       name: 'ipsec-vpn-0cc61dd8c06f95cfd-0'
-      esp_authentication: 'sha1'
-      esp_encryption: 'aes-128-cbc'
+      esp_authentication: ['sha1']
+      esp_encryption: ['aes-128-cbc']
       lifetime_seconds: '3600'
 '''
 
@@ -209,7 +209,7 @@ def main():
                 'no-pfs', 'group1', 'group2', 'group5', 'group14', 'group19',
                 'group20'
             ],
-            default='group2',
+            default=['group2'],
             aliases=['dhgroup']
         ),
         lifetime_seconds=dict(type='int'),
@@ -265,7 +265,7 @@ def main():
         esp_encryption = ['aes-256-cbc', '3des']
 
     if esp_authentication is None and ah_authentication is None:
-        esp_authentication = 'sha1'
+        esp_authentication = ['sha1']
 
     # Reflect GUI behavior.  Default is 1 hour key lifetime if nothing else is
     # specified.
