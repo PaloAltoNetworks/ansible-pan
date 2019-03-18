@@ -21,17 +21,25 @@ IPSec SA negotiation (Phase 2).
 
 | parameter | required | default | choices | comments |
 | --- | --- | --- | --- | --- |
-| api_key |  |  |  | API key that can be used instead of *username*/*password* credentials. |
-| authentication |  | sha1 |  | Specify the priority for hash algorithms. |
-| commit |  | True |  | Commit configuration if changed. |
-| dhgroup |  | group2 |  | Specify the priority for Diffie-Hellman (DH) groups. |
-| encryption |  | [u'aes-256-cbc', u'3des'] |  | Select the appropriate Encapsulating Security Payload (ESP) authentication options. |
 | ip_address | yes |  |  | IP address (or hostname) of PAN-OS device being configured. |
-| lifetime_hrs |  | 1 |  | Select units and enter the length of time (default is 1hr) that the negotiated key will stay effective. |
-| name | yes |  |  | Name for the profile. |
-| password | yes |  |  | Password credentials to use for auth unless *api_key* is set. |
-| state |  | present | present, absent | Create or remove static route. |
 | username |  | admin |  | Username credentials to use for auth unless *api_key* is set. |
+| password | yes |  |  | Password credentials to use for auth unless *api_key* is set. |
+| api_key |  |  |  | API key that can be used instead of *username*/*password* credentials. |
+| name | yes |  |  | Name for the profile. |
+| esp_encryption |  | [u'aes-256-cbc', u'3des'] | des, 3des, null, aes-128-cbc, aes-192-cbc, aes-256-cbc, aes-128-gcm, aes-256-gcm | Encryption algorithms for ESP mode. |
+| esp_authentication |  | sha1 | none, md5, sha1, sha256, sha384, or sha512 | Authentication algorithms for ESP mode. |
+| ah_authentication |  |  | md5, sha1, sha256, sha384, or sha512 | Authentication algorithms for AH mode. |
+| dh_group |  | group2 | no-pfs, group1, group2, group5, group14, group19, group20 | Diffie-Hellman (DH) groups. |
+| lifetime_seconds |  |  |  | IPSec SA lifetime in seconds. |
+| lifetime_minutes |  |  |  | IPSec SA lifetime in minutes. |
+| lifetime_hours |  |  |  | IPSec SA lifetime in hours.  If no other key lifetimes are specified, default to 1 hour. |
+| lifetime_days |  |  |  | IPSec SA lifetime in days. |
+| lifesize_kb |  |  |  | IPSec SA lifetime in kilobytes. |
+| lifesize_mb |  |  |  | IPSec SA lifetime in megabytes. |
+| lifesize_gb |  |  |  | IPSec SA lifetime in gigabytes. |
+| lifesize_tb |  |  |  | IPSec SA lifetime in terabytes. |
+| state |  | present | present, absent | Create or remove IPsec profile. |
+| commit |  | True |  | Commit configuration if changed. |
 
 ## Examples
 
@@ -41,12 +49,10 @@ IPSec SA negotiation (Phase 2).
           username: '{{ username }}'
           password: '{{ password }}'
           state: 'present'
-          name: 'IPSec-Ansible'
-          encryption: ['aes-256-cbc', '3des']
-          authentication: 'sha1'
-          dhgroup: 'group2'
-          lifetime_hrs: '1'
-          commit: 'False'
+          name: 'ipsec-vpn-0cc61dd8c06f95cfd-0'
+          esp_authentication: 'sha1'
+          esp_encryption: 'aes-128-cbc'
+          lifetime_seconds: '3600'
 
 #### Notes
 

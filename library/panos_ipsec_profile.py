@@ -55,7 +55,7 @@ options:
             - API key that can be used instead of I(username)/I(password) credentials.
     state:
         description:
-            - Create or remove static route.
+            - Create or remove IPsec profile.
         choices: ['present', 'absent']
         default: 'present'
     commit:
@@ -67,19 +67,23 @@ options:
             - Name for the profile.
         required: true
     esp_encryption:
-        description:
+        description: Encryption algorithms for ESP mode.
+        choices: ['des', '3des', 'null', 'aes-128-cbc', 'aes-192-cbc',
+                  'aes-256-cbc', 'aes-128-gcm', 'aes-256-gcm']
         default: ['aes-256-cbc', '3des']
         aliases: encryption
     esp_authentication:
-        description:
+        description: Authentication algorithms for ESP mode.
+        choices: ['none', 'md5', 'sha1', 'sha256', 'sha384', 'sha512']
         default: sha1
         aliases: authentication
     ah_authentication:
-        description:
-        default:
+        description: Authentication algorithms for AH mode.
+        choices: ['md5', 'sha1', 'sha256', 'sha384', 'sha512']
     dh_group:
         description:
             - Diffie-Hellman (DH) groups.
+        choices: ['no-pfs', 'group1', 'group2', 'group5', 'group14', 'group19', 'group20']
         default: group2
         aliases: dhgroup
     lifetime_seconds:
@@ -90,7 +94,8 @@ options:
             - IPSec SA lifetime in minutes.
     lifetime_hours:
         description:
-            - IPSec SA lifetime in hours.
+            - IPSec SA lifetime in hours.  If no other key lifetimes are
+              specified, default to 1 hour.
         aliases: lifetime_hrs
     lifetime_days:
         description:
@@ -116,12 +121,10 @@ EXAMPLES = '''
       username: '{{ username }}'
       password: '{{ password }}'
       state: 'present'
-      name: 'IPSec-Ansible'
-      encryption: ['aes-256-cbc', '3des']
-      authentication: 'sha1'
-      dhgroup: 'group2'
-      lifetime_hrs: '1'
-      commit: 'False'
+      name: 'ipsec-vpn-0cc61dd8c06f95cfd-0'
+      esp_authentication: 'sha1'
+      esp_encryption: 'aes-128-cbc'
+      lifetime_seconds: '3600'
 '''
 
 RETURN = '''
@@ -179,10 +182,36 @@ def main():
         api_key=dict(no_log=True),
         state=dict(default='present', choices=['present', 'absent']),
         name=dict(required=True),
-        esp_encryption=dict(type='list', aliases=['encryption']),
-        esp_authentication=dict(type='list', aliases=['authentication']),
-        ah_authentication=dict(type='list'),
-        dh_group=dict(default='group2', aliases=['dhgroup']),
+        esp_encryption=dict(
+            type='list',
+            choices=[
+                'des', '3des', 'null', 'aes-128-cbc', 'aes-192-cbc',
+                'aes-256-cbc', 'aes-128-gcm', 'aes-256-gcm'
+            ],
+            aliases=['encryption']
+        ),
+        esp_authentication=dict(
+            type='list',
+            choices=[
+                'none', 'md5', 'sha1', 'sha256', 'sha384', 'sha512'
+            ],
+            aliases=['authentication']
+        ),
+        ah_authentication=dict(
+            type='list',
+            choices=[
+                'md5', 'sha1', 'sha256', 'sha384', 'sha512'
+            ]
+        ),
+        dh_group=dict(
+            type='list',
+            choices=[
+                'no-pfs', 'group1', 'group2', 'group5', 'group14', 'group19',
+                'group20'
+            ],
+            default='group2',
+            aliases=['dhgroup']
+        ),
         lifetime_seconds=dict(type='int'),
         lifetime_minutes=dict(type='int'),
         lifetime_hours=dict(type='int', aliases=['lifetime_hrs']),
@@ -231,6 +260,19 @@ def main():
     commit = module.params['commit']
 
     changed = False
+
+    if esp_encryption is None and ah_authentication is None:
+        esp_encryption = ['aes-256-cbc', '3des']
+
+    if esp_authentication is None and ah_authentication is None:
+        esp_authentication = 'sha1'
+
+    # Reflect GUI behavior.  Default is 1 hour key lifetime if nothing else is
+    # specified.
+    if not any([
+        lifetime_seconds, lifetime_minutes, lifetime_hours, lifetime_days
+    ]):
+        lifetime_hours = 1
 
     try:
         device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
