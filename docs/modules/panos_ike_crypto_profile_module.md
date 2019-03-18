@@ -45,9 +45,9 @@ encryption (IKEv1 or IKEv2, Phase 1).
           password: '{{ password }}'
           state: 'present'
           name: 'vpn-0cc61dd8c06f95cfd-0'
-          dh_group: 'group2'
-          authentication: 'sha1'
-          encryption: 'aes-128-cbc'
+          dh_group: ['group2']
+          authentication: ['sha1']
+          encryption: ['aes-128-cbc']
           lifetime_seconds: '28800'
 
 #### Notes
