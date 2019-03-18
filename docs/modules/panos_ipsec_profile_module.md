@@ -50,8 +50,8 @@ IPSec SA negotiation (Phase 2).
           password: '{{ password }}'
           state: 'present'
           name: 'ipsec-vpn-0cc61dd8c06f95cfd-0'
-          esp_authentication: 'sha1'
-          esp_encryption: 'aes-128-cbc'
+          esp_authentication: ['sha1']
+          esp_encryption: ['aes-128-cbc']
           lifetime_seconds: '3600'
 
 #### Notes
