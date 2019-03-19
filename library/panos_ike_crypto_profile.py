@@ -74,12 +74,12 @@ options:
         aliases: dhgroup
     authentication:
         description:
-            - Specify the priority for hash algorithms.
+            - Authentication hashes used for IKE phase 1 proposal.
         choices: ['md5', 'sha1', 'sha256', 'sha384', 'sha512']
         default: sha1
     encryption:
         description:
-            - Select the appropriate Encapsulating Security Payload (ESP) authentication options.
+            - Encryption algorithms used for IKE phase 1 proposal.
         choices: ['des', '3des', 'aes-128-cbc', 'aes-192-cbc', 'aes-256-cbc']
         default: ['aes-256-cbc', '3des']
     lifetime_seconds:
@@ -148,7 +148,7 @@ def main():
         name=dict(required=True),
         dh_group=dict(
             type='list',
-            default='group2',
+            default=['group2'],
             choices=[
                 'group1', 'group2', 'group5', 'group14', 'group19', 'group20'
             ],

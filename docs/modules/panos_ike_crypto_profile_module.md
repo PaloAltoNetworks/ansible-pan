@@ -28,12 +28,12 @@ encryption (IKEv1 or IKEv2, Phase 1).
 | state |  | present | present, absent | Create or remove IKE profile. |
 | commit |  | True |  | Commit configuration if changed. |
 | name | yes |  |  | Name for the profile. |
-| dh_group |  | group2 | group1, group2, group5, group14, group19, group20 | Specify the priority for Diffie-Hellman (DH) groups. |
-| authentication |  | sha1 | md5, sha1, sha256, sha384, sha512 | Specify the priority for hash algorithms. |
-| encryption |  | [u'aes-256-cbc', u'3des'] |  | Select the appropriate Encapsulating Security Payload (ESP) authentication options. |
-| lifetime_seconds |  |  | des, 3des, aes-128-cbc, aes-192-cbc, aes-256-cbc | IKE phase 1 key lifetime in seconds. |
+| dh_group |  | ['group2'] | group1, group2, group5, group14, group19, group20 | Specify the priority for Diffie-Hellman (DH) groups. |
+| authentication |  | ['sha1'] | md5, sha1, sha256, sha384, sha512 | Authentication hashes used for IKE phase 1 proposal. |
+| encryption |  | ['aes-256-cbc', '3des'] | des, 3des, aes-128-cbc, aes-192-cbc, aes-256-cbc | Encryption algorithms used for IKE phase 1 proposal. |
+| lifetime_seconds |  |  |  | IKE phase 1 key lifetime in seconds. |
 | lifetime_minutes |  |  |  | IKE phase 1 key lifetime in minutes. |
-| lifetime_hours |  |  |  | IKE phase 1 key lifetime in hours. If no key lifetime is specified, default to 8 hours. |
+| lifetime_hours |  | 8 |  | IKE phase 1 key lifetime in hours. If no other key lifetime is specified, default to 8 hours. |
 | lifetime_days |  |  |  | IKE phase 1 key lifetime in days. |
 
 ## Examples
