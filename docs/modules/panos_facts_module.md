@@ -3,7 +3,7 @@ title: panos_facts
 ---
 # panos_facts
 
-_(versionadded:: 2.7)_
+_(versionadded:: 2.8)_
 
 
 ## Synopsis
@@ -19,9 +19,7 @@ Collects facts from Palo Alto Networks device
 
 | parameter | required | default | choices | comments |
 | --- | --- | --- | --- | --- |
-
-| gather_subset |  | !config | all, system, session,
-              interfaces, ha, vr, vsys and config | Scopes what information is gathered from the device. |
+| gather_subset |  | !config | all, system, session, interfaces, ha, vr, vsys and config | Scopes what information is gathered from the device. |
 | host | yes |  |  | IP address or hostname of PAN-OS device. |
 | username |  | admin |  | Username for authentication for PAN-OS device.  If the value is not specified in the task, the value of environment variable ANSIBLE_NET_USERNAME will be used instead. |
 | password |  |  |  | Password for authentication for PAN-OS device. If the value is not specified in the task, the value of environment variable ANSIBLE_NET_PASSWORD will be used instead. |
@@ -29,12 +27,12 @@ Collects facts from Palo Alto Networks device
 
 ## Examples
 
-- name: Get facts
-  panos_facts:
-    host: myfw.company.com
-    username: admin
-    password: mysecret
-    gather_subset: config
+    - name: Get configuration from device
+      panos_facts:
+        host: myfw.company.com
+        username: admin
+        password: mysecret
+        gather_subset: config
     
 #### Return Values
 
@@ -60,12 +58,12 @@ The following are the fields unique to this module:
 | net_config | Device confiration in XML format. | When **config** is specified in **gather_subset**. | str |  |
 | net_interfaces | Network interface information (name, comment, ip, ipv6, tag). | When **interface** is specified in **gather_subset**. | dict |  |
 | net_virtual-routers | Virtual Router information (vr_name, vr_routerid, vr_asn, vr_iflist). | When **vr** is specified in **gather_subset**. | dict |  |
-| net_virtual-systems | Virtual System information (vsys_description, vsys_id:, vsys_name, vsys_currentsessions, vsys_vsys_maxsessions, vsys_vrlist, vsys_iflist, vsys_zonelist). | When **vsys** is specified in **gather_subset**. | dict |  |
+| net_virtual-systems | Virtual System information (vsys_description, vsys_id, vsys_name, vsys_currentsessions, vsys_vsys_maxsessions, vsys_vrlist, vsys_iflist, vsys_zonelist). | When **vsys** is specified in **gather_subset**. | dict |  |
 
 
 #### Notes
 
-- Panorama is not supported, though some **gather_subset**.values can be collected from Panorama.
+- Panorama is not supported, though some **gather_subset** values can be collected from Panorama.
 
 
 #### Status
