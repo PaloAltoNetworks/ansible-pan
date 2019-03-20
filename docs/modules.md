@@ -26,6 +26,7 @@ Modules list
 - [panos_commit_module](modules/panos_commit_module.md)
 - [panos_dag_module](modules/panos_dag_module.md)
 - [panos_dag_tags_module](modules/panos_dag_tags_module.md)
+- [panos_facts_module](modules/panos_facts_module.md)
 - [panos_ike_crypto_profile_module](modules/panos_ike_crypto_profile_module.md)
 - [panos_ike_gateway_module](modules/panos_ike_gateway_module.md)
 - [panos_import_module](modules/panos_import_module.md)
