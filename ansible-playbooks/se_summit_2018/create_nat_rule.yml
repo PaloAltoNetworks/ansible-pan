@@ -74,4 +74,3 @@
         snat_type: "dynamic-ip-and-port"
         snat_interface: "ethernet1/1"
         commit: "False"
-

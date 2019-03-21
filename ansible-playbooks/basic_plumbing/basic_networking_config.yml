@@ -50,7 +50,6 @@
         ip_address: "{{mgmt_ip}}"
         username: "{{admin_username}}"
         password: "{{admin_password}}"
-        ip_address: "{{mgmt_ip}}"
         if_name: "ethernet1/1"
         zone_name: "untrust"
         create_default_route: "yes"

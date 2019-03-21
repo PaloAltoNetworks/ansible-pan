@@ -35,4 +35,3 @@
         destination_port: '221'
         protocol: 'tcp'
         description: 'ssh on 221'
-
