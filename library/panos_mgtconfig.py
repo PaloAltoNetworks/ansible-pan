@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#  Copyright 2018 Palo Alto Networks, Inc
+#  Copyright 2016 Palo Alto Networks, Inc
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -216,29 +216,22 @@ def main():
     try:
         ss = SystemSettings.refreshall(device)[0]
 
-        print('changed = {}'.format(changed))
         if dns_server_primary is not None and ss.dns_primary != dns_server_primary:
             ss.dns_primary = dns_server_primary
             changed = True
-        print('changed = {}'.format(changed))
         if dns_server_secondary is not None and ss.dns_secondary != dns_server_secondary:
             ss.dns_secondary = dns_server_secondary
             changed = True
-        print('changed = {}'.format(changed))
         if panorama_primary is not None and ss.panorama != panorama_primary:
             ss.panorama = panorama_primary
             changed = True
-        print('changed = {}'.format(changed))
         if panorama_secondary is not None and ss.panorama2 != panorama_secondary:
             ss.panorama2 = panorama_secondary
             changed = True
-        print('changed = {}'.format(changed))
         if ntp_server_primary is not None:
             changed |= set_ntp_server(ss, ntp_server_primary, primary=True)
-        print('changed = {}'.format(changed))
         if ntp_server_secondary is not None:
             changed |= set_ntp_server(ss, ntp_server_secondary, primary=False)
-        print('changed = {}'.format(changed))
         if login_banner and ss.login_banner != login_banner:
             ss.login_banner = login_banner
             changed = True
@@ -255,7 +248,6 @@ def main():
             ss.domain = domain
             changed = True
 
-        print('changed = {}'.format(changed))
         if changed:
             ss.apply()
         if commit:
