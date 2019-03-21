@@ -13,6 +13,8 @@ V3.0.0
 
 *New modules*
 
+- panos\_facts: Collects device facts
+
 *Refactored modules*
 
 
