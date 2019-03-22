@@ -53,7 +53,7 @@
       username: '{{ username }}'
       password: '{{ password }}'
       addressgroup: 'test-address-group'
-      static_value: ['host-1.2.3.4','range-192.168.100.100-200']
+      static_value: ['host-1.2.3.4', 'range-192.168.100.100-200']
       description: 'This is a test addressgroup'
       operation: 'add'
       devicegroup: 'shared_services_11022'
@@ -88,7 +88,7 @@
       username: '{{ username }}'
       password: '{{ password }}'
       servicegroup: 'test-service-group'
-      services: ['service-abc','service-xyz']
+      services: ['service-abc', 'service-xyz']
       description: 'This is a test servicegroup'
       operation: 'add'
       devicegroup: 'shared_services_11022'

@@ -58,4 +58,3 @@
       snat_bidirectional: 'true'
       devicegroup: 'shared_services_11022'
       operation: 'add'
-

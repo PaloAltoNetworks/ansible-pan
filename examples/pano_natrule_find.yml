@@ -32,4 +32,3 @@
       operation: 'find'
     register: result
   - debug: msg='{{ result.stdout_lines }}'
-

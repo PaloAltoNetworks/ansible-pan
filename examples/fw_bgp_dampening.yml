@@ -51,4 +51,3 @@
         vr_name: default
         state: absent
         name: damp-profile-01
-
