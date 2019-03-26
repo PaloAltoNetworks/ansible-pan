@@ -218,8 +218,8 @@ def main():
         argument_spec=dict(
             if_name=dict(required=True),
             mode=dict(default='layer3', choices=['layer3', 'layer2',
-                'virtual-wire', 'tap', 'ha', 'decrypt-mirror',
-                'aggregate-group']),
+                    'virtual-wire', 'tap', 'ha', 'decrypt-mirror',
+                    'aggregate-group']),
             ip=dict(type='list'),
             ipv6_enabled=dict(type='bool'),
             management_profile=dict(),
