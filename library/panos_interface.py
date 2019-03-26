@@ -17,40 +17,25 @@
 DOCUMENTATION = '''
 ---
 module: panos_interface
-short_description: configure data-port network interface for DHCP
+short_description: configure data-port network interfaces
 description:
-    - Configure data-port (DP) network interface for DHCP. By default DP interfaces are static.
+    - Configure data-port (DP) network interface. By default DP interfaces are static.
 author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
 version_added: "2.3"
 requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
-note:
-    - Checkmode is not supported.
+    - pandevice >= 0.8.0
+notes:
+    - Checkmode is supported.
+    - If the PAN-OS device is a firewall and I(vsys) is not specified, then
+      the vsys will default to I(vsys=vsys1).
+extends_documentation_fragment:
+    - panos.transitional_provider
+    - panos.state
+    - panos.vsys_import
+    - panos.template_only
 options:
-    ip_address:
-        description:
-            - IP address (or hostname) of PAN-OS device being configured.
-        required: true
-    username:
-        description:
-            - Username credentials to use for auth.
-        default: "admin"
-    password:
-        description:
-            - Password credentials to use for auth.
-    api_key:
-        description:
-            - API key that can be used instead of I(username)/I(password) credentials.
-    operation:
-        description:
-            - The action to be taken.  Supported values are I(add)/I(update)/I(delete).
-            - This is used only if "state" is unspecified.
-        default: "add"
-    state:
-        description:
-            - The state.  Can be either I(present)/I(absent).
-            - If this is defined, then "operation" is ignored.
     if_name:
         description:
             - Name of the interface to configure.
@@ -58,23 +43,34 @@ options:
     mode:
         description:
             - The interface mode.
-            - Supported values are I(layer3)/I(layer2)/I(virtual-wire)/I(tap)/I(ha)/I(decrypt-mirror)/I(aggregate-group)
         default: "layer3"
+        choices:
+            - layer3
+            - layer2
+            - virtual-wire
+            - tap
+            - ha
+            - decrypt-mirror
+            - aggregate-group
     ip:
         description:
             - List of static IP addresses.
+        type: list
     ipv6_enabled:
         description:
             - Enable IPv6.
+        type: bool
     management_profile:
         description:
             - Interface management profile name.
     mtu:
         description:
             - MTU for layer3 interface.
+        type: int
     adjust_tcp_mss:
         description:
             - Adjust TCP MSS for layer3 interface.
+        type: bool
     netflow_profile:
         description:
             - Netflow profile for layer3 interface.
@@ -89,13 +85,26 @@ options:
             - Netflow profile name for layer2 interface.
     link_speed:
         description:
-            - Link speed.  Supported values are I(auto)/I(10)/I(100)/I(1000).
+            - Link speed.
+        choices:
+            - auto
+            - 10
+            - 100
+            - 1000
     link_duplex:
         description:
-            - Link duplex.  Supported values are I(auto)/I(full)/I(half).
+            - Link duplex.
+        choices:
+            - auto
+            - full
+            - half
     link_state:
         description:
-            - Link state.  Supported values are I(auto)/I(up)/I(down).
+            - Link state.
+        choices:
+            - auto
+            - up
+            - down
     aggregate_group:
         description:
             - Aggregate interface name.
@@ -105,37 +114,54 @@ options:
     ipv4_mss_adjust:
         description:
             - (7.1+) TCP MSS adjustment for IPv4.
+        type: int
     ipv6_mss_adjust:
         description:
             - (7.1+) TCP MSS adjustment for IPv6.
+        type: int
     enable_dhcp:
         description:
             - Enable DHCP on this interface.
         default: "true"
+        type: bool
     create_default_route:
         description:
             - Whether or not to add default route with router learned via DHCP.
         default: "false"
+        type: bool
     dhcp_default_route_metric:
         description:
             - Metric for the DHCP default route.
+        type: int
     zone_name:
         description:
-            - Name of the zone for the interface. If the zone does not exist it is created.
-            - If the zone exists and it is not of the correct mode the operation will fail.
-        required: true
+            - Name of the zone for the interface.
+            - If the zone does not exist it is created.
+            - If the zone already exists its mode should match I(mode).
+    vlan_name:
+        description:
+            - The VLAN to put this interface in.
+            - If the VLAN does not exist it is created.
+            - Only specify this if I(mode=layer2).
     vr_name:
         description:
             - Name of the virtual router; it must already exist.
         default: "default"
     vsys_dg:
         description:
+            - B(Deprecated)
+            - Use I(vsys) to specify the vsys instead.
+            - HORIZONTALLINE
             - Name of the vsys (if firewall) or device group (if panorama) to put this object.
-        default: "vsys1"
     commit:
         description:
             - Commit if changed
         default: true
+        type: bool
+    operation:
+        description:
+            - B(Removed)
+            - Use I(state) instead.
 '''
 
 EXAMPLES = '''
@@ -172,119 +198,71 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.basic import get_exception
+from ansible.module_utils.network.panos.panos import get_connection
 
 
 try:
-    from pandevice.base import PanDevice
-    from pandevice.network import EthernetInterface, Zone, VirtualRouter
-    from pandevice.device import Vsys
+    from pandevice.network import EthernetInterface
     from pandevice.errors import PanDeviceError
-    HAS_LIB = True
 except ImportError:
-    HAS_LIB = False
-
-
-def set_zone(con, eth, zone_name, zones):
-    changed = False
-    desired_zone = None
-
-    # Remove the interface from the zone.
-    for z in zones:
-        if z.name == zone_name:
-            desired_zone = z
-        elif eth.name in z.interface:
-            z.interface.remove(eth.name)
-            z.update('interface')
-            changed = True
-
-    if desired_zone is not None:
-        if desired_zone.mode != eth.mode:
-            raise ValueError('Mode mismatch: {0} is {1}, zone is {2}'.format(eth.name, eth.mode, z.mode))
-        if desired_zone.interface is None:
-            desired_zone.interface = []
-        if eth.name not in desired_zone.interface:
-            desired_zone.interface.append(eth.name)
-            desired_zone.update('interface')
-            changed = True
-    elif zone_name is not None:
-        z = Zone(zone_name, interface=[eth.name, ], mode=eth.mode)
-        con.add(z)
-        z.create()
-        changed = True
-
-    return changed
-
-
-def set_virtual_router(con, eth, vr_name, routers):
-    changed = False
-    desired_vr = None
-
-    for vr in routers:
-        if vr.name == vr_name:
-            desired_vr = vr
-        elif vr.interface is None:
-            pass
-        elif eth.name in vr.interface:
-            vr.interface.remove(eth.name)
-            vr.update('interface')
-            changed = True
-
-    if desired_vr is not None:
-        if desired_vr.interface is None:
-            desired_vr.interface = []
-        if eth.name not in desired_vr.interface:
-            desired_vr.interface.append(eth.name)
-            desired_vr.update('interface')
-            changed = True
-    elif vr_name is not None:
-        raise ValueError('Virtual router {0} does not exist'.format(vr_name))
-
-    return changed
+    pass
 
 
 def main():
-    argument_spec = dict(
-        ip_address=dict(required=True),
-        password=dict(no_log=True),
-        username=dict(default='admin'),
-        api_key=dict(no_log=True),
-        operation=dict(default='add', choices=['add', 'update', 'delete']),
-        state=dict(choices=['present', 'absent']),
-        if_name=dict(required=True),
-        mode=dict(default='layer3',
-                  choices=['layer3', 'layer2', 'virtual-wire', 'tap', 'ha', 'decrypt-mirror', 'aggregate-group']),
-        ip=dict(type='list'),
-        ipv6_enabled=dict(),
-        management_profile=dict(),
-        mtu=dict(),
-        adjust_tcp_mss=dict(),
-        netflow_profile=dict(),
-        lldp_enabled=dict(),
-        lldp_profile=dict(),
-        netflow_profile_l2=dict(),
-        link_speed=dict(),
-        link_duplex=dict(),
-        link_state=dict(),
-        aggregate_group=dict(),
-        comment=dict(),
-        ipv4_mss_adjust=dict(),
-        ipv6_mss_adjust=dict(),
-        enable_dhcp=dict(type='bool', default=True),
-        create_default_route=dict(type='bool', default=False),
-        dhcp_default_route_metric=dict(),
-        zone_name=dict(required=True),
-        vr_name=dict(default='default'),
-        vsys_dg=dict(default='vsys1'),
-        commit=dict(type='bool', default=True),
-    )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
-                           required_one_of=[['api_key', 'password']])
-    if not HAS_LIB:
-        module.fail_json(msg='Missing required libraries.')
+    helper = get_connection(
+        vsys_importable=True,
+        template=True,
+        with_classic_provider_spec=True,
+        with_state=True,
+        min_pandevice_version=(0, 8, 0),
+        argument_spec=dict(
+            if_name=dict(required=True),
+            mode=dict(default='layer3', choices=['layer3', 'layer2',
+                'virtual-wire', 'tap', 'ha', 'decrypt-mirror',
+                'aggregate-group']),
+            ip=dict(type='list'),
+            ipv6_enabled=dict(type='bool'),
+            management_profile=dict(),
+            mtu=dict(type='int'),
+            adjust_tcp_mss=dict(type='bool'),
+            netflow_profile=dict(),
+            lldp_enabled=dict(),
+            lldp_profile=dict(),
+            netflow_profile_l2=dict(),
+            link_speed=dict(choices=['auto', '10', '100', '1000']),
+            link_duplex=dict(choices=['auto', 'full', 'half']),
+            link_state=dict(choices=['auto', 'up', 'down']),
+            aggregate_group=dict(),
+            comment=dict(),
+            ipv4_mss_adjust=dict(type='int'),
+            ipv6_mss_adjust=dict(type='int'),
+            enable_dhcp=dict(type='bool', default=True),
+            create_default_route=dict(type='bool', default=False),
+            dhcp_default_route_metric=dict(type='int'),
+            zone_name=dict(),
+            vr_name=dict(default='default'),
+            vlan_name=dict(),
+            commit=dict(type='bool', default=True),
 
-    # Get the firewall / panorama auth.
-    auth = [module.params[x] for x in
-            ('ip_address', 'username', 'password', 'api_key')]
+            # TODO(gfreeman) - remove this in 2.12.
+            vsys_dg=dict(),
+
+            # TODO(gfreeman) - remove in the next release.
+            operation=dict(),
+        ),
+    )
+    module = AnsibleModule(
+        argument_spec=helper.argument_spec,
+        supports_check_mode=True,
+        required_one_of=helper.required_one_of,
+    )
+
+    # TODO(gfreeman) - remove in the next release.
+    if module.params['operation'] is not None:
+        module.fail_json(msg='Operation has been removed; use "state"')
+
+    # Verify libs are present, get the parent object.
+    parent = helper.get_pandevice_parent(module)
 
     # Get the object params.
     spec = {
@@ -312,169 +290,107 @@ def main():
     }
 
     # Get other info.
-    operation = module.params['operation']
     state = module.params['state']
     zone_name = module.params['zone_name']
-    vr_name = module.params['vr_name']
+    vlan_name = module.params['vlan_name']
+    vr_name = module.params['vr_name'] if module.params['vr_name'] else None
+    vsys = module.params['vsys']
     vsys_dg = module.params['vsys_dg']
     commit = module.params['commit']
 
-    # Open the connection to the PANOS device.
-    con = PanDevice.create_from_device(*auth)
-
-    # Set vsys if firewall, device group if panorama.
-    if hasattr(con, 'refresh_devices'):
-        # Panorama
-        # Normally we want to set the device group here, but there are no
-        # interfaces on Panorama.  So if we're given a Panorama device, then
-        # error out.
-        '''
-        groups = panorama.DeviceGroup.refreshall(con, add=False)
-        for parent in groups:
-            if parent.name == vsys_dg:
-                con.add(parent)
-                break
-        else:
-            module.fail_json(msg="'{0}' device group is not present".format(vsys_dg))
-        '''
-        module.fail_json(msg="Ethernet interfaces don't exist on Panorama")
-    else:
-        # Firewall
-        # Normally we should set the vsys here, but since interfaces are
-        # vsys importables, we'll use organize_into_vsys() to help find and
-        # cleanup when the interface is imported into an undesired vsys.
-        # con.vsys = vsys_dg
-        pass
+    # TODO(gfreeman) - Remove vsys_dg in 2.12, as well as this code chunk.
+    # In the mean time, we'll need to do this special handling.
+    if vsys_dg is not None:
+        module.deprecate('Param "vsys_dg" is deprecated, use "vsys"', '2.12')
+        if vsys is None:
+            vsys = vsys_dg
+        elif vsys_dg != vsys:
+            msg = [
+                'Options "vsys" and "vsys_dg" differ',
+                'Specify one or the other, not both.',
+            ]
+            module.fail_json(msg='.  '.join(msg))
+    elif vsys is None:
+        # TODO(gfreeman) - v2.12, just set the default for vsys to 'vsys1'.
+        vsys = 'vsys1'
 
     # Retrieve the current config.
     try:
-        interfaces = EthernetInterface.refreshall(con, add=False, name_only=True)
-        zones = Zone.refreshall(con)
-        routers = VirtualRouter.refreshall(con)
-        vsys_list = Vsys.refreshall(con)
+        interfaces = EthernetInterface.refreshall(
+            parent, add=False, matching_vsys=False)
     except PanDeviceError:
         e = get_exception()
         module.fail_json(msg=e.message)
 
     # Build the object based on the user spec.
     eth = EthernetInterface(**spec)
-    con.add(eth)
+    parent.add(eth)
 
     # Which action should we take on the interface?
     changed = False
+    reference_params = {
+        'refresh': True,
+        'update': not module.check_mode,
+        'return_type': 'bool',
+    }
     if state == 'present':
-        if eth.name in [x.name for x in interfaces]:
-            i = EthernetInterface(eth.name)
-            con.add(i)
-            try:
-                i.refresh()
-            except PanDeviceError as e:
-                module.fail_json(msg='Failed "present" refresh: {0}'.format(e))
-            if not i.equal(eth, compare_children=False):
-                eth.extend(i.children)
+        for item in interfaces:
+            if item.name != eth.name:
+                continue
+            # Interfaces have children, so don't compare them.
+            if not item.equal(eth, compare_children=False):
+                changed = True
+                eth.extend(item.children)
+                if not module.check_mode:
+                    try:
+                        eth.apply()
+                    except PanDeviceError as e:
+                        module.fail_json('Failed apply: {0}'.format(e))
+            break
+        else:
+            changed = True
+            if not module.check_mode:
                 try:
-                    eth.apply()
-                    changed = True
+                    eth.create()
                 except PanDeviceError as e:
-                    module.fail_json(msg='Failed "present" apply: {0}'.format(e))
-        else:
-            try:
-                eth.create()
-                changed = True
-            except PanDeviceError as e:
-                module.fail_json(msg='Failed "present" create: {0}'.format(e))
+                    module.fail_json('Failed create: {0}'.format(e))
+
+        # Set references.
         try:
-            changed |= set_zone(con, eth, zone_name, zones)
-            changed |= set_virtual_router(con, eth, vr_name, routers)
+            changed |= eth.set_vsys(vsys, **reference_params)
+            changed |= eth.set_zone(zone_name, mode=eth.mode, **reference_params)
+            changed |= eth.set_vlan(vlan_name, **reference_params)
+            changed |= eth.set_virtual_router(vr_name, **reference_params)
         except PanDeviceError as e:
-            module.fail_json(msg='Failed zone/vr assignment: {0}'.format(e))
+            module.fail_json(msg='Failed setref: {0}'.format(e))
     elif state == 'absent':
+        # Remove references.
         try:
-            changed |= set_zone(con, eth, None, zones)
-            changed |= set_virtual_router(con, eth, None, routers)
+            changed |= eth.set_virtual_router(None, **reference_params)
+            changed |= eth.set_vlan(None, **reference_params)
+            changed |= eth.set_zone(None, mode=eth.mode, **reference_params)
+            changed |= eth.set_vsys(None, **reference_params)
         except PanDeviceError as e:
-            module.fail_json(msg='Failed "absent" zone/vr cleanup: {0}'.format(e))
-            changed = True
+            module.fail_json(msg='Failed setref: {0}'.format(e))
+
+        # Remove the interface.
         if eth.name in [x.name for x in interfaces]:
-            try:
-                eth.delete()
-                changed = True
-            except PanDeviceError as e:
-                module.fail_json(msg='Failed "absent" delete: {0}'.format(e))
-    elif operation == 'delete':
-        if eth.name not in [x.name for x in interfaces]:
-            module.fail_json(msg='Interface {0} does not exist, and thus cannot be deleted'.format(eth.name))
-
-        try:
-            con.organize_into_vsys()
-            set_zone(con, eth, None, zones)
-            set_virtual_router(con, eth, None, routers)
-            eth.delete()
             changed = True
-        except (PanDeviceError, ValueError):
-            e = get_exception()
-            module.fail_json(msg=e.message)
-    elif operation == 'add':
-        if eth.name in [x.name for x in interfaces]:
-            module.fail_json(msg='Interface {0} is already present; use operation "update"'.format(eth.name))
-
-        con.vsys = vsys_dg
-        # Create the interface.
-        try:
-            eth.create()
-            set_zone(con, eth, zone_name, zones)
-            set_virtual_router(con, eth, vr_name, routers)
-            changed = True
-        except (PanDeviceError, ValueError):
-            e = get_exception()
-            module.fail_json(msg=e.message)
-    elif operation == 'update':
-        if eth.name not in [x.name for x in interfaces]:
-            module.fail_json(msg='Interface {0} is not present; use operation "add" to create it'.format(eth.name))
-
-        # If the interface is in the wrong vsys, remove it from the old vsys.
-        try:
-            con.organize_into_vsys()
-        except PanDeviceError:
-            e = get_exception()
-            module.fail_json(msg=e.message)
-        if eth.vsys != vsys_dg:
-            try:
-                eth.delete_import()
-            except PanDeviceError:
-                e = get_exception()
-                module.fail_json(msg=e.message)
-
-        # Move the ethernet object to the correct vsys.
-        for vsys in vsys_list:
-            if vsys.name == vsys_dg:
-                vsys.add(eth)
-                break
-        else:
-            module.fail_json(msg='Vsys {0} does not exist'.format(vsys))
-
-        # Update the interface.
-        try:
-            eth.apply()
-            set_zone(con, eth, zone_name, zones)
-            set_virtual_router(con, eth, vr_name, routers)
-            changed = True
-        except (PanDeviceError, ValueError):
-            e = get_exception()
-            module.fail_json(msg=e.message)
-    else:
-        module.fail_json(msg="Unsupported operation '{0}'".format(operation))
+            if not module.check_mode:
+                try:
+                    eth.delete()
+                except PanDeviceError as e:
+                    module.fail_json('Failed delete: {0}'.format(e))
 
     # Commit if we were asked to do so.
-    if changed and commit:
+    if not module.check_mode and changed and commit:
         try:
-            con.commit(sync=True, exception=True)
-        except PanDeviceError:
-            e = get_exception()
-            module.fail_json(msg='Performed {0} but commit failed: {1}'.format(operation, e.message))
+            helper.device.commit(sync=True, exception=True)
+        except PanDeviceError as e:
+            module.fail_json(msg='Failed commit: {0}'.format(e))
 
     # Done!
-    module.exit_json(changed=changed, msg='okey dokey')
+    module.exit_json(changed=changed, msg='Done')
 
 
 if __name__ == '__main__':
