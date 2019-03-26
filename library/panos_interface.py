@@ -308,9 +308,9 @@ def main():
         module.deprecate('Param "vsys_dg" is deprecated, use "vsys"', '2.12')
         if vsys is None:
             vsys = vsys_dg
-        elif vsys_dg != vsys:
+        else:
             msg = [
-                'Options "vsys" and "vsys_dg" differ',
+                'Params "vsys" and "vsys_dg" both given',
                 'Specify one or the other, not both.',
             ]
             module.fail_json(msg='.  '.join(msg))
