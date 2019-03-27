@@ -114,7 +114,7 @@ def perform_commit(module, device):
         return
 
     result = device.commit_all(sync=True, sync_all=True,
-        devicegroup=module.params['device_group'])
+            devicegroup=module.params['device_group'])
     if result:
         check_commit_result(module, result)
 
