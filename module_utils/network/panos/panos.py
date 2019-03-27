@@ -189,15 +189,6 @@ class ConnectionHelper(object):
                 else:
                     module.fail_json(msg=pano_mia_param.format(self.template))
 
-            # Spec: vsys importable.
-            vsys_name = self.vsys_importable or self.vsys
-            if vsys_name is not None:
-                name = module.params[vsys_name]
-                if name not in (None, 'shared'):
-                    vo = Vsys(name)
-                    parent.add(vo)
-                    parent = vo
-
             # Spec: vsys_dg or device_group.
             dg_name = self.vsys_dg or self.device_group
             if dg_name is not None:
@@ -212,6 +203,15 @@ class ConnectionHelper(object):
                         module.fail_json(msg=not_found.format(
                             'Device group', name,
                         ))
+
+            # Spec: vsys importable.
+            vsys_name = self.vsys_importable or self.vsys
+            if dg_name is None and vsys_name is not None:
+                name = module.params[vsys_name]
+                if name not in (None, 'shared'):
+                    vo = Vsys(name)
+                    parent.add(vo)
+                    parent = vo
 
             # Spec: rulebase.
             if self.rulebase is not None:
@@ -249,6 +249,59 @@ class ConnectionHelper(object):
 
         # Done.
         return parent
+
+    def apply_state(self, obj, listing, module):
+        """Generic state handling.
+
+        Checkmode is supported.
+
+        Args:
+            obj: The pandevice object to be applied.
+            listing(list): List of objects currently configured.
+            module: The Ansible module.
+
+        Returns:
+            bool: If a change was made or not.
+        """
+        # Sanity check.
+        if 'state' not in module.params:
+            module.fail_json(msg='No "state" present')
+        elif module.params['state'] not in ('present', 'absent'):
+            module.fail_json(msg='Unsupported state: {0}'.format(
+                    module.params['state']))
+
+        # Apply the state.
+        changed = False
+        if module.params['state'] == 'present':
+            for item in listing:
+                if item.uid != obj.uid:
+                    continue
+                if not item.equal(obj, compare_children=False):
+                    changed = True
+                    obj.extend(item.children)
+                    if not module.check_mode:
+                        try:
+                            obj.apply()
+                        except PanDeviceError as e:
+                            module.fail_json(msg='Failed apply: {0}'.format(e))
+                break
+            else:
+                changed = True
+                if not module.check_mode:
+                    try:
+                        obj.create()
+                    except PanDeviceError as e:
+                        module.fail_json(msg='Failed create: {0}'.format(e))
+        else:
+            if obj.uid in [x.uid for x in listing]:
+                changed = True
+                if not module.check_mode:
+                    try:
+                        obj.delete()
+                    except PanDeviceError as e:
+                        module.fail_json(msg='Failed delete: {0}'.format(e))
+
+        return changed
 
 
 def get_connection(vsys=None, device_group=None,
