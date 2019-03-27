@@ -17,6 +17,8 @@ V3.0.0
 
 *Refactored modules*
 
+- panos\_ike\_gateway: added support for local and peer ID parameters.
+
 
 V2.0.4
 -----
