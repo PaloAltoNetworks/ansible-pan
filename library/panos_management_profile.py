@@ -194,7 +194,6 @@ def main():
     parent.add(obj)
 
     # Other module params.
-    state = module.params['state']
     commit = module.params['commit']
 
     # Retrieve current config.
@@ -204,34 +203,7 @@ def main():
         module.fail_json(msg='Failed refresh: {0}'.format(e))
 
     # Perform requested action.
-    changed = False
-    if state == 'present':
-        for item in profiles:
-            if item.name != obj.name:
-                continue
-            if not item.equal(obj):
-                changed = True
-                if not module.check_mode:
-                    try:
-                        obj.apply()
-                    except PanDeviceError as e:
-                        module.fail_json(msg='Failed apply: {0}'.format(e))
-            break
-        else:
-            changed = True
-            if not module.check_mode:
-                try:
-                    obj.create()
-                except PanDeviceError as e:
-                    module.fail_json(msg='Failed create: {0}'.format(e))
-    elif state == 'absent':
-        if obj.name in [x.name for x in profiles]:
-            changed = True
-            if not module.check_mode:
-                try:
-                    obj.delete()
-                except PanDeviceError as e:
-                    module.fail_json(msg='Failed delete: {0}'.format(e))
+    changed = helper.apply_state(obj, profiles, module)
 
     # Optional: commit.
     if not module.check_mode and changed and commit:
