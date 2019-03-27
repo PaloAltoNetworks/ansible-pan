@@ -124,7 +124,7 @@ options:
         default: 'CHANGEME'
     local_id_type:
         description:
-            - Specify the type of local ID.  
+            - Specify the type of local ID.
         choices: ['ipaddr', 'fwdn', 'ufqdn', 'keyid', 'dn']
         default: None
     local_id_value:
@@ -133,7 +133,7 @@ options:
         default: None
     peer_id_type:
         description:
-            - Specify the type of peer ID.  
+            - Specify the type of peer ID.
         choices: ['ipaddr', 'fwdn', 'ufqdn', 'keyid', 'dn']
         default: None
     peer_id_value:
@@ -142,7 +142,7 @@ options:
         default: None
     peer_id_check:
         description:
-            - Type of checking to do on peer_id.  
+            - Type of checking to do on peer_id.
         choices: ['exact', 'wildcard']
         default: None
     crypto_profile_name:
@@ -313,7 +313,7 @@ def main():
                          dead_peer_detection_interval=dead_peer_detection_interval, enable_fragmentation=fragmentation,
                          dead_peer_detection_retry=dead_peer_detection_retry, enable_passive_mode=passive_mode,
                          liveness_check=liveness_check, peer_ip_value=peer_ip_value, psk=psk,
-                         local_id_type=local_id_type, local_id_value=local_id_value, 
+                         local_id_type=local_id_type, local_id_value=local_id_value,
                          peer_id_type=peer_id_type, peer_id_value=peer_id_value, peer_id_check=peer_id_check)
 
     ike_gateway = network.IkeGateway(name=ikeGtwy.name, version=ikeGtwy.protocol_version, enable_ipv6=False,
@@ -323,7 +323,8 @@ def main():
                                      local_ip_address_type=ikeGtwy.local_ip_address_type,
                                      local_ip_address=ikeGtwy.local_ip_address,
                                      auth_type=ikeGtwy.auth_type, pre_shared_key=ikeGtwy.psk,
-                                     local_id_type=local_id_type, local_id_value=local_id_value, peer_id_type=peer_id_type, peer_id_value=peer_id_value,
+                                     local_id_type=local_id_type, local_id_value=local_id_value,
+                                     peer_id_type=peer_id_type, peer_id_value=peer_id_value,
                                      peer_id_check=peer_id_check,
                                      local_cert=None, cert_enable_hash_and_url=False, cert_base_url=None,
                                      cert_use_management_as_source=False, cert_permit_payload_mismatch=False,
