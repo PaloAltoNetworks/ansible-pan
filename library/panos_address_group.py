@@ -113,8 +113,11 @@ def perform_commit(module, device):
     if not hasattr(device, 'commit_all'):
         return
 
-    result = device.commit_all(sync=True, sync_all=True,
-                devicegroup=module.params['device_group'])
+    result = device.commit_all(
+        sync=True,
+        sync_all=True,
+        devicegroup=module.params['device_group'],
+    )
     if result:
         check_commit_result(module, result)
 
