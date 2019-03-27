@@ -168,9 +168,7 @@ EXAMPLES = '''
 # Create ethernet1/1 as DHCP.
 - name: enable DHCP client on ethernet1/1 in zone public
   panos_interface:
-    ip_address: "192.168.1.1"
-    username: "ansible"
-    password: "secret"
+    provider: '{{ provider }}'
     if_name: "ethernet1/1"
     zone_name: "public"
     create_default_route: "yes"
@@ -178,9 +176,7 @@ EXAMPLES = '''
 # Update ethernet1/2 with a static IP address in zone dmz.
 - name: ethernet1/2 as static in zone dmz
   panos_interface:
-    ip_address: "192.168.1.1"
-    username: "ansible"
-    password: "secret"
+    provider: '{{ provider }}'
     if_name: "ethernet1/2"
     mode: "layer3"
     ip: ["10.1.1.1/24"]
