@@ -604,7 +604,7 @@ def main():
                         module.fail_json(msg='Failed move: {0}'.format(e))
     elif operation == 'update':
         # Search for the rule. Update if found.
-        match = find_rule(rulebase, new_rule.name)
+        match = find_rule(rules, new_rule)
         if not match:
             module.fail_json(msg='Rule \'%s\' does not exist. Use operation: \'add\' to add it.' % new_rule.name)
         try:
