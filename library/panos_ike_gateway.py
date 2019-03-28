@@ -122,6 +122,29 @@ options:
         description:
             - Specify pre-shared key.
         default: 'CHANGEME'
+    local_id_type:
+        description:
+            - Specify the type of local ID.
+        choices: ['ipaddr', 'fwdn', 'ufqdn', 'keyid', 'dn']
+        default: None
+    local_id_value:
+        description:
+            - The value for the local_id.  (See also local_id_type, above.)
+        default: None
+    peer_id_type:
+        description:
+            - Specify the type of peer ID.
+        choices: ['ipaddr', 'fwdn', 'ufqdn', 'keyid', 'dn']
+        default: None
+    peer_id_value:
+        description:
+            - The value for the peer_id.  (See also peer_id_type, above.)
+        default: None
+    peer_id_check:
+        description:
+            - Type of checking to do on peer_id.
+        choices: ['exact', 'wildcard']
+        default: None
     crypto_profile_name:
         description:
             - Select an existing profile or keep the default profile.
@@ -199,6 +222,11 @@ class IKEGateway:
         self.dead_peer_detection_interval = kwargs.get('dead_peer_detection_interval')
         self.dead_peer_detection_retry = kwargs.get('dead_peer_detection_retry')
         self.psk = kwargs.get('psk')
+        self.local_id_type = kwargs.get('local_id_type')
+        self.local_id_value = kwargs.get('local_id_value')
+        self.peer_id_type = kwargs.get('peer_id_type')
+        self.peer_id_value = kwargs.get('peer_id_value')
+        self.peer_id_check = kwargs.get('peer_id_check')
 
 
 def main():
@@ -224,12 +252,19 @@ def main():
         dead_peer_detection_interval=dict(type='int', default=99),
         dead_peer_detection_retry=dict(type='int', default=10),
         psk=dict(no_log=True, default='CHANGEME'),
+        local_id_type=dict(default=None, choices=['ipaddr', 'fqdn', 'ufqdn', 'keyid', 'dn']),
+        local_id_value=dict(default=None),
+        peer_id_type=dict(default=None, choices=['ipaddr', 'fqdn', 'ufqdn', 'keyid', 'dn']),
+        peer_id_value=dict(default=None),
+        peer_id_check=dict(default=None, choices=['exact', 'wildcard']),
         crypto_profile_name=dict(default='default'),
         ikev1_exchange_mode=dict(default=None, choices=['auto', 'main', 'aggressive']),
         commit=dict(type='bool', default=True)
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
-                           required_one_of=[['api_key', 'password']])
+                           required_one_of=[['api_key', 'password']],
+                           required_together=[['peer_id_value', 'peer_id_type', 'peer_id_check'],
+                                              ['local_id_value', 'local_id_type']])
     if not HAS_LIB:
         module.fail_json(msg='Missing required libraries.')
 
@@ -253,6 +288,11 @@ def main():
     dead_peer_detection_interval = module.params['dead_peer_detection_interval']
     dead_peer_detection_retry = module.params['dead_peer_detection_retry']
     psk = module.params['psk']
+    local_id_type = module.params['local_id_type']
+    local_id_value = module.params['local_id_value']
+    peer_id_type = module.params['peer_id_type']
+    peer_id_value = module.params['peer_id_value']
+    peer_id_check = module.params['peer_id_check']
     crypto_profile_name = module.params['crypto_profile_name']
     ikev1_exchange_mode = module.params['ikev1_exchange_mode']
     commit = module.params['commit']
@@ -272,7 +312,9 @@ def main():
                          dead_peer_detection=dead_peer_detection,
                          dead_peer_detection_interval=dead_peer_detection_interval, enable_fragmentation=fragmentation,
                          dead_peer_detection_retry=dead_peer_detection_retry, enable_passive_mode=passive_mode,
-                         liveness_check=liveness_check, peer_ip_value=peer_ip_value, psk=psk)
+                         liveness_check=liveness_check, peer_ip_value=peer_ip_value, psk=psk,
+                         local_id_type=local_id_type, local_id_value=local_id_value,
+                         peer_id_type=peer_id_type, peer_id_value=peer_id_value, peer_id_check=peer_id_check)
 
     ike_gateway = network.IkeGateway(name=ikeGtwy.name, version=ikeGtwy.protocol_version, enable_ipv6=False,
                                      disabled=False,
@@ -281,8 +323,9 @@ def main():
                                      local_ip_address_type=ikeGtwy.local_ip_address_type,
                                      local_ip_address=ikeGtwy.local_ip_address,
                                      auth_type=ikeGtwy.auth_type, pre_shared_key=ikeGtwy.psk,
-                                     local_id_type=None, local_id_value=None, peer_id_type=None, peer_id_value=None,
-                                     peer_id_check=None,
+                                     local_id_type=local_id_type, local_id_value=local_id_value,
+                                     peer_id_type=peer_id_type, peer_id_value=peer_id_value,
+                                     peer_id_check=peer_id_check,
                                      local_cert=None, cert_enable_hash_and_url=False, cert_base_url=None,
                                      cert_use_management_as_source=False, cert_permit_payload_mismatch=False,
                                      cert_profile=None, cert_enable_strict_validation=False,
