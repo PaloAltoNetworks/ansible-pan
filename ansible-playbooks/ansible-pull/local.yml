@@ -56,4 +56,3 @@
         destination_zone: ['trust']
         action: 'allow'
         commit: "True"
-

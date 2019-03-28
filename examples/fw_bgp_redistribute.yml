@@ -1,0 +1,43 @@
+- name: Configure BGP Redistribution Rule
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+
+  vars:
+    ip_address: '{{ ansible_host }}'
+
+  tasks:
+    - name: Grab the credentials from ansible-vault
+      include_vars: 'firewall-secrets.yml'
+      no_log: 'yes'
+
+    - name: Create BGP Redistribution Rule
+      panos_bgp_redistribute:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        vr_name: default
+        name: redist-rule-01
+        enable: false
+
+    - name: Update BGP Redistribution Rule
+      panos_bgp_redistribute:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        vr_name: default
+        name: redist-rule-01
+        enable: true
+        set_as_path_limit: 255
+
+    - name: Remove BGP Redistribution Rule
+      panos_bgp_redistribute:
+        ip_address: '{{ ip_address }}'
+        username: '{{ username }}'
+        password: '{{ password }}'
+        state: absent
+        vr_name: default
+        name: redist-rule-01

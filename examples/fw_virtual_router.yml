@@ -1,0 +1,49 @@
+- hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+#  roles:
+#    - role: PaloAltoNetworks.paloaltonetworks
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: Add Virtual Router
+    panos_virtual_router:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      state: present
+      name: vr-1
+      interface: ['ethernet1/1']
+      commit: true
+
+  - name: Update Virtual Router
+    panos_virtual_router:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      state: present
+      name: vr-1
+      interface: ['ethernet1/1', 'ethernet1/2']
+      ad_ebgp: 15
+      ad_ibgp: 100
+      ad_ospf_ext: 120
+      ad_ospf_int: 30
+      ad_ospfv3_ext: 30
+      ad_ospfv3_int: 110
+      ad_rip: 120
+      ad_static: 15
+      ad_static_ipv6: 15
+      commit: true
+
+  - name: Remove Virtual Router
+    panos_virtual_router:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      state: absent
+      name: vr-1
+      commit: true

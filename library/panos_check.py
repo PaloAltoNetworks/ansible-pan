@@ -106,7 +106,7 @@ def main():
         ip_address=dict(required=True),
         password=dict(required=True, no_log=True),
         username=dict(default='admin'),
-        timeout=dict(default=0, type='int'),
+        timeout=dict(default=60, type='int'),
         interval=dict(default=0, type='int')
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
@@ -123,7 +123,7 @@ def main():
         hostname=ip_address,
         api_username=username,
         api_password=password,
-        timeout=60
+        timeout=timeout
     )
 
     checkpnt = time.time() + timeout

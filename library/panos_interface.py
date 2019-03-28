@@ -222,6 +222,8 @@ def set_virtual_router(con, eth, vr_name, routers):
     for vr in routers:
         if vr.name == vr_name:
             desired_vr = vr
+        elif vr.interface is None:
+            pass
         elif eth.name in vr.interface:
             vr.interface.remove(eth.name)
             vr.update('interface')
@@ -304,8 +306,8 @@ def main():
         'comment': module.params['comment'],
         'ipv4_mss_adjust': module.params['ipv4_mss_adjust'],
         'ipv6_mss_adjust': module.params['ipv6_mss_adjust'],
-        'enable_dhcp': module.params['enable_dhcp'] or None,
-        'create_dhcp_default_route': module.params['create_default_route'] or None,
+        'enable_dhcp': True if module.params['enable_dhcp'] else None,
+        'create_dhcp_default_route': True if module.params['create_default_route'] else None,
         'dhcp_default_route_metric': module.params['dhcp_default_route_metric'],
     }
 
@@ -466,7 +468,7 @@ def main():
     # Commit if we were asked to do so.
     if changed and commit:
         try:
-            con.commit(sync=True, exceptions=True)
+            con.commit(sync=True, exception=True)
         except PanDeviceError:
             e = get_exception()
             module.fail_json(msg='Performed {0} but commit failed: {1}'.format(operation, e.message))

@@ -126,7 +126,7 @@
         password: "{{admin_password}}"
         operation: 'update'
         rule_name: 'SSH traffic'
-        application: ['ping','ssh']
+        application: ['ping', '_ssh']
         description: 'Allow SSH traffic'
         source_zone: ['untrust']
         destination_zone: ['trust']

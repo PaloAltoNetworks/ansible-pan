@@ -1,0 +1,40 @@
+- name: Configure BGP Authentication Profile
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+
+  vars:
+    ip_address: '{{ ansible_host }}'
+
+  tasks:
+    - name: Grab the credentials from ansible-vault
+      include_vars: 'firewall-secrets.yml'
+      no_log: 'yes'
+
+    - name: Create BGP Auth Profile
+      panos_bgp_auth:
+        ip_address: '{{ ip_address }}'
+        password: '{{ password }}'
+        vr_name: default
+        name: auth-profile-01
+        secret: '{{ bgp_auth_secret }}'
+
+    - name: Update BGP Auth Profile
+      panos_bgp_auth:
+        ip_address: '{{ ip_address }}'
+        password: '{{ password }}'
+        vr_name: default
+        replace: true
+        name: auth-profile-01
+        secret: '{{ bgp_auth_secret }}'
+
+    - name: Remove BGP Auth Profile
+      panos_bgp_auth:
+        ip_address: '{{ ip_address }}'
+        password: '{{ password }}'
+        state: absent
+        vr_name: default
+        name: auth-profile-01

@@ -14,6 +14,7 @@ V3.0.1
 - panos\_op: "api\_port" added to allow connections through a proxy
 
 V3.0.0
+
 ------
 
 -   Released: In development
@@ -57,20 +58,6 @@ V2.0.3
 - panos\_bgp\_redistribute: Manages BGP Redistribution Rules
 - panos\_loopback\_interface: manage loopback interfaces
 - panos\_redistribution: Manages virtual router Redistribution Profiles
-
-*Refactored modules*
-
-- panos\_ike\_gateway: fixed misspelling of passive_mode and added additional module arguments to support more advanced configurations
-
-V2.0.2
-------
-
--   Released: In development
--   Status: In development
-
-*New Modules*
-
-- panos\_api\_key: retrieve api_key for username/password combination
 
 *Refactored modules*
 

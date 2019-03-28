@@ -1,0 +1,32 @@
+- name: Set admin password
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: Create Tunnel Interface 'tunnel.1'
+    panos_tunnel:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      if_name: tunnel.1
+
+  - name: Create Tunnel Interface 'tunnel.2'
+    panos_tunnel:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      state: 'present'
+      if_name: tunnel.2
+      ip: 192.168.27.21/30
+      vr_name: default
+      zone_name: ipsec_tunnel
+      comment: IPSec connection to remote site
+      management_profile: allow-ping

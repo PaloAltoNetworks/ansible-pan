@@ -108,7 +108,7 @@
         password: "{{admin_password}}"
         operation: 'add'
         rule_name: 'SSH traffic'
-        application: ['ping','ssh']
+        application: ['ping', '_ssh']
         description: 'Allow SSH traffic'
         source_zone: ['external']
         destination_zone: ['web']
@@ -121,7 +121,7 @@
         password: "{{admin_password}}"
         operation: 'add'
         rule_name: 'SSH 221 traffic'
-        application: ['ping','ssh']
+        application: ['ping', '_ssh']
         service: 'service-tcp-221'
         description: 'Allow SSH traffic'
         source_zone: ['external']
