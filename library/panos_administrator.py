@@ -33,31 +33,21 @@ requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
 notes:
-    - Checkmode is not supported.
+    - Checkmode is supported.
+    - Panorama is supported.
+    - Because "request password-hash" does not always generate the same hash
+      with the same password every time, it isn't possible to tell if the
+      admin's password is correct or not.  Specifying check mode or
+      I(state=present) with I(admin_password) specified will always report
+      I(changed=True) in the return value.
+extends_documentation_fragment:
+    - panos.transitional_provider
+    - panos.state
+    - panos.full_template_support
 options:
-    ip_address:
-        description:
-            - IP address (or hostname) of PAN-OS device being configured.
-        required: true
-    username:
-        description:
-            - Username credentials to use for auth unless I(api_key) is set.
-        default: "admin"
-    password:
-        description:
-            - Password credentials to use for auth unless I(api_key) is set.
-        required: true
-    api_key:
-        description:
-            - API key that can be used instead of I(username)/I(password) credentials.
-    state:
-        description:
-            - The state.  Can be either I(present)/I(absent).
-        default: "present"
     admin_username:
         description:
             - Admin name.
-        required: false
         default: "admin"
     authentication_profile:
         description:
@@ -65,30 +55,38 @@ options:
     web_client_cert_only:
         description:
             - Use only client certificate authenciation (Web)
+        type: bool
     superuser:
         description:
             - Admin type - superuser
+        type: bool
     superuser_read_only:
         description:
             - Admin type - superuser, read only
+        type: bool
     panorama_admin:
         description:
             - This is for Panorama only.
             - Make the user a Panorama admin only
+        type: bool
     device_admin:
         description:
             - Admin type - device admin
+        type: bool
     device_admin_read_only:
         description:
             - Admin type - device admin, read only
+        type: bool
     vsys:
         description:
             - This is for multi-vsys physical firewalls only.
             - The list of vsys this admin should manage.
+        type: list
     vsys_read_only:
         description:
             - This is for multi-vsys physical firewalls only.
             - The list of vsys this read only admin should manage.
+        type: list
     ssh_public_key:
         description:
             - Use public key authentication (ssh)
@@ -106,6 +104,7 @@ options:
         description:
             - Commit configuration if changed.
         default: true
+        type: bool
 '''
 
 EXAMPLES = '''
@@ -113,8 +112,7 @@ EXAMPLES = '''
 # Doesn't commit the candidate config
   - name: configure foo administrator
     panos_administrator:
-      ip_address: "192.168.1.1"
-      password: "admin"
+      provider: '{{ provider }}'
       admin_username: 'foo'
       admin_password: 'secret'
       superuser: true
@@ -128,52 +126,52 @@ status:
     type: string
     sample: "done"
 '''
+
+
 from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.network.panos.panos import get_connection
+
 
 try:
-    from pandevice.base import PanDevice
     from pandevice.device import Administrator
     from pandevice.errors import PanDeviceError
-    HAS_LIB = True
 except ImportError:
-    HAS_LIB = False
+    pass
 
 
 def main():
-    argument_spec = dict(
-        ip_address=dict(required=True),
-        username=dict(default='admin'),
-        password=dict(no_log=True),
-        api_key=dict(no_log=True),
-        state=dict(default='present', choices=['present', 'absent']),
-        admin_username=dict(default='admin'),
-        authentication_profile=dict(),
-        web_client_cert_only=dict(type='bool'),
-        superuser=dict(type='bool'),
-        superuser_read_only=dict(type='bool'),
-        panorama_admin=dict(type='bool'),
-        device_admin=dict(type='bool'),
-        device_admin_read_only=dict(type='bool'),
-        vsys=dict(type='list'),
-        vsys_read_only=dict(type='list'),
-        ssh_public_key=dict(),
-        role_profile=dict(),
-        admin_password=dict(no_log=True),
-        password_profile=dict(no_log=False),
-        commit=dict(type='bool', default=True)
+    helper = get_connection(
+        template=True,
+        template_stack=True,
+        with_state=True,
+        with_classic_provider_spec=True,
+        min_pandevice_version=(0, 8, 0),
+        argument_spec=dict(
+            admin_username=dict(default='admin'),
+            authentication_profile=dict(),
+            web_client_cert_only=dict(type='bool'),
+            superuser=dict(type='bool'),
+            superuser_read_only=dict(type='bool'),
+            panorama_admin=dict(type='bool'),
+            device_admin=dict(type='bool'),
+            device_admin_read_only=dict(type='bool'),
+            vsys=dict(type='list'),
+            vsys_read_only=dict(type='list'),
+            ssh_public_key=dict(),
+            role_profile=dict(),
+            admin_password=dict(no_log=True),
+            password_profile=dict(no_log=False),
+            commit=dict(type='bool', default=True)
+        ),
     )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
-                           required_one_of=[['api_key', 'password']])
+    module = AnsibleModule(
+        argument_spec=helper.argument_spec,
+        supports_check_mode=True,
+        required_one_of=helper.required_one_of,
+    )
 
-    if not HAS_LIB:
-        module.fail_json(msg='Missing required libraries.')
-
-    # Get PAN-OS auth info.
-    auth = [module.params[x] for x in
-            ['ip_address', 'username', 'password', 'api_key']]
-
-    # Open the connection to the PAN-OS device.
-    con = PanDevice.create_from_device(*auth)
+    # Verify imports, build pandevice object tree.
+    parent = helper.get_pandevice_parent(module)
 
     # Get administrator object spec.
     spec_params = [
@@ -191,55 +189,59 @@ def main():
     commit = module.params['commit']
 
     # Get the current administrators.
-    admins = Administrator.refreshall(con, add=False)
+    try:
+        admins = Administrator.refreshall(parent, add=False)
+    except PanDeviceError as e:
+        module.fail_json(msg='Failed refresh: {0}'.foramt(e))
     obj = Administrator(**params)
-    con.add(obj)
+    parent.add(obj)
 
     # Set "password_hash" by requesting a password hash.
     if password is not None:
         try:
-            obj.password_hash = con.request_password_hash(password)
+            obj.password_hash = helper.device.request_password_hash(password)
         except PanDeviceError as e:
             module.fail_json(msg='Failed to get phash: {0}'.format(e))
 
     # Perform the requested action.
     changed = False
     if state == 'present':
-        for x in admins:
-            if obj.name == x.name:
-                # If user did not specify a password, keep the current one.
-                if obj.password_hash is None and x.password_hash:
-                    obj.password_hash = x.password_hash
-                # Don't use .equal() here because we don't want pandevice to
-                # try and do smart things with the password_hash field.
-                if obj.element_str() != x.element_str():
+        for item in admins:
+            if item.name != obj.name:
+                continue
+            # If user did not specify a password, keep the current one.
+            if obj.password_hash is None and item.password_hash:
+                obj.password_hash = item.password_hash
+            # Don't use .equal() here because we don't want pandevice to
+            # try and do smart things with the password_hash field.
+            if obj.element_str() != item.element_str():
+                changed = True
+                if not module.check_mode:
                     try:
                         obj.apply()
                     except PanDeviceError as e:
                         module.fail_json(msg='Failed apply: {0}'.format(e))
-                    else:
-                        changed = True
-                break
+            break
         else:
-            try:
-                obj.create()
-            except PanDeviceError as e:
-                module.fail_json(msg='Failed create: {0}'.format(e))
-            else:
-                changed = True
+            changed = True
+            if not module.check_mode:
+                try:
+                    obj.create()
+                except PanDeviceError as e:
+                    module.fail_json(msg='Failed create: {0}'.format(e))
     elif state == 'absent':
         if obj.name in [x.name for x in admins]:
-            try:
-                obj.delete()
-            except PanDeviceError as e:
-                module.fail_json(msg='Failed delete: {0}'.format(e))
-            else:
-                changed = True
+            changed = True
+            if not module.check_mode:
+                try:
+                    obj.delete()
+                except PanDeviceError as e:
+                    module.fail_json(msg='Failed delete: {0}'.format(e))
 
     # Commit if appropriate.
-    if changed and commit:
+    if not module.check_mode and changed and commit:
         try:
-            con.commit(sync=True)
+            helper.device.commit(sync=True)
         except PanDeviceError as e:
             module.fail_json(msg='Failed commit: {0}'.format(e))
 
