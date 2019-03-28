@@ -28,34 +28,21 @@ short_description: retrieve api_key for username/password combination
 description:
     - This module will allow retrieval of the api_key for a given username/password
 author: "Joshua Colson (@freakinhippie)"
-version_added: "2.9"
+version_added: "2.8"
 requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
 notes:
+    - Panorama is supported.
     - Checkmode is NOT supported.
-options:
-    ip_address:
-        description:
-            - IP address (or hostname) of PAN-OS device or Panorama management console being configured.
-        required: true
-    username:
-        description:
-            - Username credentials to use for authentication.
-        required: false
-        default: "admin"
-    password:
-        description:
-            - Password credentials to use for authentication.
-        required: true
+extends_documentation_fragment:
+    - panos.transitional_provider
 '''
 
 EXAMPLES = '''
 - name: retrieve api_key
   panos_op:
-    ip_address: '{{ ip_address }}'
-    username: '{{ username }}'
-    password: '{{ password }}'
+    provider: '{{ provider }}'
   register: auth
 
 - name: show system info
@@ -63,7 +50,6 @@ EXAMPLES = '''
     ip_address: '{{ ip_address }}'
     api_key: '{{ auth.api_key }}'
     cmd: show system info
-
 '''
 
 RETURN = '''
@@ -76,42 +62,30 @@ api_key:
 
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.basic import get_exception
-
-try:
-    from pandevice.base import PanDevice
-    from pandevice.errors import PanDeviceError
-
-    HAS_LIB = True
-except ImportError:
-    HAS_LIB = False
+from ansible.module_utils.network.panos.panos import get_connection
 
 
 def main():
-    argument_spec = dict(
-        ip_address=dict(required=True),
-        username=dict(default='admin'),
-        password=dict(required=True, no_log=True),
+    helper = get_connection(
+        with_classic_provider_spec=True,
+        argument_spec={},
     )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
-    if not HAS_LIB:
-        module.fail_json(msg='Missing required libraries.')
+    module = AnsibleModule(
+        argument_spec=helper.argument_spec,
+        supports_check_mode=False,
+        required_one_of=helper.required_one_of,
+    )
 
-    auth = [module.params[x] for x in
-            ('ip_address', 'username', 'password')]
+    # Verify imports, build pandevice object tree.
+    parent = helper.get_pandevice_parent(module)
 
-    # Create the device with the appropriate pandevice type
-    try:
-        dev = PanDevice.create_from_device(*auth)
-    except PanDeviceError as e:
-        module.fail_json(msg='Failed to connect: {0}'.format(e))
-
-    api_key = ''
-    try:
-        api_key = dev.api_key
-    except PanDeviceError:
-        e = get_exception()
-        module.fail_json(msg='Failed to retrieve api_key: {0}'.format(e))
+    # Done.
+    if helper.device.parent is not None:
+        # Firewall via Panorama connections.
+        api_key = helper.device.parent.api_key
+    else:
+        # Standard.
+        api_key = helper.device.api_key
 
     module.exit_json(changed=False, msg="Done",
                      api_key=api_key)
