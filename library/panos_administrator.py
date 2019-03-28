@@ -189,7 +189,10 @@ def main():
     commit = module.params['commit']
 
     # Get the current administrators.
-    admins = Administrator.refreshall(parent, add=False)
+    try:
+        admins = Administrator.refreshall(parent, add=False)
+    except PanDeviceError as e:
+        module.fail_json(msg='Failed refresh: {0}'.foramt(e))
     obj = Administrator(**params)
     parent.add(obj)
 
