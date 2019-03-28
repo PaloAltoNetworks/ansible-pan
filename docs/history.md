@@ -5,7 +5,16 @@ title: History and changelog
 History
 =======
 
+V3.0.1
+------
+
+ *Refactored modules*
+ 
+- panos\_admin: "api\_port" added to allow connections through a proxy
+- panos\_op: "api\_port" added to allow connections through a proxy
+
 V3.0.0
+
 ------
 
 -   Released: In development
