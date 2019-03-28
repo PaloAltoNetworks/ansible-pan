@@ -36,9 +36,9 @@ options:
         description:
             - IP address (or hostname) of PAN-OS device being configured.
         required: true
-    api_port:
+    port:
         description:
-            - API port used to connect to the PAN-OS device being configured.
+            - Port used to connect to the PAN-OS device being configured.
         required: false
         default: 443
     username:
@@ -163,7 +163,7 @@ def admin_set(xapi, module, admin_username, admin_password, role):
 def main():
     argument_spec = dict(
         ip_address=dict(required=True),
-        api_port=dict(default=443),
+        port=dict(default=443),
         password=dict(no_log=True),
         username=dict(default='admin'),
         api_key=dict(no_log=True),
@@ -179,7 +179,7 @@ def main():
         module.fail_json(msg='Missing required libraries.')
 
     ip_address = module.params["ip_address"]
-    port = module.params['api_port']
+    port = module.params['port']
     password = module.params["password"]
     username = module.params['username']
     api_key = module.params['api_key']
