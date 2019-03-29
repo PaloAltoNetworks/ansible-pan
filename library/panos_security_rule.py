@@ -342,7 +342,10 @@ def main():
             application=dict(type='list', default=['any']),
             service=dict(type='list', default=['application-default']),
             category=dict(type='list', default=['any']),
-            action=dict(default='allow', choices=['allow', 'deny', 'drop', 'reset-client', 'reset-server', 'reset-both']),
+            action=dict(
+                default='allow',
+                choices=['allow', 'deny', 'drop', 'reset-client', 'reset-server', 'reset-both'],
+            ),
             log_setting=dict(),
             log_start=dict(type='bool', default=False),
             log_end=dict(type='bool', default=True),
