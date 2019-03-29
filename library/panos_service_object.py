@@ -74,9 +74,7 @@ options:
 EXAMPLES = '''
 - name: Create service object 'ssh-tcp-22'
   panos_service_object:
-    ip_address: '{{ fw_ip_address }}'
-    username: '{{ fw_username }}'
-    password: '{{ fw_password }}'
+    provider: '{{ provider }}'
     name: 'ssh-tcp-22'
     destination_port: '22'
     description: 'SSH on tcp/22'
@@ -84,18 +82,14 @@ EXAMPLES = '''
 
 - name: Create service object 'mysql-tcp-3306'
   panos_service_object:
-    ip_address: '{{ fw_ip_address }}'
-    username: '{{ fw_username }}'
-    password: '{{ fw_password }}'
+    provider: '{{ provider }}'
     name: 'mysql-tcp-3306'
     destination_port: '3306'
     description: 'MySQL on tcp/3306'
 
 - name: Delete service object 'mysql-tcp-3306'
   panos_service_object:
-    ip_address: '{{ fw_ip_address }}'
-    username: '{{ fw_username }}'
-    password: '{{ fw_password }}'
+    provider: '{{ provider }}'
     name: 'mysql-tcp-3306'
     state: 'absent'
 '''
@@ -156,7 +150,7 @@ def main():
     try:
         listing = ServiceObject.refreshall(parent, add=False)
     except PanDeviceError as e:
-        module.fail_json('Failed refresh: {0}'.format(e))
+        module.fail_json(msg='Failed refresh: {0}'.format(e))
 
     # Build the object based on the user spec.
     obj = ServiceObject(**spec)
