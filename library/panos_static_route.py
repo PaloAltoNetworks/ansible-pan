@@ -30,23 +30,14 @@ requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
 notes:
-    - Panorama is not supported.
+    - Checkmode is supported.
+    - Panorama is supported.
     - IPv6 is not supported.
+extends_documentation_fragment:
+    - panos.transitional_provider
+    - panos.state
+    - panos.full_template_support
 options:
-    ip_address:
-        description:
-            - IP address or hostname of PAN-OS device.
-        required: true
-    username:
-        description:
-            - Username for authentication for PAN-OS device.  Optional if I(api_key) is used.
-        default: 'admin'
-    password:
-        description:
-            - Password for authentication for PAN-OS device.  Optional if I(api_key) is used.
-    api_key:
-        description:
-            - API key to be used instead of I(username) and I(password).
     name:
         description:
             - Name of static route.
@@ -57,7 +48,11 @@ options:
     nexthop_type:
         description:
             - Type of next hop.
-        choices: ['ip-address', 'discard', 'none']
+        choices:
+            - ip-address
+            - discard
+            - none
+            - next-vr
         default: 'ip-address'
     nexthop:
         description:
@@ -76,54 +71,39 @@ options:
     interface:
         description:
             - The Interface to use.
-    state:
-        description:
-            - Create or remove static route.
-        choices: ['present', 'absent']
-        default: 'present'
 '''
 
 EXAMPLES = '''
 - name: Create route 'Test-One'
   panos_static_route:
-    ip_address: '{{ fw_ip_address }}'
-    username: '{{ fw_username }}'
-    password: '{{ fw_password }}'
+    provider: '{{ provider }}'
     name: 'Test-One'
     destination: '1.1.1.0/24'
     nexthop: '10.0.0.1'
 
 - name: Create route 'Test-Two'
   panos_static_route:
-    ip_address: '{{ fw_ip_address }}'
-    username: '{{ fw_username }}'
-    password: '{{ fw_password }}'
+    provider: '{{ provider }}'
     name: 'Test-Two'
     destination: '2.2.2.0/24'
     nexthop: '10.0.0.1'
 
 - name: Create route 'Test-Three'
   panos_static_route:
-    ip_address: '{{ fw_ip_address }}'
-    username: '{{ fw_username }}'
-    password: '{{ fw_password }}'
+    provider: '{{ provider }}'
     name: 'Test-Three'
     destination: '3.3.3.0/24'
     nexthop: '10.0.0.1'
 
 - name: Delete route 'Test-Two'
   panos_static_route:
-    ip_address: '{{ fw_ip_address }}'
-    username: '{{ fw_username }}'
-    password: '{{ fw_password }}'
+    provider: '{{ provider }}'
     name: 'Test-Two'
     state: 'absent'
 
 - name: Create route 'Test-Four'
   panos_static_route:
-    ip_address: '{{ fw_ip_address }}'
-    username: '{{ fw_username }}'
-    password: '{{ fw_password }}'
+    provider: '{{ provider }}'
     name: 'Test-Four'
     destination: '4.4.4.0/24'
     nexthop: '10.0.0.1'
@@ -131,9 +111,7 @@ EXAMPLES = '''
 
 - name: Create route 'Test-Five'
     panos_static_route:
-    ip_address: '{{ fw_ip_address }}'
-    username: '{{ fw_username }}'
-    password: '{{ fw_password }}'
+    provider: '{{ provider }}'
     name: 'Test-Five'
     destination: '5.5.5.0/24'
     nexthop_type: 'none'
@@ -143,106 +121,88 @@ RETURN = '''
 # Default return values
 '''
 
+
 from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.network.panos.panos import get_connection
+
 
 try:
-    from pandevice import base
-    from pandevice import firewall
-    from pandevice import network
+    from pandevice.network import StaticRoute
+    from pandevice.network import VirtualRouter
     from pandevice.errors import PanDeviceError
-
-    HAS_LIB = True
 except ImportError:
-    HAS_LIB = False
-
-
-def find_object(device, obj_name, obj_type):
-    obj_type.refreshall(device)
-
-    if isinstance(device, firewall.Firewall):
-        return device.find(obj_name, obj_type)
-    else:
-        return None
+    pass
 
 
 def main():
-    argument_spec = dict(
-        ip_address=dict(required=True),
-        username=dict(default='admin'),
-        password=dict(no_log=True),
-        api_key=dict(no_log=True),
-        name=dict(type='str', required=True),
-        destination=dict(type='str'),
-        nexthop_type=dict(default='ip-address', choices=['ip-address', 'discard', 'none']),
-        nexthop=dict(type='str'),
-        admin_dist=dict(type='str'),
-        metric=dict(default='10'),
-        virtual_router=dict(default='default'),
-        interface=dict(type='str'),
-        state=dict(default='present', choices=['present', 'absent'])
+    helper = get_connection(
+        template=True,
+        template_stack=True,
+        with_state=True,
+        with_classic_provider_spec=True,
+        argument_spec=dict(
+            name=dict(required=True),
+            destination=dict(),
+            nexthop_type=dict(
+                default='ip-address',
+                choices=['ip-address', 'discard', 'none', 'next-vr'],
+            ),
+            nexthop=dict(),
+            admin_dist=dict(),
+            metric=dict(type='int', default=10),
+            virtual_router=dict(default='default'),
+            interface=dict(),
+        ),
     )
 
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
+    module = AnsibleModule(
+        argument_spec=helper.argument_spec,
+        supports_check_mode=True,
+        required_one_of=helper.required_one_of,
+    )
 
-    if not HAS_LIB:
-        module.fail_json(msg='pan-python and pandevice are required for this module.')
+    spec = {
+        'name': module.params['name'],
+        'destination': module.params['destination'],
+        'nexthop_type': module.params['nexthop_type'],
+        'nexthop': module.params['nexthop'],
+        'interface': module.params['interface'],
+        'admin_dist': module.params['admin_dist'],
+        'metric': module.params['metric'],
+    }
 
-    ip_address = module.params['ip_address']
-    username = module.params['username']
-    password = module.params['password']
-    api_key = module.params['api_key']
-    name = module.params['name']
-    destination = module.params['destination']
-    nexthop_type = module.params['nexthop_type']
-    nexthop = module.params['nexthop']
-    admin_dist = module.params['admin_dist']
-    metric = module.params['metric']
+    parent = helper.get_pandevice_parent(module)
     virtual_router = module.params['virtual_router']
-    state = module.params['state']
-    interface = module.params['interface']
 
-    # allow None for nexthop_type
-    nexthop_type = nexthop_type if nexthop_type.lower() != 'none' else None
-
-    changed = False
+    # Allow None for nexthop_type.
+    if spec['nexthop_type'] == 'none':
+        spec['nexthop_type'] = None
 
     try:
-        device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
-        network.VirtualRouter.refreshall(device)
-        vr = device.find(virtual_router, network.VirtualRouter)
-
-        if state == 'present':
-            if not destination and not nexthop:
-                module.fail_json(msg='Must specify \'destination\' and \'nexthop\' if state is \'present\'.')
-
-            existing_route = vr.find(name, network.StaticRoute)
-            new_route = network.StaticRoute(name, destination, nexthop=nexthop,
-                                            nexthop_type=nexthop_type, admin_dist=admin_dist,
-                                            metric=metric, interface=interface)
-
-            if not existing_route:
-                vr.add(new_route)
-                new_route.create()
-                changed = True
-            elif not existing_route.equal(new_route):
-                existing_route.destination = destination
-                existing_route.nexthop = nexthop
-                existing_route.nexthop_type = nexthop_type
-                existing_route.admin_dist = admin_dist
-                existing_route.metric = metric
-                existing_route.interface = interface
-                existing_route.apply()
-                changed = True
-
-        elif state == 'absent':
-            existing_route = vr.find(name, network.StaticRoute)
-
-            if existing_route:
-                existing_route.delete()
-                changed = True
-
+        vr_list = VirtualRouter.refreshall(parent, add=False, name_only=True)
     except PanDeviceError as e:
-        module.fail_json(msg=e.message)
+        module.fail_json(msg='Failed vr refresh: {0}'.format(e))
+
+    # Find the virtual router.
+    for vr in vr_list:
+        if vr.name == virtual_router:
+            parent.add(vr)
+            break
+    else:
+        module.fail_json(msg='Virtual router "{0}" does not exist'.format(virtual_router))
+
+    # Get the listing.
+    try:
+        listing = StaticRoute.refreshall(vr, add=False)
+    except PanDeviceError as e:
+        module.fail_json(msg='Failed refresh: {0}'.format(e))
+
+    # Create the object and attach it to the object tree.
+    obj = StaticRoute(**spec)
+    vr.add(obj)
+
+    # Apply the state.
+    changed = helper.apply_state(obj, listing, module)
 
     module.exit_json(changed=changed)
 
