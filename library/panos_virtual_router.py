@@ -228,10 +228,10 @@ def main():
                     module.fail_json(msg='Failed apply: {0}'.format(e))
 
         changed |= virtual_router.set_vsys(
-                module.params['vsys'], **reference_params)
+            module.params['vsys'], **reference_params)
     else:
         changed |= virtual_router.set_vsys(
-                None, **reference_params)
+            None, **reference_params)
         if name in [x.name for x in vr_list]:
             changed = True
             if not module.check_mode:
