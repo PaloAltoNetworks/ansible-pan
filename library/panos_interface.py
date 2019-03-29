@@ -347,7 +347,7 @@ def main():
                     try:
                         eth.apply()
                     except PanDeviceError as e:
-                        module.fail_json('Failed apply: {0}'.format(e))
+                        module.fail_json(msg='Failed apply: {0}'.format(e))
             break
         else:
             changed = True
@@ -355,7 +355,7 @@ def main():
                 try:
                     eth.create()
                 except PanDeviceError as e:
-                    module.fail_json('Failed create: {0}'.format(e))
+                    module.fail_json(msg='Failed create: {0}'.format(e))
 
         # Set references.
         try:
@@ -382,7 +382,7 @@ def main():
                 try:
                     eth.delete()
                 except PanDeviceError as e:
-                    module.fail_json('Failed delete: {0}'.format(e))
+                    module.fail_json(msg='Failed delete: {0}'.format(e))
 
     # Commit if we were asked to do so.
     if not module.check_mode and changed and commit:

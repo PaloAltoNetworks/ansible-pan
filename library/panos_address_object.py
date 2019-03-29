@@ -158,7 +158,7 @@ def main():
     try:
         listing = AddressObject.refreshall(parent, add=False)
     except PanDeviceError as e:
-        module.fail_json('Failed refresh: {0}'.format(e))
+        module.fail_json(msg='Failed refresh: {0}'.format(e))
 
     # Build the object based on the user spec.
     obj = AddressObject(**spec)
