@@ -74,7 +74,6 @@ EXAMPLES = '''
 - name: Remove tag object 'Prod'
   panos_tag_object:
     provider: '{{ provider }}'
-    ip_address: '{{ fw_ip_address }}'
     name: 'Prod'
     state: 'absent'
 '''
