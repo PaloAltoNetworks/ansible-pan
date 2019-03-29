@@ -66,18 +66,15 @@ options:
 EXAMPLES = '''
 - name: Create tag object 'Prod'
   panos_tag_object:
-    ip_address: '{{ fw_ip_address }}'
-    username: '{{ fw_username }}'
-    password: '{{ fw_password }}'
+    provider: '{{ provider }}'
     name: 'Prod'
     color: 'red'
     comments: 'Prod Environment'
 
 - name: Remove tag object 'Prod'
   panos_tag_object:
+    provider: '{{ provider }}'
     ip_address: '{{ fw_ip_address }}'
-    username: '{{ fw_username }}'
-    password: '{{ fw_password }}'
     name: 'Prod'
     state: 'absent'
 '''
@@ -117,7 +114,7 @@ def main():
 
     module = AnsibleModule(
         argument_spec=helper.argument_spec,
-        supports_check_mode=False
+        supports_check_mode=True
     )
 
     parent = helper.get_pandevice_parent(module)
