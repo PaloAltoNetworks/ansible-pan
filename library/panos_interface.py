@@ -261,9 +261,6 @@ def main():
     if module.params['operation'] is not None:
         module.fail_json(msg='Operation has been removed; use "state"')
 
-    # Verify libs are present, get the parent object.
-    parent = helper.get_pandevice_parent(module)
-
     # Get the object params.
     spec = {
         'name': module.params['if_name'],
@@ -313,6 +310,11 @@ def main():
     elif vsys is None:
         # TODO(gfreeman) - v2.12, just set the default for vsys to 'vsys1'.
         vsys = 'vsys1'
+
+    module.params['vsys'] = vsys
+
+    # Verify libs are present, get the parent object.
+    parent = helper.get_pandevice_parent(module)
 
     # Retrieve the current config.
     try:

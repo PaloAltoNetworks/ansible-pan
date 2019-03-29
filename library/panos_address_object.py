@@ -117,28 +117,6 @@ except ImportError:
     pass
 
 
-def perform_commit(module, device):
-    result = device.commit(sync=True)
-    if result:
-        check_commit_result(module, result)
-
-    if not hasattr(device, 'commit_all'):
-        return
-
-    result = device.commit_all(
-        sync=True,
-        sync_all=True,
-        devicegroup=module.params['device_group'],
-    )
-    if result:
-        check_commit_result(module, result)
-
-
-def check_commit_result(module, result):
-    if result['result'] == 'FAIL':
-        module.fail_json(msg='Commit failed')
-
-
 def main():
     helper = get_connection(
         vsys=True,
@@ -190,8 +168,8 @@ def main():
     changed = helper.apply_state(obj, listing, module)
 
     # Commit.
-    if not module.check_mode and commit and changed:
-        perform_commit(module, helper.device)
+    if commit and changed:
+        helper.commit(module)
 
     # Done.
     module.exit_json(changed=changed)

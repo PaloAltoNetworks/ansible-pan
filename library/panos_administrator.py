@@ -239,11 +239,8 @@ def main():
                     module.fail_json(msg='Failed delete: {0}'.format(e))
 
     # Commit if appropriate.
-    if not module.check_mode and changed and commit:
-        try:
-            helper.device.commit(sync=True)
-        except PanDeviceError as e:
-            module.fail_json(msg='Failed commit: {0}'.format(e))
+    if changed and commit:
+        helper.commit(module)
 
     # Done.
     module.exit_json(changed=changed, msg='done')
