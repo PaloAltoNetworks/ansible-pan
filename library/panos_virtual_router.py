@@ -33,76 +33,70 @@ version_added: "2.9"
 requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
+extends_documentation_fragment:
+    - panos.transitional_provider
+    - panos.state
+    - panos.vsys_import
+    - panos.full_template_support
 notes:
-    - Checkmode is not supported.
-    - Panorama is NOT supported.
+    - Checkmode is supported.
+    - Panorama is supported.
 options:
-    ip_address:
-        description:
-            - IP address (or hostname) of PAN-OS device being configured.
-        required: true
-    username:
-        description:
-            - Username credentials to use for auth unless I(api_key) is set.
-        default: "admin"
-    password:
-        description:
-            - Password credentials to use for auth unless I(api_key) is set.
-        required: true
-    api_key:
-        description:
-            - API key that can be used instead of I(username)/I(password) credentials.
-    state:
-        description:
-            - Add or remove BGP configuration.
-        choices: ['present', 'absent']
-        default: 'present'
     commit:
         description:
             - Commit configuration if changed.
         default: true
-    name (str):
+        type: bool
+    name:
         description:
-            -  Name of virtual router (Default: "default")
-    interface (list):
+            -  Name of virtual router
+        default: 'default'
+    interface:
         description:
             -  List of interface names
-    ad_static (int):
+        type: list
+    ad_static:
         description:
             -  Administrative distance for this protocol
-    ad_static_ipv6 (int):
+        type: int
+    ad_static_ipv6:
         description:
             -  Administrative distance for this protocol
-    ad_ospf_int (int):
+        type: int
+    ad_ospf_int:
         description:
             -  Administrative distance for this protocol
-    ad_ospf_ext (int):
+        type: int
+    ad_ospf_ext:
         description:
             -  Administrative distance for this protocol
-    ad_ospfv3_int (int):
+        type: int
+    ad_ospfv3_int:
         description:
             -  Administrative distance for this protocol
-    ad_ospfv3_ext (int):
+        type: int
+    ad_ospfv3_ext:
         description:
             -  Administrative distance for this protocol
-    ad_ibgp (int):
+        type: int
+    ad_ibgp:
         description:
             -  Administrative distance for this protocol
-    ad_ebgp (int):
+        type: int
+    ad_ebgp:
         description:
             -  Administrative distance for this protocol
-    ad_rip (int):
+        type: int
+    ad_rip:
         description:
             -  Administrative distance for this protocol
+        type: int
 '''
 
 EXAMPLES = '''
 - name: Create Virtual Router
     panos_virtual_router:
-      ip_address: '{{ ip_address }}'
-      username: '{{ username }}'
-      password: '{{ password }}'
-      state: 'present'
+      provider: '{{ provider }}'
       name: vr-1
       commit: true
 '''
@@ -112,38 +106,18 @@ RETURN = '''
 '''
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.basic import get_exception
+from ansible.module_utils.network.panos.panos import get_connection
+
 
 try:
-    from pan.xapi import PanXapiError
-    import pandevice
-    from pandevice import base
-    from pandevice import panorama
+    from pandevice.network import VirtualRouter
     from pandevice.errors import PanDeviceError
-    from pandevice import network
-
-    HAS_LIB = True
 except ImportError:
-    HAS_LIB = False
+    pass
 
 
 def setup_args():
     return dict(
-        ip_address=dict(
-            required=True,
-            help='IP address (or hostname) of PAN-OS device being configured'),
-        password=dict(
-            no_log=True,
-            help='Password credentials to use for auth unless I(api_key) is set'),
-        username=dict(
-            default='admin',
-            help='Username credentials to use for auth unless I(api_key) is set'),
-        api_key=dict(
-            no_log=True,
-            help='API key that can be used instead of I(username)/I(password) credentials'),
-        state=dict(
-            default='present', choices=['present', 'absent'],
-            help='Add or remove virtual router'),
         commit=dict(
             type='bool', default=True,
             help='Commit configuration if changed'),
@@ -185,62 +159,98 @@ def setup_args():
 
 
 def main():
-    argument_spec = setup_args()
+    helper = get_connection(
+        vsys_importable=True,
+        template=True,
+        template_stack=True,
+        with_state=True,
+        with_classic_provider_spec=True,
+        argument_spec=setup_args(),
+    )
 
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
-                           required_one_of=[['api_key', 'password']])
-    if not HAS_LIB:
-        module.fail_json(msg='Missing required libraries.')
+    module = AnsibleModule(
+        argument_spec=helper.argument_spec,
+        supports_check_mode=True,
+        required_one_of=helper.required_one_of,
+    )
 
-    # Get the firewall / panorama auth.
-    auth = [module.params[x] for x in
-            ('ip_address', 'username', 'password', 'api_key')]
+    # Verify imports, build pandevice object tree.
+    parent = helper.get_pandevice_parent(module)
 
-    # exclude the default items from kwargs passed to the object
-    exclude_list = ['ip_address', 'username', 'password', 'api_key', 'state', 'commit']
+    # Exclude non-object items from kwargs passed to the object.
+    exclude_list = [
+        'ip_address', 'username', 'password', 'api_key', 'state', 'commit',
+        'provider', 'template', 'template_stack', 'vsys', 'port',
+    ]
 
-    # generate the kwargs for network.VirtualRouter
-    obj_spec = dict((k, module.params[k]) for k in argument_spec.keys() if k not in exclude_list)
+    # Generate the kwargs for network.VirtualRouter.
+    obj_spec = dict((k, module.params[k]) for k in helper.argument_spec.keys() if k not in exclude_list)
 
     name = module.params['name']
     state = module.params['state']
     commit = module.params['commit']
 
-    # create the new state object
-    virtual_router = network.VirtualRouter(**obj_spec)
-
-    changed = False
+    # Retrieve current virtual routers.
     try:
-        # Create the device with the appropriate pandevice type
-        device = base.PanDevice.create_from_device(*auth)
-        network.VirtualRouter.refreshall(device)
+        vr_list = VirtualRouter.refreshall(parent, add=False)
+    except PanDeviceError as e:
+        module.fail_json(msg='Failed refresh: {0}'.format(e))
 
-        # search for the virtual router
-        vr = device.find(name, network.VirtualRouter)
+    # Create the new state object.
+    virtual_router = VirtualRouter(**obj_spec)
+    parent.add(virtual_router)
 
-        # compare differences between the current state vs desired state
-        if state == 'present':
-            if vr is None or not virtual_router.equal(vr, compare_children=False):
-                device.add(virtual_router)
-                virtual_router.create()
+    reference_params = {
+        'refresh': True,
+        'update': not module.check_mode,
+        'return_type': 'bool',
+    }
+    changed = False
+    if state == 'present':
+        for item in vr_list:
+            if item.name != name:
+                continue
+            if not item.equal(virtual_router, compare_children=False):
                 changed = True
-        elif state == 'absent':
-            if vr is not None:
-                vr.delete()
-                changed = True
+                virtual_router.extend(item.children)
+                if not module.check_mode:
+                    try:
+                        virtual_router.apply()
+                    except PanDeviceError as e:
+                        module.fail_json(msg='Failed apply: {0}'.format(e))
+            break
         else:
-            module.fail_json(msg='[%s] state is not implemented yet' % state)
-    except (PanDeviceError, KeyError):
-        exc = get_exception()
-        module.fail_json(msg=exc.message)
+            changed = True
+            if not module.check_mode:
+                try:
+                    virtual_router.create()
+                except PanDeviceError as e:
+                    module.fail_json(msg='Failed apply: {0}'.format(e))
+
+        changed |= virtual_router.set_vsys(
+            module.params['vsys'], **reference_params)
+    else:
+        changed |= virtual_router.set_vsys(
+            None, **reference_params)
+        if name in [x.name for x in vr_list]:
+            changed = True
+            if not module.check_mode:
+                try:
+                    virtual_router.delete()
+                except PanDeviceError as e:
+                    module.fail_json(msg='Failed delete: {0}'.format(e))
 
     if commit and changed:
-        device.commit(sync=True, exception=True)
+        helper.commit(module)
 
-    if changed:
-        module.exit_json(msg='Virtual router update successful.', changed=changed)
+    if not changed:
+        msg = 'no changes required.'
+    elif module.check_mode:
+        msg = 'Changes are required.'
     else:
-        module.exit_json(msg='no changes required.', changed=changed)
+        msg = 'Virtual router update successful.'
+
+    module.exit_json(msg=msg, changed=changed)
 
 
 if __name__ == '__main__':
