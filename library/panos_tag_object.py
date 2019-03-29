@@ -130,7 +130,7 @@ def main():
     try:
         listing = Tag.refreshall(parent, add=False)
     except PanDeviceError as e:
-        module.fail_json('Failed refresh: {0}'.format(e))
+        module.fail_json(msg='Failed refresh: {0}'.format(e))
 
     obj = Tag(**spec)
     parent.add(obj)
