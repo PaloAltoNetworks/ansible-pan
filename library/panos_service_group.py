@@ -67,17 +67,13 @@ options:
 EXAMPLES = '''
 - name: Create service group 'Prod-Services'
   panos_service_group:
-    ip_address: '{{ ip_address }}'
-    username: '{{ username }}'
-    password: '{{ password }}'
+    provider: '{{ provider }}'
     name: 'Prod-Services'
     value: ['ssh-tcp-22', 'mysql-tcp-3306']
 
 - name: Delete service group 'Prod-Services'
   panos_service_group:
-    ip_address: '{{ ip_address }}'
-    username: '{{ username }}'
-    password: '{{ password }}'
+    provider: '{{ provider }}'
     name: 'Prod-Services'
     state: 'absent'
 '''
@@ -132,7 +128,7 @@ def main():
     try:
         listing = ServiceGroup.refreshall(parent, add=False)
     except PanDeviceError as e:
-        module.fail_json('Failed refresh: {0}'.format(e))
+        module.fail_json(msg='Failed refresh: {0}'.format(e))
 
     # Build the object based on the user spec.
     obj = ServiceGroup(**spec)
