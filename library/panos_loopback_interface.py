@@ -27,26 +27,15 @@ version_added: "2.8"
 requirements:
     - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
-note:
-    - Checkmode is not supported.
+notes:
+    - Checkmode is supported.
+    - Panorama is supported.
+extends_documentation_fragment:
+    - panos.transitional_provider
+    - panos.vsys_import
+    - panos.template_only
+    - panos.state
 options:
-    ip_address:
-        description:
-            - IP address (or hostname) of PAN-OS device being configured.
-        required: true
-    username:
-        description:
-            - Username credentials to use for auth.
-        default: "admin"
-    password:
-        description:
-            - Password credentials to use for auth.
-    api_key:
-        description:
-            - API key that can be used instead of I(username)/I(password) credentials.
-    state:
-        description:
-            - The state.  Can be either I(present)/I(absent).
     if_name:
         description:
             - Name of the interface to configure.
@@ -54,60 +43,72 @@ options:
     ip:
         description:
             - List of static IP addresses.
+        type: list
     ipv6_enabled:
         description:
             - Enable IPv6.
+        type: bool
     management_profile:
         description:
             - Interface management profile name.
     mtu:
         description:
             - MTU for loopback interface.
+        type: int
+    adjust_tcp_mss:
+        description:
+            - Adjust TCP MSS.
+        type: bool
     netflow_profile:
         description:
             - Netflow profile for loopback interface.
     comment:
         description:
             - Interface comment.
+    ipv4_mss_adjust:
+        description:
+            - (7.1+) TCP MSS adjustment for IPv4.
+        type: int
+    ipv6_mss_adjust:
+        description:
+            - (7.1+) TCP MSS adjustment for IPv6.
+        type: int
     zone_name:
         description:
             - Name of the zone for the interface. If the zone does not exist it is created but if the
             - zone exists and it is not of the correct mode the operation will fail.
-        required: true
     vr_name:
         description:
             - Name of the virtual router; it must already exist.
         default: "default"
     vsys_dg:
         description:
+            - B(Deprecated)
+            - Use I(vsys) to specify the vsys instead.
+            - HORIZONTALLINE
             - Name of the vsys (if firewall) or device group (if panorama) to put this object.
-        default: "vsys1"
     commit:
         description:
             - Commit if changed
         default: true
+        type: bool
 '''
 
 EXAMPLES = '''
 # Delete loopback.1
 - name: delete loopback.1
   panos_loopback_interface:
-    ip_address: "192.168.1.1"
-    username: "ansible"
-    password: "secret"
+    provider: '{{ provider }}'
     if_name: "loopback.1"
-    state: absent
+    state: 'absent'
 
 # Update/create loopback comment.
 - name: update loopback.1 comment
   panos_loopback_interface:
-    ip_address: "192.168.1.1"
-    username: "ansible"
-    password: "secret"
+    provider: '{{ provider }}'
     if_name: "loopback.1"
     ip: ["10.1.1.1/32"]
     comment: "Loopback iterface"
-    state: present
 '''
 
 RETURN = '''
@@ -119,96 +120,47 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'supported_by': 'community'}
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.basic import get_exception
+from ansible.module_utils.network.panos.panos import get_connection
 
 
 try:
-    from pandevice import base
-    from pandevice import panorama
-    from pandevice import network
-    from pandevice import device
-    from pandevice import errors
-    HAS_LIB = True
+    from pandevice.network import LoopbackInterface
+    from pandevice.errors import PanDeviceError
 except ImportError:
-    HAS_LIB = False
-
-
-def set_zone(con, loopback, zone_name, zones):
-    desired_zone = None
-
-    # Remove the interface from the zone.
-    for z in zones:
-        if z.name == zone_name:
-            desired_zone = z
-        elif loopback.name in z.interface:
-            z.interface.remove(loopback.name)
-            z.update('interface')
-
-    if desired_zone is not None:
-        if desired_zone.interface is None:
-            desired_zone.interface = []
-        if loopback.name not in desired_zone.interface:
-            desired_zone.interface.append(loopback.name)
-            desired_zone.update('interface')
-    elif zone_name is not None:
-        z = network.Zone(zone_name, interface=[loopback.name, ])
-        con.add(z)
-        z.create()
-
-
-def set_virtual_router(con, loopback, vr_name, routers):
-    desired_vr = None
-
-    for vr in routers:
-        if vr.name == vr_name:
-            desired_vr = vr
-        elif loopback.name in vr.interface:
-            vr.interface.remove(loopback.name)
-            vr.update('interface')
-
-    if desired_vr is not None:
-        if desired_vr.interface is None:
-            desired_vr.interface = []
-        if loopback.name not in desired_vr.interface:
-            desired_vr.interface.append(loopback.name)
-            desired_vr.update('interface')
-    elif vr_name is not None:
-        raise ValueError('Virtual router {0} does not exist'.format(vr_name))
+    pass
 
 
 def main():
-    argument_spec = dict(
-        ip_address=dict(required=True),
-        password=dict(no_log=True),
-        username=dict(default='admin'),
-        api_key=dict(no_log=True),
-        state=dict(default='present', choices=['present', 'absent']),
-        if_name=dict(required=True),
-        ip=dict(type='list'),
-        ipv6_enabled=dict(type='bool'),
-        management_profile=dict(),
-        mtu=dict(type='int'),
-        adjust_tcp_mss=dict(type='bool'),
-        netflow_profile=dict(),
-        comment=dict(),
-        ipv4_mss_adjust=dict(type='int'),
-        ipv6_mss_adjust=dict(type='int'),
-        zone_name=dict(required=True),
-        vr_name=dict(default='default'),
-        vsys_dg=dict(default='vsys1'),
-        commit=dict(type='bool', default=True),
-    )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
-                           required_one_of=[['api_key', 'password']])
-    if not HAS_LIB:
-        module.fail_json(msg='Missing required libraries.')
+    helper = get_connection(
+        vsys_importable=True,
+        template=True,
+        with_classic_provider_spec=True,
+        with_state=True,
+        min_pandevice_version=(0, 8, 0),
+        argument_spec=dict(
+            if_name=dict(required=True),
+            ip=dict(type='list'),
+            ipv6_enabled=dict(type='bool'),
+            management_profile=dict(),
+            mtu=dict(type='int'),
+            adjust_tcp_mss=dict(type='bool'),
+            netflow_profile=dict(),
+            comment=dict(),
+            ipv4_mss_adjust=dict(type='int'),
+            ipv6_mss_adjust=dict(type='int'),
+            zone_name=dict(),
+            vr_name=dict(default='default'),
+            commit=dict(type='bool', default=True),
 
-    # Get the firewall / panorama auth.
-    auth = (
-        module.params['ip_address'],
-        module.params['username'],
-        module.params['password'],
-        module.params['api_key'],
+            # TODO(gfreeman) - remove this in 2.12
+            vsys_dg=dict(),
+        ),
+    )
+
+    module = AnsibleModule(
+        argument_spec=helper.argument_spec,
+        supports_check_mode=True,
+        required_one_of=helper.required_one_of,
     )
 
     # Get the object params.
@@ -229,99 +181,103 @@ def main():
     state = module.params['state']
     zone_name = module.params['zone_name']
     vr_name = module.params['vr_name']
+    vsys = module.params['vsys']
     vsys_dg = module.params['vsys_dg']
     commit = module.params['commit']
 
-    # Open the connection to the PANOS device.
-    con = base.PanDevice.create_from_device(*auth)
-
-    # Set vsys if firewall, device group if panorama.
-    parent = con
-    if hasattr(con, 'refresh_devices'):
-        # Panorama
-        # Normally we want to set the device group here, but there are no
-        # interfaces on Panorama.  So if we're given a Panorama device, then
-        # error out.
-        '''
-        groups = panorama.DeviceGroup.refreshall(con, add=False)
-        for parent in groups:
-            if parent.name == vsys_dg:
-                con.add(parent)
-                break
+    # TODO(gfreeman) - Remove vsys_dg in 2.12, as well as this code chunk.
+    # In the mean time, we'll need to do this special handling.
+    if vsys_dg is not None:
+        module.deprecate('Param "vsys_dg" is deprecated, use "vsys"', '2.12')
+        if vsys is None:
+            vsys = vsys_dg
         else:
-            module.fail_json(msg="'{0}' device group is not present".format(vsys_dg))
-        '''
-        module.fail_json(msg="loopback interfaces don't exist on Panorama")
-    else:
-        con.vsys = vsys_dg
+            msg = [
+                'Params "vsys" and "vsys_dg" both given',
+                'Specify one or the other, not both.',
+            ]
+            module.fail_json(msg='.  '.join(msg))
+    elif vsys is None:
+        # TODO(gfreeman) - v2.12, just set the default for vsys to 'vsys1'.
+        vsys = 'vsys1'
+
+    # Make sure 'vsys' is set appropriately.
+    module.params['vsys'] = vsys
+
+    # Verify libs are present, get the parent object.
+    parent = helper.get_pandevice_parent(module)
 
     # Retrieve the current config.
     try:
-        interfaces = network.LoopbackInterface.refreshall(con, add=False, name_only=True)
-        zones = network.Zone.refreshall(con)
-        routers = network.VirtualRouter.refreshall(con)
-        vsys_list = device.Vsys.refreshall(con)
-
-    except errors.PanDeviceError:
-        e = get_exception()
-        module.fail_json(msg=e.message)
+        interfaces = LoopbackInterface.refreshall(
+            parent, add=False, matching_vsys=False)
+    except PanDeviceError as e:
+        module.fail_json(msg='Failed refresh: {0}'.format(e))
 
     # Build the object based on the user spec.
-    loopback = network.LoopbackInterface(**spec)
-    con.add(loopback)
+    obj = LoopbackInterface(**spec)
+    parent.add(obj)
 
+    # Which action should we take on the interface?
+    changed = False
+    reference_params = {
+        'refresh': True,
+        'update': not module.check_mode,
+        'return_type': 'bool',
+    }
     if state == 'present':
-        if loopback.name in [x.name for x in interfaces]:
-            i = network.LoopbackInterface(loopback.name)
-            con.add(i)
-            try:
-                i.refresh()
-            except PanDeviceError as e:
-                module.fail_json(msg='Failed "present" refresh: {0}'.format(e))
-            if not i.equal(loopback, compare_children=False):
-                loopback.extend(i.children)
-                try:
-                    loopback.apply()
-                    changed = True
-                except PanDeviceError as e:
-                    module.fail_json(msg='Failed "present" apply: {0}'.format(e))
+        for item in interfaces:
+            if item.name != obj.name:
+                continue
+            # Interfaces have children, so don't compare them.
+            if not item.equal(obj, compare_children=False):
+                changed = True
+                obj.extend(item.children)
+                if not module.check_mode:
+                    try:
+                        obj.apply()
+                    except PanDeviceError as e:
+                        module.fail_json(msg='Failed apply: {0}'.format(e))
+            break
         else:
-            try:
-                loopback.create()
-                changed = True
-            except PanDeviceError as e:
-                module.fail_json(msg='Failed "present" create: {0}'.format(e))
-        try:
-            changed |= set_zone(con, loopback, zone_name, zones)
-            changed |= set_virtual_router(con, loopback, vr_name, routers)
-        except PanDeviceError as e:
-            module.fail_json(msg='Failed zone/vr assignment: {0}'.format(e))
-    elif state == 'absent':
-        try:
-            changed |= set_zone(con, loopback, None, zones)
-            changed |= set_virtual_router(con, loopback, None, routers)
-        except PanDeviceError as e:
-            module.fail_json(msg='Failed "absent" zone/vr cleanup: {0}'.format(e))
             changed = True
-        if loopback.name in [x.name for x in interfaces]:
-            try:
-                loopback.delete()
-                changed = True
-            except PanDeviceError as e:
-                module.fail_json(msg='Failed "absent" delete: {0}'.format(e))
-    else:
-        module.fail_json(msg="Unsupported state '{0}'".format(state))
+            if not module.check_mode:
+                try:
+                    obj.create()
+                except PanDeviceError as e:
+                    module.fail_json(msg='Failed create: {0}'.format(e))
+
+        # Set references.
+        try:
+            changed |= obj.set_vsys(vsys, **reference_params)
+            changed |= obj.set_zone(zone_name, mode='layer3', **reference_params)
+            changed |= obj.set_virtual_router(vr_name, **reference_params)
+        except PanDeviceError as e:
+            module.fail_json(msg='Failed setref: {0}'.format(e))
+    elif state == 'absent':
+        # Remove references.
+        try:
+            changed |= obj.set_virtual_router(None, **reference_params)
+            changed |= obj.set_zone(None, mode='layer3', **reference_params)
+            changed |= obj.set_vsys(None, **reference_params)
+        except PanDeviceError as e:
+            module.fail_json(msg='Failed setref: {0}'.format(e))
+
+        # Remove the interface.
+        if obj.name in [x.name for x in interfaces]:
+            changed = True
+            if not module.check_mode:
+                try:
+                    obj.delete()
+                except PanDeviceError as e:
+                    module.fail_json(msg='Failed delete: {0}'.format(e))
 
     # Commit if we were asked to do so.
-    if commit:
-        try:
-            con.commit(sync=True)
-        except errors.PanDeviceError:
-            e = get_exception()
-            module.fail_json(msg='Performed {0} but commit failed: {1}'.format(state, e.message))
+    if changed and commit:
+        helper.commit(module)
 
     # Done!
-    module.exit_json(changed=True, msg='Done')
+    module.exit_json(changed=changed, msg='Done')
 
 
 if __name__ == '__main__':
