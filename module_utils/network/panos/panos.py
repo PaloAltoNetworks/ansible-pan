@@ -253,7 +253,8 @@ class ConnectionHelper(object):
     def apply_state(self, obj, listing, module):
         """Generic state handling.
 
-        Checkmode is supported.
+        Note:  If module.check_mode is True, then this function returns
+        True if a change is needed, but doesn't actually make the change.
 
         Args:
             obj: The pandevice object to be applied.
@@ -302,6 +303,132 @@ class ConnectionHelper(object):
                         module.fail_json(msg='Failed delete: {0}'.format(e))
 
         return changed
+
+    def apply_position(self, obj, location, existing_rule, module):
+        """Moves an object into the given location.
+
+        This function invokes "obj"'s refreshall() on obj.parent, which
+        removes both obj and all other obj.__class__ types from
+        obj.parent.  Since moving a rule into place is likely the last
+        step, the state of the pandevice object tree should be inconsequential.
+
+        Note:  If module.check_mode is True, then this function returns
+        True if a change is needed, but doesn't actually make the change.
+
+        Args:
+            obj: The pandevice object to be moved.
+            location: Location keyword (before, after, top, bottom).
+            existing_rule: The reference for before/after positioning.
+            module: The Ansible module.
+
+        Returns:
+            bool: If a change was needed.
+        """
+        # Variables.
+        uid = obj.uid
+        rule = None
+        changed = False
+        obj_index = None
+        ref_index = None
+
+        # Sanity check the location / existing_rule params.
+        improper_combo = False
+        improper_combo |= location is None and existing_rule is not None
+        improper_combo |= location in ('before', 'after') and existing_rule is None
+        improper_combo |= location in ('top', 'bottom') and existing_rule is not None
+        if improper_combo:
+            module.fail_json(msg='Improper combination of "location" / "existing_rule".')
+        elif location is None:
+            return False
+
+        # Retrieve the current rules.
+        try:
+            rules = obj.__class__.refreshall(obj.parent, name_only=True)
+        except PanDeviceError as e:
+            module.fail_json(msg='Failed move refresh: {0}'.format(e))
+
+        listing = [x.uid for x in rules]
+        try:
+            obj_index = listing.index(uid)
+            rule = rules[obj_index]
+        except ValueError:
+            module.fail_json(msg="Object {0} isn't present for move".format(uid))
+
+        if location == 'top':
+            if listing[0] != uid:
+                changed = True
+        elif location == 'bottom':
+            if listing[-1] != uid:
+                changed = True
+        else:
+            try:
+                ref_index = listing.index(existing_rule)
+            except ValueError:
+                msg = [
+                    'Cannot do relative rule placement',
+                    '"{0}" does not exist.'.format(existing_rule),
+                ]
+                module.fail_json(msg='; '.format(msg))
+            if location == 'before':
+                if obj_index + 1 != ref_index:
+                    changed = True
+            elif location == 'after':
+                if ref_index + 1 != obj_index:
+                    changed = True
+
+        # Perform the move (if not check mode).
+        if changed and not module.check_mode:
+            try:
+                rule.move(location, existing_rule)
+            except PanDeviceError as e:
+                module.fail_json(msg='Failed move: {0}'.format(e))
+
+        # Done.
+        return changed
+
+    def commit(self, module, include_template=False):
+        """Performs a commit.
+
+        In the case where the device is Panorama, then a commit-all is
+        executed after the commit.  The device group is taken from either
+        vsys_dg or device_group.  The template is set to True if template
+        is specified.
+
+        Note:  If module.check_mode is True, then this function does not
+        perform the commit.
+
+        Args:
+            include_template (bool): (Panorama only) Force include the template.
+        """
+        if module.check_mode:
+            return
+
+        try:
+            self.device.commit(sync=True, exception=True)
+        except PanDeviceError as e:
+            module.fail_json(msg='Failed commit: {0}'.format(e))
+
+        if not hasattr(self.device, 'commit_all'):
+            return
+
+        dg_name = self.vsys_dg or self.device_group
+        if dg_name is not None:
+            dg_name = module.params[dg_name]
+
+        if not include_template:
+            if self.template:
+                include_template = True
+
+        try:
+            self.device.commit_all(
+                sync=True,
+                sync_all=True,
+                devicegroup=dg_name,
+                include_template=include_template,
+                exception=True,
+            )
+        except PanDeviceError as e:
+            module.fail_json(msg='Failed commit-all: {0}'.format(e))
 
 
 def get_connection(vsys=None, device_group=None,
