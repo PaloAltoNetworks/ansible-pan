@@ -40,11 +40,11 @@ options:
     ip_address:
         description:
             - IP address (or hostname) of PAN-OS device being configured.
-            required: True
+        required: True
     username:
         description:
             - Username credentials to use for auth unless I(api_key) is set.
-            default: admin
+        default: admin
     password:
         description:
             - Password credentials to use for auth unless I(api_key) is set.
@@ -54,63 +54,76 @@ options:
     state:
         description:
             - Add or remove Route Redistribution Rule.
-                - present
-                - absent
-            default: present
+        choices: ['present', 'absent']
+        default: present
     commit:
         description:
             - Commit configuration if changed.
-            default: True
+        default: True
+        type: bool
     action:
         description:
             - Rule action.
-                - no-redist
-                - redist
-            default: no-redist
+        choices: ['no-redist', 'redist']
+        default: no-redist
     bgp_filter_community:
         description:
             - BGP filter on community.
+        type: list
     bgp_filter_extended_community:
         description:
             - BGP filter on extended community.
+        type: list
     filter_destination:
         description:
             - Filter destination.
+        type: list
     filter_interface:
         description:
             - Filter interface.
+        type: list
     filter_nexthop:
         description:
             - Filter nexthop.
+        type: list
     filter_type:
         description:
-            - Any of 'static', 'connect', 'rip', 'ospf', or 'bgp'.
+            - Filter on route type.
+        choices: ['static', 'connect', 'rip', 'ospf', 'bgp']
+        type: list
     name:
         description:
             - Name of rule.
-            required: True
+        required: True
     ospf_filter_area:
         description:
             - OSPF filter on area.
+        type: list
     ospf_filter_pathtype:
         description:
+            - Filter on OSPF path type.
             - Any of 'intra-area', 'inter-area', 'ext-1', or 'ext-2'.
+        choices: ['intra-area', 'inter-area', 'ext-1', 'ext-2']
+        type: list
     ospf_filter_tag:
         description:
             - OSPF filter on tag.
+        type: list
     priority:
         description:
             - Priority ID.
+        type: int
     type:
         description:
-            - Name of rule.
+            - Indicated whether this is an IPv4 or an IPv6 rule.
                 - ipv4
                 - ipv6
-            default: ipv4
+        choices: ['ipv4', 'ipv6']
+        default: ipv4
     vr_name:
         description:
-            - Name of the virtual router; it must already exist; see panos_virtual_router.
-            default: default
+            - Name of the virtual router. It must already exist, see M(panos_virtual_router).
+        default: default
 '''
 
 EXAMPLES = '''
@@ -120,6 +133,13 @@ EXAMPLES = '''
       username: '{{ username }}'
       password: '{{ password }}'
       state: 'present'
+      action: redist
+      filter_destination: "0.0.0.0/0"
+      filter_type: static
+      name: redist-default
+      priority: 50
+      type: ipv4
+      vr_name: default
 '''
 
 RETURN = '''
@@ -165,7 +185,7 @@ def setup_args():
 
         vr_name=dict(
             default='default',
-            help='Name of the virtual router; it must already exist; see panos_virtual_router'),
+            help='Name of the virtual router. It must already exist, see M(panos_virtual_router).'),
         type=dict(
             type='str', default='ipv4', choices=['ipv4', 'ipv6'],
             help='Name of rule'),
