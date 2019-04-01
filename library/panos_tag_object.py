@@ -113,6 +113,7 @@ def main():
 
     module = AnsibleModule(
         argument_spec=helper.argument_spec,
+        required_one_of=helper.required_one_of,
         supports_check_mode=True
     )
 
