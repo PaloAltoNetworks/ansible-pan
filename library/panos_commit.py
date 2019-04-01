@@ -73,7 +73,7 @@ def main():
     helper = get_connection(
         device_group=True,
         with_classic_provider_spec=True,
-        argument_spec = dict(
+        argument_spec=dict(
             include_template=dict(type='bool'),
 
             # TODO(gfreeman) - remove in 2.12.
