@@ -39,7 +39,6 @@ notes:
     - Check mode is supported.
 extends_documentation_fragment:
     - panos.transitional_provider
-    - panos.vsys
     - panos.state
     - panos.full_template_support
 options:
@@ -128,7 +127,6 @@ def main():
     helper = get_connection(
         template=True,
         template_stack=True,
-        vsys=True,
         with_classic_provider_spec=True,
         with_state=True,
         required_one_of=[
