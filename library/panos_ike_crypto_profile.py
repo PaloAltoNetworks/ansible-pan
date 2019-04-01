@@ -41,7 +41,7 @@ extends_documentation_fragment:
     - panos.transitional_provider
     - panos.state
     - panos.vsys
-    - panos.template_only
+    - panos.full_template_support
 options:
     name:
         description:
