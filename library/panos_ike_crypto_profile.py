@@ -35,33 +35,14 @@ requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
 notes:
-    - Checkmode is not supported.
-    - Panorama is NOT supported.
+    - Panorama is supported.
+    - Check mode is supported.
+extends_documentation_fragment:
+    - panos.transitional_provider
+    - panos.state
+    - panos.vsys
+    - panos.template_only
 options:
-    ip_address:
-        description:
-            - IP address (or hostname) of PAN-OS device being configured.
-        required: true
-    username:
-        description:
-            - Username credentials to use for auth unless I(api_key) is set.
-        default: "admin"
-    password:
-        description:
-            - Password credentials to use for auth unless I(api_key) is set.
-        required: true
-    api_key:
-        description:
-            - API key that can be used instead of I(username)/I(password) credentials.
-    state:
-        description:
-            - Create or remove IKE profile.
-        choices: ['present', 'absent']
-        default: 'present'
-    commit:
-        description:
-            - Commit configuration if changed.
-        default: true
     name:
         description:
             - Name for the profile.
@@ -96,14 +77,16 @@ options:
     lifetime_days:
         description:
             - IKE phase 1 key lifetime in days.
+    commit:
+        description:
+            - Commit configuration if changed.
+        default: true
 '''
 
 EXAMPLES = '''
 - name: Add IKE crypto config to the firewall
     panos_ike_crypto_profile:
-      ip_address: '{{ ip_address }}'
-      username: '{{ username }}'
-      password: '{{ password }}'
+      provider: '{{ provider }}'
       state: 'present'
       name: 'vpn-0cc61dd8c06f95cfd-0'
       dh_group: ['group2']
@@ -117,69 +100,58 @@ RETURN = '''
 '''
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.basic import get_exception
+from ansible.module_utils.network.panos.panos import get_connection
 
 try:
-    from pandevice import base
+    from pandevice.network import IkeCryptoProfile
     from pandevice.errors import PanDeviceError
-    from pandevice import network
-
-    HAS_LIB = True
 except ImportError:
-    HAS_LIB = False
-
-
-# def get_devicegroup(device, devicegroup):
-#     dg_list = device.refresh_devices()
-#     for group in dg_list:
-#         if isinstance(group, pandevice.panorama.DeviceGroup):
-#             if group.name == devicegroup:
-#                 return group
-#     return False
+    pass
 
 
 def main():
-    argument_spec = dict(
-        ip_address=dict(required=True),
-        password=dict(no_log=True),
-        username=dict(default='admin'),
-        api_key=dict(no_log=True),
-        state=dict(default='present', choices=['present', 'absent']),
-        name=dict(required=True),
-        dh_group=dict(
-            type='list',
-            default=['group2'],
-            choices=[
-                'group1', 'group2', 'group5', 'group14', 'group19', 'group20'
-            ],
-            aliases=['dhgroup']
-        ),
-        authentication=dict(
-            type='list',
-            choices=[
-                'md5', 'sha1', 'sha256', 'sha384', 'sha512'
-            ],
-            default=['sha1']
-        ),
-        encryption=dict(
-            type='list',
-            choices=[
-                'des', '3des', 'aes-128-cbc', 'aes-192-cbc', 'aes-256-cbc'
-            ],
-            default=['aes-256-cbc', '3des']
-        ),
-        lifetime_seconds=dict(type='int', aliases=['lifetime_sec']),
-        lifetime_minutes=dict(type='int'),
-        lifetime_hours=dict(type='int'),
-        lifetime_days=dict(type='int'),
-        commit=dict(type='bool', default=True)
+    helper = get_connection(
+        template=True,
+        template_stack=True,
+        vsys=True,
+        with_classic_provider_spec=True,
+        with_state=True,
+        argument_spec=dict(
+            name=dict(required=True),
+            dh_group=dict(
+                type='list',
+                default=['group2'],
+                choices=[
+                    'group1', 'group2', 'group5', 'group14', 'group19', 'group20'
+                ],
+                aliases=['dhgroup']
+            ),
+            authentication=dict(
+                type='list',
+                choices=[
+                    'md5', 'sha1', 'sha256', 'sha384', 'sha512'
+                ],
+                default=['sha1']
+            ),
+            encryption=dict(
+                type='list',
+                choices=[
+                    'des', '3des', 'aes-128-cbc', 'aes-192-cbc', 'aes-256-cbc'
+                ],
+                default=['aes-256-cbc', '3des']
+            ),
+            lifetime_seconds=dict(type='int', aliases=['lifetime_sec']),
+            lifetime_minutes=dict(type='int'),
+            lifetime_hours=dict(type='int'),
+            lifetime_days=dict(type='int'),
+            commit=dict(type='bool', default=True)
+        )
     )
+
     module = AnsibleModule(
-        argument_spec=argument_spec,
-        supports_check_mode=False,
-        required_one_of=[
-            ['api_key', 'password'],
-        ],
+        argument_spec=helper.argument_spec,
+        supports_check_mode=True,
+        required_one_of=helper.required_one_of,
         mutually_exclusive=[
             [
                 'lifetime_seconds',
@@ -189,75 +161,50 @@ def main():
             ]
         ]
     )
-    if not HAS_LIB:
-        module.fail_json(msg='Missing required libraries.')
 
-    ip_address = module.params['ip_address']
-    password = module.params['password']
-    username = module.params['username']
-    api_key = module.params['api_key']
-    state = module.params['state']
-    name = module.params['name']
-    dh_group = module.params['dh_group']
-    authentication = module.params['authentication']
-    encryption = module.params['encryption']
-    lifetime_seconds = module.params['lifetime_seconds']
-    lifetime_minutes = module.params['lifetime_minutes']
-    lifetime_hours = module.params['lifetime_hours']
-    lifetime_days = module.params['lifetime_days']
+    # Verify libs are present, get parent object.
+    parent = helper.get_pandevice_parent(module)
+
+    # Object params.
+    spec = {
+        'name': module.params['name'],
+        'dh_group': module.params['dh_group'],
+        'authentication': module.params['authentication'],
+        'encryption': module.params['encryption'],
+        'lifetime_seconds': module.params['lifetime_seconds'],
+        'lifetime_minutes': module.params['lifetime_minutes'],
+        'lifetime_hours': module.params['lifetime_hours'],
+        'lifetime_days': module.params['lifetime_days']
+    }
+
+    # Other info.
     commit = module.params['commit']
 
     # Reflect GUI behavior.  Default is 8 hour key lifetime if nothing else is
     # specified.
     if not any([
-        lifetime_seconds, lifetime_minutes, lifetime_hours, lifetime_days
+        spec['lifetime_seconds'], spec['lifetime_minutes'], spec['lifetime_hours'], spec['lifetime_days']
     ]):
-        lifetime_hours = 8
+        spec['lifetime_hours'] = 8
 
-    ike_crypto_prof = network.IkeCryptoProfile(
-        name=name,
-        dh_group=dh_group,
-        authentication=authentication,
-        encryption=encryption,
-        lifetime_seconds=lifetime_seconds,
-        lifetime_minutes=lifetime_minutes,
-        lifetime_hours=lifetime_hours,
-        lifetime_days=lifetime_days
-    )
-
-    # Create the device with the appropriate pandevice type
-    device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
-
-    changed = False
+    # Retrieve current info.
     try:
-        # fetch all crypto profiles
-        profiles = network.IkeCryptoProfile.refreshall(device)
-        if state == "present":
-            device.add(ike_crypto_prof)
-            for p in profiles:
-                if p.name == ike_crypto_prof.name:
-                    if not ike_crypto_prof.equal(p):
-                        ike_crypto_prof.apply()
-                        changed = True
-                    break
-            else:
-                ike_crypto_prof.create()
-                changed = True
-        elif state == "absent":
-            ike_crypto_prof = device.find(name, network.IkeCryptoProfile)
-            if ike_crypto_prof:
-                ike_crypto_prof.delete()
-                changed = True
-        else:
-            module.fail_json(msg='[%s] state is not implemented yet' % state)
-    except PanDeviceError:
-        exc = get_exception()
-        module.fail_json(msg=exc.message)
+        listing = IkeCryptoProfile.refreshall(parent, add=False)
+    except PanDeviceError as e:
+        module.fail_json(msg='Failed refresh: {0}'.format(e))
 
+    obj = IkeCryptoProfile(**spec)
+    parent.add(obj)
+
+    # Apply the state.
+    changed = helper.apply_state(obj, listing, module)
+
+    # Commit.
     if commit and changed:
-        device.commit(sync=True)
+        helper.commit(module)
 
-    module.exit_json(msg='IKE Crypto profile config successful.', changed=changed)
+    # Done.
+    module.exit_json(changed=changed)
 
 
 if __name__ == '__main__':
