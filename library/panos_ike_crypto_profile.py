@@ -40,7 +40,6 @@ notes:
 extends_documentation_fragment:
     - panos.transitional_provider
     - panos.state
-    - panos.vsys
     - panos.full_template_support
 options:
     name:
@@ -113,7 +112,6 @@ def main():
     helper = get_connection(
         template=True,
         template_stack=True,
-        vsys=True,
         with_classic_provider_spec=True,
         with_state=True,
         argument_spec=dict(
