@@ -33,23 +33,13 @@ requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
 notes:
-    - Checkmode is not supported.
+    - Panorama is supported.
+    - Check mode is supported.
     - Panorama is not supported.
+extends_documentation_fragment:
+    - panos.transitional_provider
+    - panos.state
 options:
-    ip_address:
-        description:
-            - IP address or hostname of PAN-OS device.
-        required: true
-    username:
-        description:
-            - Username for authentication for PAN-OS device.  Optional if I(api_key) is used.
-        default: 'admin'
-    password:
-        description:
-            - Password for authentication for PAN-OS device.  Optional if I(api_key) is used.
-    api_key:
-        description:
-            - API key to be used instead of I(username) and I(password).
     ips:
         description:
             - List of IP addresses to register/unregister.
@@ -58,11 +48,6 @@ options:
         description:
             - List of tags that the IP address will be registered to.
         required: true
-    state:
-        description:
-            - Create or remove registered IP addresses.
-        choices: ['present', 'absent']
-        default: 'present'
 '''
 
 EXAMPLES = '''
@@ -121,36 +106,35 @@ results:
     sample: { '1.1.1.1': ['First_Tag', 'Second_Tag'] }
 '''
 
-from ansible.module_utils.basic import AnsibleModule, get_exception
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.network.panos.panos import get_connection
 
 try:
-    from pandevice import base
     from pandevice.errors import PanDeviceError
-
-    HAS_LIB = True
 except ImportError:
-    HAS_LIB = False
+    pass
 
 
 def main():
-    argument_spec = dict(
-        ip_address=dict(required=True),
-        username=dict(default='admin'),
-        password=dict(no_log=True),
-        api_key=dict(no_log=True),
-        ips=dict(type='list', required=True),
-        tags=dict(type='list', required=True),
-        state=dict(default='present', choices=['present', 'absent'])
+    helper = get_connection(
+        # vsys=True,
+        with_classic_provider_spec=True,
+        with_state=True,
+        argument_spec=dict(
+            ips=dict(type='list', required=True),
+            tags=dict(type='list', required=True),
+        )
     )
 
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
-    if not HAS_LIB:
-        module.fail_json(msg='pan-python and pandevice are required for this module.')
+    module = AnsibleModule(
+        argument_spec=helper.argument_spec,
+        required_one_of=helper.required_one_of,
+        supports_check_mode=True
+    )
 
-    ip_address = module.params['ip_address']
-    username = module.params['username']
-    password = module.params['password']
-    api_key = module.params['api_key']
+    # Verify libs are present, get parent object.
+    device = helper.get_pandevice_parent(module)
+
     ips = module.params['ips']
     tags = module.params['tags']
     state = module.params['state']
@@ -158,25 +142,28 @@ def main():
     changed = False
 
     try:
-        device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
         registered_ips = device.userid.get_registered_ip(tags=tags)
 
         if state == 'present':
-            to_add = ips
+            # Check to see if IPs actually need to be registered.
+            to_add = set(ips) - set(registered_ips.keys())
             if to_add:
-                device.userid.register(to_add, tags=tags)
+                if not module.check_mode:
+                    device.userid.register(ips, tags=tags)
                 changed = True
 
         elif state == 'absent':
-            to_remove = ips
+            # Check to see if IPs actually need to be unregistered.
+            to_remove = set(ips) & set(registered_ips.keys())
             if to_remove:
-                device.userid.unregister(to_remove, tags=tags)
+                if not module.check_mode:
+                    device.userid.unregister(to_remove, tags=tags)
                 changed = True
 
         results = device.userid.get_registered_ip(ips)
 
-    except PanDeviceError:
-        module.fail_json(msg=get_exception())
+    except PanDeviceError as e:
+        module.fail_json(msg='Failed register/unregister: {0}'.format(e))
 
     module.exit_json(changed=changed, results=results)
 
