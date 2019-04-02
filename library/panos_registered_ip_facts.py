@@ -77,6 +77,7 @@ def main():
     helper = get_connection(
         vsys=True,
         with_classic_provider_spec=True,
+        panorama_error='Panorama is not supported for this module.',
         argument_spec=dict(
             tags=dict(type='list')
         )
