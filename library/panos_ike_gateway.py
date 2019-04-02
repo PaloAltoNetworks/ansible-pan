@@ -26,9 +26,9 @@ DOCUMENTATION = '''
 ---
 module: panos_ike_gateway
 short_description: Configures IKE gateway on the firewall with subset of settings.
-description:
-    - Use this to manage or define a gateway, including the configuration information necessary to perform Internet Key
-    - Exchange (IKE) protocol negotiation with a peer gateway. This is the Phase 1 portion of the IKE/IPSec VPN setup.
+description: 
+    - Use this to manage or define a gateway, including the configuration information necessary to perform Internet Key Exchange (IKE) protocol negotiation with a peer gateway.
+    - This is the Phase 1 portion of the IKE/IPSec VPN setup.
 author: "Ivan Bojer (@ivanbojer)"
 version_added: "2.8"
 requirements:
@@ -40,119 +40,124 @@ notes:
 options:
     ip_address:
         description:
-            - IP address (or hostname) of PAN-OS device being configured.
+            - "IP address (or hostname) of PAN-OS device being configured."
         required: true
     username:
         description:
-            - Username credentials to use for auth unless I(api_key) is set.
+            - "Username credentials to use for auth unless I(api_key) is set."
         default: "admin"
     password:
         description:
-            - Password credentials to use for auth unless I(api_key) is set.
+            - "Password credentials to use for auth unless I(api_key) is set."
         required: true
     api_key:
         description:
-            - API key that can be used instead of I(username)/I(password) credentials.
+            - "API key that can be used instead of I(username)/I(password) credentials."
     state:
         description:
-            - Create or remove static route.
+            - "Create or remove static route."
         choices: ['present', 'absent']
         default: 'present'
     commit:
         description:
-            - Commit configuration if changed.
+            - "Commit configuration if changed."
         default: true
     name:
         description:
-            - Name for the profile.
+            - "Name for the profile."
         required: true
     protocol_version:
         description:
-            - Specify the priority for Diffie-Hellman (DH) groups.
+            - "Specify the priority for Diffie-Hellman (DH) groups."
         default: ike2
     interface:
         description:
-            - Specify the outgoing firewall interface to the VPN tunnel.
+            - "Specify the outgoing firewall interface to the VPN tunnel."
         default: 'ethernet1/1'
     passive_mode:
         description:
-            - True to have the firewall only respond to IKE connections and never initiate them.
+            - "Set to true to have the firewall only respond to IKE connections and never initiate them."
         default: True
     nat_traversal:
         description:
-            - True to NAT Traversal mode
+            - "Set to true to enable NAT Traversal mode."
         default: False
     fragmentation:
         description:
-            - True to enable IKE fragmentation
-            - Incompatible with pre-shared keys, or 'aggressive' exchange mode
+            - "Set to true to enable IKE fragmentation."
+            - "Incompatible with pre-shared keys, or 'aggressive' exchange mode."
         default: False
     liveness_check:
         description:
-            - The IKEv2 Liveness Check is always on; all IKEv2 packets serve the purpose of a liveness check. Use
-            - this to have the system send empty informational packets after the peer has been idle for a number of sec.
+            - "The IKEv2 Liveness Check is always on; all IKEv2 packets serve the purpose of a liveness check."
+            - "Use this to have the system send empty informational packets after the peer has been idle for a number of sec."
         default: 5
     peer_ip_value:
         description:
-            - IPv4 address of the peer gateway.
+            - "IPv4 address of the peer gateway."
         default: '127.0.0.1'
     dead_peer_detection:
         description:
-            - True to enable Dead Peer Detection on the gateway.
+            - "Set to true to enable Dead Peer Detection on the gateway."
         default: false
     dead_peer_detection_interval:
         description:
-            - Time in seconds to check for a dead peer.
+            - "Time in seconds to check for a dead peer."
         default: 99
     dead_peer_detection_retry:
         description:
-            - Retry attempts before peer is marked dead.
+            - "Retry attempts before peer is marked dead."
         default: 10
     local_ip_address:
         description:
-            - Bind IKE gateway to the specified interface IP address
-            - It should include the mask, eg: '192.168.1.1/24'
+            - "Bind IKE gateway to the specified interface IP address."
+            - "It should include the mask, eg: '192.168.1.1/24'."
         default: None
     local_ip_address_type:
         description:
-            - The address type of the bound interface IP address
-            - Valid options: 'ip' | 'floating-ip'
+            - "The address type of the bound interface IP address."
+        choices: 
+            - ip
+            - floating-ip
         default: None
     psk:
         description:
-            - Specify pre-shared key.
+            - "Specify pre-shared key."
         default: 'CHANGEME'
     local_id_type:
         description:
-            - Specify the type of local ID.
+            - "Specify the type of local ID."
         choices: ['ipaddr', 'fwdn', 'ufqdn', 'keyid', 'dn']
         default: None
     local_id_value:
         description:
-            - The value for the local_id.  (See also local_id_type, above.)
+            - "The value for the local_id.  (See also local_id_type, above.)"
         default: None
     peer_id_type:
         description:
-            - Specify the type of peer ID.
+            - "Specify the type of peer ID."
         choices: ['ipaddr', 'fwdn', 'ufqdn', 'keyid', 'dn']
         default: None
     peer_id_value:
         description:
-            - The value for the peer_id.  (See also peer_id_type, above.)
+            - "The value for the peer_id.  (See also peer_id_type, above.)"
         default: None
     peer_id_check:
         description:
-            - Type of checking to do on peer_id.
+            - "Type of checking to do on peer_id."
         choices: ['exact', 'wildcard']
         default: None
     crypto_profile_name:
         description:
-            - Select an existing profile or keep the default profile.
+            - "Select an existing profile or keep the default profile."
         default: 'default'
     ikev1_exchange_mode:
         description:
-            - The IKE exchange mode to use
-            - Valid options: 'auto' | 'main' | 'aggressive'
+            - "The IKE exchange mode to use."
+        choices:
+            - auto
+            - main
+            - aggressive
         default: None
 '''
 
