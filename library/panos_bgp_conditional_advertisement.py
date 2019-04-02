@@ -40,11 +40,11 @@ options:
     ip_address:
         description:
             - IP address (or hostname) of PAN-OS device being configured.
-            required: True
+        required: True
     username:
         description:
             - Username credentials to use for auth unless I(api_key) is set.
-            default: admin
+        default: admin
     password:
         description:
             - Password credentials to use for auth unless I(api_key) is set.
@@ -56,15 +56,15 @@ options:
             - Add or remove BGP Conditional Advertisement Policy.
                 - present
                 - absent
-            default: present
+        default: present
     commit:
         description:
             - Commit configuration if changed.
-            default: True
+        default: True
     vr_name:
         description:
             - Name of the virtual router; it must already exist; see panos_virtual_router.
-            default: default
+        default: default
     advertisement_filter:
         description:
             - Advertisement filter object returned by panos_bgp_policy_filter; only needed on creation.
@@ -77,7 +77,7 @@ options:
     name:
         description:
             - Name of Conditional Advertisement policy.
-            required: True
+        required: True
     used_by:
         description:
             - List of Peer Groups using this policy.
