@@ -40,11 +40,11 @@ options:
     ip_address:
         description:
             - IP address (or hostname) of PAN-OS device being configured.
-            required: True
+        required: True
     username:
         description:
             - Username credentials to use for auth unless I(api_key) is set.
-            default: admin
+        default: admin
     password:
         description:
             - Password credentials to use for auth unless I(api_key) is set.
@@ -56,11 +56,11 @@ options:
             - Add or remove BGP Policy Import/Export Rule.
                 - present
                 - absent
-            default: present
+        default: present
     commit:
         description:
             - Commit configuration if changed.
-            default: True
+        default: True
     action:
         description:
             - Rule action.
@@ -123,7 +123,7 @@ options:
     enable:
         description:
             - Enable rule.
-            default: True
+        default: True
     match_afi:
         description:
             - Address Family Identifier.
@@ -161,21 +161,20 @@ options:
     name:
         description:
             - Name of filter.
-            required: True
+        required: True
     type:
         description:
             - The type of rule.
                 - import
                 - export
-            required: True
+        required: True
     used_by:
         description:
             - Peer-groups that use this rule.
     vr_name:
         description:
             - Name of the virtual router; it must already exist; see panos_virtual_router.
-            default: default
-
+        default: default
 '''
 
 EXAMPLES = '''
