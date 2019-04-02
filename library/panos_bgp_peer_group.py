@@ -40,11 +40,11 @@ options:
     ip_address:
         description:
             - IP address (or hostname) of PAN-OS device being configured.
-            required: True
+        required: True
     username:
         description:
             - Username credentials to use for auth unless I(api_key) is set.
-            default: admin
+        default: admin
     password:
         description:
             - Password credentials to use for auth unless I(api_key) is set.
@@ -56,34 +56,34 @@ options:
             - Add or remove BGP Peer Group configuration.
                 - present
                 - absent
-            default: present
+        default: present
     commit:
         description:
             - Commit configuration if changed.
-            default: True
+        default: True
     aggregated_confed_as_path:
         description:
             - The peers understand Aggregated Confederation AS Path.
     enable:
         description:
             - Enable BGP peer group.
-            default: True
+        default: True
     export_nexthop:
         description:
             - Export locally resolved nexthop I("resolve")/I("use-self").
                 - resolve
                 - use-self
-            default: resolve
+        default: resolve
     import_nexthop:
         description:
             - Override nexthop with peer address I("original")/I("use-peer"), only with "ebgp".
                 - original
                 - use-peer
-            default: original
+        default: original
     name:
         description:
             - Name of the BGP peer group.
-            required: True
+        required: True
     remove_private_as:
         description:
             - Remove private AS when exporting route, only with "ebgp".
@@ -97,11 +97,11 @@ options:
                 - ibgp
                 - ebgp-confed
                 - ibgp-confed
-            default: ebgp
+        default: ebgp
     vr_name:
         description:
             - Name of the virtual router; it must already exist; see panos_virtual_router.
-            default: default
+        default: default
 '''
 
 EXAMPLES = '''
