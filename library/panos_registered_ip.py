@@ -53,45 +53,35 @@ options:
 EXAMPLES = '''
 - name: Add 'First_Tag' tag to 1.1.1.1
   panos_registered_ip:
-    ip_address: '{{ fw_ip_address }}'
-    username: '{{ fw_username }}'
-    password: '{{ fw_password }}'
+    provider: '{{ provider }}'
     ips: ['1.1.1.1']
     tags: ['First_Tag']
     state: 'present'
 
 - name: Add 'First_Tag' tag to 1.1.1.2
   panos_registered_ip:
-    ip_address: '{{ fw_ip_address }}'
-    username: '{{ fw_username }}'
-    password: '{{ fw_password }}'
+    provider: '{{ provider }}'
     ips: ['1.1.1.2']
     tags: ['First_Tag']
     state: 'present'
 
 - name: Add 'Second_Tag' tag to 1.1.1.1
   panos_registered_ip:
-    ip_address: '{{ fw_ip_address }}'
-    username: '{{ fw_username }}'
-    password: '{{ fw_password }}'
+    provider: '{{ provider }}'
     ips: ['1.1.1.1']
     tags: ['Second_Tag']
     state: 'present'
 
 - name: Remove 'Second_Tag' from 1.1.1.1
   panos_registered_ip:
-    ip_address: '{{ fw_ip_address }}'
-    username: '{{ fw_username }}'
-    password: '{{ fw_password }}'
+    provider: '{{ provider }}'
     ips: ['1.1.1.1']
     tags: ['Second_Tag']
     state: 'absent'
 
 - name: Remove 'First_Tag' from 1.1.1.2 (will unregister entirely)
   panos_registered_ip:
-    ip_address: '{{ fw_ip_address }}'
-    username: '{{ fw_username }}'
-    password: '{{ fw_password }}'
+    provider: '{{ provider }}'
     ips: ['1.1.1.2']
     tags: ['First_Tag']
     state: 'absent'
@@ -120,6 +110,7 @@ def main():
         vsys=True,
         with_classic_provider_spec=True,
         with_state=True,
+        panorama_error='Panorama is not supported for this module.',
         argument_spec=dict(
             ips=dict(type='list', required=True),
             tags=dict(type='list', required=True),
