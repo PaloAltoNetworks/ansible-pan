@@ -40,11 +40,11 @@ options:
     ip_address:
         description:
             - IP address (or hostname) of PAN-OS device being configured.
-            required: True
+        required: True
     username:
         description:
             - Username credentials to use for auth unless I(api_key) is set.
-            default: admin
+        default: admin
     password:
         description:
             - Password credentials to use for auth unless I(api_key) is set.
@@ -56,11 +56,11 @@ options:
             - Add or remove BGP peer configuration.
                 - present
                 - absent
-            default: present
+        default: present
     commit:
         description:
             - Commit configuration if changed.
-            default: True
+        default: True
     address_family_identifier:
         description:
             - Peer address family type.
@@ -105,7 +105,7 @@ options:
     enable:
         description:
             - Enable BGP Peer.
-            default: True
+        default: True
     enable_mp_bgp:
         description:
             - Enable MP-BGP extentions.
@@ -124,7 +124,7 @@ options:
     name:
         description:
             - Name of BGP Peer.
-            required: True
+        required: True
     peer_address_ip:
         description:
             - IP address of peer.
@@ -134,7 +134,7 @@ options:
     peer_group:
         description:
             - Name of the peer group; it must already exist; see panos_bgp_peer_group.
-            required: True
+        required: True
     peering_type:
         description:
             - Peering type.
@@ -155,7 +155,7 @@ options:
     vr_name:
         description:
             - Name of the virtual router; it must already exist; see panos_virtual_router.
-            default: default
+        default: default
 '''
 
 EXAMPLES = '''
