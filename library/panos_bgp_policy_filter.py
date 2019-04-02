@@ -40,11 +40,11 @@ options:
     ip_address:
         description:
             - IP address (or hostname) of PAN-OS device being configured.
-            required: True
+        required: True
     username:
         description:
             - Username credentials to use for auth unless I(api_key) is set.
-            default: admin
+        default: admin
     password:
         description:
             - Password credentials to use for auth unless I(api_key) is set.
@@ -57,18 +57,18 @@ options:
                 - present
                 - absent
                 - return-object
-            default: present
+        default: present
     commit:
         description:
             - Commit configuration if changed.
-            default: True
+        default: True
     filter_type:
         description:
             - The type of filter.
                 - non-exist
                 - advertise
                 - suppress
-            required: True
+        required: True
     policy_name:
         description:
             - The name of the policy object.
@@ -77,15 +77,15 @@ options:
             - The type of policy object.
                 - conditional-advertisement
                 - aggregate
-            required: True
+        required: True
     name:
         description:
             - Name of filter.
-            required: True
+        required: True
     enable:
         description:
             - Enable filter.
-            default: True
+        default: True
     address_prefix:
         description:
             - List of Address Prefix objects.
@@ -126,8 +126,7 @@ options:
     vr_name:
         description:
             - Name of the virtual router; it must already exist; see panos_virtual_router.
-            default: default
-
+        default: default
 '''
 
 EXAMPLES = '''
