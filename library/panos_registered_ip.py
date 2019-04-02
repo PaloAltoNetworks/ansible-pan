@@ -33,12 +33,12 @@ requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
 notes:
-    - Panorama is supported.
     - Check mode is supported.
     - Panorama is not supported.
 extends_documentation_fragment:
     - panos.transitional_provider
     - panos.state
+    - panos.vsys
 options:
     ips:
         description:
@@ -117,7 +117,7 @@ except ImportError:
 
 def main():
     helper = get_connection(
-        # vsys=True,
+        vsys=True,
         with_classic_provider_spec=True,
         with_state=True,
         argument_spec=dict(
