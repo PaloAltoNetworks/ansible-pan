@@ -40,11 +40,11 @@ options:
     ip_address:
         description:
             - IP address (or hostname) of PAN-OS device being configured.
-            required: True
+        required: True
     username:
         description:
             - Username credentials to use for auth unless I(api_key) is set.
-            default: admin
+        default: admin
     password:
         description:
             - Password credentials to use for auth unless I(api_key) is set.
@@ -56,17 +56,17 @@ options:
             - Add or remove Route Redistribution Rule.
                 - present
                 - absent
-            default: present
+        default: present
     commit:
         description:
             - Commit configuration if changed.
-            default: True
+        default: True
     action:
         description:
             - Rule action.
                 - no-redist
                 - redist
-            default: no-redist
+        default: no-redist
     bgp_filter_community:
         description:
             - BGP filter on community.
@@ -88,7 +88,7 @@ options:
     name:
         description:
             - Name of rule.
-            required: True
+        required: True
     ospf_filter_area:
         description:
             - OSPF filter on area.
@@ -106,11 +106,11 @@ options:
             - Name of rule.
                 - ipv4
                 - ipv6
-            default: ipv4
+        default: ipv4
     vr_name:
         description:
             - Name of the virtual router; it must already exist; see panos_virtual_router.
-            default: default
+        default: default
 '''
 
 EXAMPLES = '''
