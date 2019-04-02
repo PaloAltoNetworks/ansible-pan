@@ -50,7 +50,7 @@ options:
     name:
         description:
             -  Name of virtual router
-        default: 'default'
+        default: "default"
     interface:
         description:
             -  List of interface names
