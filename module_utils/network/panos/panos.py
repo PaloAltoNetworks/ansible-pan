@@ -144,6 +144,8 @@ class ConnectionHelper(object):
         ts_error = 'Specify either the template or the template stack{0}.'
         if hasattr(self.device, 'refresh_devices'):
             # Panorama connection.
+            templated = False
+
             # Error if Panorama is not supported.
             if self.panorama_error is not None:
                 module.fail_json(msg=self.panorama_error)
@@ -154,6 +156,7 @@ class ConnectionHelper(object):
             if self.template_stack is not None:
                 name = module.params[self.template_stack]
                 if name is not None:
+                    templated = True
                     stacks = TemplateStack.refreshall(parent, name_only=True)
                     for ts in stacks:
                         if ts.name == name:
@@ -173,6 +176,7 @@ class ConnectionHelper(object):
             if self.template is not None:
                 name = module.params[self.template]
                 if name is not None:
+                    templated = True
                     if added_template:
                         module.fail_json(msg=ts_error.format(', not both'))
                     templates = Template.refreshall(parent, name_only=True)
@@ -206,7 +210,7 @@ class ConnectionHelper(object):
 
             # Spec: vsys importable.
             vsys_name = self.vsys_importable or self.vsys
-            if dg_name is None and vsys_name is not None:
+            if dg_name is None and templated and vsys_name is not None:
                 name = module.params[vsys_name]
                 if name not in (None, 'shared'):
                     vo = Vsys(name)
