@@ -16,5 +16,6 @@ install:
   - pip install pycodestyle
 
 script:
-  - cd library; find . -name \*.py -exec pycodestyle --max-line-length=120 --ignore=E402 {} +
-  - error=0; for i in `ls *.py | grep -v '__init__.py'`; do if ansible-doc -M . "$i" 1>/dev/null; then error=1; fi; done; if [ "X$error" = "X1" ] ; then false; else true; fi;
+  - cd library 
+  - find . -name \*.py -exec pycodestyle --max-line-length=120 --ignore=E402 {} +
+  - error=0; for i in `ls *.py | grep -v '__init__.py'`; do if ansible-doc -M . "$i" 1>/dev/null; then true; else error=1; echo "failed $i"; fi; done; if [ "X$error" = "X1" ] ; then false; else true; fi;
