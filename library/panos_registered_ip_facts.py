@@ -36,6 +36,7 @@ notes:
     - Panorama is not supported.
 extends_documentation_fragment:
     - panos.transitional_provider
+    - panos.vsys
 options:
     tags:
         description:
@@ -74,7 +75,7 @@ except ImportError:
 
 def main():
     helper = get_connection(
-        # vsys=True,
+        vsys=True,
         with_classic_provider_spec=True,
         argument_spec=dict(
             tags=dict(type='list')
