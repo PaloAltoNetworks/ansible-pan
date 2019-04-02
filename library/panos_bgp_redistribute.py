@@ -114,17 +114,19 @@ options:
 '''
 
 EXAMPLES = '''
-- name: Create BGP Peer Group
-    panos_bgp_policy_rule:
+- name: BGP use Redistribution Policy 1
+    panos_bgp_redistribute:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
       password: '{{ password }}'
       state: 'present'
-      name: peer-group-1
+      name: redist-policy-1
       enable: true
-      aggregated_confed_as_path: true
-      soft_reset_with_stored_info: false
       commit: true
+      address_family_identifier: ipv4
+      set_origin: incomplete
+      vr_name: default
+
 '''
 
 RETURN = '''
