@@ -40,11 +40,11 @@ options:
     ip_address:
         description:
             - IP address (or hostname) of PAN-OS device being configured.
-            required: True
+        required: True
     username:
         description:
             - Username credentials to use for auth unless I(api_key) is set.
-            default: admin
+        default: admin
     password:
         description:
             - Password credentials to use for auth unless I(api_key) is set.
@@ -56,35 +56,35 @@ options:
             - Add or remove BGP Aggregate Policy.
                 - present
                 - absent
-            default: present
+        default: present
     commit:
         description:
             - Commit configuration if changed.
-            default: True
+        default: True
     address_family_identifier:
         description:
             - Address Family Identifier.
                 - ipv4
                 - ipv6
-            default: ipv4
+        default: ipv4
     enable:
         description:
             - Enable rule.
-            default: True
+        default: True
     metric:
         description:
             - Metric value.
     name:
         description:
             - Name of rule; must match a defined Redistribution Profile in the virtual router.
-            required: True
+        required: True
     route_table:
         description:
             - Summarize route.
                 - unicast
                 - multicast
                 - both
-            default: unicast
+        default: unicast
     set_as_path_limit:
         description:
             - Add the AS_PATHLIMIT path attribute.
@@ -106,11 +106,11 @@ options:
                 - igp
                 - egp
                 - incomplete
-            default: incomplete
+        default: incomplete
     vr_name:
         description:
             - Name of the virtual router; it must already exist; see panos_virtual_router.
-            default: default
+        default: default
 '''
 
 EXAMPLES = '''
