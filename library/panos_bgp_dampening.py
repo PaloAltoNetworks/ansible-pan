@@ -40,11 +40,11 @@ options:
     ip_address:
         description:
             - IP address (or hostname) of PAN-OS device being configured.
-            required: True
+        required: True
     username:
         description:
             - Username credentials to use for auth unless I(api_key) is set.
-            default: admin
+        default: admin
     password:
         description:
             - Password credentials to use for auth unless I(api_key) is set.
@@ -56,15 +56,15 @@ options:
             - Add or remove BGP Dampening Profile.
                 - present
                 - absent
-            default: present
+        default: present
     commit:
         description:
             - Commit configuration if changed.
-            default: True
+        default: True
     vr_name:
         description:
             - Name of the virtual router; it must already exist; see panos_virtual_router.
-            default: default
+        default: default
     cutoff:
         description:
             - Cutoff threshold value.
@@ -77,14 +77,14 @@ options:
     enable:
         description:
             - Enable profile.
-            default: True
+        default: True
     max_hold_time:
         description:
             - Maximum of hold-down time (in seconds).
     name:
         description:
             - Name of Dampening Profile.
-            required: True
+        required: True
     reuse:
         description:
             - Reuse threshold value.
