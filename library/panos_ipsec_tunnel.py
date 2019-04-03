@@ -63,6 +63,7 @@ options:
         description:
             - Type of IPsec tunnel.
         choices: ['auto-key', 'manual-key', or 'global-protect-satellite']
+        default: 'auto-key'
     ak_ike_gateway:
         description:
             - Name of the existing IKE gateway (auto-key).
@@ -104,7 +105,7 @@ options:
              – Authentication key (manual-key).
     mk_esp_encryption:
         description:
-            - Encryption algorithm for tunnel traffic (manual-key). 
+            - Encryption algorithm for tunnel traffic (manual-key).
         choices: ['des', '3des', 'aes-128-cbc', 'aes-192-cbc', 'aes-256-cbc', 'null']
     mk_esp_encryption_key:
         description:
@@ -219,7 +220,7 @@ def main():
             tunnel_interface=dict(default='tunnel.1'),
             anti_replay=dict(type=bool, default=True),
             ipv6=dict(type=bool, default=False),
-            type=dict(type='str', choices=['auto-key', 'manual-key', 'global-protect-satellite']),
+            type=dict(type='str', choices=['auto-key', 'manual-key', 'global-protect-satellite'], default='auto-key'),
             ak_ike_gateway=dict(default='default', aliases=['ike_gtw_name']),
             ak_ipsec_crypto_profile=dict(default='default', aliases=['ipsec_profile']),
             mk_local_spi=dict(type='str', default=None),
