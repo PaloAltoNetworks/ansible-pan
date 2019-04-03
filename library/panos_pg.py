@@ -24,20 +24,16 @@ author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
 version_added: "2.3"
 requirements:
     - pan-python
+    - pandevice
+notes:
+    - Panorama is supported.
+    - Checkmode is supported.
+extends_documentation_fragment:
+    - panos.transitional_provider
+    - panos.vsys
+    - panos.device_group
+    - panos.state
 options:
-    ip_address:
-        description:
-            - IP address (or hostname) of PAN-OS device
-        required: true
-    password:
-        description:
-            - password for authentication
-        required: true
-    username:
-        description:
-            - username for authentication
-        required: false
-        default: "admin"
     pg_name:
         description:
             - name of the security profile group
@@ -45,51 +41,35 @@ options:
     data_filtering:
         description:
             - name of the data filtering profile
-        required: false
-        default: None
     file_blocking:
         description:
             - name of the file blocking profile
-        required: false
-        default: None
     spyware:
         description:
             - name of the spyware profile
-        required: false
-        default: None
     url_filtering:
         description:
             - name of the url filtering profile
-        required: false
-        default: None
     virus:
         description:
             - name of the anti-virus profile
-        required: false
-        default: None
     vulnerability:
         description:
             - name of the vulnerability profile
-        required: false
-        default: None
     wildfire:
         description:
             - name of the wildfire analysis profile
-        required: false
-        default: None
     commit:
         description:
             - commit if changed
-        required: false
-        default: true
+        default: True
+        type: bool
 '''
 
 EXAMPLES = '''
 - name: setup security profile group
   panos_pg:
-    ip_address: "192.168.1.1"
-    password: "admin"
-    username: "admin"
+    provider: '{{ provider }}'
     pg_name: "pg-default"
     virus: "default"
     spyware: "default"
@@ -106,114 +86,74 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.basic import get_exception
+from ansible.module_utils.network.panos.panos import get_connection
 
 
 try:
-    import pan.xapi
-    from pan.xapi import PanXapiError
-    HAS_LIB = True
+    from pandevice.errors import PanDeviceError
+    from pandevice.objects import SecurityProfileGroup
 except ImportError:
-    HAS_LIB = False
-
-_PG_XPATH = "/config/devices/entry[@name='localhost.localdomain']" +\
-            "/vsys/entry[@name='vsys1']" +\
-            "/profile-group/entry[@name='%s']"
-
-
-def pg_exists(xapi, pg_name):
-    xapi.get(_PG_XPATH % pg_name)
-    e = xapi.element_root.find('.//entry')
-    if e is None:
-        return False
-    return True
-
-
-def add_pg(xapi, pg_name, data_filtering, file_blocking, spyware,
-           url_filtering, virus, vulnerability, wildfire):
-    if pg_exists(xapi, pg_name):
-        return False
-
-    exml = []
-
-    if data_filtering is not None:
-        exml.append('<data-filtering><member>%s</member></data-filtering>' %
-                    data_filtering)
-    if file_blocking is not None:
-        exml.append('<file-blocking><member>%s</member></file-blocking>' %
-                    file_blocking)
-    if spyware is not None:
-        exml.append('<spyware><member>%s</member></spyware>' %
-                    spyware)
-    if url_filtering is not None:
-        exml.append('<url-filtering><member>%s</member></url-filtering>' %
-                    url_filtering)
-    if virus is not None:
-        exml.append('<virus><member>%s</member></virus>' %
-                    virus)
-    if vulnerability is not None:
-        exml.append('<vulnerability><member>%s</member></vulnerability>' %
-                    vulnerability)
-    if wildfire is not None:
-        exml.append('<wildfire-analysis><member>%s</member></wildfire-analysis>' %
-                    wildfire)
-
-    exml = ''.join(exml)
-    xapi.set(xpath=_PG_XPATH % pg_name, element=exml)
-
-    return True
+    pass
 
 
 def main():
-    argument_spec = dict(
-        ip_address=dict(required=True),
-        password=dict(required=True, no_log=True),
-        username=dict(default='admin'),
-        pg_name=dict(required=True),
-        data_filtering=dict(),
-        file_blocking=dict(),
-        spyware=dict(),
-        url_filtering=dict(),
-        virus=dict(),
-        vulnerability=dict(),
-        wildfire=dict(),
-        commit=dict(type='bool', default=True)
-    )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
-    if not HAS_LIB:
-        module.fail_json(msg='pan-python is required for this module')
-
-    ip_address = module.params["ip_address"]
-    password = module.params["password"]
-    username = module.params['username']
-
-    xapi = pan.xapi.PanXapi(
-        hostname=ip_address,
-        api_username=username,
-        api_password=password
+    helper = get_connection(
+        vsys=True,
+        device_group=True,
+        with_state=True,
+        with_classic_provider_spec=True,
+        argument_spec=dict(
+            pg_name=dict(required=True),
+            data_filtering=dict(),
+            file_blocking=dict(),
+            spyware=dict(),
+            url_filtering=dict(),
+            virus=dict(),
+            vulnerability=dict(),
+            wildfire=dict(),
+            commit=dict(type='bool', default=True)
+        ),
     )
 
-    pg_name = module.params['pg_name']
-    data_filtering = module.params['data_filtering']
-    file_blocking = module.params['file_blocking']
-    spyware = module.params['spyware']
-    url_filtering = module.params['url_filtering']
-    virus = module.params['virus']
-    vulnerability = module.params['vulnerability']
-    wildfire = module.params['wildfire']
+    module = AnsibleModule(
+        argument_spec=helper.argument_spec,
+        supports_check_mode=True,
+        required_one_of=helper.required_one_of,
+    )
+
+    # Verify libs are present, build the pandevice object tree.
+    parent = helper.get_pandevice_parent(module)
+
+    # Other info.
     commit = module.params['commit']
 
+    # Retrieve current profiles.
     try:
-        changed = add_pg(xapi, pg_name, data_filtering, file_blocking,
-                         spyware, url_filtering, virus, vulnerability, wildfire)
+        listing = SecurityProfileGroup.refreshall(parent, add=False)
+    except PanDeviceError as e:
+        module.fail_json(msg='Failed refresh: {0}'.format(e))
 
-        if changed and commit:
-            xapi.commit(cmd="<commit></commit>", sync=True, interval=1)
-    except PanXapiError:
-        exc = get_exception()
-        module.fail_json(msg=exc.message)
+    spec = {
+        'name': module.params['pg_name'],
+        'virus': module.params['virus'],
+        'spyware': module.params['spyware'],
+        'vulnerability': module.params['vulnerability'],
+        'url_filtering': module.params['url_filtering'],
+        'file_blocking': module.params['file_blocking'],
+        'data_filtering': module.params['data_filtering'],
+        'wildfire_analysis': module.params['wildfire'],
+    }
+    obj = SecurityProfileGroup(**spec)
+    parent.add(obj)
 
-    module.exit_json(changed=changed, msg="okey dokey")
+    # Apply the state.
+    changed = helper.apply_state(obj, listing, module)
+
+    # Optional commit.
+    if changed and commit:
+        helper.commit(module)
+
+    module.exit_json(changed=changed, msg='done')
 
 
 if __name__ == '__main__':
