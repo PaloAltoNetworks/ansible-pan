@@ -50,16 +50,113 @@ options:
         description:
             - Specify existing tunnel interface that will be used.
         default: 'tunnel.1'
+    anti_replay:
+        description:
+            - Enable anti-replay check on this tunnel.
+        default: True
+    ipv6:
+        description:
+            - Use IPv6 for the IPsec tunnel (7.0+)
+        type: bool
+        default: False
+    type:
+        description:
+            - Type of IPsec tunnel.
+        choices: ['auto-key', 'manual-key', or 'global-protect-satellite']
     ak_ike_gateway:
         description:
-            - Name of the existing IKE gateway.
+            - Name of the existing IKE gateway (auto-key).
         default: 'default'
         aliases: 'ike_gtw_name'
     ak_ipsec_crypto_profile:
         description:
-            - Name of the existing IPsec profile or use default.
+            - Name of the existing IPsec profile or use default (auto-key).
         default: 'default'
         aliases: 'ipsec_profile'
+    mk_local_spi:
+        description:
+            - Outbound SPI in hex (manual-key).
+    mk_interface:
+        description:
+             – Interface to terminate tunnel (manual-key).
+    mk_remote_spi:
+        description:
+             – Inbound SPI in hex (manual-key).
+    mk_remote_address:
+        description:
+             – Tunnel peer IP address (manual-key).
+    mk_local_address_ip:
+        description:
+             – Exact IP address if interface has multiple IP addresses (manual-key).
+    mk_local_address_floating_ip:
+        description:
+             – Floating IP address in HA Active-Active configuration (manual-key).
+    mk_protocol:
+        description:
+            – Protocol for traffic through the tunnel (manual-key).
+        choices: ['esp', 'ah']
+    mk_auth_type:
+        description:
+            - Authentication type for tunnel access (manual-key).
+        choices: ['md5', 'sha1', 'sha256', 'sha384', 'sha512']
+    mk_auth_key:
+        description:
+             – Authentication key (manual-key).
+    mk_esp_encryption:
+        description:
+            - Encryption algorithm for tunnel traffic (manual-key). 
+        choices: ['des', '3des', 'aes-128-cbc', 'aes-192-cbc', 'aes-256-cbc', 'null']
+    mk_esp_encryption_key:
+        description:
+            - Encryption key (manual-key).
+    gps_portal_address:
+        description:
+             – GlobalProtect portal address (global-protect-satellite).
+    gps_prefer_ipv6:
+        description:
+             – Prefer to register portal in IPv6 (8.0+) (global-protect-satellite).
+        type: bool
+        default: False
+    gps_interface:
+        description:
+            – Interface to communicate with portal (global-protect-satellite).
+    gps_interface_ipv4_ip:
+        description:
+            – Exact IPv4 IP address if interface has multiple IP addresses (global-protect-satellite).
+    gps_interface_ipv6_ip:
+        description:
+             – Exact IPv6 IP address if interface has multiple IP addresses (8.0+) (global-protect-satellite).
+    gps_interface_ipv4_floating_ip:
+        description:
+            – Floating IPv4 IP address in HA Active-Active configuration (7.0+) (global-protect-satellite).
+    gps_interface_ipv6_floating_ip:
+        description:
+            – Floating IPv6 IP address in HA Active-Active configuration (8.0+) (global-protect-satellite).
+    gps_publish_connected_routes:
+        description:
+            – Enable publishing of connected and static routes (global-protect-satellite).
+        type: bool
+        default: False
+    gps_publish_routes:
+        description:
+            - Specify list of routes to publish to GlobalProtect gateway (global-protect-satellite).
+        type: list
+    gps_local_certificate:
+        description:
+            - GlobalProtect satellite certificate file name (global-protect-satellite).
+    gps_certificate_profile:
+        description:
+            – Profile for authenticating GlobalProtect gateway certificates (global-protect-satellite).
+    copy_tos:
+        description:
+            - Copy IP TOS bits from inner packet to IPSec packet (not recommended).
+        type: bool
+        default: False
+    copy_flow_label:
+        description:
+            – Copy IPv6 flow label for 6in6 tunnel from inner packet to IPSec packet (not recommended) (7.0+).
+        type: bool
+        default: False
     enable_tunnel_monitor:
         description:
             - Enable tunnel monitoring on this tunnel.
@@ -120,8 +217,41 @@ def main():
         argument_spec=dict(
             name=dict(required=True),
             tunnel_interface=dict(default='tunnel.1'),
+            anti_replay=dict(type=bool, default=True),
+            ipv6=dict(type=bool, default=False),
+            type=dict(type='str', choices=['auto-key', 'manual-key', 'global-protect-satellite']),
             ak_ike_gateway=dict(default='default', aliases=['ike_gtw_name']),
             ak_ipsec_crypto_profile=dict(default='default', aliases=['ipsec_profile']),
+            mk_local_spi=dict(type='str', default=None),
+            mk_interface=dict(type='str', default=None),
+            mk_remote_spi=dict(type='str', default=None),
+            mk_remote_address=dict(type='str', default=None),
+            mk_local_address_ip=dict(type='str', default=None),
+            mk_local_address_floating_ip=dict(type='str', default=None),
+            mk_protocol=dict(type='str', default=None, choices=['esp', 'ah']),
+            mk_auth_type=dict(type='str', default=None, choices=['md5', 'sha1', 'sha256', 'sha384', 'sha512']),
+            mk_auth_key=dict(type='str', default=None),
+            mk_esp_encryption=dict(
+                type='str',
+                default=None,
+                choices=[
+                    'des', '3des', 'aes-128-cbc', 'aes-192-cbc', 'aes-256-cbc', 'null'
+                ]
+            ),
+            mk_esp_encryption_key=dict(type='str', default=None),
+            gps_portal_address=dict(type='str', default=None),
+            gps_prefer_ipv6=dict(type='bool', default=False),
+            gps_interface=dict(type='str', default=None),
+            gps_interface_ipv4_ip=dict(type='str', default=None),
+            gps_interface_ipv6_ip=dict(type='str', default=None),
+            gps_interface_ipv4_floating_ip=dict(type='str', default=None),
+            gps_interface_ipv6_floating_ip=dict(type='str', default=None),
+            gps_publish_connected_routes=dict(type='bool', default=False),
+            gps_publish_routes=dict(type='bool', default=False),
+            gps_local_certificate=dict(type='str', default=None),
+            gps_certificate_profile=dict(type='str', default=None),
+            copy_tos=dict(type='bool', default=False),
+            copy_flow_label=dict(type='bool', default=False),
             enable_tunnel_monitor=dict(type='bool', default=False),
             tunnel_monitor_dest_ip=dict(type='str', default=None),
             tunnel_monitor_proxy_id=dict(type='str', default=None),
@@ -144,8 +274,32 @@ def main():
     spec = {
         'name': module.params['name'],
         'tunnel_interface': module.params['tunnel_interface'],
+        'anti_replay': module.params['anti_replay'],
+        'ipv6': module.params['ipv6'],
         'ak_ike_gateway': module.params['ak_ike_gateway'],
         'ak_ipsec_crypto_profile': module.params['ak_ipsec_crypto_profile'],
+        'mk_local_spi': module.params['mk_local_spi'],
+        'mk_interface': module.params['mk_interface'],
+        'mk_remote_spi': module.params['mk_remote_spi'],
+        'mk_remote_address': module.params['mk_remote_address'],
+        'mk_local_address_ip': module.params['mk_local_address_ip'],
+        'mk_local_address_floating_ip': module.params['mk_local_address_floating_ip'],
+        'mk_protocol': module.params['mk_protocol'],
+        'mk_auth_type': module.params['mk_auth_type'],
+        'mk_auth_key': module.params['mk_auth_key'],
+        'mk_esp_encryption': module.params['mk_esp_encryption'],
+        'mk_esp_encryption_key': module.params['mk_esp_encryption_key'],
+        'gps_portal_address': module.params['gps_portal_address'],
+        'gps_prefer_ipv6': module.params['gps_prefer_ipv6'],
+        'gps_interface': module.params['gps_interface'],
+        'gps_interface_ipv6_ip': module.params['gps_interface_ipv6_ip'],
+        'gps_interface_ipv4_floating_ip': module.params['gps_interface_ipv4_floating_ip'],
+        'gps_publish_connected_routes': module.params['gps_publish_connected_routes'],
+        'gps_publish_routes': module.params['gps_publish_routes'],
+        'gps_local_certificate': module.params['gps_local_certificate'],
+        'gps_certificate_profile': module.params['gps_certificate_profile'],
+        'copy_tos': module.params['copy_tos'],
+        'copy_flow_label': module.params['copy_flow_label'],
         'enable_tunnel_monitor': module.params['enable_tunnel_monitor'],
         'tunnel_monitor_dest_ip': module.params['tunnel_monitor_dest_ip'],
         'tunnel_monitor_proxy_id': module.params['tunnel_monitor_proxy_id'],
