@@ -29,43 +29,28 @@ short_description: Configures a BGP Peer
 description:
     - Use BGP to publish and consume routes from disparate networks.
 author: "Joshua Colson (@freakinhippie)"
-version_added: "2.9"
+version_added: "2.8"
 requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
 notes:
-    - Checkmode is not supported.
-    - Panorama is NOT supported.
+    - Checkmode is supported.
+    - Panorama is supported.
+extends_documentation_fragment:
+    - panos.transitional_provider
+    - panos.full_template_support
+    - panos.state
 options:
-    ip_address:
-        description:
-            - IP address (or hostname) of PAN-OS device being configured.
-            required: True
-    username:
-        description:
-            - Username credentials to use for auth unless I(api_key) is set.
-            default: admin
-    password:
-        description:
-            - Password credentials to use for auth unless I(api_key) is set.
-    api_key:
-        description:
-            - API key that can be used instead of I(username)/I(password) credentials.
-    state:
-        description:
-            - Add or remove BGP peer configuration.
-                - present
-                - absent
-            default: present
     commit:
         description:
             - Commit configuration if changed.
-            default: True
+        default: True
     address_family_identifier:
         description:
             - Peer address family type.
-                - ipv4
-                - ipv6
+        choices:
+            - ipv4
+            - ipv6
     bfd_profile:
         description:
             - BFD profile configuration.
@@ -75,43 +60,56 @@ options:
     connection_hold_time:
         description:
             - Hold time (in seconds).
+        type: int
     connection_idle_hold_time:
         description:
             - Idle hold time (in seconds).
+        type: int
     connection_incoming_allow:
         description:
             - Allow incoming connections.
+        type: bool
     connection_incoming_remote_port:
         description:
             - Restrict remote port for incoming BGP connections.
+        type: int
     connection_keep_alive_interval:
         description:
             - Keep-alive interval (in seconds).
+        type: int
     connection_min_route_adv_interval:
         description:
             - Minimum Route Advertisement Interval (in seconds).
+        type: int
     connection_multihop:
         description:
             - IP TTL value used for sending BGP packet. set to 0 means eBGP use 2, iBGP use 255.
+        type: int
     connection_open_delay_time:
         description:
             - Open delay time (in seconds).
+        type: int
     connection_outgoing_allow:
         description:
             - Allow outgoing connections.
+        type: bool
     connection_outgoing_local_port:
         description:
             - Use specific local port for outgoing BGP connections.
+        type: int
     enable:
         description:
             - Enable BGP Peer.
-            default: True
+        default: True
+        type: bool
     enable_mp_bgp:
         description:
             - Enable MP-BGP extentions.
+        type: bool
     enable_sender_side_loop_detection:
         description:
             - Enable sender side loop detection.
+        type: bool
     local_interface:
         description:
             - Interface to accept BGP session.
@@ -121,10 +119,11 @@ options:
     max_prefixes:
         description:
             - Maximum of prefixes to receive from peer.
+        type: int
     name:
         description:
             - Name of BGP Peer.
-            required: True
+        required: True
     peer_address_ip:
         description:
             - IP address of peer.
@@ -134,44 +133,46 @@ options:
     peer_group:
         description:
             - Name of the peer group; it must already exist; see panos_bgp_peer_group.
-            required: True
+        required: True
     peering_type:
         description:
             - Peering type.
-                - unspecified
-                - bilateral
+        choices:
+            - unspecified
+            - bilateral
     reflector_client:
         description:
             - Reflector client type.
-                - non-client
-                - client
-                - meshed-client
+        choices:
+            - non-client
+            - client
+            - meshed-client
     subsequent_address_multicast:
         description:
             - Select SAFI for this peer.
+        type: bool
     subsequent_address_unicast:
         description:
             - Select SAFI for this peer.
+        type: bool
     vr_name:
         description:
             - Name of the virtual router; it must already exist; see panos_virtual_router.
-            default: default
+        default: default
 '''
 
 EXAMPLES = '''
 - name: Create BGP Peer
-    panos_bgp_peer:
-      ip_address: '{{ ip_address }}'
-      username: '{{ username }}'
-      password: '{{ password }}'
-      state: 'present'
-      name: peer-1
-      enable: true
-      local_interface: ethernet1/1
-      local_interface_ip: 192.168.1.1
-      peer_address_ip: 10.1.1.1
-      peer_as: 64512
-      commit: true
+  panos_bgp_peer:
+    provider: '{{ provider }}'
+    peer_group: 'peer-group-1'
+    name: 'peer-1'
+    enable: true
+    local_interface: 'ethernet1/1'
+    local_interface_ip: '192.168.1.1'
+    peer_address_ip: '10.1.1.1'
+    peer_as: '64512'
+    commit: true
 '''
 
 RETURN = '''
@@ -179,39 +180,21 @@ RETURN = '''
 '''
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.basic import get_exception
+from ansible.module_utils.network.panos.panos import get_connection
+
 
 try:
-    from pan.xapi import PanXapiError
-    import pandevice
-    from pandevice import base
-    from pandevice import panorama
     from pandevice.errors import PanDeviceError
-    from pandevice import network
-
-    HAS_LIB = True
+    from pandevice.network import VirtualRouter
+    from pandevice.network import Bgp
+    from pandevice.network import BgpPeerGroup
+    from pandevice.network import BgpPeer
 except ImportError:
-    HAS_LIB = False
+    pass
 
 
 def setup_args():
     return dict(
-        ip_address=dict(
-            required=True,
-            help='IP address (or hostname) of PAN-OS device being configured'),
-        password=dict(
-            no_log=True,
-            help='Password credentials to use for auth unless I(api_key) is set'),
-        username=dict(
-            default='admin',
-            help='Username credentials to use for auth unless I(api_key) is set'),
-        api_key=dict(
-            no_log=True,
-            help='API key that can be used instead of I(username)/I(password) credentials'),
-        state=dict(
-            default='present', choices=['present', 'absent'],
-            help='Add or remove BGP peer configuration'),
-
         name=dict(
             type='str', required=True,
             help='Name of BGP Peer'),
@@ -313,78 +296,76 @@ def setup_args():
 
 
 def main():
-    argument_spec = setup_args()
+    helper = get_connection(
+        template=True,
+        template_stack=True,
+        with_state=True,
+        with_classic_provider_spec=True,
+        argument_spec=setup_args(),
+    )
 
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
-                           required_one_of=[['api_key', 'password']])
-    if not HAS_LIB:
-        module.fail_json(msg='Missing required libraries.')
+    module = AnsibleModule(
+        argument_spec=helper.argument_spec,
+        supports_check_mode=True,
+        required_one_of=helper.required_one_of,
+    )
 
-    # Get the firewall / panorama auth.
-    auth = [module.params[x] for x in
-            ('ip_address', 'username', 'password', 'api_key')]
+    # Verify libs, setup pandevice object tree.
+    parent = helper.get_pandevice_parent(module)
 
-    # exclude the default items from kwargs passed to the object
-    exclude_list = ['ip_address', 'username', 'password', 'api_key', 'state', 'commit']
-    # exclude these items from the kwargs passed to the object
-    exclude_list += ['peer_group', 'vr_name']
-
-    # generate the kwargs for network.BgpPeer
-    obj_spec = dict((k, module.params[k]) for k in argument_spec.keys() if k not in exclude_list)
-
-    name = module.params['name']
-    peer_group = module.params['peer_group']
-    state = module.params['state']
-    vr_name = module.params['vr_name']
-    commit = module.params['commit']
-
-    # create the new state object
-    new_obj = network.BgpPeer(**obj_spec)
-
-    changed = False
+    vr = VirtualRouter(module.params['vr_name'])
+    parent.add(vr)
     try:
-        # Create the device with the appropriate pandevice type
-        device = base.PanDevice.create_from_device(*auth)
-        network.VirtualRouter.refreshall(device)
+        vr.refresh()
+    except PanDeviceError as e:
+        module.fail_json(msg='Failed refresh: {0}'.format(e))
 
-        # grab the virtual router
-        vr = device.find(vr_name, network.VirtualRouter)
-        if vr is None:
-            raise ValueError('Virtual router {0} does not exist'.format(vr_name))
+    bgp = vr.find('', Bgp)
+    if bgp is None:
+        module.fail_json(msg='BGP is not configured for "{0}".'.format(vr.name))
 
-        # grab the peer group
-        pg = vr.find(peer_group, network.BgpPeerGroup, recursive=True)
-        if pg is None and state == 'present':
-            raise ValueError('Peer group {0} does not exist'.format(peer_group))
+    group = bgp.find(module.params['peer_group'], BgpPeerGroup)
+    if group is None:
+        module.fail_json(msg='BGP peer group does not exist: {0}.'.format(module.params['peer_group']))
 
-        # fetch the current settings
-        cur_obj = None
-        if pg is not None:
-            cur_obj = pg.find(name, network.BgpPeer)
+    listing = group.findall(BgpPeer)
+    spec = {
+        'name': module.params['name'],
+        'enable': module.params['enable'],
+        'peer_as': module.params['peer_as'],
+        'enable_mp_bgp': module.params['enable_mp_bgp'],
+        'address_family_identifier': module.params['address_family_identifier'],
+        'subsequent_address_unicast': module.params['subsequent_address_unicast'],
+        'subsequent_address_multicast': module.params['subsequent_address_multicast'],
+        'local_interface': module.params['local_interface'],
+        'local_interface_ip': module.params['local_interface_ip'],
+        'peer_address_ip': module.params['peer_address_ip'],
+        'connection_authentication': module.params['connection_authentication'],
+        'connection_keep_alive_interval': module.params['connection_keep_alive_interval'],
+        'connection_min_route_adv_interval': module.params['connection_min_route_adv_interval'],
+        'connection_multihop': module.params['connection_multihop'],
+        'connection_open_delay_time': module.params['connection_open_delay_time'],
+        'connection_hold_time': module.params['connection_hold_time'],
+        'connection_idle_hold_time': module.params['connection_idle_hold_time'],
+        'connection_incoming_allow': module.params['connection_incoming_allow'],
+        'connection_outgoing_allow': module.params['connection_outgoing_allow'],
+        'connection_incoming_remote_port': module.params['connection_incoming_remote_port'],
+        'connection_outgoing_local_port': module.params['connection_outgoing_local_port'],
+        'enable_sender_side_loop_detection': module.params['enable_sender_side_loop_detection'],
+        'reflector_client': module.params['reflector_client'],
+        'peering_type': module.params['peering_type'],
+        'max_prefixes': module.params['max_prefixes'],
+        'bfd_profile': module.params['bfd_profile'],
+    }
+    obj = BgpPeer(**spec)
+    group.add(obj)
 
-        # compare differences between the current state vs desired state
-        if state == 'present':
-            if cur_obj is None or not new_obj.equal(cur_obj, compare_children=False):
-                pg.add(new_obj)
-                new_obj.apply()
-                changed = True
-        elif state == 'absent':
-            if cur_obj is not None:
-                cur_obj.delete()
-                changed = True
-        else:
-            module.fail_json(msg='[%s] state is not implemented yet' % state)
-    except (PanDeviceError, KeyError):
-        exc = get_exception()
-        module.fail_json(msg=exc.message)
+    changed = helper.apply_state(obj, listing, module)
 
-    if commit and changed:
-        device.commit(sync=True, exception=True)
+    if changed and module.params['commit']:
+        helper.commit(module)
 
-    if changed:
-        module.exit_json(msg='BGP peer update successful.', changed=changed)
-    else:
-        module.exit_json(msg='no changes required.', changed=changed)
+    module.exit_json(changed=changed, msg='done')
 
 
 if __name__ == '__main__':
