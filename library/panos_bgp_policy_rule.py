@@ -29,106 +29,65 @@ short_description: Configures a BGP Policy Import/Export Rule
 description:
     - Use BGP to publish and consume routes from disparate networks.
 author: "Joshua Colson (@freakinhippie)"
-version_added: "2.9"
+version_added: "2.8"
 requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
 notes:
-    - Checkmode is not supported.
-    - Panorama is NOT supported.
+    - Checkmode is supported.
+    - Panorama is supported.
+extends_documentation_fragment:
+    - panos.transitional_provider
+    - panos.full_template_support
+    - panos.state
 options:
-    ip_address:
+    type:
         description:
-            - IP address (or hostname) of PAN-OS device being configured.
-            required: True
-    username:
+            - The type of rule.
+        choices:
+            - import
+            - export
+        required: True
+    name:
         description:
-            - Username credentials to use for auth unless I(api_key) is set.
-            default: admin
-    password:
-        description:
-            - Password credentials to use for auth unless I(api_key) is set.
-    api_key:
-        description:
-            - API key that can be used instead of I(username)/I(password) credentials.
-    state:
-        description:
-            - Add or remove BGP Policy Import/Export Rule.
-                - present
-                - absent
-            default: present
-    commit:
-        description:
-            - Commit configuration if changed.
-            default: True
-    action:
-        description:
-            - Rule action.
-                - allow
-                - deny
-    action_as_path_limit:
-        description:
-            - Add AS path limit attribute if it does not exist.
-    action_as_path_prepend_times:
-        description:
-            - Prepend local AS for specified number of times.
-    action_as_path_type:
-        description:
-            - AS path update options.
-                - none
-                - remove
-                - prepend
-                - remove-and-prepend
-    action_community_argument:
-        description:
-            - Argument to the action community value if needed.
-    action_community_type:
-        description:
-            - Community update options.
-                - none
-                - remove-all
-                - remove-regex
-                - append
-                - overwrite
-    action_dampening:
-        description:
-            - Route flap dampening profile; only with "import" type.
-    action_extended_community_argument:
-        description:
-            - Argument to the action extended community value if needed.
-    action_extended_community_type:
-        description:
-            - Extended community update options.
-    action_local_preference:
-        description:
-            - New local preference value.
-    action_med:
-        description:
-            - New MED value.
-    action_nexthop:
-        description:
-            - Nexthop address.
-    action_origin:
-        description:
-            - New route origin.
-                - igp
-                - egp
-                - incomplete
-    action_weight:
-        description:
-            - New weight value; only with "import" type.
-    address_prefix:
-        description:
-            - List of Address Prefix dicts with "name"/"exact" keys.
+            - Name of filter.
+        required: True
     enable:
         description:
             - Enable rule.
-            default: True
+        default: True
+        type: bool
     match_afi:
         description:
             - Address Family Identifier.
-                - ip
-                - ipv6
+        choices:
+            - ip
+            - ipv6
+    match_safi:
+        description:
+            - Subsequent Address Family Identifier.
+        choices:
+            - ip
+            - ipv6
+    match_route_table:
+        description:
+            - Route table to match rule.
+        choices:
+            - unicast
+            - multicast
+            - both
+    match_nexthop:
+        description:
+            - Next-hop attributes.
+        type: list
+    match_from_peer:
+        description:
+            - Filter by peer that sent this route.
+        type: list
+    match_med:
+        description:
+            - Multi-Exit Discriminator.
+        type: int
     match_as_path_regex:
         description:
             - AS-path regular expression.
@@ -138,89 +97,124 @@ options:
     match_extended_community_regex:
         description:
             - Extended Community AS-path regular expression.
-    match_from_peer:
-        description:
-            - Filter by peer that sent this route.
-    match_med:
-        description:
-            - Multi-Exit Discriminator.
-    match_nexthop:
-        description:
-            - Next-hop attributes.
-    match_route_table:
-        description:
-            - Route table to match rule.
-                - unicast
-                - multicast
-                - both
-    match_safi:
-        description:
-            - Subsequent Address Family Identifier.
-                - ip
-                - ipv6
-    name:
-        description:
-            - Name of filter.
-            required: True
-    type:
-        description:
-            - The type of rule.
-                - import
-                - export
-            required: True
     used_by:
         description:
             - Peer-groups that use this rule.
+        type: list
+    action:
+        description:
+            - Rule action.
+        choices:
+            - allow
+            - deny
+    action_local_preference:
+        description:
+            - New local preference value.
+        type: int
+    action_med:
+        description:
+            - New MED value.
+        type: int
+    action_nexthop:
+        description:
+            - Nexthop address.
+    action_origin:
+        description:
+            - New route origin.
+        choices:
+            - igp
+            - egp
+            - incomplete
+    action_as_path_limit:
+        description:
+            - Add AS path limit attribute if it does not exist.
+        type: int
+    action_as_path_type:
+        description:
+            - AS path update options.
+        choices:
+            - none
+            - remove
+            - prepend
+            - remove-and-prepend
+    action_as_path_prepend_times:
+        description:
+            - Prepend local AS for specified number of times.
+        type: int
+    action_community_type:
+        description:
+            - Community update options.
+        choices:
+            - none
+            - remove-all
+            - remove-regex
+            - append
+            - overwrite
+    action_community_argument:
+        description:
+            - Argument to the action community value if needed.
+    action_extended_community_type:
+        description:
+            - Extended community update options.
+    action_extended_community_argument:
+        description:
+            - Argument to the action extended community value if needed.
+    action_dampening:
+        description:
+            - Route flap dampening profile; only with "import" type.
+    action_weight:
+        description:
+            - New weight value; only with "import" type.
+        type: int
+    address_prefix:
+        description:
+            - List of address prefix strings or dicts with "name"/"exact" keys.
+            - If a list entry is a string, then I(exact=False) for that name.
     vr_name:
         description:
             - Name of the virtual router; it must already exist; see panos_virtual_router.
-            default: default
-
+        default: default
+    commit:
+        description:
+            - Commit configuration if changed.
+        default: True
+        type: bool
 '''
 
 EXAMPLES = '''
 # Add a BGP Policy
   - name: Create Policy Import Rule
     panos_bgp_policy_rule:
-      ip_address: "192.168.1.1"
-      password: "admin"
-      state: present
-      vr_name: default
-      name: import-rule-001
-      type: import
+      provider: '{{ provider }}'
+      vr_name: 'default'
+      name: 'import-rule-001'
+      type: 'import'
       enable: true
-      action: allow
-      action_dampening: dampening-profile
+      action: 'allow'
+      address_prefix:
+        - '10.1.1.0/24'
+        - name: '10.1.2.0/24'
+          exact: false
+        - name: '10.1.3.0/24'
+          exact: true
+      action_dampening: 'dampening-profile'
 
   - name: Create Policy Export Rule
     panos_bgp_policy_rule:
-      ip_address: "192.168.1.1"
-      password: "admin"
-      state: present
-      vr_name: default
-      name: export-rule-001
-      type: export
+      provider: '{{ provider }}'
+      vr_name: 'default'
+      name: 'export-rule-001'
+      type: 'export'
       enable: true
-      action: allow
-
-  - name: Disable Import Rule
-    panos_bgp_policy_rule:
-      ip_address: "192.168.1.1"
-      password: "admin"
-      state: present
-      vr_name: default
-      name: import-rule-001
-      type: import
-      enable: false
+      action: 'allow'
 
   - name: Remove Export Rule
     panos_bgp_policy_rule:
-      ip_address: "192.168.1.1"
-      password: "admin"
-      state: absent
-      vr_name: default
-      name: export-rule-001
-      type: export
+      provider: '{{ provider }}'
+      state: 'absent'
+      vr_name: 'default'
+      name: 'export-rule-001'
+      type: 'export'
 '''
 
 RETURN = '''
@@ -228,38 +222,22 @@ RETURN = '''
 '''
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.basic import get_exception
+from ansible.module_utils.network.panos.panos import get_connection
+
 
 try:
-    from pan.xapi import PanXapiError
-    import pandevice
-    from pandevice import base
-    from pandevice import panorama
     from pandevice.errors import PanDeviceError
-    from pandevice import network
-
-    HAS_LIB = True
+    from pandevice.network import VirtualRouter
+    from pandevice.network import Bgp
+    from pandevice.network import BgpPolicyImportRule
+    from pandevice.network import BgpPolicyExportRule
+    from pandevice.network import BgpPolicyAddressPrefix
 except ImportError:
-    HAS_LIB = False
+    pass
 
 
 def setup_args():
     return dict(
-        ip_address=dict(
-            required=True,
-            help='IP address (or hostname) of PAN-OS device being configured'),
-        password=dict(
-            no_log=True,
-            help='Password credentials to use for auth unless I(api_key) is set'),
-        username=dict(
-            default='admin',
-            help='Username credentials to use for auth unless I(api_key) is set'),
-        api_key=dict(
-            no_log=True,
-            help='API key that can be used instead of I(username)/I(password) credentials'),
-        state=dict(
-            default='present', choices=['present', 'absent'],
-            help='Add or remove BGP Policy Import/Export Rule'),
         commit=dict(
             type='bool', default=True,
             help='Commit configuration if changed'),
@@ -271,15 +249,13 @@ def setup_args():
         type=dict(
             type='str', required=True, choices=['import', 'export'],
             help='The type of rule'),
+
         name=dict(
             type='str', required=True,
             help='Name of filter'),
         enable=dict(
             default=True, type='bool',
             help='Enable rule'),
-        used_by=dict(
-            type='list',
-            help='Peer-groups that use this rule'),
         match_afi=dict(
             type='str', choices=['ip', 'ipv6'],
             help='Address Family Identifier'),
@@ -307,15 +283,12 @@ def setup_args():
         match_extended_community_regex=dict(
             type='str',
             help='Extended Community AS-path regular expression'),
+        used_by=dict(
+            type='list',
+            help='Peer-groups that use this rule'),
         action=dict(
             type='str', choices=['allow', 'deny'],
             help='Rule action'),
-        action_dampening=dict(
-            type='str',
-            help='Route flap dampening profile; only with "import" type'),
-        action_weight=dict(
-            type='int',
-            help='New weight value; only with "import" type'),
         action_local_preference=dict(
             type='int',
             help='New local preference value'),
@@ -349,138 +322,110 @@ def setup_args():
         action_extended_community_argument=dict(
             type='str',
             help='Argument to the action extended community value if needed'),
+        action_dampening=dict(
+            type='str',
+            help='Route flap dampening profile; only with "import" type'),
+        action_weight=dict(
+            type='int',
+            help='New weight value; only with "import" type'),
         address_prefix=dict(
             type='list',
-            help='List of Address Prefix dicts with "name"/"exact" keys'),
+            help='List of address prefix strings or dicts with "name"/"exact" keys'),
     )
 
 
 def main():
-    argument_spec = setup_args()
+    helper = get_connection(
+        template=True,
+        template_stack=True,
+        with_state=True,
+        with_classic_provider_spec=True,
+        argument_spec=setup_args(),
+    )
 
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
-                           required_one_of=[['api_key', 'password']])
-    if not HAS_LIB:
-        module.fail_json(msg='Missing required libraries.')
+    module = AnsibleModule(
+        argument_spec=helper.argument_spec,
+        supports_check_mode=True,
+        required_one_of=helper.required_one_of,
+    )
 
-    # Get the firewall / panorama auth.
-    auth = [module.params[x] for x in
-            ('ip_address', 'username', 'password', 'api_key')]
+    parent = helper.get_pandevice_parent(module)
 
-    # exclude the default items from kwargs passed to the object
-    exclude_list = ['ip_address', 'username', 'password', 'api_key', 'state', 'commit']
-    # exclude these items from the kwargs passed to the object
-    exclude_list += ['type', 'vr_name', 'address_prefix']
-
-    # export rules don't support action_weight or action_dampening
-    if module.params['type'] == 'export':
-        exclude_list += ['action_weight', 'action_dampening']
-
-    # generate the kwargs for network.BgpPolicyRule
-    obj_spec = dict((k, module.params[k]) for k in argument_spec.keys() if k not in exclude_list)
-
-    prefixes = module.params['address_prefix']
-    rule_type = module.params['type']
-    name = module.params['name']
-    state = module.params['state']
-    vr_name = module.params['vr_name']
-    commit = module.params['commit']
-
-    action_as_path_type = module.params['action_as_path_type']
-    action_as_path_prepend_times = module.params['action_as_path_prepend_times']
-    action_community_type = module.params['action_community_type']
-    action_community_argument = module.params['action_community_argument']
-    action_extended_community_type = module.params['action_extended_community_type']
-    action_extended_community_argument = module.params['action_extended_community_argument']
-
-    changed = False
+    vr = VirtualRouter(module.params['vr_name'])
+    parent.add(vr)
     try:
-        # Create the device with the appropriate pandevice type
-        device = base.PanDevice.create_from_device(*auth)
-        network.VirtualRouter.refreshall(device)
+        vr.refresh()
+    except PanDeviceError as e:
+        module.fail_json(msg='Failed refresh: {0}'.format(e))
 
-        # grab the virtual router
-        vr = device.find(vr_name, network.VirtualRouter)
-        if vr is None:
-            raise ValueError('Virtual router {0} does not exist'.format(vr_name))
+    bgp = vr.find('', Bgp)
+    if bgp is None:
+        module.fail_json(msg='BGP is not configured for "{0}"'.format(vr.name))
 
-        # fetch the current settings
-        bgp = vr.find('', network.Bgp) or network.Bgp()
+    spec = {
+        'name': module.params['name'],
+        'enable': module.params['enable'],
+        'match_afi': module.params['match_afi'],
+        'match_safi': module.params['match_safi'],
+        'match_route_table': module.params['match_route_table'],
+        'match_nexthop': module.params['match_nexthop'],
+        'match_from_peer': module.params['match_from_peer'],
+        'match_med': module.params['match_med'],
+        'match_as_path_regex': module.params['match_as_path_regex'],
+        'match_community_regex': module.params['match_community_regex'],
+        'match_extended_community_regex': module.params['match_extended_community_regex'],
+        'used_by': module.params['used_by'],
+        'action': module.params['action'],
+        'action_local_preference': module.params['action_local_preference'],
+        'action_med': module.params['action_med'],
+        'action_nexthop': module.params['action_nexthop'],
+        'action_origin': module.params['action_origin'],
+        'action_as_path_limit': module.params['action_as_path_limit'],
+        'action_as_path_type': module.params['action_as_path_type'],
+        'action_as_path_prepend_times': module.params['action_as_path_prepend_times'],
+        'action_community_type': module.params['action_community_type'],
+        'action_community_argument': module.params['action_community_argument'],
+        'action_extended_community_type': module.params['action_extended_community_type'],
+        'action_extended_community_argument': module.params['action_extended_community_argument'],
+    }
 
-        # create the new state object
-        if rule_type == 'import':
-            new_obj = network.BgpPolicyImportRule(**obj_spec)
-            cur_obj = vr.find(name, network.BgpPolicyImportRule, recursive=True)
-        elif rule_type == 'export':
-            new_obj = network.BgpPolicyExportRule(**obj_spec)
-            cur_obj = vr.find(name, network.BgpPolicyExportRule, recursive=True)
-        else:
-            raise ValueError('Policy rule type {0} is not supported'.format(rule_type))
-
-        # add the prefix children
-        if isinstance(prefixes, list):
-            for prefix in prefixes:
-                if prefix.get('name'):
-                    pfx = network.BgpPolicyAddressPrefix(**prefix)
-                    new_obj.add(pfx)
-
-        # compare differences between the current state vs desired state
-        if state == 'present':
-            # confirm values are set as needed
-            if action_as_path_type in ['prepend', 'remove-and-prepend']:
-                if action_as_path_prepend_times is None:
-                    raise ValueError(
-                        ' '.join(
-                            [
-                                "An action_as_path_type of 'prepend'|'remove-and-prepend'",
-                                'requires action_as_path_prepend_times be set'
-                            ]
-                        )
-                    )
-            if action_community_type in ['remove-regex', 'append', 'overwrite']:
-                if action_community_argument is None:
-                    raise ValueError(
-                        ' '.join(
-                            [
-                                "An action_community_type of 'remove-regex'|'append'|'overwrite'",
-                                'requires action_community_argument be set'
-                            ]
-                        )
-                    )
-            if action_extended_community_type in ['remove-regex', 'append', 'overwrite']:
-                if action_extended_community_argument is None:
-                    raise ValueError(
-                        ' '.join(
-                            [
-                                "An action_extended_community_type of 'remove-regex'|'append'|'overwrite'",
-                                'requires action_extended_community_argument be set'
-                            ]
-                        )
-                    )
-
-            # it seems all is well, preceed with update
-            if cur_obj is None or not new_obj.equal(cur_obj, compare_children=True):
-                bgp.add(new_obj)
-                vr.add(bgp)
-                new_obj.apply()
-                changed = True
-        elif state == 'absent':
-            if cur_obj is not None:
-                cur_obj.delete()
-                changed = True
-        else:
-            module.fail_json(msg='[%s] state is not implemented yet' % state)
-    except (PanDeviceError, KeyError):
-        exc = get_exception()
-        module.fail_json(msg=exc.message)
-
-    if commit and changed:
-        device.commit(sync=True, exception=True)
-
-    if changed:
-        module.exit_json(msg='BGP policy rule update successful.', changed=changed)
+    # Add the correct rule type.
+    if module.params['type'] == 'import':
+        spec['action_dampening'] = module.params['action_dampening']
+        spec['action_weight'] = module.params['action_weight']
+        obj = BgpPolicyImportRule(**spec)
     else:
-        module.exit_json(msg='no changes required.', changed=changed)
+        obj = BgpPolicyExportRule(**spec)
+
+    # Handle address prefixes.
+    for x in module.params['address_prefix']:
+        if isinstance(x, dict):
+            if len(x) != 2 or 'name' not in x or 'exact' not in x:
+                module.fail_json(msg='Invalid address prefix dict: {0}'.format(x))
+            obj.add(
+                BgpPolicyAddressPrefix(
+                    module._check_type_str(x['name']),
+                    module.boolean(x['exact']),
+                ),
+            )
+        else:
+            obj.add(
+                BgpPolicyAddressPrefix(
+                    module._check_type_str(x), False,
+                ),
+            )
+
+    listing = bgp.findall(obj.__class__)
+    bgp.add(obj)
+
+    # Apply the state.
+    changed = helper.apply_state(obj, listing, module)
+
+    # Optional commit.
+    if changed and module.params['commit']:
+        helper.commit(module)
+
+    module.exit_json(changed=changed, msg='done')
 
 
 if __name__ == '__main__':
