@@ -39,6 +39,7 @@ notes:
 extends_documentation_fragment:
     - panos.transitional_provider
     - panos.state
+    - panos.full_template_support
 options:
     commit:
         description:
@@ -102,9 +103,7 @@ options:
 EXAMPLES = '''
 - name: BGP use Redistribution Policy 1
     panos_bgp_redistribute:
-      ip_address: '{{ ip_address }}'
-      username: '{{ username }}'
-      password: '{{ password }}'
+      provider: '{{ provider }}'
       state: 'present'
       name: redist-policy-1
       enable: true
