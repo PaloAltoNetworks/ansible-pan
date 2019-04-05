@@ -236,68 +236,6 @@ def main():
 
     module.exit_json(changed=changed, msg='done')
 
-    if not HAS_LIB:
-        module.fail_json(msg='Missing required libraries.')
-
-    # Get the firewall / panorama auth.
-    auth = [module.params[x] for x in
-            ('ip_address', 'username', 'password', 'api_key')]
-
-    # exclude the default items from kwargs passed to the object
-    exclude_list = ['ip_address', 'username', 'password', 'api_key', 'state', 'commit']
-    # exclude these items from the kwargs passed to the object
-    exclude_list += ['vr_name']
-
-    # generate the kwargs for network.BgpPolicyRule
-    obj_spec = dict((k, module.params[k]) for k in argument_spec.keys() if k not in exclude_list)
-
-    name = module.params['name']
-    state = module.params['state']
-    vr_name = module.params['vr_name']
-    commit = module.params['commit']
-
-    changed = False
-    try:
-        # Create the device with the appropriate pandevice type
-        device = base.PanDevice.create_from_device(*auth)
-        network.VirtualRouter.refreshall(device)
-
-        # grab the virtual router
-        vr = device.find(vr_name, network.VirtualRouter)
-        if vr is None:
-            raise ValueError('Virtual router {0} does not exist'.format(vr_name))
-
-        # fetch the current settings
-        bgp = vr.find('', network.Bgp) or network.Bgp()
-
-        new_obj = network.BgpRedistributionRule(**obj_spec)
-        cur_obj = vr.find(name, network.BgpRedistributionRule, recursive=True)
-
-        # compare differences between the current state vs desired state
-        if state == 'present':
-            if cur_obj is None or not new_obj.equal(cur_obj, compare_children=True):
-                bgp.add(new_obj)
-                vr.add(bgp)
-                new_obj.apply()
-                changed = True
-        elif state == 'absent':
-            if cur_obj is not None:
-                cur_obj.delete()
-                changed = True
-        else:
-            module.fail_json(msg='[%s] state is not implemented yet' % state)
-    except (PanDeviceError, KeyError):
-        exc = get_exception()
-        module.fail_json(msg=exc.message)
-
-    if commit and changed:
-        device.commit(sync=True, exception=True)
-
-    if changed:
-        module.exit_json(msg='BGP redistribution rule update successful.', changed=changed)
-    else:
-        module.exit_json(msg='no changes required.', changed=changed)
-
 
 if __name__ == '__main__':
     main()
