@@ -36,55 +36,41 @@ requirements:
 notes:
     - Checkmode is not supported.
     - Panorama is NOT supported.
+extends_documentation_fragment:
+    - panos.transitional_provider
+    - panos.state
+    - panos.full_template_support
 options:
-    ip_address:
-        description:
-            - IP address (or hostname) of PAN-OS device being configured.
-            required: True
-    username:
-        description:
-            - Username credentials to use for auth unless I(api_key) is set.
-            default: admin
-    password:
-        description:
-            - Password credentials to use for auth unless I(api_key) is set.
-    api_key:
-        description:
-            - API key that can be used instead of I(username)/I(password) credentials.
-    state:
-        description:
-            - Add or remove BGP Aggregate Policy.
-                - present
-                - absent
-            default: present
     commit:
         description:
             - Commit configuration if changed.
-            default: True
+        default: True
     address_family_identifier:
         description:
             - Address Family Identifier.
-                - ipv4
-                - ipv6
-            default: ipv4
+        choices:
+            - ipv4
+            - ipv6
+        default: ipv4
     enable:
         description:
             - Enable rule.
-            default: True
+        default: True
     metric:
         description:
             - Metric value.
     name:
         description:
             - Name of rule; must match a defined Redistribution Profile in the virtual router.
-            required: True
+        required: True
     route_table:
         description:
             - Summarize route.
-                - unicast
-                - multicast
-                - both
-            default: unicast
+        choices:
+            - unicast
+            - multicast
+            - both
+        default: unicast
     set_as_path_limit:
         description:
             - Add the AS_PATHLIMIT path attribute.
@@ -103,28 +89,29 @@ options:
     set_origin:
         description:
             - New route origin.
-                - igp
-                - egp
-                - incomplete
-            default: incomplete
+        choices
+            - igp
+            - egp
+            - incomplete
+        default: incomplete
     vr_name:
         description:
             - Name of the virtual router; it must already exist; see panos_virtual_router.
-            default: default
+        default: default
 '''
 
 EXAMPLES = '''
-- name: Create BGP Peer Group
-    panos_bgp_policy_rule:
-      ip_address: '{{ ip_address }}'
-      username: '{{ username }}'
-      password: '{{ password }}'
+- name: BGP use Redistribution Policy 1
+    panos_bgp_redistribute:
+      provider: '{{ provider }}'
       state: 'present'
-      name: peer-group-1
+      name: redist-policy-1
       enable: true
-      aggregated_confed_as_path: true
-      soft_reset_with_stored_info: false
       commit: true
+      address_family_identifier: ipv4
+      set_origin: incomplete
+      vr_name: default
+
 '''
 
 RETURN = '''
