@@ -22,10 +22,13 @@ description:
     - Create a dynamic address group object in the firewall used for policy rules
 author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer), Vinay Venkataraghavan (@vinayvenkat)"
 version_added: "2.3"
+deprecated:
+    alternative: Use M(panos_address_group) instead.
+    removed_in: '2.12'
+    why: This module's functionality is a subset of M(panos_address_group).
 requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
-    - xmltodict can be obtained from PyPI U(https://pypi.python.org/pypi/xmltodict)
 options:
     ip_address:
         description:
@@ -97,7 +100,7 @@ RETURN = '''
 '''
 
 ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
+                    'status': ['deprecated'],
                     'supported_by': 'community'}
 
 
@@ -210,6 +213,8 @@ def main():
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
                            required_one_of=[['api_key', 'password']])
+
+    module.deprecate('This module has been deprecated; use panos_address_group', '2.12')
 
     if not HAS_LIB:
         module.fail_json(msg='Missing required libraries.')
