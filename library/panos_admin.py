@@ -14,7 +14,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-ANSIBLE_METADATA = {'status': ['preview'],
+ANSIBLE_METADATA = {'status': ['deprecated'],
                     'supported_by': 'community',
                     'version': '1.0'}
 
@@ -27,6 +27,10 @@ description:
       API calls to the Firewall using pan-api as the protocol.
 author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
 version_added: "2.3"
+deprecated:
+    alternative: Use M(panos_administrator) instead.
+    removed_in: '2.12'
+    why: This module is a subset of M(panos_administrator)'s functionality.
 requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
 notes:
@@ -174,6 +178,8 @@ def main():
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
                            required_one_of=[['api_key', 'password']])
+
+    module.deprecate('This module is deprecated; use panos_administrator', '2.12')
 
     if not HAS_LIB:
         module.fail_json(msg='Missing required libraries.')
