@@ -281,9 +281,16 @@ class ConnectionHelper(object):
             for item in listing:
                 if item.uid != obj.uid:
                     continue
-                if not item.equal(obj, compare_children=False):
+                obj_child_types = [x.__class__ for x in obj.children]
+                other_children = []
+                for x in item.children:
+                    if x.__class__ in obj_child_types:
+                        continue
+                    other_children.append(x)
+                    item.remove(x)
+                if not item.equal(obj, compare_children=True):
                     changed = True
-                    obj.extend(item.children)
+                    obj.extend(other_children)
                     if not module.check_mode:
                         try:
                             obj.apply()
