@@ -20,7 +20,7 @@ module: panos_mgtconfig
 short_description: Module used to configure some of the device management.
 description:
     - Configure management settings of device. Not all configuration options are configurable at this time.
-author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer), Patrik Malinen (@pmalinen)"
+author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer), Patrik Malinen (@pmalinen), Francesco Vigo (@fvigo)"
 version_added: "2.4"
 requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
@@ -133,13 +133,25 @@ def get_devicegroup(device, devicegroup):
 
 def set_ntp_server(system_settings, new_ntp_server, primary=True):
     ntp = None
+    classType = None
     if primary:
         from pandevice.device import NTPServerPrimary
+        classType = NTPServerPrimary
         ntp = NTPServerPrimary(address=new_ntp_server)
     else:
         from pandevice.device import NTPServerSecondary
+        classType = NTPServerSecondary
         ntp = NTPServerSecondary(address=new_ntp_server)
 
+    # find the duplicate
+    nodes = system_settings.findall(classType)
+    for n in nodes:
+        a = getattr(n, 'address')
+        if a and a == new_ntp_server:
+            return False
+
+    # continue with the change
+    system_settings.removeall(classType)
     system_settings.add(ntp)
 
     return True
@@ -204,35 +216,35 @@ def main():
     try:
         ss = SystemSettings.refreshall(device)[0]
 
-        if dns_server_primary is not None:
+        if dns_server_primary is not None and ss.dns_primary != dns_server_primary:
             ss.dns_primary = dns_server_primary
             changed = True
-        if dns_server_secondary is not None:
+        if dns_server_secondary is not None and ss.dns_secondary != dns_server_secondary:
             ss.dns_secondary = dns_server_secondary
             changed = True
-        if panorama_primary is not None:
+        if panorama_primary is not None and ss.panorama != panorama_primary:
             ss.panorama = panorama_primary
             changed = True
-        if panorama_secondary is not None:
+        if panorama_secondary is not None and ss.panorama2 != panorama_secondary:
             ss.panorama2 = panorama_secondary
             changed = True
         if ntp_server_primary is not None:
             changed |= set_ntp_server(ss, ntp_server_primary, primary=True)
         if ntp_server_secondary is not None:
             changed |= set_ntp_server(ss, ntp_server_secondary, primary=False)
-        if login_banner:
+        if login_banner and ss.login_banner != login_banner:
             ss.login_banner = login_banner
             changed = True
-        if timezone:
+        if timezone and ss.timezone != timezone:
             ss.timezone = timezone
             changed = True
-        if update_server:
+        if update_server and ss.update_server != update_server:
             ss.update_server = update_server
             changed = True
-        if hostname:
+        if hostname and ss.hostname != hostname:
             ss.hostname = hostname
             changed = True
-        if domain:
+        if domain and ss.domain != domain:
             ss.domain = domain
             changed = True
 
