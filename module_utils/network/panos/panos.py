@@ -29,6 +29,9 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 
+import time
+
+
 _MIN_VERSION_ERROR = '{0} version ({1}) < minimum version ({2})'
 HAS_PANDEVICE = True
 try:
@@ -71,7 +74,7 @@ class ConnectionHelper(object):
         # The PAN-OS device.
         self.device = None
 
-    def get_pandevice_parent(self, module):
+    def get_pandevice_parent(self, module, timeout=0):
         """Builds the pandevice object tree, returning the parent object.
 
         If pandevice is not installed, then module.fail_json() will be
@@ -79,6 +82,7 @@ class ConnectionHelper(object):
 
         Arguments:
             * module(AnsibleModule): the ansible module.
+            * timeout(int): Number of seconds to retry opening the connection to PAN-OS.
 
         Returns:
             * The parent pandevice object based on the spec given to
@@ -120,10 +124,21 @@ class ConnectionHelper(object):
             module.fail_json(msg='Provider params are required.')
 
         # Create the connection object.
-        try:
-            self.device = PanDevice.create_from_device(*pan_device_auth)
-        except PanDeviceError as e:
-            module.fail_json(msg='Failed connection: {0}'.format(e))
+        if not isinstance(timeout, int):
+            raise ValueError('Timeout must be an int')
+        elif timeout < 0:
+            raise ValueError('Timeout must greater than or equal to 0')
+        end_time = time.time() + timeout
+        while True:
+            try:
+                self.device = PanDevice.create_from_device(*pan_device_auth)
+            except PanDeviceError as e:
+                if timeout == 0:
+                    module.fail_json(msg='Failed connection: {0}'.format(e))
+                elif time.time() >= end_time:
+                    module.fail_json(msg='Connection timeout: {0}'.format(e))
+            else:
+                break
 
         # Verify PAN-OS minimum version.
         if self.min_panos_version is not None:
