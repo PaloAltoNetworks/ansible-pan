@@ -19,7 +19,7 @@ DOCUMENTATION = '''
 module: panos_restart
 short_description: Restart a device
 description:
-    - Restart a device either through Panorama or going directly to a firewall.
+    - Restart a PAN-OS device.
 author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
 version_added: "2.3"
 requirements:
@@ -28,108 +28,55 @@ requirements:
 notes:
     - Checkmode is not supported.
     - Panorama is supported.
-options:
-    ip_address:
-        description:
-            - IP address (or hostname) of PAN-OS device being configured.
-        required: true
-    username:
-        description:
-            - Username credentials to use for auth unless I(api_key) is set.
-        default: "admin"
-    api_key:
-        description:
-            - API key that can be used instead of I(username)/I(password) credentials.
-    password:
-        description:
-            - Password credentials to use for auth unless I(api_key) is set.
-    devicegroup:
-        description:
-            - Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama.
-            - If device group is not define we assume that we are contacting Firewall.
-        default: None
+extends_documentation_fragment:
+    - panos.transitional_provider
 '''
 
 EXAMPLES = '''
-- panos_restart:
-    ip_address: '{{ ip_address }}'
-    username: '{{ username }}'
-    password: '{{ password }}'
+- name: Restart PAN-OS
+  panos_restart:
+    provider: '{{ provider }}'
 '''
 
 RETURN = '''
-status:
-    description: success status
-    returned: success
-    type: string
-    sample: 'okey dokey'
+# Standard return values.
 '''
 
 ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'}
 
+
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.basic import get_exception
+from ansible.module_utils.network.panos.panos import get_connection
+
 
 try:
-    from pan.xapi import PanXapiError
-    import pandevice
-    from pandevice import base
-    from pandevice import panorama
-    HAS_LIB = True
+    from pandevice.errors import PanDeviceError
 except ImportError:
-    HAS_LIB = False
-
-
-def get_devicegroup(device, devicegroup):
-    dg_list = device.refresh_devices()
-    for group in dg_list:
-        if isinstance(group, pandevice.panorama.DeviceGroup):
-            if group.name == devicegroup:
-                return group
-    return False
+    pass
 
 
 def main():
-    argument_spec = dict(
-        ip_address=dict(required=True),
-        password=dict(no_log=True),
-        username=dict(default='admin'),
-        api_key=dict(no_log=True),
-        devicegroup=dict()
+    helper = get_connection(
+        with_classic_provider_spec=True,
+        argument_spec=dict(),
     )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
-                           required_one_of=[['api_key', 'password']])
 
-    if not HAS_LIB:
-        module.fail_json(msg='Missing required libraries.')
+    module = AnsibleModule(
+        argument_spec=helper.argument_spec,
+        supports_check_mode=False,
+        required_one_of=helper.required_one_of,
+    )
 
-    ip_address = module.params["ip_address"]
-    password = module.params["password"]
-    username = module.params['username']
-    api_key = module.params['api_key']
-    devicegroup = module.params['devicegroup']
-
-    # Create the device with the appropriate pandevice type
-    device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
-
-    # If Panorama, validate the devicegroup
-    dev_group = None
-    if devicegroup and isinstance(device, panorama.Panorama):
-        dev_group = get_devicegroup(device, devicegroup)
-        if dev_group:
-            device.add(dev_group)
-        else:
-            module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
+    parent = helper.get_pandevice_parent(module)
 
     try:
-        device.restart()
-    except PanXapiError:
-        exc = get_exception()
-        module.fail_json(msg=exc.message)
+        parent.restart()
+    except PanDeviceError as e:
+        module.fail_json(msg='Failed to restart: {0}'.format(e))
 
-    module.exit_json(changed=True, msg="okey dokey")
+    module.exit_json(changed=True, msg="done")
 
 
 if __name__ == '__main__':
