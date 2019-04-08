@@ -36,10 +36,8 @@ the traffic is applied, the more specific rules must precede the more general on
 | disabled |  |  |  | Disable this rule. |
 | existing_rule |  |  |  | If 'location' is set to 'before' or 'after', this option specifies an existing rule name.  The new rule will be created in the specified position relative to this rule.  If 'location' is set to 'before' or 'after', this option is required. |
 | file_blocking |  | None |  | Name of the already defined file_blocking profile. |
-| group_profile |  | None |  | - Security profile group that is already defined in the system. This property supersedes antivirus, vulnerability, spyware, url_filtering, file_blocking, data_filtering, and wildfire_analysis properties.
- |
-| hip_profiles |  | any |  | - If you are using GlobalProtect with host information profile (HIP) enabled, you can also base the policy on information collected by GlobalProtect. For example, the user access level can be determined HIP that notifies the firewall about the user's local configuration.
- |
+| group_profile |  | None |  | - Security profile group that is already defined in the system. This property supersedes antivirus, vulnerability, spyware, url_filtering, file_blocking, data_filtering, and wildfire_analysis properties. |
+| hip_profiles |  | any |  | - If you are using GlobalProtect with host information profile (HIP) enabled, you can also base the policy on information collected by GlobalProtect. For example, the user access level can be determined HIP that notifies the firewall about the user's local configuration. |
 | icmp_unreachable |  |  |  | Send 'ICMP Unreachable'. Used with 'deny', 'drop', and 'reset' actions. |
 | ip_address | yes |  |  | IP address (or hostname) of PAN-OS device being configured. |
 | location |  | bottom |  | Position to place the created rule in the rule base.  Supported values are *top*/*bottom*/*before*/*after*. |
