@@ -30,142 +30,109 @@ author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
 version_added: "2.3"
 requirements:
     - pan-python
+    - pandevice
+notes:
+    - Panorama is supported
+    - Checkmode is not supported.
+extends_documentation_fragment:
+    - panos.transitional_provider
 options:
-    ip_address:
-        description:
-            - IP address (or hostname) of PAN-OS device
-        required: true
-    password:
-        description:
-            - password for authentication
-        required: true
-    username:
-        description:
-            - username for authentication
-        required: false
-        default: "admin"
     auth_code:
         description:
-            - authcode to be applied
-        required: true
+            - authcode to be applied.
+            - If this is not given, then "request license fetch" is performed instead.
     force:
         description:
-            - whether to apply authcode even if device is already licensed
-        required: false
-        default: "false"
+            - Whether to apply authcode even if device is already licensed / has a serial number.
+        default: False
+        type: bool
 '''
 
 EXAMPLES = '''
-    - hosts: localhost
-      connection: local
-      tasks:
-        - name: fetch license
-          panos_lic:
-            ip_address: "192.168.1.1"
-            password: "paloalto"
-            auth_code: "IBADCODE"
-          register: result
-    - name: Display serialnumber (if already registered)
-      debug:
-        var: "{{result.serialnumber}}"
+- name: Activate my authcode
+  panos_lic:
+    provider: '{{ provider }}'
+    auth_code: "IBADCODE"
+  register: result
+
+- debug:
+    msg: 'Serial number is {{ result.serialnumber }}'
 '''
 
 RETURN = '''
 serialnumber:
-    description: serialnumber of the device in case that it has been already registered
+    description: PAN-OS serial number when this module began execution.
     returned: success
     type: string
     sample: 007200004214
+licenses:
+    description: List of PAN-OS licenses (as dicts) as a result of this module's execution.
+    type: list
 '''
 
+
 from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.network.panos.panos import get_connection
+
 
 try:
-    import pan.xapi
-    HAS_LIB = True
+    from pandevice.errors import PanDeviceError
 except ImportError:
-    HAS_LIB = False
-
-
-def get_serial(xapi, module):
-    xapi.op(cmd="show system info", cmd_xml=True)
-    r = xapi.element_root
-    serial = r.find('.//serial')
-    if serial is None:
-        module.fail_json(msg="No <serial> tag in show system info")
-
-    serial = serial.text
-
-    return serial
-
-
-def apply_authcode(xapi, module, auth_code):
-    try:
-        xapi.op(cmd='request license fetch auth-code "%s"' % auth_code,
-                cmd_xml=True)
-    except pan.xapi.PanXapiError:
-        if hasattr(xapi, 'xml_document'):
-            if 'Successfully' in xapi.xml_document:
-                return
-
-        if 'Invalid Auth Code' in xapi.xml_document:
-            module.fail_json(msg="Invalid Auth Code")
-
-        raise
-
-    return
-
-
-def fetch_authcode(xapi, module):
-    try:
-        xapi.op(cmd='request license fetch', cmd_xml=True)
-    except pan.xapi.PanXapiError:
-        if hasattr(xapi, 'xml_document'):
-            if 'Successfully' in xapi.xml_document:
-                return
-
-        if 'Invalid Auth Code' in xapi.xml_document:
-            module.fail_json(msg="Invalid Auth Code")
-
-        raise
-
-    return
+    pass
 
 
 def main():
-    argument_spec = dict(
-        ip_address=dict(required=True),
-        password=dict(required=True, no_log=True),
-        auth_code=dict(),
-        username=dict(default='admin'),
-        force=dict(type='bool', default=False)
-    )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
-    if not HAS_LIB:
-        module.fail_json(msg='pan-python is required for this module')
-
-    ip_address = module.params["ip_address"]
-    password = module.params["password"]
-    auth_code = module.params["auth_code"]
-    force = module.params['force']
-    username = module.params['username']
-
-    xapi = pan.xapi.PanXapi(
-        hostname=ip_address,
-        api_username=username,
-        api_password=password
+    helper = get_connection(
+        with_classic_provider_spec=True,
+        argument_spec=dict(
+            auth_code=dict(no_log=True, ),
+            force=dict(type='bool', default=False)
+        ),
     )
 
-    if not force:
-        serialnumber = get_serial(xapi, module)
-        if serialnumber != 'unknown':
-            return module.exit_json(changed=False, serialnumber=serialnumber)
-    if auth_code:
-        apply_authcode(xapi, module, auth_code)
+    module = AnsibleModule(
+        argument_spec=helper.argument_spec,
+        supports_check_mode=False,
+        required_one_of=helper.required_one_of,
+    )
+
+    parent = helper.get_pandevice_parent(module)
+
+    auth_code = module.params['auth_code']
+    changed = False
+    if parent.serial != 'unknown' and not module.params['force']:
+        try:
+            licenses = parent.request_license_info()
+        except PanDeviceError as e:
+            module.fail_json(msg='Failed request license info: {0}'.format(e))
     else:
-        fetch_authcode(xapi, module)
+        changed = True
+        if auth_code is None:
+            try:
+                licenses = parent.fetch_licenses_from_license_server()
+            except PanDeviceError as e:
+                module.fail_json(msg='Failed license fetch: {0}'.format(e))
+        else:
+            try:
+                licenses = parent.activate_feature_using_authorization_code(auth_code)
+            except PanDeviceError as e:
+                module.fail_json(msg='Failed authcode apply: {0}'.format(e))
 
-    module.exit_json(changed=True, msg="okey dokey")
+    # datetime.date objects can't be jsonify'ed, so do that manually.
+    ans = []
+    date_format = '%b %d, %Y'
+    for x in licenses:
+        ans.append({
+            'feature': x[0],
+            'description': x[1],
+            'serial': x[2],
+            'issued': x[3].strftime(date_format) if hasattr(x[3], 'strftime') else x[3],
+            'expires': x[4].strftime(date_format) if hasattr(x[4], 'strftime') else x[4],
+            'expired': x[5],
+            'authcode': x[6],
+        })
+
+    module.exit_json(changed=changed, msg='done', licenses=ans, serialnumber=parent.serial)
 
 
 if __name__ == '__main__':
