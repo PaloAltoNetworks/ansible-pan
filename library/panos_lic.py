@@ -84,7 +84,7 @@ except ImportError:
 def main():
     helper = get_connection(
         with_classic_provider_spec=True,
-        argument_spec = dict(
+        argument_spec=dict(
             auth_code=dict(no_log=True, ),
             force=dict(type='bool', default=False)
         ),
