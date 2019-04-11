@@ -271,7 +271,7 @@ def main():
         username=dict(default='admin'),
         api_key=dict(no_log=True),
         vsys_id=dict(default='vsys1'),
-        rule_type=dict(required=True, choices=['security', 'nat']),
+        rule_type=dict(default='security', choices=['security', 'nat']),
         source_zone=dict(default=None),
         source_ip=dict(default=None),
         source_user=dict(default=None),
