@@ -71,11 +71,6 @@ options:
     ospf_filter_pathtype:
         description:
             - Any of 'intra-area', 'inter-area', 'ext-1', or 'ext-2'.
-        choices:
-            - intra-area
-            - inter-area
-            - ext-1
-            - ext-2
     ospf_filter_area:
         description:
             - OSPF filter on area.
