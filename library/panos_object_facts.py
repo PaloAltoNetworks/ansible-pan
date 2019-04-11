@@ -35,21 +35,9 @@ requirements:
 notes:
     - Panorama is supported.
     - Check mode is not supported.
+extends_documentation_fragment:
+    - panos.transitional_provider
 options:
-    ip_address:
-        description:
-            - IP address or hostname of PAN-OS device.
-        required: true
-    username:
-        description:
-            - Username for authentication for PAN-OS device.  Optional if I(api_key) is used.
-        default: 'admin'
-    password:
-        description:
-            - Password for authentication for PAN-OS device.  Optional if I(api_key) is used.
-    api_key:
-        description:
-            - API key to be used instead of I(username) and I(password).
     name:
         description:
             - Name of object to retrieve.
@@ -59,24 +47,19 @@ options:
             - Type of object to retrieve.
         choices: ['address', 'address-group', 'service', 'service-group', 'tag']
         default: 'address'
-        required: true
 '''
 
 EXAMPLES = '''
 - name: Retrieve address group object 'Prod'
   panos_object_facts:
-    ip_address: '{{ ip_address }}'
-    username: '{{ username }}'
-    password: '{{ password }}'
+    provider: '{{ provider }}'
     name: 'Prod'
     object_type: 'address-group'
   register: result
 
 - name: Retrieve service group object 'Prod-Services'
   panos_object_facts:
-    ip_address: '{{ ip_address }}'
-    username: '{{ username }}'
-    password: '{{ password }}'
+    provider: '{{ provider }}'
     name: 'Prod-Services'
     object_type: 'service-group'
   register: result
@@ -90,17 +73,14 @@ results:
 '''
 
 from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.network.panos.panos import get_connection
+
 
 try:
-    from pandevice import base
-    from pandevice import firewall
     from pandevice import objects
-    from pandevice import panorama
     from pandevice.errors import PanDeviceError
-
-    HAS_LIB = True
 except ImportError:
-    HAS_LIB = False
+    pass
 
 
 COLOR_NAMES = [
@@ -109,75 +89,34 @@ COLOR_NAMES = [
 ]
 
 
-def find_object(device, obj_name, obj_type, device_group=None):
-    obj_type.refreshall(device)
-
-    if isinstance(device, firewall.Firewall):
-        return device.find(obj_name, obj_type)
-    elif isinstance(device, panorama.Panorama):
-        if device_group:
-            dg = get_devicegroup(device, device_group)
-            device.add(dg)
-            obj_type.refreshall(dg)
-            return dg.find(obj_name, obj_type)
-        else:
-            return device.find(obj_name, obj_type)
-
-    return None
-
-
-def get_devicegroup(device, device_group):
-
-    if isinstance(device, panorama.Panorama):
-        dgs = device.refresh_devices()
-
-        for dg in dgs:
-            if isinstance(dg, panorama.DeviceGroup):
-                if dg.name == device_group:
-                    return dg
-
-    return None
-
-
 def main():
-    argument_spec = dict(
-        ip_address=dict(required=True),
-        username=dict(default='admin'),
-        password=dict(no_log=True),
-        api_key=dict(no_log=True),
-        name=dict(type='str', required=True),
-        object_type=dict(
-            type='str',
-            choices=['address', 'address-group', 'service', 'service-group', 'tag'],
-            required=True
+    helper = get_connection(
+        vsys=True,
+        device_group=True,
+        with_classic_provider_spec=True,
+        argument_spec=dict(
+            name=dict(type='str', required=True),
+            object_type=dict(
+                type='str', default='address',
+                choices=['address', 'address-group', 'service', 'service-group', 'tag'],
+            ),
         ),
-        device_group=dict(type='str')
     )
 
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
-    if not HAS_LIB:
-        module.fail_json(msg='pan-python and pandevice are required for this module.')
+    module = AnsibleModule(
+        argument_spec=helper.argument_spec,
+        supports_check_mode=False,
+        required_one_of=helper.required_one_of,
+    )
 
-    ip_address = module.params['ip_address']
-    username = module.params['username']
-    password = module.params['password']
-    api_key = module.params['api_key']
+    parent = helper.get_pandevice_parent(module)
+
     object_type = module.params['object_type']
     name = module.params['name']
-    device_group = module.params['device_group']
 
     results = {}
 
     try:
-        device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
-
-        if device_group:
-            if device_group.lower() == 'shared':
-                device_group = None
-            else:
-                if not get_devicegroup(device, device_group):
-                    module.fail_json(msg='Could not find {} device group.'.format(device_group))
-
         obj = None
         obj_type = None
 
@@ -192,7 +131,8 @@ def main():
         elif object_type == 'tag':
             obj_type = objects.Tag
 
-        obj = find_object(device, name, obj_type, device_group)
+        obj_type.refreshall(parent)
+        obj = parent.find(name, obj_type)
 
         if obj:
             results = obj.about()
