@@ -74,15 +74,18 @@ options:
     destination_ip:
         description:
             - The destination IP address.
+        required: true
     destination_port:
         description:
             - The destination port.
+        required: true
     application:
         description:
             - The application.
     protocol:
         description:
             - The IP protocol number from 1 to 255.
+        required: true
     category:
         description:
             - URL category
@@ -271,7 +274,7 @@ def main():
         username=dict(default='admin'),
         api_key=dict(no_log=True),
         vsys_id=dict(default='vsys1'),
-        rule_type=dict(required=True, choices=['security', 'nat']),
+        rule_type=dict(default='security', choices=['security', 'nat']),
         source_zone=dict(default=None),
         source_ip=dict(default=None),
         source_user=dict(default=None),
@@ -280,9 +283,9 @@ def main():
         destination_zone=dict(default=None),
         category=dict(default=None),
         application=dict(default=None),
-        protocol=dict(default=None, type=int),
-        destination_ip=dict(default=None),
-        destination_port=dict(default=None, type=int)
+        protocol=dict(required=True, type=int),
+        destination_ip=dict(required=True),
+        destination_port=dict(required=True, type=int)
     )
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
                            required_one_of=[['api_key', 'password']])
