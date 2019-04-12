@@ -393,7 +393,6 @@ class VsysFacts(Factbase):
                 'vsys_currentsessions': vsys_currentsessions,
             })
 
-
         self.facts.update({
             'virtual-systems': virtual_systems
         })
@@ -443,7 +442,7 @@ def main():
     # TODO(gfreeman) - remove in a later version.
     if module.params['host'] is not None:
         module.fail_json(msg='Param "host" is removed; use "provider" instead')
-    
+
     parent = helper.get_pandevice_parent(module)
 
     gather_subset = module.params['gather_subset']
