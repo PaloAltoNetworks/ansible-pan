@@ -23,10 +23,18 @@ author:
     - Tomi Raittinen (@traittinen)
 notes:
     - Tested on PanOS 8.0.5
+    - Checkmode is not supported.
+    - Panorama is not supported.
 requirements:
     - pan-python
 version_added: 2.8
+extends_documentation_fragment:
+    - panos.transitional_provider
 options:
+    host:
+        description:
+            - B(Removed)
+            - Use I(provider) instead.
     gather_subset:
         description:
             - Scopes what information is gathered from the device.
@@ -37,106 +45,86 @@ options:
               collected. Certain subsets might be supported by Panorama.
         required: false
         default: ['!config']
-    host:
-        description:
-            - IP address or hostname of PAN-OS device being configured.
-        required: true
-        aliases: ['ip_address']
-    username:
-        description:
-            - Username credentials to use for authentication. If the value is
-              not specified in the task, the value of environment variable
-              C(ANSIBLE_NET_USERNAME) will be used instead.
-    password:
-        description:
-            - Password credentials to use for authentication. If the value is
-              not specified in the task, the value of environment variable
-              C(ANSIBLE_NET_PASSWORD) will be used instead.
-
 '''
 
 EXAMPLES = '''
-
 # Gather facts
 - name: Get facts
   panos_facts:
-    host: myfw.company.com
-    username: admin
-    password: mysecret
-    gather_subset: config
-
+    provider: '{{ provider }}'
+    gather_subset: ['config']
 '''
 
 RETURN = '''
-net_hostname:
+ansible_net_hostname:
     description: Hostname of the local node.
     returned: When C(system) is specified in C(gather_subset).
     type: str
-net_serial:
+ansible_net_serial:
     description: Serial number of the local node.
     returned: When C(system) is specified in C(gather_subset).
     type: str
-net_model:
+ansible_net_model:
     description: Device model of the local node.
     returned: When C(system) is specified in C(gather_subset).
     type: str
-net_version:
+ansible_net_version:
     description: PanOS version of the local node.
     returned: When C(system) is specified in C(gather_subset).
     type: str
-net_uptime:
+ansible_net_uptime:
     description: Uptime of the local node.
     returned: When C(system) is specified in C(gather_subset).
     type: str
     sample: 469 days, 19:30:16
-net_full_commit_required:
+ansible_net_full_commit_required:
     description: Specifies whether full commit is required to apply changes.
     returned: When C(system) is specified in C(gather_subset).
     type: bool
-net_uncommitted_changes:
+ansible_net_uncommitted_changes:
     description: Specifies if commit is required to apply changes.
     returned: When C(system) is specified in C(gather_subset).
     type: bool
-net_multivsys:
+ansible_net_multivsys:
     description: Specifies whether multivsys mode is enabled on local node.
     returned: When C(system) is specified in C(gather_subset).
     type: str
     sample: on
-net_session_usage:
+ansible_net_session_usage:
     description: Current number of active sessions on local node
     returned: When C(session) is specified in C(gather_subset).
     type: int
-net_session_max:
+ansible_net_session_max:
     description: Maximum number of sessions on local node.
     returned: When C(session) is specified in C(gather_subset).
     type: int
-net_pps:
+ansible_net_pps:
     description: Current packets/s throughput.
     returned: When C(session) is specified in C(gather_subset).
     type: int
-net_kbps:
+ansible_net_kbps:
     description: Current kb/s throughput.
     returned: When C(session) is specified in C(gather_subset).
     type: int
-net_ha_enabled:
+ansible_net_ha_enabled:
     description: Specifies whether HA is enabled or not.
     returned: When C(ha) is specified in C(gather_subset).
     type: bool
-net_ha_localmode:
+ansible_net_ha_localmode:
     description: Specifies the HA mode on local node.
     returned: When C(ha) is specified in C(gather_subset).
     type: str
     sample: Active-Passive
-net_ha_localstate:
+ansible_net_ha_localstate:
     description: Specifies the HA state on local node.
     returned: When C(ha) is specified in C(gather_subset).
     type: str
     sample: active
-net_config:
+ansible_net_config:
     description: Device confiration in XML format.
     returned: When C(config) is specified in C(gather_subset).
     type: str
-net_interfaces:
+ansible_net_interfaces:
     description: Network interface information.
     returned: When C(interface) is specified in C(gather_subset).
     type: complex
@@ -160,7 +148,7 @@ net_interfaces:
             description: VLAN tag for the subinterface.
             type: int
             sample: 23
-net_virtual-routers:
+ansible_net_virtual_routers:
     description: Virtual Router information.
     returned: When C(vr) is specified in C(gather_subset).
     type: complex
@@ -182,7 +170,7 @@ net_virtual-routers:
             sample:
                 - ae2.12
                 - ae2.14
-net_virtual-systems:
+ansible_net_virtual_systems:
     description: Virtual System information.
     returned: When C(vsys) is specified in C(gather_subset).
     type: complex
@@ -214,41 +202,41 @@ net_virtual-systems:
             type: list
 '''
 
-import re
-import xml.etree.ElementTree as etree
-from ansible.module_utils.basic import AnsibleModule, env_fallback
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.network.panos.panos import get_connection
 from ansible.module_utils.six import iteritems
 
+
 try:
-    import pan.xapi
-    HAS_LIB = True
+    from pandevice.device import Vsys
+    from pandevice.errors import PanDeviceError
+    from pandevice.network import AggregateInterface
+    from pandevice.network import EthernetInterface
+    from pandevice.network import Layer3Subinterface
+    from pandevice.network import Layer2Subinterface
+    from pandevice.network import IPv6Address
+    from pandevice.network import VlanInterface
+    from pandevice.network import LoopbackInterface
+    from pandevice.network import TunnelInterface
+    from pandevice.network import VirtualRouter
+    from pandevice.network import Bgp
+    from pandevice.network import Zone
 except ImportError:
-    HAS_LIB = False
+    pass
 
 
 class Factbase(object):
-
-    def __init__(self, module):
-        # FW hostname/IP and credentials
-        self.__fw_address = module.params['host']
-        self.__fw_username = module.params['username']
-        self.__fw_password = module.params['password']
+    def __init__(self, module, parent):
+        self.module = module
+        self.parent = parent
 
         self.facts = dict()
-        self.xapi = pan.xapi.PanXapi(
-            hostname=self.__fw_address,
-            api_username=self.__fw_username,
-            api_password=self.__fw_password
-        )
 
 
 class System(Factbase):
-
     def populate_facts(self):
-        xapi = self.xapi
-        xapi.op("<show><system><info></info></system></show>")
-        result = xapi.xml_result().encode('utf-8')
-        root = etree.fromstring(result)
+        xapi = self.parent
+        root = xapi.op('show system info').find('./result/system')
 
         self.facts.update({
             'hostname': root.findtext('hostname'),
@@ -260,8 +248,7 @@ class System(Factbase):
         })
 
         # Check uncommitted changes
-        xapi.op("<check><pending-changes></pending-changes></check>")
-        result = xapi.xml_result().encode('utf-8')
+        result = xapi.op('check pending-changes').find('./result').text
 
         if result == "yes":
             uncommitted_changes = True
@@ -270,8 +257,7 @@ class System(Factbase):
 
         # Check if full commit is required
         if uncommitted_changes:
-            xapi.op("<check><full-commit-required></full-commit-required></check>")
-            result = xapi.xml_result().encode('utf-8')
+            result = xapi.op('check full-commit-required').find('./result').text
 
             if result == "yes":
                 full_commit_required = True
@@ -287,12 +273,8 @@ class System(Factbase):
 
 
 class Session(Factbase):
-
     def populate_facts(self):
-        xapi = self.xapi
-        xapi.op("<show><session><info></info></session></show>")
-        result = xapi.xml_root().encode('utf-8')
-        root = etree.fromstring(result)
+        root = self.parent.op('show session info')
 
         self.facts.update({
             'session_usage': root.find('./result/num-active').text,
@@ -303,71 +285,35 @@ class Session(Factbase):
 
 
 class Interfaces(Factbase):
-
     def populate_facts(self):
-
-        xapi = self.xapi
-        if_xpath = "/config/devices/entry[@name='localhost.localdomain']/network/interface"
-        xapi.get(xpath=if_xpath)
-
         interfaces = []
+        cls_types = (AggregateInterface, EthernetInterface, VlanInterface, LoopbackInterface, TunnelInterface)
 
-        # Parse XML interface config
-        config = xapi.xml_result().encode('utf-8')
-        root = etree.fromstring(config)
-
-        # Loop through physical interfaces
-        if_xml = root.findall("./*/entry")
-        for phy_if in if_xml:
-
-            name = phy_if.get('name')
-            comment = phy_if.findtext('comment')
-
-            ip = []
-            for i in phy_if.findall('ip/entry'):
-                ip.append(i.get('name'))
-
-            ipv6 = []
-            for i in phy_if.findall('ipv6/address/entry'):
-                ipv6.append(i.get('name'))
-
-            interface = dict(
-                name=name,
-                comment=comment,
-                ip=ip,
-                ipv6=ipv6
-            )
-            interfaces.append(interface)
-
-        # Loop through subinterfaces
-        sub_if_xml = root.findall('.//units/entry')
-        for sub_if in sub_if_xml:
-            name = sub_if.get('name')
-            comment = sub_if.findtext('comment')
-            tag = sub_if.findtext('tag')
-
-            if tag:
-                try:
-                    tag = int(tag)
-                except ValueError:
-                    pass
-
-            ip = []
-            for i in sub_if.findall('ip/entry'):
-                ip.append(i.get('name'))
-
-            ipv6 = []
-            for i in sub_if.findall('ipv6/address/entry'):
-                ipv6.append(i.get('name'))
-
-            subinterface = dict(
-                name=name,
-                comment=comment,
-                tag=tag,
-                ip=ip,
-                ipv6=ipv6
-            )
-            interfaces.append(subinterface)
+        for cls_type in cls_types:
+            listing = cls_type.refreshall(self.parent, add=False)
+            for elm in listing:
+                iface_info = {
+                    'name': elm.name,
+                    'comment': elm.comment,
+                    'ip': getattr(elm, 'ip', []),
+                    'ipv6': [],
+                }
+                for child in elm.children:
+                    if isinstance(child, IPv6Address):
+                        iface_info['ipv6'].append(child.name)
+                    elif isinstance(child, Layer3Subinterface) or isinstance(child, Layer2Subinterface):
+                        child_info = {
+                            'name': child.name,
+                            'comment': child.comment,
+                            'tag': child.tag,
+                            'ip': getattr(child, 'ip', []),
+                            'ipv6': [],
+                        }
+                        for sub_child in child.children:
+                            if isinstance(child, IPv6Address):
+                                child_info['ipv6'].append(sub_child.name)
+                        interfaces.append(child_info)
+                interfaces.append(iface_info)
 
         newlist = sorted(interfaces, key=lambda k: k['name'])
         self.facts.update({
@@ -376,13 +322,8 @@ class Interfaces(Factbase):
 
 
 class Ha(Factbase):
-
     def populate_facts(self):
-
-        xapi = self.xapi
-        xapi.op("<show><high-availability><all></all></high-availability></show>")
-        result = xapi.xml_root().encode('utf-8')
-        root = etree.fromstring(result)
+        root = self.parent.op('show high-availability all')
 
         if root.find('./result/enabled').text == 'yes':
             ha_enabled = True
@@ -401,107 +342,57 @@ class Ha(Factbase):
 
 
 class Vr(Factbase):
-
     def populate_facts(self):
+        listing = VirtualRouter.refreshall(self.parent, add=False)
 
-        xapi = self.xapi
-        vr_xpath = "/config/devices/entry[@name='localhost.localdomain']/network/virtual-router"
-        xapi.get(xpath=vr_xpath)
-
-        # Parse XML VR config
-        config = xapi.xml_result().encode('utf-8')
-        vr_root = etree.fromstring(config)
-
-        # Loop through all VRs
-        vr_xml = vr_root.findall("./entry")
         virtual_routers = []
-
-        for vr_config in vr_xml:
-
-            vr_name = vr_config.get('name')
-
-            try:
-                vr_asn = vr_config.find('./protocol/bgp/local-as').text
-            except AttributeError:
-                vr_asn = None
-
-            try:
-                vr_routerid = vr_config.find('./protocol/bgp/router-id').text
-            except AttributeError:
-                vr_routerid = None
-
-            vr_iflist = []
-            for i in vr_config.findall('./interface/member'):
-                vr_iflist.append(i.text)
-
-            vr = dict(
-                vr_name=vr_name,
-                vr_asn=vr_asn,
-                vr_routerid=vr_routerid,
-                vr_iflist=vr_iflist
-            )
-            virtual_routers.append(vr)
+        for vr in listing:
+            info = {
+                'vr_name': vr.name,
+                'vr_iflist': vr.interface or [],
+                'vr_asn': None,
+                'vr_routerid': None,
+            }
+            for child in vr.children:
+                if isinstance(child, Bgp):
+                    info['vr_asn'] = child.local_as
+                    info['vr_routerid'] = child.router_id
+            virtual_routers.append(info)
 
         self.facts.update({
             'virtual-routers': virtual_routers
         })
 
 
-class Vsys(Factbase):
-
+class VsysFacts(Factbase):
     def populate_facts(self):
-
-        xapi = self.xapi
-        vsys_xpath = "/config/devices/entry[@name='localhost.localdomain']/vsys"
-        xapi.get(xpath=vsys_xpath)
-
-        # Parse XML interface config
-        config = xapi.xml_result().encode('utf-8')
-        vsys_root = etree.fromstring(config)
-
         # Get session usage XML
-        xapi.op("<show><session><meter></meter></session></show>")
-        result = xapi.xml_root().encode('utf-8')
-        session_root = etree.fromstring(result)
+        session_root = self.parent.op('show session meter')
 
         # Loop through all VSYS
-        vsys_xml = vsys_root.findall("./entry")
         virtual_systems = []
+        vsys_list = Vsys.refreshall(self.parent, name_only=True)
+        for vsys in vsys_list:
+            for var in ('display_name', 'interface', 'virtual_routers'):
+                vsys.refresh_variable(var)
 
-        for vsys_config in vsys_xml:
-
-            vsys_name = vsys_config.get('name')
-            vsys_id = re.search(r'vsys(\d+)', vsys_name).group(1)
-            vsys_description = vsys_config.find('./display-name').text
-
-            vsys_iflist = []
-            for i in vsys_config.findall('./import/network/interface/member'):
-                vsys_iflist.append(i.text)
-
-            vsys_vrlist = []
-            for i in vsys_config.findall('./import/network/virtual-router/member'):
-                vsys_vrlist.append(i.text)
-
-            vsys_zonelist = []
-            for i in vsys_config.findall('./zone/entry'):
-                vsys_zonelist.append(i.get('name'))
-
+            zones = [x.name for x in Zone.refreshall(vsys, name_only=True)]
+            vsys_id = vsys.name[4:]
             vsys_sessions = session_root.find(".//entry/[vsys='" + vsys_id + "']")
             vsys_currentsessions = vsys_sessions.find('.//current').text
             vsys_maxsessions = vsys_sessions.find('.//maximum').text
 
-            vsys = dict(
-                vsys_maxsessions=vsys_maxsessions,
-                vsys_currentsessions=vsys_currentsessions,
-                vsys_name=vsys_name,
-                vsys_id=vsys_id,
-                vsys_description=vsys_description,
-                vsys_iflist=vsys_iflist,
-                vsys_vrlist=vsys_vrlist,
-                vsys_zonelist=vsys_zonelist
-            )
+            virtual_systems.append({
+                'vsys_id': vsys_id,
+                'vsys_name': vsys.name,
+                'vsys_description': vsys.display_name,
+                'vsys_iflist': vsys.interface,
+                'vsys_vrlist': vsys.virtual_routers,
+                'vsys_zonelist': zones,
+                'vsys_maxsessions': vsys_maxsessions,
+                'vsys_currentsessions': vsys_currentsessions,
+            })
 
-            virtual_systems.append(vsys)
 
         self.facts.update({
             'virtual-systems': virtual_systems
@@ -509,11 +400,9 @@ class Vsys(Factbase):
 
 
 class Config(Factbase):
-
     def populate_facts(self):
-        xapi = self.xapi
-        xapi.show()
-        config = xapi.xml_result().encode('utf-8')
+        self.parent.xapi.show()
+        config = self.parent.xapi.xml_result().encode('utf-8')
 
         self.facts.update({
             'config': config
@@ -526,7 +415,7 @@ FACT_SUBSETS = dict(
     interfaces=Interfaces,
     ha=Ha,
     vr=Vr,
-    vsys=Vsys,
+    vsys=VsysFacts,
     config=Config
 )
 
@@ -534,18 +423,28 @@ VALID_SUBSETS = frozenset(FACT_SUBSETS.keys())
 
 
 def main():
+    helper = get_connection(
+        with_classic_provider_spec=True,
+        panorama_error='This module is for firewall facts only',
+        argument_spec=dict(
+            gather_subset=dict(default=['!config'], type='list')
 
-    argument_spec = dict(
-        host=dict(required=True, type='str', aliases=['ip_address']),
-        username=dict(fallback=(env_fallback, ['ANSIBLE_NET_USERNAME'])),
-        password=dict(fallback=(env_fallback, ['ANSIBLE_NET_PASSWORD']), no_log=True),
-        gather_subset=dict(default=['!config'], type='list')
+            # TODO(gfreeman) - remove in a later version.
+            host=dict(),
+        ),
     )
 
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
+    module = AnsibleModule(
+        argument_spec=helper.argument_spec,
+        supports_check_mode=False,
+        required_one_of=helper.required_one_of,
+    )
 
-    if not HAS_LIB:
-        module.fail_json(msg='pan-python is required for this module')
+    # TODO(gfreeman) - remove in a later version.
+    if module.params['host'] is not None:
+        module.fail_json(msg='Param "host" is removed; use "provider" instead')
+    
+    parent = helper.get_pandevice_parent(module)
 
     gather_subset = module.params['gather_subset']
 
@@ -588,7 +487,7 @@ def main():
     instances = list()
 
     for key in runable_subsets:
-        instances.append(FACT_SUBSETS[key](module))
+        instances.append(FACT_SUBSETS[key](module, parent))
 
     # Populate facts for instances
     for inst in instances:
