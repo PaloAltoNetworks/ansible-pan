@@ -29,28 +29,21 @@ version_added: "2.5"
 requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
+    - xmltodict
 notes:
     - Checkmode is not supported.
     - Panorama NOT is supported.
+extends_documentation_fragment:
+    - panos.transitional_provider
+    - panos.rulebase
+    - panos.vsys
 options:
-    ip_address:
-        description:
-            - IP address (or hostname) of PAN-OS device being configured.
-        required: true
-    username:
-        description:
-            - Username credentials to use for auth unless I(api_key) is set.
-        default: "admin"
-    password:
-        description:
-            - Password credentials to use for auth unless I(api_key) is set.
-        required: true
-    api_key:
-        description:
-            - API key that can be used instead of I(username)/I(password) credentials.
     rule_type:
         description:
-            - Type of rule. Valid types are I(security) or I(nat).
+            - Type of rule.
+        choices:
+            - security
+            - nat
         default: "security"
     source_zone:
         description:
@@ -62,6 +55,7 @@ options:
     source_port:
         description:
             - The source port.
+        type: int
     source_user:
         description:
             - The source user or group.
@@ -79,6 +73,7 @@ options:
         description:
             - The destination port.
         required: true
+        type: int
     application:
         description:
             - The application.
@@ -86,50 +81,42 @@ options:
         description:
             - The IP protocol number from 1 to 255.
         required: true
+        type: int
     category:
         description:
             - URL category
     vsys_id:
         description:
-            - ID of the VSYS object.
-        default: "vsys1"
-        required: true
+            - B(Removed)
+            - Use I(vsys) instead.
 '''
 
 EXAMPLES = '''
 - name: check security rules for Google DNS
   panos_match_rule:
-    ip_address: '{{ ip_address }}'
-    username: '{{ username }}'
-    password: '{{ password }}'
-    rule_type: 'security'
+    provider: '{{ provider }}'
     source_ip: '10.0.0.0'
     destination_ip: '8.8.8.8'
     application: 'dns'
     destination_port: '53'
     protocol: '17'
   register: result
-- debug: msg='{{result.stdout_lines}}'
+- debug: msg='{{ result.rule }}'
 
 - name: check security rules inbound SSH with user match
   panos_match_rule:
-    ip_address: '{{ ip_address }}'
-    username: '{{ username }}'
-    password: '{{ password }}'
-    rule_type: 'security'
+    provider: '{{ provider }}'
     source_ip: '0.0.0.0'
     source_user: 'mydomain\\jsmith'
     destination_ip: '192.168.100.115'
     destination_port: '22'
     protocol: '6'
   register: result
-- debug: msg='{{result.stdout_lines}}'
+- debug: msg='{{ result.rule }}'
 
 - name: check NAT rules for source NAT
   panos_match_rule:
-    ip_address: '{{ ip_address }}'
-    username: '{{ username }}'
-    password: '{{ password }}'
+    provider: '{{ provider }}'
     rule_type: 'nat'
     source_zone: 'Prod-DMZ'
     source_ip: '10.10.118.50'
@@ -138,13 +125,11 @@ EXAMPLES = '''
     destination_ip: '0.0.0.0'
     protocol: '6'
   register: result
-- debug: msg='{{result.stdout_lines}}'
+- debug: msg='{{ result.rule }}'
 
 - name: check NAT rules for inbound web
   panos_match_rule:
-    ip_address: '{{ ip_address }}'
-    username: '{{ username }}'
-    password: '{{ password }}'
+    provider: '{{ provider }}'
     rule_type: 'nat'
     source_zone: 'Internet'
     source_ip: '0.0.0.0'
@@ -154,227 +139,142 @@ EXAMPLES = '''
     destination_port: '80'
     protocol: '6'
   register: result
-- debug: msg='{{result.stdout_lines}}'
+- debug: msg='{{ result.rule }}'
 
 - name: check security rules for outbound POP3 in vsys4
   panos_match_rule:
-    ip_address: '{{ ip_address }}'
-    username: '{{ username }}'
-    password: '{{ password }}'
+    provider: '{{ provider }}'
     vsys_id: 'vsys4'
-    rule_type: 'security'
     source_ip: '10.0.0.0'
     destination_ip: '4.3.2.1'
     application: 'pop3'
     destination_port: '110'
     protocol: '6'
   register: result
-- debug: msg='{{result.stdout_lines}}'
-
+- debug: msg='{{ result.rule }}'
 '''
 
 RETURN = '''
 # Default return values
 '''
 
+import json
+
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.basic import get_exception
+from ansible.module_utils.network.panos.panos import get_connection
+
 
 try:
-    from pan.xapi import PanXapiError
-    from pandevice import base
-    from pandevice import policies
-    from pandevice import panorama
-    import xmltodict
-    import json
+    from pandevice.errors import PanDeviceError
+    from pandevice.policies import NatRule
+    from pandevice.policies import SecurityRule
+except ImportError:
+    pass
 
-    HAS_LIB = True
+
+# TODO(gfreeman) - Remove this dependency in the next role release.
+HAS_LIB = True
+try:
+    import xmltodict
+    import xml.etree.ElementTree as ET
 except ImportError:
     HAS_LIB = False
 
 
-def create_security_test(**kwargs):
-    security_test = 'test security-policy-match'
-
-    # Add the source IP (required)
-    if kwargs['source_ip']:
-        security_test += ' source \"%s\"' % kwargs['source_ip']
-
-    # Add the source user (optional)
-    if kwargs['source_user']:
-        security_test += ' source-user \"%s\"' % kwargs['source_user']
-
-    # Add the destination IP (required)
-    if kwargs['destination_ip']:
-        security_test += ' destination \"%s\"' % kwargs['destination_ip']
-
-    # Add the application (optional)
-    if kwargs['application']:
-        security_test += ' application \"%s\"' % kwargs['application']
-
-    # Add the destination port (required)
-    if kwargs['destination_port']:
-        security_test += ' destination-port \"%s\"' % kwargs['destination_port']
-
-    # Add the IP protocol number (required)
-    if kwargs['protocol']:
-        security_test += ' protocol \"%s\"' % kwargs['protocol']
-
-    # Add the URL category (optional)
-    if kwargs['category']:
-        security_test += ' category \"%s\"' % kwargs['category']
-
-    # Return the resulting string
-    return security_test
-
-
-def create_nat_test(**kwargs):
-    nat_test = 'test nat-policy-match'
-
-    # Add the source zone (optional)
-    if kwargs['source_zone']:
-        nat_test += ' from \"%s\"' % kwargs['source_zone']
-
-    # Add the source IP (required)
-    if kwargs['source_ip']:
-        nat_test += ' source \"%s\"' % kwargs['source_ip']
-
-    # Add the source user (optional)
-    if kwargs['source_port']:
-        nat_test += ' source-port \"%s\"' % kwargs['source_port']
-
-    # Add inbound interface (optional)
-    if kwargs['to_interface']:
-        nat_test += ' to-interface \"%s\"' % kwargs['to_interface']
-
-    # Add the destination zone (optional)
-    if kwargs['destination_zone']:
-        nat_test += ' to \"%s\"' % kwargs['destination_zone']
-
-    # Add the destination IP (required)
-    if kwargs['destination_ip']:
-        nat_test += ' destination \"%s\"' % kwargs['destination_ip']
-
-    # Add the destination port (optional)
-    if kwargs['destination_port']:
-        nat_test += ' destination-port \"%s\"' % kwargs['destination_port']
-
-    # Add the IP protocol number (required)
-    if kwargs['protocol']:
-        nat_test += ' protocol \"%s\"' % kwargs['protocol']
-
-    # Return the resulting string
-    return nat_test
-
-
 def main():
-    argument_spec = dict(
-        ip_address=dict(required=True),
-        password=dict(no_log=True),
-        username=dict(default='admin'),
-        api_key=dict(no_log=True),
-        vsys_id=dict(default='vsys1'),
-        rule_type=dict(default='security', choices=['security', 'nat']),
-        source_zone=dict(default=None),
-        source_ip=dict(default=None),
-        source_user=dict(default=None),
-        source_port=dict(default=None, type=int),
-        to_interface=dict(default=None),
-        destination_zone=dict(default=None),
-        category=dict(default=None),
-        application=dict(default=None),
-        protocol=dict(required=True, type=int),
-        destination_ip=dict(required=True),
-        destination_port=dict(required=True, type=int)
+    helper = get_connection(
+        vsys=True,
+        rulebase=True,
+        with_classic_provider_spec=True,
+        panorama_error='Panorama is not supported',
+        argument_spec=dict(
+            rule_type=dict(default='security', choices=['security', 'nat']),
+            source_zone=dict(),
+            source_ip=dict(required=True),
+            source_port=dict(type='int'),
+            source_user=dict(),
+            to_interface=dict(),
+            destination_zone=dict(),
+            destination_ip=dict(required=True),
+            destination_port=dict(required=True, type='int'),
+            application=dict(),
+            protocol=dict(required=True, type='int'),
+            category=dict(),
+
+            # TODO(gfreeman) - Remove this in the next role release.
+            vsys_id=dict(),
+        ),
     )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
-                           required_one_of=[['api_key', 'password']])
+
+    module = AnsibleModule(
+        argument_spec=helper.argument_spec,
+        supports_check_mode=False,
+        required_one_of=helper.required_one_of,
+    )
+
+    # TODO(gfreeman) - Remove this in the next role release.
     if not HAS_LIB:
-        module.fail_json(msg='Missing required libraries.')
+        module.fail_json(msg='Missing xmltodict library')
+    if module.params['vsys_id'] is not None:
+        module.fail_json(msg='Param "vsys_id" is removed; use vsys')
 
-    ip_address = module.params["ip_address"]
-    password = module.params["password"]
-    username = module.params['username']
-    api_key = module.params['api_key']
-    vsys_id = module.params['vsys_id']
-    rule_type = module.params['rule_type']
-    source_zone = module.params['source_zone']
-    source_ip = module.params['source_ip']
-    source_user = module.params['source_user']
-    source_port = module.params['source_port']
-    to_interface = module.params['to_interface']
-    destination_zone = module.params['destination_zone']
-    destination_ip = module.params['destination_ip']
-    destination_port = module.params['destination_port']
-    category = module.params['category']
-    application = module.params['application']
-    protocol = module.params['protocol']
+    parent = helper.get_pandevice_parent(module)
 
-    # Create the device with the appropriate pandevice type
-    device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
+    params = (
+        ('application', 'application', ['security', ]),
+        ('category', 'category', ['security', ]),
+        ('destination_ip', 'destination', ['security', 'nat']),
+        ('destination_port', 'destination-port', ['security', 'nat']),
+        ('source_zone', 'from', ['security', 'nat']),
+        ('protocol', 'protocol', ['security', 'nat']),
+        ('source_ip', 'source', ['security', 'nat']),
+        ('source_user', 'source-user', ['security', ]),
+        ('destination_zone', 'to', ['security', 'nat']),
+        ('to_interface', 'to-interface', ['nat', ]),
+    )
 
-    # Fail the module if this is a Panorama instance
-    if isinstance(device, panorama.Panorama):
-        module.fail_json(
-            failed=1,
-            msg='Panorama is not supported.'
-        )
+    cmd = []
+    rtype = module.params['rule_type']
 
-    # Create and attach security and NAT rulebases. Then populate them.
-    sec_rule_base = nat_rule_base = policies.Rulebase()
-    device.add(sec_rule_base)
-    device.add(nat_rule_base)
-    policies.SecurityRule.refreshall(sec_rule_base)
-    policies.NatRule.refreshall(nat_rule_base)
+    if rtype == 'security':
+        cmd.append('test security-policy-match')
+        listing = SecurityRule.refreshall(parent)
+    else:
+        cmd.append('test nat-policy-match')
+        listing = NatRule.refreshall(parent)
 
-    # Which action shall we take on the object?
-    if rule_type == 'security':
-        # Search for the object
-        test_string = create_security_test(
-            source_ip=source_ip,
-            source_user=source_user,
-            destination_ip=destination_ip,
-            destination_port=destination_port,
-            application=application,
-            protocol=protocol,
-            category=category
-        )
-    elif rule_type == 'nat':
-        test_string = create_nat_test(
-            source_zone=source_zone,
-            source_ip=source_ip,
-            source_port=source_port,
-            to_interface=to_interface,
-            destination_zone=destination_zone,
-            destination_ip=destination_ip,
-            destination_port=destination_port,
-            protocol=protocol
-        )
+    for ansible_param, cmd_param, rule_types in params:
+        if rtype not in rule_types or module.params[ansible_param] is None:
+            continue
+        cmd.append('{0} "{1}"'.format(cmd_param, module.params[ansible_param]))
 
     # Submit the op command with the appropriate test string
+    test_string = ' '.join(cmd)
     try:
-        response = device.op(cmd=test_string, vsys=vsys_id)
-    except PanXapiError:
-        exc = get_exception()
-        module.fail_json(msg=exc.message)
+        response = helper.device.op(cmd=test_string, vsys=parent.vsys)
+    except PanDeviceError as e:
+        module.fail_json(msg='Failed "{0}": {1}'.format(test_string, e))
 
-    if response.find('result/rules').__len__() == 1:
-        rule_name = response.find('result/rules/entry').text.split(';')[0]
-    elif rule_type == 'nat':
-        module.exit_json(msg='No matching NAT rule.')
+    elm = response.find('./result/rules/entry')
+    if elm is not None:
+        try:
+            rule_name = elm.attrib['name']
+        except KeyError:
+            rule_name = elm.text
     else:
-        module.fail_json(msg='Rule match failed. Please check playbook syntax.')
+        module.exit_json(msg='No matching {0} rule.'.format(rtype))
 
-    if rule_type == 'security':
-        rule_match = sec_rule_base.find(rule_name, policies.SecurityRule)
-    elif rule_type == 'nat':
-        rule_match = nat_rule_base.find(rule_name, policies.NatRule)
+    for x in listing:
+        if x.name != rule_name:
+            continue
+        module.deprecate('The "stdout_lines" output is deprecated; use "rule" instead', '2.12')
+        module.exit_json(
+            stdout_lines=json.dumps(xmltodict.parse(x.element_str()), indent=2),
+            msg='Rule matched',
+            rule=x.about(),
+        )
 
-    # Print out the rule
-    module.exit_json(
-        stdout_lines=json.dumps(xmltodict.parse(rule_match.element_str()), indent=2),
-        msg='Rule matched'
-    )
+    module.fail_json(msg='Matched "{0}" with "{1}", but wasn\'t in rulebase'.format(rule_name, test_string))
 
 
 if __name__ == '__main__':
