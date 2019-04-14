@@ -97,6 +97,11 @@ options:
         description:
             - New plain text password for the I(admin_username) user.
             - If this is not specified, then the password is left as-is.
+            - Takes priority over I(admin_phash)
+    admin_phash:
+        description:
+            - New password hash for the I(admin_username) user
+            - If this is not specified, then the phash is left as-is.
     password_profile:
         description:
             - The password profile for this user.
@@ -160,6 +165,7 @@ def main():
             ssh_public_key=dict(),
             role_profile=dict(),
             admin_password=dict(no_log=True),
+            admin_phash=dict(no_log=True),
             password_profile=dict(no_log=False),
             commit=dict(type='bool', default=True)
         ),
@@ -183,6 +189,7 @@ def main():
     params = dict((k, module.params[k]) for k in spec_params)
     params['name'] = module.params['admin_username']
     password = module.params['admin_password']
+    phash = module.params['admin_phash']
 
     # Get other params.
     state = module.params['state']
@@ -202,7 +209,8 @@ def main():
             obj.password_hash = helper.device.request_password_hash(password)
         except PanDeviceError as e:
             module.fail_json(msg='Failed to get phash: {0}'.format(e))
-
+    elif phash is not None:
+        obj.password_hash = phash
     # Perform the requested action.
     changed = False
     if state == 'present':
