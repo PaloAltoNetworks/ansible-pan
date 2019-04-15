@@ -302,14 +302,12 @@ def main():
     # Handle address prefixes.
     for x in module.params['address_prefix']:
         if isinstance(x, dict):
-            if len(x) != 2 or 'name' not in x or 'exact' not in x:
-                module.fail_json(msg='Invalid address prefix dict: {0}'.format(x))
-            obj.add(
-                BgpPolicyAddressPrefix(
-                    module._check_type_str(x['name']),
-                    module.boolean(x['exact']),
-                ),
-            )
+            if 'name' not in x:
+                module.fail_json(msg='Address prefix dict requires "name": {0}'.format(x))
+            obj.add(BgpPolicyAddressPrefix(
+                module._check_type_str(x['name']),
+                None if x.get('exact') is None else module.boolean(x['exact']),
+            ))
         else:
             obj.add(BgpPolicyAddressPrefix(module._check_type_str(x)))
 
@@ -317,6 +315,7 @@ def main():
         module.deprecate('state=return-object is deprecated', '2.12')
         import pickle
         from base64 import b64encode
+        obj.parent = None
         panos_obj = b64encode(pickle.dumps(obj, protocol=pickle.HIGHEST_PROTOCOL))
         module.exit_json(msg='returning serialized object', panos_obj=panos_obj)
 
