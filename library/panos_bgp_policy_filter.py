@@ -34,66 +34,65 @@ requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
 notes:
-    - Checkmode is not supported.
-    - Panorama is NOT supported.
+    - Checkmode is supported.
+    - Panorama is supported.
+extends_documentation_fragment:
+    - panos.transitional_provider
+    - panos.full_template_support
 options:
-    ip_address:
-        description:
-            - IP address (or hostname) of PAN-OS device being configured.
-            required: True
-    username:
-        description:
-            - Username credentials to use for auth unless I(api_key) is set.
-            default: admin
-    password:
-        description:
-            - Password credentials to use for auth unless I(api_key) is set.
-    api_key:
-        description:
-            - API key that can be used instead of I(username)/I(password) credentials.
     state:
         description:
             - Add or remove BGP Policy Filter.
-                - present
-                - absent
-                - return-object
-            default: present
+            - I(state=return-object) is deprecated and will be removed in 2.12.
+        choices:
+            - present
+            - absent
+            - return-object
+        default: 'present'
     commit:
         description:
             - Commit configuration if changed.
-            default: True
+        default: True
+        type: bool
     filter_type:
         description:
             - The type of filter.
-                - non-exist
-                - advertise
-                - suppress
-            required: True
+        choices:
+            - non-exist
+            - advertise
+            - suppress
+        required: True
     policy_name:
         description:
             - The name of the policy object.
     policy_type:
         description:
             - The type of policy object.
-                - conditional-advertisement
-                - aggregate
-            required: True
+        choices:
+            - conditional-advertisement
+            - aggregate
+        required: True
     name:
         description:
             - Name of filter.
-            required: True
+        required: True
     enable:
         description:
             - Enable filter.
-            default: True
+        default: True
+        type: bool
     address_prefix:
         description:
-            - List of Address Prefix objects.
+            - List of address prefix strings or dicts with "name"/"exact" keys.
+            - Using the dict form for address prefixes should only be used with
+              I(policy_type=aggregate).
+        type: list
     match_afi:
         description:
             - Address Family Identifier.
-                - ip
-                - ipv6
+        choices:
+            - ip
+            - ipv6
     match_as_path_regex:
         description:
             - AS-path regular expression.
@@ -115,19 +114,21 @@ options:
     match_route_table:
         description:
             - Route table to match rule.
-                - unicast
-                - multicast
-                - both
+        choices:
+            - unicast
+            - multicast
+            - both
     match_safi:
         description:
             - Subsequent Address Family Identifier.
-                - ip
-                - ipv6
+        choices:
+            - ip
+            - ipv6
     vr_name:
         description:
-            - Name of the virtual router; it must already exist; see panos_virtual_router.
-            default: default
-
+            - Name of the virtual router; it must already exist and have BGP configured.
+            - See M(panos_virtual_router).
+        default: default
 '''
 
 EXAMPLES = '''
@@ -143,20 +144,23 @@ panos_obj:
     sample: "LUFRPT14MW5xOEo1R09KVlBZNnpnemh0VHRBOWl6TGM9bXcwM3JHUGVhRlNiY0dCR0srNERUQT09"
 '''
 
+
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.basic import get_exception
+from ansible.module_utils.network.panos.panos import get_connection
+
 
 try:
-    from pan.xapi import PanXapiError
-    import pandevice
-    from pandevice import base
-    from pandevice import panorama
     from pandevice.errors import PanDeviceError
-    from pandevice import network
-
-    HAS_LIB = True
+    from pandevice.network import VirtualRouter
+    from pandevice.network import Bgp
+    from pandevice.network import BgpPolicyAggregationAddress
+    from pandevice.network import BgpPolicyConditionalAdvertisement
+    from pandevice.network import BgpPolicyNonExistFilter
+    from pandevice.network import BgpPolicyAdvertiseFilter
+    from pandevice.network import BgpPolicySuppressFilter
+    from pandevice.network import BgpPolicyAddressPrefix
 except ImportError:
-    HAS_LIB = False
+    pass
 
 
 def purge_stale_prefixes(cur_filter, new_prefixes):
@@ -174,18 +178,7 @@ def purge_stale_prefixes(cur_filter, new_prefixes):
 
 def setup_args():
     return dict(
-        ip_address=dict(
-            required=True,
-            help='IP address (or hostname) of PAN-OS device being configured'),
-        password=dict(
-            no_log=True,
-            help='Password credentials to use for auth unless I(api_key) is set'),
-        username=dict(
-            default='admin',
-            help='Username credentials to use for auth unless I(api_key) is set'),
-        api_key=dict(
-            no_log=True,
-            help='API key that can be used instead of I(username)/I(password) credentials'),
+        # TODO(gfreeman) - remove this later on and use the default state.
         state=dict(
             default='present', choices=['present', 'absent', 'return-object'],
             help='Add or remove BGP Policy Filter'),
@@ -246,117 +239,92 @@ def setup_args():
 
 
 def main():
-    argument_spec = setup_args()
+    helper = get_connection(
+        template=True,
+        template_stack=True,
+        with_classic_provider_spec=True,
+        argument_spec=setup_args(),
+    )
 
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
-                           required_one_of=[['api_key', 'password']])
-    if not HAS_LIB:
-        module.fail_json(msg='Missing required libraries.')
+    module = AnsibleModule(
+        argument_spec=helper.argument_spec,
+        supports_check_mode=True,
+        required_one_of=helper.required_one_of,
+    )
 
-    # Get the firewall / panorama auth.
-    auth = [module.params[x] for x in
-            ('ip_address', 'username', 'password', 'api_key')]
+    parent = helper.get_pandevice_parent(module)
 
-    # exclude the default items from kwargs passed to the object
-    exclude_list = ['ip_address', 'username', 'password', 'api_key', 'state', 'commit']
-    # exclude these items from the kwargs passed to the object
-    exclude_list += ['vr_name', 'policy_type', 'policy_name', 'filter_type', 'address_prefix']
-
-    # generate the kwargs for network.BgpPolicyRule
-    obj_spec = dict((k, module.params[k]) for k in argument_spec.keys() if k not in exclude_list)
-
-    # fetch the standard settings
-    state = module.params['state']
-    commit = module.params['commit']
-
-    prefixes = module.params['address_prefix']
-    # make sure the prefixes are a list
-    if prefixes is None:
-        prefixes = []
-    elif not isinstance(prefixes, list):
-        prefixes = [prefixes]
-
-    name = module.params['name']
-    vr_name = module.params['vr_name']
-    policy_type = module.params['policy_type']
-    policy_name = module.params['policy_name']
-    filter_type = module.params['filter_type']
-
-    changed = False
+    vr = VirtualRouter(module.params['vr_name'])
+    parent.add(vr)
     try:
-        # Create the device with the appropriate pandevice type
-        device = base.PanDevice.create_from_device(*auth)
-        network.VirtualRouter.refreshall(device)
+        vr.refresh()
+    except PanDeviceError as e:
+        module.fail_json(msg='Failed refresh: {0}'.format(e))
 
-        # grab the virtual router
-        vr = device.find(vr_name, network.VirtualRouter)
-        if vr is None:
-            raise ValueError('Virtual router {0} does not exist'.format(vr_name))
+    bgp = vr.find('', Bgp)
+    if bgp is None:
+        module.fail_json(msg='BGP is not configured for virtual router {0}'.format(vr.name))
 
-        # fetch the current settings
-        bgp = vr.find('', network.Bgp)
-
-        # find the parent object
-        if policy_type == 'conditional-advertisement':
-            # make sure that we've got at least one prefix
-            if len(prefixes) < 1:
-                raise ValueError('Conditional Advertisement policies require at least one prefix')
-            cur_policy = vr.find(policy_name, network.BgpPolicyConditionalAdvertisement, recursive=True)
-        elif policy_type == 'aggregate':
-            cur_policy = vr.find(policy_name, network.BgpPolicyAggregationAddress, recursive=True)
-        else:
-            raise ValueError('Policy type {0} is not supported'.format(policy_type))
-
-        # find the current state object
-        if cur_policy is None and state != 'return-object':
-            raise ValueError("Policy {0} '{1}' not found".format(policy_type, policy_name))
-
-        # create the new state object
-        if filter_type == 'non-exist':
-            new_obj = network.BgpPolicyNonExistFilter(**obj_spec)
-            cur_obj = cur_policy.find(name, network.BgpPolicyNonExistFilter) if cur_policy is not None else None
-        elif filter_type == 'advertise':
-            new_obj = network.BgpPolicyAdvertiseFilter(**obj_spec)
-            cur_obj = cur_policy.find(name, network.BgpPolicyAdvertiseFilter) if cur_policy is not None else None
-        elif filter_type == 'suppress':
-            new_obj = network.BgpPolicySuppressFilter(**obj_spec)
-            cur_obj = cur_policy.find(name, network.BgpPolicySuppressFilter) if cur_policy is not None else None
-
-        # add the address prefixes
-        for prefix in prefixes:
-            if prefix.get('name'):
-                pfx = network.BgpPolicyAddressPrefix(**prefix)
-                new_obj.add(pfx)
-
-        # compare differences between the current state vs desired state
-        if state == 'present':
-            if cur_obj is None or not new_obj.equal(cur_obj, compare_children=True):
-                # purge_stale_prefixes(cur_obj, prefixes)
-                cur_policy.add(new_obj)
-                new_obj.apply()
-                changed = True
-        elif state == 'absent':
-            if cur_obj is not None:
-                cur_obj.delete()
-                changed = True
-        elif state == 'return-object':
-            import pickle
-            from base64 import b64encode
-            panos_obj = b64encode(pickle.dumps(new_obj, protocol=pickle.HIGHEST_PROTOCOL))
-            module.exit_json(msg='returning serialized object', panos_obj=panos_obj)
-        else:
-            module.fail_json(msg='[%s] state is not implemented yet' % state)
-    except (PanDeviceError, KeyError):
-        exc = get_exception()
-        module.fail_json(msg=exc.message)
-
-    if commit and changed:
-        device.commit(sync=True, exception=True)
-
-    if changed:
-        module.exit_json(msg='BGP policy filter update successful.', changed=changed)
+    policy = None
+    if module.params['policy_type'] == 'conditional-advertisement':
+        policy_cls = BgpPolicyConditionalAdvertisement
     else:
-        module.exit_json(msg='no changes required.', changed=changed)
+        policy_cls = BgpPolicyAggregationAddress
+    policy = bgp.find_or_create(module.params['policy_name'], policy_cls)
+
+    obj_type = None
+    if module.params['filter_type'] == 'non-exist':
+        obj_type = BgpPolicyNonExistFilter
+    elif module.params['filter_type'] == 'advertise':
+        obj_type = BgpPolicyAdvertiseFilter
+    elif module.params['filter_type'] == 'suppress':
+        obj_type = BgpPolicySuppressFilter
+    else:
+        module.fail_json(msg='Unknown filter_type: {0}'.format(module.params['filter_type']))
+    listing = policy.findall(obj_type)
+
+    spec = {
+        'name': module.params['name'],
+        'enable': module.params['enable'],
+        'match_afi': module.params['match_afi'],
+        'match_safi': module.params['match_safi'],
+        'match_route_table': module.params['match_route_table'],
+        'match_nexthop': module.params['match_nexthop'],
+        'match_from_peer': module.params['match_from_peer'],
+        'match_med': module.params['match_med'],
+        'match_as_path_regex': module.params['match_as_path_regex'],
+        'match_community_regex': module.params['match_community_regex'],
+        'match_extended_community_regex': module.params['match_extended_community_regex'],
+    }
+    obj = obj_type(**spec)
+    policy.add(obj)
+
+    # Handle address prefixes.
+    for x in module.params['address_prefix']:
+        if isinstance(x, dict):
+            if len(x) != 2 or 'name' not in x or 'exact' not in x:
+                module.fail_json(msg='Invalid address prefix dict: {0}'.format(x))
+            obj.add(
+                BgpPolicyAddressPrefix(
+                    module._check_type_str(x['name']),
+                    module.boolean(x['exact']),
+                ),
+            )
+        else:
+            obj.add(BgpPolicyAddressPrefix(module._check_type_str(x)))
+
+    if module.params['state'] == 'return-object':
+        module.deprecate('state=return-object is deprecated', '2.12')
+        import pickle
+        from base64 import b64encode
+        panos_obj = b64encode(pickle.dumps(obj, protocol=pickle.HIGHEST_PROTOCOL))
+        module.exit_json(msg='returning serialized object', panos_obj=panos_obj)
+
+    changed = helper.apply_state(obj, listing, module)
+    if changed and module.params['commit']:
+        helper.commit(module)
+
+    module.exit_json(changed=changed, msg='done')
 
 
 if __name__ == '__main__':
