@@ -460,7 +460,7 @@ class ConnectionHelper(object):
 def get_connection(vsys=None, device_group=None,
                    vsys_dg=None, vsys_importable=None,
                    rulebase=None, template=None, template_stack=None,
-                   with_classic_provider_spec=False, with_state=True,
+                   with_classic_provider_spec=False, with_state=False,
                    argument_spec=None, required_one_of=None,
                    min_pandevice_version=None, min_panos_version=None,
                    panorama_error=None, firewall_error=None):
