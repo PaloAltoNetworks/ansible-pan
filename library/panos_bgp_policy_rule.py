@@ -223,6 +223,7 @@ RETURN = '''
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.network.panos.panos import get_connection
+from ansible.module_utils._text import to_text
 
 
 try:
@@ -400,20 +401,14 @@ def main():
     # Handle address prefixes.
     for x in module.params['address_prefix']:
         if isinstance(x, dict):
-            if len(x) != 2 or 'name' not in x or 'exact' not in x:
-                module.fail_json(msg='Invalid address prefix dict: {0}'.format(x))
-            obj.add(
-                BgpPolicyAddressPrefix(
-                    module._check_type_str(x['name']),
-                    module.boolean(x['exact']),
-                ),
-            )
+            if 'name' not in x:
+                module.fail_json(msg='Address prefix dict requires "name": {0}'.format(x))
+            obj.add(BgpPolicyAddressPrefix(
+                to_text(x['name'], encoding='utf-8', errors='surrogate_or_strict'),
+                None if x.get('exact') is None else module.boolean(x['exact']),
+            ))
         else:
-            obj.add(
-                BgpPolicyAddressPrefix(
-                    module._check_type_str(x), False,
-                ),
-            )
+            obj.add(BgpPolicyAddressPrefix(to_text(x, encoding='utf-8', errors='surrogate_or_strict')))
 
     listing = bgp.findall(obj.__class__)
     bgp.add(obj)
