@@ -441,6 +441,9 @@ class ConnectionHelper(object):
         if dg_name is not None:
             dg_name = module.params[dg_name]
 
+        if dg_name in (None, 'shared'):
+            return
+
         if not include_template:
             if self.template:
                 include_template = True
