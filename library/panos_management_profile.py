@@ -193,9 +193,6 @@ def main():
             'permitted_ip')])
     parent.add(obj)
 
-    # Other module params.
-    commit = module.params['commit']
-
     # Retrieve current config.
     try:
         profiles = ManagementProfile.refreshall(parent, add=False)
@@ -204,13 +201,8 @@ def main():
 
     # Perform requested action.
     changed = helper.apply_state(obj, profiles, module)
-
-    # Optional: commit.
-    if not module.check_mode and changed and commit:
-        try:
-            helper.device.commit(sync=True, exception=True)
-        except PanDeviceError as e:
-            module.fail_json(msg='Failed commit: {0}'.format(e))
+    if changed and module.params['commit']:
+        helper.commit(module)
 
     # Done.
     module.exit_json(changed=changed, msg="Done")
