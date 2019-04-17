@@ -293,7 +293,6 @@ def main():
     vr_name = module.params['vr_name'] if module.params['vr_name'] else None
     vsys = module.params['vsys']
     vsys_dg = module.params['vsys_dg']
-    commit = module.params['commit']
 
     # TODO(gfreeman) - Remove vsys_dg in 2.12, as well as this code chunk.
     # In the mean time, we'll need to do this special handling.
@@ -385,11 +384,8 @@ def main():
                     module.fail_json(msg='Failed delete: {0}'.format(e))
 
     # Commit if we were asked to do so.
-    if not module.check_mode and changed and commit:
-        try:
-            helper.device.commit(sync=True, exception=True)
-        except PanDeviceError as e:
-            module.fail_json(msg='Failed commit: {0}'.format(e))
+    if changed and module.params['commit']:
+        helper.commit(module)
 
     # Done!
     module.exit_json(changed=changed, msg='Done')
