@@ -76,7 +76,8 @@ These modules have been updated as follows:
 - `panos_mgtconfig`: provider; checkmode; `devicegroup` is removed as this param
   was not doing anything; added `verify_update_server`
 - `panos_nat_rule`: TODO
-- `panos_object_facts`: provider
+- `panos_object_facts`: provider; added support for name regexes and a new
+  `objects` output
 - `panos_op`: TODO
 - `panos_pg`: provider; added Panorama support; added `state`
 - `panos_redistribution`: provider; full template support; checkmode
