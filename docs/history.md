@@ -27,6 +27,11 @@ The following shorthand applies to this version's updates:
 - `vsys support` - This module now includes support for specifying the firewall vsys.
 - `checkmode` - This module now supports Ansible's check mode.
 
+The following new modules have been added:
+
+* `panos_vlan`
+* `panos_vlan_interface`
+
 These modules have been updated as follows:
 
 - `panos_address_group`: provider; checkmode
