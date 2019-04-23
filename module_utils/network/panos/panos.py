@@ -52,7 +52,7 @@ def _vstr(val):
 
 class ConnectionHelper(object):
     def __init__(self, min_pandevice_version, min_panos_version,
-                 panorama_error, firewall_error):
+                 error_on_shared, panorama_error, firewall_error):
         """Performs connection initialization and determines params."""
         # Params for AnsibleModule.
         self.argument_spec = {}
@@ -68,6 +68,7 @@ class ConnectionHelper(object):
         self.vsys_importable = None
         self.min_pandevice_version = min_pandevice_version
         self.min_panos_version = min_panos_version
+        self.error_on_shared = error_on_shared
         self.panorama_error = panorama_error
         self.firewall_error = firewall_error
 
@@ -154,6 +155,7 @@ class ConnectionHelper(object):
             self.device = fw
 
         parent = self.device
+        no_shared = 'Scope "shared" is not allowed'
         not_found = '{0} "{1}" is not present.'
         pano_mia_param = 'Param "{0}" is required for Panorama but not specified.'
         ts_error = 'Specify either the template or the template stack{0}.'
@@ -222,6 +224,8 @@ class ConnectionHelper(object):
                         module.fail_json(msg=not_found.format(
                             'Device group', name,
                         ))
+                elif self.error_on_shared:
+                    module.fail_json(msg=no_shared)
 
             # Spec: vsys importable.
             vsys_name = self.vsys_importable or self.vsys
@@ -259,6 +263,8 @@ class ConnectionHelper(object):
             vsys_name = self.vsys_dg or self.vsys or self.vsys_importable
             if vsys_name is not None:
                 parent.vsys = module.params[vsys_name]
+                if parent.vsys == 'shared' and self.error_on_shared:
+                    module.fail_json(msg=no_shared)
 
             # Spec: rulebase.
             if self.rulebase is not None:
@@ -466,6 +472,7 @@ def get_connection(vsys=None, device_group=None,
                    with_classic_provider_spec=False, with_state=False,
                    argument_spec=None, required_one_of=None,
                    min_pandevice_version=None, min_panos_version=None,
+                   error_on_shared=False,
                    panorama_error=None, firewall_error=None):
     """Returns a helper object that handles pandevice object tree init.
 
@@ -505,6 +512,7 @@ def get_connection(vsys=None, device_group=None,
         required_one_of(list): List of lists to extend into required_one_of.
         min_pandevice_version(tuple): Minimum pandevice version allowed.
         min_panos_version(tuple): Minimum PAN-OS version allowed.
+        error_on_shared(bool): Don't allow "shared" vsys or device group.
         panorama_error(str): The error message if the device is Panorama.
         firewall_error(str): The error message if the device is a firewall.
 
@@ -513,7 +521,7 @@ def get_connection(vsys=None, device_group=None,
     """
     helper = ConnectionHelper(
         min_pandevice_version, min_panos_version,
-        panorama_error, firewall_error)
+        error_on_shared, panorama_error, firewall_error)
     req = []
     spec = {
         'provider': {
