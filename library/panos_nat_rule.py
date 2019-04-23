@@ -27,49 +27,45 @@ requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
 notes:
-    - Checkmode is not supported.
+    - Checkmode is supported.
     - Panorama is supported.
+extends_documentation_fragment:
+    - panos.transitional_provider
+    - panos.state
+    - panos.device_group
+    - panos.vsys
+    - panos.rulebase
 options:
-    ip_address:
-        description:
-            - IP address (or hostname) of PAN-OS device being configured.
-        required: true
-    username:
-        description:
-            - Username credentials to use for auth unless I(api_key) is set.
-        default: "admin"
-    password:
-        description:
-            - Password credentials to use for auth unless I(api_key) is set.
-        required: true
-    api_key:
-        description:
-            - API key that can be used instead of I(username)/I(password) credentials.
-    operation:
-        description:
-            - The action to be taken.  Supported values are I(add)/I(update)/I(find)/I(delete)/I(disable).
-            - This is used only if "state" is unspecified.
     state:
         description:
-            - The state.  Can be either I(present)/I(absent).
-            - If this is defined, then "operation" is ignored.
-        default: 'present'
+            - The state of the NAT rule.
+        choices:
+            - present
+            - absent
+            - enable
+            - disable
+        default: "present"
+    operation:
+        description:
+            - B(Removed)
+            - Use I(state) instead.
     devicegroup:
         description:
+            - B(Deprecated)
+            - Use I(device_group) instead.
+            - HORIZONTALLINE
             - The device group to place the NAT rule into.
             - Panorama only; ignored for firewalls.
-        default: "shared"
-    vsys:
+    tag:
         description:
-            - The vsys to place the NAT rule into.
-            - Firewall only; ignored for Panorama.
-        default: "vsys1"
-    rulebase:
+            - Administrative tags.
+        type: list
+    tag_name:
         description:
-            - The rulebase to put the NAT rule into.
-            - Values are I(pre-rulebase)/I(post-rulebase).
-            - Panorama only; ignored for firewalls.
-        default: "pre-rulebase"
+            - B(Deprecated)
+            - Use I(tag) instead.
+            - HORIZONTALLINE
+            - Administrative tag.
     rule_name:
         description:
             - name of the SNAT rule
@@ -77,116 +73,119 @@ options:
     nat_type:
         description:
             - Type of NAT.
-            - Values are I(ipv4)/I(nat64)/I(nptv6).
+        choices:
+            - ipv4
+            - nat64
+            - nptv6
         default: "ipv4"
     source_zone:
         description:
             - list of source zones
         required: true
+        type: list
     destination_zone:
         description:
             - destination zone
+        type: list
         required: true
     source_ip:
         description:
             - list of source addresses
         required: false
+        type: list
         default: ["any"]
     destination_ip:
         description:
             - list of destination addresses
         required: false
+        type: list
         default: ["any"]
     service:
         description:
             - service
-        required: false
         default: "any"
     snat_type:
         description:
             - type of source translation
-        required: false
+        choices:
+            - static-ip
+            - dynamic-ip
+            - dynamic-ip-and-port
         default: None
     snat_address_type:
         description:
-            - type of source translation. Supported values are I(translated-address)/I(interface-address).
-        required: false
+            - type of source translation.
+        choices:
+            - interface-address
+            - translated-address
         default: 'translated-address'
     snat_static_address:
         description:
             - Source NAT translated address. Used with Static-IP translation.
-        required: false
-        default: None
     snat_dynamic_address:
         description:
-            - Source NAT translated address. Used with Dynamic-IP and Dynamic-IP-and-Port.
-        required: false
-        default: None
+            - Source NAT translated address.
+            - Used when I(snat_type=dynamic-ip) or I(snat_type=dynamic-ip-and-port).
+        type: list
     snat_interface:
         description:
             - snat interface
-        required: false
-        default: None
     snat_interface_address:
         description:
             - snat interface address
-        required: false
-        default: None
     snat_bidirectional:
         description:
             - bidirectional flag
-        required: false
-        default: "false"
+        type: bool
     dnat_address:
         description:
             - dnat translated address
-        required: false
-        default: None
     dnat_port:
         description:
             - dnat translated port
-        required: false
-        default: None
     location:
         description:
             - Position to place the created rule in the rule base.  Supported values are
               I(top)/I(bottom)/I(before)/I(after).
+        choices:
+            - top
+            - bottom
+            - before
+            - after
     existing_rule:
         description:
-            - If 'location' is set to 'before' or 'after', this option specifies an existing
+            - If I(location=before) or I(location=after), this option specifies an existing
               rule name.  The new rule will be created in the specified position relative to this
-              rule.  If 'location' is set to 'before' or 'after', this option is required.
+              rule.
+            - If I(location=before) or I(location=after), I(existing_rule) is required.
     commit:
         description:
             - Commit configuration if changed.
+        type: bool
         default: true
 '''
 
 EXAMPLES = '''
 # Create a source and destination nat rule
-  - name: Create NAT SSH rule for 10.0.1.101
-    panos_nat_rule:
-      ip_address: '{{ ip_address }}'
-      username: '{{ username }}'
-      password: '{{ password }}'
-      rule_name: "Web SSH"
-      source_zone: ["external"]
-      destination_zone: "external"
-      source: ["any"]
-      destination: ["10.0.0.100"]
-      service: "service-tcp-221"
-      snat_type: "dynamic-ip-and-port"
-      snat_interface: "ethernet1/2"
-      dnat_address: "10.0.1.101"
-      dnat_port: "22"
+- name: Create NAT SSH rule for 10.0.1.101
+  panos_nat_rule:
+    provider: '{{ provider }}'
+    rule_name: "Web SSH"
+    source_zone: ["external"]
+    destination_zone: "external"
+    source: ["any"]
+    destination: ["10.0.0.100"]
+    service: "service-tcp-221"
+    snat_type: "dynamic-ip-and-port"
+    snat_interface: "ethernet1/2"
+    dnat_address: "10.0.1.101"
+    dnat_port: "22"
 
-  - name: disable a specific security rule
-    panos_nat_rule:
-      ip_address: '{{ ip_address }}'
-      username: '{{ username }}'
-      password: '{{ password }}'
-      operation: 'disable'
-      rule_name: 'Prod-Legacy 1'
+- name: disable a specific security rule
+  panos_nat_rule:
+    provider: '{{ provider }}'
+    rule_name: 'Prod-Legacy 1'
+    state: 'disable'
 '''
 
 RETURN = '''
@@ -199,40 +198,14 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 
 from ansible.module_utils.basic import get_exception, AnsibleModule
+from ansible.module_utils.network.panos.panos import get_connection
+
 
 try:
-    from pandevice.base import PanDevice
-    from pandevice.panorama import DeviceGroup
-    from pandevice.policies import Rulebase, PreRulebase, PostRulebase, NatRule
     from pandevice.errors import PanDeviceError
-    import xmltodict
-    import json
-
-    HAS_LIB = True
+    from pandevice.policies import NatRule
 except ImportError:
-    HAS_LIB = False
-    raise
-
-
-ACCEPTABLE_MOVE_ERRORS = (
-    'already at the top',
-    'already at the bottom',
-)
-
-
-def get_devicegroup(device, devicegroup):
-    dg_list = device.refresh_devices()
-    for group in dg_list:
-        if isinstance(group, DeviceGroup):
-            if group.name == devicegroup:
-                return group
-    return False
-
-
-def find_rule(rules, new_rule):
-    for i in rules:
-        if i.name == new_rule.name:
-            return i
+    pass
 
 
 def create_nat_rule(**kwargs):
@@ -284,62 +257,75 @@ def create_nat_rule(**kwargs):
             nat_rule.destination_translated_port = kwargs['dnat_port']
 
     # Any tags?
-    if 'tag_name' in kwargs:
-        nat_rule.tag = kwargs['tag_name']
+    if 'tag_val' in kwargs:
+        nat_rule.tag = kwargs['tag_val']
 
     return nat_rule
 
 
 def main():
-    argument_spec = dict(
-        ip_address=dict(required=True),
-        username=dict(default='admin'),
-        password=dict(required=True, no_log=True),
-        api_key=dict(no_log=True),
-        operation=dict(choices=['add', 'update', 'delete', 'find', 'disable']),
-        state=dict(default='present', choices=['present', 'absent']),
-        rule_name=dict(required=True),
-        description=dict(),
-        nat_type=dict(default='ipv4', choices=['ipv4', 'nat64', 'nptv6']),
-        tag_name=dict(),
-        source_zone=dict(type='list'),
-        source_ip=dict(type='list', default=['any']),
-        destination_zone=dict(),
-        destination_ip=dict(type='list', default=['any']),
-        service=dict(default='any'),
-        to_interface=dict(default='any'),
-        snat_type=dict(choices=['static-ip', 'dynamic-ip-and-port', 'dynamic-ip']),
-        snat_address_type=dict(choices=['interface-address', 'translated-address'], default='interface-address'),
-        snat_static_address=dict(),
-        snat_dynamic_address=dict(type='list'),
-        snat_interface=dict(),
-        snat_interface_address=dict(),
-        snat_bidirectional=dict(type='bool', default=False),
-        dnat_address=dict(),
-        dnat_port=dict(),
-        devicegroup=dict(default='shared'),
-        rulebase=dict(default='pre-rulebase', choices=['pre-rulebase', 'post-rulebase']),
-        vsys=dict(default='vsys1'),
-        location=dict(default='bottom', choices=['top', 'bottom', 'before', 'after']),
-        existing_rule=dict(),
-        commit=dict(type='bool', default=True)
+    helper = get_connection(
+        vsys=True,
+        device_group=True,
+        rulebase=True,
+        error_on_shared=True,
+        argument_spec=dict(
+            rule_name=dict(required=True),
+            description=dict(),
+            nat_type=dict(default='ipv4', choices=['ipv4', 'nat64', 'nptv6']),
+            source_zone=dict(type='list'),
+            source_ip=dict(type='list', default=['any']),
+            destination_zone=dict(),
+            destination_ip=dict(type='list', default=['any']),
+            to_interface=dict(default='any'),
+            service=dict(default='any'),
+            snat_type=dict(choices=['static-ip', 'dynamic-ip-and-port', 'dynamic-ip']),
+            snat_address_type=dict(choices=['interface-address', 'translated-address'], default='interface-address'),
+            snat_static_address=dict(),
+            snat_dynamic_address=dict(type='list'),
+            snat_interface=dict(),
+            snat_interface_address=dict(),
+            snat_bidirectional=dict(type='bool'),
+            dnat_address=dict(),
+            dnat_port=dict(),
+            tag=dict(type='list'),
+            state=dict(default='present', choices=['present', 'absent', 'enable', 'disable']),
+            location=dict(default='bottom', choices=['top', 'bottom', 'before', 'after']),
+            existing_rule=dict(),
+            commit=dict(type='bool', default=True),
+
+            # TODO(gfreeman) - remove later.
+            tag_name=dict(),
+            devicegroup=dict(),
+            operation=dict(),
+        ),
     )
 
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
-                           required_one_of=[['api_key', 'password']])
-    if not HAS_LIB:
-        module.fail_json(msg='Missing required libraries.')
-    elif not hasattr(NatRule, 'move'):
-        module.fail_json(msg='Python library pandevice needs to be updated.')
+    module = AnsibleModule(
+        argument_spec=helper.argument_spec,
+        supports_check_mode=True,
+        required_one_of=helper.required_one_of,
+    )
 
-    # Get firewall / Panorama auth.
-    auth = [module.params[x] for x in
-            ('ip_address', 'username', 'password', 'api_key')]
+    # TODO(gfreeman) - remove later.
+    if module.params['operation'] is not None:
+        module.fail_json(msg='Param "operation" is removed; use "state"')
+    if module.params['devicegroup'] is not None:
+        module.deprecate('Param "devicegroup" is deprecated; use "device_group"', '2.12')
+        module.params['device_group'] = module.params['devicegroup']
+    if module.params['tag_name'] is not None:
+        tag_val = module.params['tag_name']
+        module.deprecate('Param "tag_name" is deprecated; use "tag"', '2.12')
+        if module.params['tag']:
+            module.fail_json(msg='Both "tag" and "tag_name" specified, use only one')
+    else:
+        tag_val = module.params['tag']
+
+    parent = helper.get_pandevice_parent(module)
 
     # Get object params.
     rule_name = module.params['rule_name']
     description = module.params['description']
-    tag_name = module.params['tag_name']
     source_zone = module.params['source_zone']
     source_ip = module.params['source_ip']
     destination_zone = module.params['destination_zone']
@@ -358,44 +344,13 @@ def main():
     dnat_port = module.params['dnat_port']
 
     # Get other info.
-    operation = module.params['operation']
     state = module.params['state']
-    devicegroup = module.params['devicegroup']
-    vsys = module.params['vsys']
-    commit = module.params['commit']
     location = module.params['location']
     existing_rule = module.params['existing_rule']
 
     # Sanity check the location / existing_rule params.
     if location in ('before', 'after') and not existing_rule:
         module.fail_json(msg="'existing_rule' must be specified if location is 'before' or 'after'.")
-
-    # Create the device with the appropriate pandevice type
-    con = PanDevice.create_from_device(*auth)
-
-    # Set vsys if firewall, device group if Panorama, and set the rulebase.
-    parent = con
-    if hasattr(con, 'refresh_devices'):
-        # Panorama
-        if devicegroup not in (None, 'shared'):
-            dev_group = get_devicegroup(con, devicegroup)
-            if not dev_group:
-                module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
-            parent = dev_group
-        if module.params['rulebase'] in (None, 'pre-rulebase'):
-            rulebase = PreRulebase()
-            parent.add(rulebase)
-            parent = rulebase
-        elif module.params['rulebase'] == 'post-rulebase':
-            rulebase = PostRulebase()
-            parent.add(rulebase)
-            parent = rulebase
-    else:
-        # Firewall
-        parent.vsys = vsys
-        rulebase = Rulebase()
-        parent.add(rulebase)
-        parent = rulebase
 
     # Get the current NAT rules.
     try:
@@ -407,7 +362,7 @@ def main():
     new_rule = create_nat_rule(
         rule_name=rule_name,
         description=description,
-        tag_name=tag_name,
+        tag_val=tag_val,
         source_zone=source_zone,
         destination_zone=destination_zone,
         source_ip=source_ip,
@@ -428,119 +383,34 @@ def main():
 
     if not new_rule:
         module.fail_json(msg='Incorrect NAT rule params specified; quitting')
-    parent.add(new_rule)
 
     # Perform the desired operation.
     changed = False
-    do_move = False
-    if state == 'present':
-        match = find_rule(rules, new_rule)
-        if match is not None:
-            if not match.equal(new_rule):
+    if state in ('enable', 'disable'):
+        for rule in rules:
+            if rule.name == new_rule.name:
+                break
+        else:
+            module.fail_json(msg='Rule "{0}" not present'.format(new_rule.name))
+        if state == 'enable' and rule.disabled:
+            changed = True
+        elif state == 'disable' and not rule.disabled:
+            changed = True
+        if changed:
+            rule.disabled = not rule.disabled
+            if not module.check_mode:
                 try:
-                    new_rule.apply()
+                    rule.update('disabled')
                 except PanDeviceError as e:
-                    module.fail_json(msg='Failed "present" apply: {0}'.format(e))
-                else:
-                    changed = True
-                    do_move = True
-        else:
-            try:
-                new_rule.create()
-            except PanDeviceError as e:
-                module.fail_json(msg='Failed "present" create: {0}'.format(e))
-            else:
-                changed = True
-                do_move = True
-    elif state == 'absent':
-        match = find_rule(rules, new_rule)
-        if match is not None:
-            try:
-                new_rule.delete()
-            except PanDeviceError as e:
-                module.fail_json(msg='Failed "absent" delete: {0}'.format(e))
-            else:
-                changed = True
-    elif operation == "find":
-        # Search for the rule
-        match = find_rule(rules, new_rule)
-        # If found, format and return the result
-        if match:
-            match_dict = xmltodict.parse(match.element_str())
-            module.exit_json(
-                stdout_lines=json.dumps(match_dict, indent=2),
-                msg='Rule matched'
-            )
-        else:
-            module.fail_json(msg='Rule \'%s\' not found. Is the name correct?' % rule_name)
-    elif operation == "delete":
-        # Search for the object
-        match = find_rule(rules, new_rule)
-        if match is None:
-            module.fail_json(msg='Rule \'%s\' not found. Is the name correct?' % rule_name)
-        try:
-            new_rule.delete()
-        except PanDeviceError as e:
-            module.fail_json(msg='Failed "delete" delete: {0}'.format(e))
-        else:
-            changed = True
-    elif operation == "add":
-        # Look for required parameters
-        if not source_zone or not destination_zone or not nat_type:
-            module.fail_json(msg='Missing parameter. Required: source_zone, destination_zone, nat_type')
-        # Search for the rule. Fail if found.
-        match = find_rule(rules, new_rule)
-        if match:
-            module.fail_json(msg='Rule \'%s\' already exists. Use operation: \'update\' to change it.' % rule_name)
-        try:
-            new_rule.create()
-        except PanDeviceError as e:
-            module.fail_json(msg='Failed "add" create: {0}'.format(e))
-        else:
-            changed = True
-            do_move = True
-    elif operation == 'update':
-        # Search for the rule. Update if found.
-        match = find_rule(rulebase, rule_name)
-        if not match:
-            module.fail_json(msg='Rule \'%s\' does not exist. Use operation: \'add\' to add it.' % rule_name)
-        try:
-            new_rule.apply()
-        except PanDeviceError as e:
-            module.fail_json(msg='Failed "update" apply: {0}'.format(e))
-        else:
-            changed = True
-            do_move = True
-    elif operation == 'disable':
-        # Search for the rule, disable if found.
-        match = find_rule(rules, new_rule)
-        if not match:
-            module.fail_json(msg='Rule \'%s\' does not exist.' % rule_name)
-        if not match.disabled:
-            match.disabled = True
-            try:
-                match.update('disabled')
-            except PanDeviceError as e:
-                module.fail_json(msg='Failed "disabled": {0}'.format(e))
-            else:
-                changed = True
+                    module.fail_json(msg='Failed enable: {0}'.format(e))
+    else:
+        parent.add(new_rule)
+        changed = helper.apply_state(new_rule, rules, module)
+        if state == 'present':
+            changed |= helper.apply_position(new_rule, location, existing_rule, module)
 
-    # Optional move.
-    if do_move:
-        try:
-            new_rule.move(location, existing_rule)
-        except PanDeviceError as e:
-            if '{0}'.format(e) not in ACCEPTABLE_MOVE_ERRORS:
-                module.fail_json(msg='Failed move: {0}'.format(e))
-        else:
-            changed = True
-
-    # Optional commit.
-    if changed and commit:
-        try:
-            con.commit(sync=True)
-        except PanDeviceError as e:
-            module.fail_json(msg='Failed commit: {0}'.format(e))
+    if changed and module.params['commit']:
+        helper.commit(module)
 
     module.exit_json(changed=changed, msg='Done')
 
