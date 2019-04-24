@@ -70,6 +70,9 @@ options:
         description:
             - name of the SNAT rule
         required: true
+    description:
+        description:
+            - NAT rule description.
     nat_type:
         description:
             - Type of NAT.
@@ -83,23 +86,27 @@ options:
             - list of source zones
         required: true
         type: list
-    destination_zone:
-        description:
-            - destination zone
-        type: list
-        required: true
     source_ip:
         description:
             - list of source addresses
         required: false
         type: list
         default: ["any"]
+    destination_zone:
+        description:
+            - destination zone
+        type: list
+        required: true
     destination_ip:
         description:
             - list of destination addresses
         required: false
         type: list
         default: ["any"]
+    to_interface:
+        description:
+            - Original packet's destination interface.
+        default: 'any'
     service:
         description:
             - service
