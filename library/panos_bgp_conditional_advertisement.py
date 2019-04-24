@@ -29,7 +29,7 @@ short_description: Configures a BGP conditional advertisement.
 description:
     - Use BGP to publish and consume routes from disparate networks.
     - In the PAN-OS GUI, this resource cannot be created without also creating at least
-      one non-exist filter and one advertise filter. The API behaves a little differently:
+      one non-exist filter and one advertise filter. The API behaves a little differently;
       you can create the conditional advertisement itself, but the API will start throwing
       errors if you try to update it and there is not at least one non-exist filter and
       one advertise filter.
