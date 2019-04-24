@@ -426,7 +426,7 @@ def main():
         with_classic_provider_spec=True,
         panorama_error='This module is for firewall facts only',
         argument_spec=dict(
-            gather_subset=dict(default=['!config'], type='list')
+            gather_subset=dict(default=['!config'], type='list'),
 
             # TODO(gfreeman) - remove in a later version.
             host=dict(),
