@@ -80,10 +80,12 @@ These modules have been updated as follows:
   different format, so please update your playbooks)
 - `panos_mgtconfig`: provider; checkmode; `devicegroup` is removed as this param
   was not doing anything; added `verify_update_server`
-- `panos_nat_rule`: TODO
+- `panos_nat_rule`: provider; removed operation; checkmode; `devicegroup` is
+  deprecated, use `device_group`; `tag_name` (string type) is deprecated, use
+  `tag` (list type); added `enable` and `disable` types for the `state` param
 - `panos_object_facts`: provider; added support for name regexes and a new
   `objects` output
-- `panos_op`: TODO
+- `panos_op`: provider
 - `panos_pg`: provider; added Panorama support; added `state`
 - `panos_redistribution`: provider; full template support; checkmode
 - `panos_registered_ip`: provider; vsys support; checkmode
@@ -103,8 +105,8 @@ These modules have been updated as follows:
 - `panos_virtual_router`: provider; full template support; checkmode
 - `panos_zone`: provider; full template support; checkmode
 
-Generic updates:
-- All "provider" modules now require pandevice >= 0.8.0
+Generic updates across all modules mentioned above:
+- All "provider" modules now require pandevice >= 0.9.0
 - Cleaned up module documentation
 
 The following modules have been deprecated:
