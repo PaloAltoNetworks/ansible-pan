@@ -27,8 +27,9 @@ DOCUMENTATION = '''
 module: panos_ike_gateway
 short_description: Configures IKE gateway on the firewall with subset of settings.
 description:
-    - Use this to manage or define a gateway, including the configuration information necessary to perform Internet Key
-      Exchange (IKE) protocol negotiation with a peer gateway. This is the Phase 1 portion of the IKE/IPSec VPN setup.
+    - Use this to manage or define a gateway, including the configuration information
+      necessary to perform Internet Key Exchange (IKE) protocol negotiation with a
+      peer gateway. This is the Phase 1 portion of the IKE/IPSec VPN setup.
 author: "Ivan Bojer (@ivanbojer)"
 version_added: "2.8"
 requirements:
@@ -100,7 +101,7 @@ options:
     local_ip_address:
         description:
             - Bind IKE gateway to the specified interface IP address
-            - It should include the mask, eg: '192.168.1.1/24'
+            - It should include the mask, such as '192.168.1.1/24'
         default: None
     local_ip_address_type:
         description:
@@ -143,7 +144,10 @@ options:
     ikev1_exchange_mode:
         description:
             - The IKE exchange mode to use
-            - Valid options: 'auto' | 'main' | 'aggressive'
+        choices:
+            - auto
+            - main
+            - aggressive
         default: None
     ikev2_crypto_profile:
         description:
@@ -170,7 +174,7 @@ EXAMPLES = '''
     peer_ip_value: '1.2.3.4'
     pre_shared_key: 'CHANGEME'
     ikev2_crypto_profile: 'IKE-Ansible'
-    commit: 'False'
+    commit: False
 '''
 
 RETURN = '''
