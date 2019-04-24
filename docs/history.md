@@ -106,7 +106,7 @@ These modules have been updated as follows:
 - `panos_zone`: provider; full template support; checkmode
 
 Generic updates across all modules mentioned above:
-- All "provider" modules now require pandevice >= 0.9.0
+- The minimum version of `pandevice` to run all "provider" modules is 0.9.1
 - Cleaned up module documentation
 
 The following modules have been deprecated:
