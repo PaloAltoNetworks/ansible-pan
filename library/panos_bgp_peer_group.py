@@ -64,7 +64,7 @@ options:
         default: 'resolve'
     import_nexthop:
         description:
-            - I(type=ebgp) only: override nexthop with peer address.
+            - I(type=ebgp) only; override nexthop with peer address.
         choices:
             - original
             - use-peer
