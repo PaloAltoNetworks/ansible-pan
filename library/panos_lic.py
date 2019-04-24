@@ -68,6 +68,7 @@ serialnumber:
 licenses:
     description: List of PAN-OS licenses (as dicts) as a result of this module's execution.
     type: list
+    returned: when not using auth_code
 '''
 
 
@@ -84,6 +85,7 @@ except ImportError:
 def main():
     helper = get_connection(
         with_classic_provider_spec=True,
+        min_pandevice_version=(0, 9, 1),
         argument_spec=dict(
             auth_code=dict(no_log=True, ),
             force=dict(type='bool', default=False)
@@ -100,6 +102,7 @@ def main():
 
     auth_code = module.params['auth_code']
     changed = False
+    licenses = []
     if parent.serial != 'unknown' and not module.params['force']:
         try:
             licenses = parent.request_license_info()
@@ -114,7 +117,7 @@ def main():
                 module.fail_json(msg='Failed license fetch: {0}'.format(e))
         else:
             try:
-                licenses = parent.activate_feature_using_authorization_code(auth_code)
+                parent.activate_feature_using_authorization_code(auth_code)
             except PanDeviceError as e:
                 module.fail_json(msg='Failed authcode apply: {0}'.format(e))
 
