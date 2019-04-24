@@ -97,14 +97,15 @@ options:
     set_origin:
         description:
             - New route origin.
-        choices
+        choices:
             - igp
             - egp
             - incomplete
         default: 'incomplete'
     vr_name:
         description:
-            - Name of the virtual router; it must already exist; see panos_virtual_router.
+            - Name of the virtual router; it must already exist.
+            - See M(panos_virtual_router)
         default: 'default'
 '''
 
