@@ -13,6 +13,7 @@ V2.1.0
 
 New modules:
 
+* `panos_security_rule_facts`
 * `panos_vlan`
 * `panos_vlan_interface`
 
