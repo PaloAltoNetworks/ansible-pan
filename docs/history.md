@@ -11,6 +11,11 @@ V2.1.0
 - *Released*: In development
 - *Status*: In development
 
+New modules:
+
+* `panos_vlan`
+* `panos_vlan_interface`
+
 The following shorthand applies to this version's updates:
 
 - `provider` - Any module below that lists a change of `provider` means that
@@ -27,12 +32,7 @@ The following shorthand applies to this version's updates:
 - `vsys support` - This module now includes support for specifying the firewall vsys.
 - `checkmode` - This module now supports Ansible's check mode.
 
-The following new modules have been added:
-
-* `panos_vlan`
-* `panos_vlan_interface`
-
-These modules have been updated as follows:
+Given the above shorthand, the following modules have been updated as follows:
 
 - `panos_address_group`: provider; checkmode
 - `panos_address_object`: provider; checkmode
