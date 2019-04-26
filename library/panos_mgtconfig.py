@@ -20,7 +20,7 @@ module: panos_mgtconfig
 short_description: Module used to configure some of the device management.
 description:
     - Configure management settings of device. Not all configuration options are configurable at this time.
-author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer), Patrik Malinen (@pmalinen)"
+author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer), Patrik Malinen (@pmalinen), Francesco Vigo (@fvigo)"
 version_added: "2.4"
 requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
