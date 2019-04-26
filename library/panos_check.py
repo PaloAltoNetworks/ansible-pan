@@ -25,49 +25,44 @@ author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
 version_added: "2.3"
 requirements:
     - pan-python
+    - pandevice
+notes:
+    - Panorama is supported.
+    - Checkmode is not supported.
+extends_documentation_fragment:
+    - panos.transitional_provider
 options:
-    ip_address:
+    initial_delay:
         description:
-            - IP address (or hostname) of PAN-OS device
-        required: true
-    password:
-        description:
-            - password for authentication
-        required: true
-    username:
-        description:
-            - username for authentication
-        required: false
-        default: "admin"
+            - Length of time (in seconds) to wait before doing any readiness checks.
+        default: 0
+        type: int
     timeout:
         description:
-            - timeout of API calls
-        required: false
-        default: "0"
+            - Length of time (in seconds) to wait for jobs to finish.
+        default: 60
+        type: int
     interval:
         description:
-            - time waited between checks
-        required: false
-        default: "0"
+            - Length of time (in seconds) to wait between checks.
+        default: 0
+        type: int
 '''
 
 EXAMPLES = '''
-# single check on 192.168.1.1 with credentials admin/admin
+# Single check.
 - name: check if ready
   panos_check:
-    ip_address: "192.168.1.1"
-    password: "admin"
+    provider: '{{ provider }}'
+    timeout: 0
 
-# check for 10 times, every 30 seconds, if device 192.168.1.1
-# is ready, using credentials admin/admin
+# Wait 2 minutes, then check every 5 seconds for 10 minutes.
 - name: wait for reboot
   panos_check:
-    ip_address: "192.168.1.1"
-    password: "admin"
-  register: result
-  until: not result|failed
-  retries: 10
-  delay: 30
+    provider: '{{ provider }}'
+    initial_delay: 120
+    interval: 5
+    timeout: 600
 '''
 
 RETURN = '''
@@ -79,70 +74,69 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'supported_by': 'community'}
 
 
-from ansible.module_utils.basic import AnsibleModule
 import time
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.network.panos.panos import get_connection
+
 
 try:
-    import pan.xapi
-    HAS_LIB = True
+    from pandevice.errors import PanDeviceError
 except ImportError:
-    HAS_LIB = False
+    pass
 
 
-def check_jobs(jobs, module):
-    job_check = False
+def check_jobs(jobs):
     for j in jobs:
         status = j.find('.//status')
-        if status is None:
+        if status is None or status.text != 'FIN':
             return False
-        if status.text != 'FIN':
-            return False
-        job_check = True
-    return job_check
+
+    return True
 
 
 def main():
-    argument_spec = dict(
-        ip_address=dict(required=True),
-        password=dict(required=True, no_log=True),
-        username=dict(default='admin'),
-        timeout=dict(default=0, type='int'),
-        interval=dict(default=0, type='int')
+    helper = get_connection(
+        with_classic_provider_spec=True,
+        argument_spec=dict(
+            initial_delay=dict(default=0, type='int'),
+            timeout=dict(default=60, type='int'),
+            interval=dict(default=0, type='int')
+        ),
     )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
-    if not HAS_LIB:
-        module.fail_json(msg='pan-python is required for this module')
 
-    ip_address = module.params["ip_address"]
-    password = module.params["password"]
-    username = module.params['username']
+    module = AnsibleModule(
+        argument_spec=helper.argument_spec,
+        supports_check_mode=False,
+        required_one_of=helper.required_one_of,
+    )
+
+    # Optional delay before performing readiness checks.
+    if module.params['initial_delay']:
+        time.sleep(module.params['initial_delay'])
+
     timeout = module.params['timeout']
     interval = module.params['interval']
+    end_time = time.time() + timeout
 
-    xapi = pan.xapi.PanXapi(
-        hostname=ip_address,
-        api_username=username,
-        api_password=password,
-        timeout=60
-    )
+    parent = helper.get_pandevice_parent(module, timeout)
 
-    checkpnt = time.time() + timeout
+    # TODO(gfreeman) - consider param for "show chassis-ready".
     while True:
         try:
-            xapi.op(cmd="show jobs all", cmd_xml=True)
-        except Exception:
+            ans = parent.op(cmd="show jobs all")
+        except PanDeviceError:
             pass
         else:
-            jobs = xapi.element_root.findall('.//job')
-            if check_jobs(jobs, module):
-                module.exit_json(changed=True, msg="okey dokey")
+            jobs = ans.findall('.//job')
+            if check_jobs(jobs):
+                break
 
-        if time.time() > checkpnt:
-            break
+        if time.time() > end_time:
+            module.fail_json(msg='Timeout')
 
         time.sleep(interval)
 
-    module.fail_json(msg="Timeout")
+    module.exit_json(changed=True, msg="done")
 
 
 if __name__ == '__main__':

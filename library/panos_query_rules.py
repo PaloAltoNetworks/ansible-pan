@@ -15,7 +15,7 @@
 #  limitations under the License.
 
 ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['preview'],
+                    'status': ['deprecated'],
                     'supported_by': 'community'}
 
 DOCUMENTATION = '''
@@ -28,6 +28,10 @@ description:
     - the traffic is applied, the more specific rules must precede the more general ones.
 author: "Bob Hagen (@rnh556)"
 version_added: "2.5"
+deprecated:
+    alternative: Use M(panos_match_rule)
+    removed_in: '2.12'
+    why: Querying rules is handled better by M(panos_match_rule).
 requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
@@ -309,6 +313,9 @@ def main():
     module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
                            required_one_of=[['api_key', 'password']]
                            )
+
+    module.deprecate('This module has been deprecated; use panos_match_rule', '2.12')
+
     if not HAS_LIB:
         module.fail_json(msg='Missing required libraries.')
 

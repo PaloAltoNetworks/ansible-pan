@@ -34,29 +34,13 @@ requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
 notes:
-    - Checkmode is not supported.
-    - Panorama is NOT supported.
+    - Checkmode is supported.
+    - Panorama is supported.
+extends_documentation_fragment:
+    - panos.transitional_provider
+    - panos.state
+    - panos.full_template_support
 options:
-    ip_address:
-        description:
-            - IP address (or hostname) of PAN-OS device being configured.
-        required: true
-    username:
-        description:
-            - Username credentials to use for auth unless I(api_key) is set.
-        default: "admin"
-    password:
-        description:
-            - Password credentials to use for auth unless I(api_key) is set.
-        required: true
-    api_key:
-        description:
-            - API key that can be used instead of I(username)/I(password) credentials.
-    state:
-        description:
-            - Add or remove BGP configuration.
-        choices: ['present', 'absent']
-        default: 'present'
     commit:
         description:
             - Commit configuration if changed.
@@ -138,53 +122,33 @@ options:
 
 EXAMPLES = '''
 - name: Configure and enable BGP
-    panos_bgp:
-      ip_address: '{{ ip_address }}'
-      username: '{{ username }}'
-      password: '{{ password }}'
-      state: 'present'
-      router_id: '1.1.1.1'
-      local_as: '64512'
-      commit: true
+  panos_bgp:
+    provider: '{{ provider }}'
+    router_id: '1.1.1.1'
+    local_as: '64512'
+    commit: true
 '''
 
 RETURN = '''
 # Default return values
 '''
 
+
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.basic import get_exception
+from ansible.module_utils.network.panos.panos import get_connection
+
 
 try:
-    from pan.xapi import PanXapiError
-    import pandevice
-    from pandevice import base
-    from pandevice import panorama
     from pandevice.errors import PanDeviceError
-    from pandevice import network
-
-    HAS_LIB = True
+    from pandevice.network import Bgp
+    from pandevice.network import BgpRoutingOptions
+    from pandevice.network import VirtualRouter
 except ImportError:
-    HAS_LIB = False
+    pass
 
 
 def setup_args():
     return dict(
-        ip_address=dict(
-            required=True,
-            help='IP address (or hostname) of PAN-OS device being configured'),
-        password=dict(
-            no_log=True,
-            help='Password credentials to use for auth unless I(api_key) is set'),
-        username=dict(
-            default='admin',
-            help='Username credentials to use for auth unless I(api_key) is set'),
-        api_key=dict(
-            no_log=True,
-            help='API key that can be used instead of I(username)/I(password) credentials'),
-        state=dict(
-            default='present', choices=['present', 'absent'],
-            help='Add or remove BGP configuration'),
         enable=dict(
             default=True, type='bool',
             help='Enable BGP'),
@@ -252,26 +216,42 @@ def setup_args():
 
 
 def main():
-    argument_spec = setup_args()
+    helper = get_connection(
+        template=True,
+        template_stack=True,
+        with_classic_provider_spec=True,
+        argument_spec=setup_args(),
+    )
 
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
-                           required_one_of=[['api_key', 'password']])
-    if not HAS_LIB:
-        module.fail_json(msg='Missing required libraries.')
+    module = AnsibleModule(
+        argument_spec=helper.argument_spec,
+        supports_check_mode=True,
+        required_one_of=helper.required_one_of,
+    )
 
-    # Get the firewall / panorama auth.
-    auth = [module.params[x] for x in
-            ('ip_address', 'username', 'password', 'api_key')]
+    parent = helper.get_pandevice_parent(module)
 
-    # generate the kwargs for network.Bgp
+    # Other params.
+    state = module.params['state']
+    vr_name = module.params['vr_name']
+    commit = module.params['commit']
+
+    vr = VirtualRouter(vr_name)
+    parent.add(vr)
+    try:
+        vr.refresh()
+    except PanDeviceError as e:
+        module.fail_json(msg='Failed refresh: {0}'.format(e))
+    parent = vr
+
+    # Generate the kwargs for network.Bgp.
     bgp_params = [
         'enable', 'router_id', 'reject_default_route', 'allow_redist_default_route',
         'install_route', 'ecmp_multi_as', 'enforce_first_as', 'local_as'
     ]
-
     bgp_spec = dict((k, module.params[k]) for k in bgp_params)
 
-    # generate the kwargs for network.BgpRoutingOptions
+    # Generate the kwargs for network.BgpRoutingOptions.
     bgp_routing_options_params = [
         'as_format', 'always_compare_med', 'deterministic_med_comparison',
         'default_local_preference', 'graceful_restart_enable',
@@ -280,49 +260,58 @@ def main():
     ]
     bgp_routing_options_spec = dict((k, module.params[k]) for k in bgp_routing_options_params)
 
-    state = module.params['state']
-    vr_name = module.params['vr_name']
-    commit = module.params['commit']
-
-    bgp = network.Bgp(**bgp_spec)
-    bgp_routing_options = network.BgpRoutingOptions(**bgp_routing_options_spec)
+    bgp = Bgp(**bgp_spec)
+    bgp_routing_options = BgpRoutingOptions(**bgp_routing_options_spec)
+    bgp.add(bgp_routing_options)
 
     changed = False
-    try:
-        # Create the device with the appropriate pandevice type
-        device = base.PanDevice.create_from_device(*auth)
-        network.VirtualRouter.refreshall(device)
-
-        # grab the virtual router
-        vr = device.find(vr_name, network.VirtualRouter)
-        if vr is None:
-            raise ValueError('Virtual router {0} does not exist'.format(vr_name))
-
-        # fetch the current settings
-        current_bgp = vr.find('', network.Bgp) or network.Bgp()
-        current_options = current_bgp.find('', network.BgpRoutingOptions) or network.BgpRoutingOptions()
-
-        # compare differences between the current state vs desired state
-        changed |= not bgp.equal(current_bgp, compare_children=False)
-        changed |= not bgp_routing_options.equal(current_options, compare_children=False)
-
-        if state == 'present':
-            if changed:
-                bgp.add(bgp_routing_options)
-                vr.add(bgp)
-                bgp.create()
-            else:
-                module.exit_json(msg='no changes required.', changed=changed)
-        elif state == 'absent':
-            current_bgp.delete()
+    live_bgp = parent.find('', Bgp)
+    if state == 'present':
+        if live_bgp is None:
+            changed = True
+            parent.add(bgp)
+            if not module.check_mode:
+                try:
+                    bgp.create()
+                except PanDeviceError as e:
+                    module.fail_json(msg='Failed create: {0}'.format(e))
         else:
-            module.fail_json(msg='[%s] state is not implemented yet' % state)
-    except (PanDeviceError, KeyError):
-        exc = get_exception()
-        module.fail_json(msg=exc.message)
+            live_options = None
+            other_children = []
+            options_children = []
+            for x in live_bgp.children:
+                if x.__class__ == BgpRoutingOptions:
+                    live_options = x
+                    options_children = x.children
+                    x.removeall()
+                else:
+                    other_children.append(x)
+
+            live_bgp.removeall()
+            if live_options is not None:
+                live_bgp.add(live_options)
+
+            parent.add(bgp)
+            if not live_bgp.equal(bgp):
+                changed = True
+                bgp.extend(other_children)
+                bgp_routing_options.extend(options_children)
+                if not module.check_mode:
+                    try:
+                        bgp.apply()
+                    except PanDeviceError as e:
+                        module.fail_json(msg='Failed apply: {0}'.format(e))
+    else:
+        if live_bgp is not None:
+            changed = True
+            if not module.check_mode:
+                try:
+                    live_bgp.delete()
+                except PanDeviceError as e:
+                    module.fail_json(msg='Failed delete: {0}'.format(e))
 
     if commit and changed:
-        device.commit(sync=True, exception=True)
+        helper.commit(module)
 
     module.exit_json(msg='BGP configuration successful.', changed=changed)
 

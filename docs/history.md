@@ -5,16 +5,126 @@ title: History and changelog
 History
 =======
 
-V3.0.0
+V2.1.0
 ------
 
--   Released: In development
--   Status: In development
+- *Released*: In development
+- *Status*: In development
 
-*New modules*
+New modules:
 
-*Refactored modules*
+* `panos_security_rule_facts`
+* `panos_vlan`
+* `panos_vlan_interface`
 
+The following shorthand applies to this version's updates:
+
+- `provider` - Any module below that lists a change of `provider` means that
+  it supports a new provider dict for PAN-OS authentication credentials in
+  addition to the old `ip_address` / `username` / `password` / `api_key`.  Additionally
+  these modules now support Panorama to firewall connections, performed by specifying
+  Panorama IP address, username, and password, then specifying a firewall's serial
+  number using the `serial_number` param in the `provider` dict.
+- `removed operation` - This module has had the old `operation` param removed in favor
+  of `state`.  Please update your playbooks to use `state` instead.
+- `template support` - This module now supports Panorama templates.
+- `full template support` - This module now supports both Panorama templates and
+  template stacks.
+- `vsys support` - This module now includes support for specifying the firewall vsys.
+- `checkmode` - This module now supports Ansible's check mode.
+
+Given the above shorthand, the following modules have been updated as follows:
+
+- `panos_address_group`: provider; checkmode
+- `panos_address_object`: provider; checkmode
+- `panos_administrator`: provider; full template support; checkmode; Now supports
+  supplying the password hash directly
+- `panos_api_key`: provider
+- `panos_bgp`: provider; full template support; checkmode
+- `panos_bgp_aggregate`: provider; full template support; checkmode
+- `panos_bgp_auth`: provider; full template support; checkmode; `replace` is
+  deprecated as this is now the default behavior for `state=apply`
+- `panos_bgp_conditional_advertisement`: provider; full template support;
+  checkmode; `advertise_filter` and `non_exist_filter` have been deprecated,
+  add filters using `panos_bgp_policy_filter` instead
+- `panos_bgp_dampening`: provider; full template support; checkmode
+- `panos_bgp_peer`: provider; full template support; checkmode
+- `panos_bgp_peer_group`: provider; full template support; checkmode
+- `panos_bgp_policy_filter`: provider; full template support; checkmode;
+  "state=return-object" has been deprecated, just use states of absent/present
+  like other modules as normal; `address_prefix` can now be a dict with
+  "name"/"exact" keys or a string
+- `panos_bgp_policy_rule`: provider; full template support; checkmode;
+  `address_prefix` can now be a dict with "name"/"exact" keys or a string
+- `panos_bgp_redistribute`: provider; full template support; checkmode
+- `panos_check`: provider; fixed #183; fixed #311
+- `panos_commit`: provider; added `include_template` param; `devicegroup` is
+  deprecated, use `device_group` instead
+- `panos_facts`: provider; fixed bug when running against VM NGFW; `host` has
+  been removed, use `provider` instead
+- `panos_ike_crypto_profile`: provider; full template support; checkmode
+- `panos_ike_gateway`: provider; full template support; checkmode; many params
+  have been aliased to new param names to better match the `pandevice` naming
+- `panos_interface`: provider; template support; checkmode; removed operation;
+  fixed #193; fixed #266; fixed #267; `vsys_dg` is deprecated, use `vsys` instead
+- `panos_ipsec_profile`: provider; full template support; checkmode
+- `panos_ipsec_tunnel`: provider; full template support; checkmode; many new
+  params added to support missing functionality added in, please refer to the
+  module documentation for the complete list of params now supported
+- `panos_lic`: provider; added new output `licenses`
+- `panos_loopback_interface`: provider; template support; checkmode; `vsys_dg` is
+  deprecated; use `vsys` instead
+- `panos_management_profile`: provider; full template support; checkmode;
+  `panorama_template` is deprecated, use `template` instead
+- `panos_match_rule`: provider; `vsys_id` is deprecated, use `vsys`; fixed #248;
+  output `stdout_lines` is deprecated, use `rule` instead (note: this has a
+  different format, so please update your playbooks)
+- `panos_mgtconfig`: provider; checkmode; `devicegroup` is removed as this param
+  was not doing anything; added `verify_update_server`
+- `panos_nat_rule`: provider; removed operation; checkmode; `devicegroup` is
+  deprecated, use `device_group`; `tag_name` (string type) is deprecated, use
+  `tag` (list type); added `enable` and `disable` types for the `state` param
+- `panos_object_facts`: provider; added support for name regexes and a new
+  `objects` output
+- `panos_op`: provider
+- `panos_pg`: provider; added Panorama support; added `state`
+- `panos_redistribution`: provider; full template support; checkmode
+- `panos_registered_ip`: provider; vsys support; checkmode
+- `panos_registered_ip_facts`: provider; vsys support
+- `panos_restart`: provider
+- `panos_security_rule`: provider; removed operation; checkmode; `devicegroup`
+  is deprecated, use `device_group` instead
+- `panos_service_group`: provider; checkmode
+- `panos_service_object`: provider; checkmode
+- `panos_software`: provider; checkmode
+- `panos_static_route`: provider; full template support; added nexthop type
+  of "next-vr"
+- `panos_tag_object`: provider; checkmode
+- `panos_tunnel`: provider; template support; checkmode; `vsys_dg` is deprecated,
+  use `vsys` instead
+- `panos_userid`: provider; removed operation; `state` added as a param
+- `panos_virtual_router`: provider; full template support; checkmode
+- `panos_zone`: provider; full template support; checkmode
+
+Generic updates across all modules mentioned above:
+- The minimum version of `pandevice` to run all "provider" modules is 0.9.1
+- Cleaned up module documentation
+
+The following modules have been deprecated:
+
+- `panos_admin`
+- `panos_dag`
+- `panos_query_rules`
+- `panos_sag`
+
+The following modules have not been modified:
+
+- `panos_admpwd`
+- `panos_cert_gen_ssh`
+- `panos_dag_tags`
+- `panos_import`
+- `panos_loadcfg`
+- `panos_object`
 
 V2.0.4
 -----

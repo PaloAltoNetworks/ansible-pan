@@ -25,28 +25,15 @@ version_added: "2.8"
 requirements:
     - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
-note:
-    - Checkmode is not supported.
+notes:
+    - Checkmode is supported.
+    - Panorama is supported.
+extends_documentation_fragment:
+    - panos.transitional_provider
+    - panos.state
+    - panos.vsys_import
+    - panos.template_only
 options:
-    ip_address:
-        description:
-            - IP address (or hostname) of PAN-OS device being configured.
-        required: true
-    username:
-        description:
-            - Username credentials to use for auth.
-        default: "admin"
-    password:
-        description:
-            - Password credentials to use for auth.
-    api_key:
-        description:
-            - API key that can be used instead of I(username)/I(password) credentials.
-    state:
-        description:
-            - Create or remove static route.
-        choices: ['present', 'absent']
-        default: 'present'
     if_name:
         description:
             - Name of the interface to configure.
@@ -54,15 +41,18 @@ options:
     ip:
         description:
             - List of static IP addresses.
+        type: list
     ipv6_enabled:
         description:
             - Enable IPv6.
+        type: bool
     management_profile:
         description:
             - Interface management profile name; it must already exist.
     mtu:
         description:
             - MTU for tunnel interface.
+        type: int
     netflow_profile:
         description:
             - Netflow profile for tunnel interface.
@@ -78,34 +68,32 @@ options:
             - Name of the virtual router; it must already exist.
     vsys_dg:
         description:
+            - B(Deprecated)
+            - Use I(vsys) to specify the vsys instead.
+            - HORIZONTALLINE
             - Name of the vsys (if firewall) or device group (if panorama) to put this object.
-        default: "vsys1"
     commit:
         description:
             - Commit if changed
         default: true
+        type: bool
 '''
 
 EXAMPLES = '''
 # Create tunnel.1
 - name: create tunnel.1
   panos_tunnel:
-    ip_address: "192.168.1.1"
-    username: "ansible"
-    password: "secret"
+    provider: '{{ provider }}'
     if_name: "tunnel.1"
     ip: ["10.1.1.1/32"]
 
 # Update tunnel comment.
 - name: update tunnel.1 comment
   panos_tunnel:
-    ip_address: "192.168.1.1"
-    username: "ansible"
-    password: "secret"
+    provider: '{{ provider }}'
     if_name: "tunnel.1"
     ip: ["10.1.1.1/32"]
     comment: "tunnel interface"
-
 '''
 
 RETURN = '''
@@ -117,98 +105,44 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
                     'supported_by': 'community'}
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.basic import get_exception
+from ansible.module_utils.network.panos.panos import get_connection
 
 
 try:
-    from pandevice import base
-    from pandevice import panorama
-    from pandevice import network
-    from pandevice import device
-    from pandevice import errors
-    HAS_LIB = True
+    from pandevice.network import TunnelInterface
+    from pandevice.errors import PanDeviceError
 except ImportError:
-    HAS_LIB = False
-
-
-def set_zone(con, iface, zone_name, zones):
-    desired_zone = None
-
-    # Remove the interface from the zone.
-    for z in zones:
-        if z.name == zone_name:
-            desired_zone = z
-        elif iface.name in z.interface:
-            z.interface.remove(iface.name)
-            z.update('interface')
-
-    if desired_zone is not None:
-        if desired_zone.interface is None:
-            desired_zone.interface = []
-        if iface.name not in desired_zone.interface:
-            desired_zone.interface.append(iface.name)
-            desired_zone.update('interface')
-    elif zone_name is not None:
-        z = network.Zone(zone_name, interface=[iface.name, ])
-        con.add(z)
-        z.create()
-
-
-def set_virtual_router(con, eth, vr_name, routers):
-    changed = False
-    desired_vr = None
-
-    for vr in routers:
-        if vr.name == vr_name:
-            desired_vr = vr
-        elif vr.interface is not None and eth.name in vr.interface:
-            vr.interface.remove(eth.name)
-            vr.update('interface')
-            changed = True
-
-    if desired_vr is not None:
-        if desired_vr.interface is None:
-            desired_vr.interface = []
-        if eth.name not in desired_vr.interface:
-            desired_vr.interface.append(eth.name)
-            desired_vr.update('interface')
-            changed = True
-    elif vr_name is not None:
-        raise ValueError('Virtual router {0} does not exist in set {1}'.format(vr_name, routers))
-
-    return changed
+    pass
 
 
 def main():
-    argument_spec = dict(
-        ip_address=dict(required=True),
-        password=dict(no_log=True),
-        username=dict(default='admin'),
-        api_key=dict(no_log=True),
-        state=dict(default='present', choices=['present', 'absent']),
-        if_name=dict(required=True),
-        ip=dict(type='list'),
-        ipv6_enabled=dict(type='bool'),
-        management_profile=dict(),
-        mtu=dict(type='int'),
-        netflow_profile=dict(),
-        comment=dict(),
-        zone_name=dict(default=None),
-        vr_name=dict(default=None),
-        vsys_dg=dict(default='vsys1'),
-        commit=dict(type='bool', default=True),
-    )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
-                           required_one_of=[['api_key', 'password']])
-    if not HAS_LIB:
-        module.fail_json(msg='Missing required libraries.')
+    helper = get_connection(
+        vsys_importable=True,
+        template=True,
+        with_classic_provider_spec=True,
+        with_state=True,
+        min_pandevice_version=(0, 8, 0),
+        argument_spec=dict(
+            if_name=dict(required=True),
+            ip=dict(type='list'),
+            ipv6_enabled=dict(type='bool'),
+            management_profile=dict(),
+            mtu=dict(type='int'),
+            netflow_profile=dict(),
+            comment=dict(),
+            zone_name=dict(),
+            vr_name=dict(),
+            commit=dict(type='bool', default=True),
 
-    # Get the firewall / panorama auth.
-    auth = (
-        module.params['ip_address'],
-        module.params['username'],
-        module.params['password'],
-        module.params['api_key'],
+            # TODO(gfreeman) - remove this in 2.12
+            vsys_dg=dict(),
+        ),
+    )
+
+    module = AnsibleModule(
+        argument_spec=helper.argument_spec,
+        supports_check_mode=True,
+        required_one_of=helper.required_one_of,
     )
 
     # Get the object params.
@@ -223,110 +157,106 @@ def main():
     }
 
     # Get other info.
-    # operation = module.params['operation']
     state = module.params['state']
     zone_name = module.params['zone_name']
     vr_name = module.params['vr_name']
+    vsys = module.params['vsys']
     vsys_dg = module.params['vsys_dg']
     commit = module.params['commit']
 
-    # Open the connection to the PANOS device.
-    con = base.PanDevice.create_from_device(*auth)
-
-    # Set vsys if firewall, device group if panorama.
-    parent = con
-    if hasattr(con, 'refresh_devices'):
-        # Panorama
-        # Normally we want to set the device group here, but there are no
-        # interfaces on Panorama.  So if we're given a Panorama device, then
-        # error out.
-        '''
-        groups = panorama.DeviceGroup.refreshall(con, add=False)
-        for parent in groups:
-            if parent.name == vsys_dg:
-                con.add(parent)
-                break
+    # TODO(gfreeman) - Remove vsys_dg in 2.12, as well as this code chunk.
+    # In the mean time, we'll need to do this special handling.
+    if vsys_dg is not None:
+        module.deprecate('Param "vsys_dg" is deprecated, use "vsys"', '2.12')
+        if vsys is None:
+            vsys = vsys_dg
         else:
-            module.fail_json(msg="'{0}' device group is not present".format(vsys_dg))
-        '''
-        module.fail_json(msg="tunnel interfaces don't exist on Panorama")
+            msg = [
+                'Params "vsys" and "vsys_dg" both given',
+                'Specify one or the other, not both.',
+            ]
+            module.fail_json(msg='.  '.join(msg))
+    elif vsys is None:
+        # TODO(gfreeman) - v2.12, just set the default for vsys to 'vsys1'.
+        vsys = 'vsys1'
+
+    # Make sure 'vsys' is set appropriately.
+    module.params['vsys'] = vsys
+
+    # Verify libs are present, get the parent object.
+    parent = helper.get_pandevice_parent(module)
 
     # Retrieve the current config.
     try:
-        interfaces = network.TunnelInterface.refreshall(con, add=False, name_only=True)
-        zones = network.Zone.refreshall(con)
-        routers = network.VirtualRouter.refreshall(con)
-        vsys_list = device.Vsys.refreshall(con)
-
-    except errors.PanDeviceError:
-        e = get_exception()
-        module.fail_json(msg=e.message)
+        interfaces = TunnelInterface.refreshall(
+            parent, add=False, matching_vsys=False)
+    except PanDeviceError as e:
+        module.fail_json(msg='Failed refresh: {0}'.format(e))
 
     # Build the object based on the user spec.
-    iface = network.TunnelInterface(**spec)
-    con.add(iface)
+    obj = TunnelInterface(**spec)
+    parent.add(obj)
 
+    # Which action should we take on the interface?
+    changed = False
+    reference_params = {
+        'refresh': True,
+        'update': not module.check_mode,
+        'return_type': 'bool',
+    }
     if state == 'present':
-        if iface.name not in [x.name for x in interfaces]:
-            # Create the interface.
-            try:
-                iface.create()
-                set_zone(con, iface, zone_name, zones)
-                set_virtual_router(con, iface, vr_name, routers)
-            except (errors.PanDeviceError, ValueError):
-                e = get_exception()
-                module.fail_json(msg=e.message)
+        for item in interfaces:
+            if item.name != obj.name:
+                continue
+            # Interfaces have children, so don't compare them.
+            if not item.equal(obj, compare_children=False):
+                changed = True
+                obj.extend(item.children)
+                if not module.check_mode:
+                    try:
+                        obj.apply()
+                    except PanDeviceError as e:
+                        module.fail_json(msg='Failed apply: {0}'.format(e))
+            break
         else:
-            # Update the interface.
-            try:
-                con.organize_into_vsys()
-            except errors.PanDeviceError:
-                e = get_exception()
-                module.fail_json(msg=e.message)
-            if iface.vsys != vsys_dg:
+            changed = True
+            if not module.check_mode:
                 try:
-                    iface.delete_import()
-                except errors.PanDeviceError:
-                    e = get_exception()
-                    module.fail_json(msg=e.message)
+                    obj.create()
+                except PanDeviceError as e:
+                    module.fail_json(msg='Failed create: {0}'.format(e))
 
-            # Move the tunnel object to the correct vsys.
-            for vsys in vsys_list:
-                if vsys.name == vsys_dg:
-                    vsys.add(iface)
-                    break
-            else:
-                module.fail_json(msg='Vsys {0} does not exist'.format(vsys))
-
-            # Update the interface.
-            try:
-                iface.apply()
-                set_zone(con, iface, zone_name, zones)
-                set_virtual_router(con, iface, vr_name, routers)
-
-            except (errors.PanDeviceError, ValueError):
-                e = get_exception()
-                module.fail_json(msg=e.message)
-    elif state == 'absent':
-        if iface.name in [x.name for x in interfaces]:
-            try:
-                con.organize_into_vsys()
-                set_zone(con, iface, None, zones)
-                set_virtual_router(con, iface, None, routers)
-                iface.delete()
-            except (errors.PanDeviceError, ValueError):
-                e = get_exception()
-                module.fail_json(msg=e.message)
-
-    if commit:
+        # Set references.
         try:
-            con.commit(sync=True)
-        except errors.PanDeviceError:
-            e = get_exception()
-            module.fail_json(msg='Performed {0} but commit failed: {1}'.format(state, e.message))
+            changed |= obj.set_vsys(vsys, **reference_params)
+            changed |= obj.set_zone(zone_name, mode='layer3', **reference_params)
+            changed |= obj.set_virtual_router(vr_name, **reference_params)
+        except PanDeviceError as e:
+            module.fail_json(msg='Failed setref: {0}'.format(e))
+    elif state == 'absent':
+        # Remove references.
+        try:
+            changed |= obj.set_virtual_router(None, **reference_params)
+            changed |= obj.set_zone(None, mode='layer3', **reference_params)
+            changed |= obj.set_vsys(None, **reference_params)
+        except PanDeviceError as e:
+            module.fail_json(msg='Failed setref: {0}'.format(e))
+
+        # Remove the interface.
+        if obj.name in [x.name for x in interfaces]:
+            changed = True
+            if not module.check_mode:
+                try:
+                    obj.delete()
+                except PanDeviceError as e:
+                    module.fail_json(msg='Failed delete: {0}'.format(e))
+
+    # Commit if we were asked to do so.
+    if changed and commit:
+        helper.commit(module)
 
     # Done!
-    module.exit_json(changed=True, msg='Done')
+    module.exit_json(changed=changed, msg='Done')
 
 
 if __name__ == '__main__':

@@ -36,7 +36,6 @@
         ip_address: "{{mgmt_ip}}"
         username: "{{admin_username}}"
         password: "{{admin_password}}"
-        ip_address: "{{mgmt_ip}}"
         if_name: "ethernet1/1"
         zone_name: "untrust"
         create_default_route: "yes"
@@ -148,7 +147,7 @@
         password: "{{admin_password}}"
         operation: 'add'
         rule_name: 'SSH traffic'
-        application: ['ping','ssh']
+        application: ['ping', '_ssh']
         description: 'Allow SSH traffic'
         source_zone: ['untrust']
         destination_zone: ['trust']
@@ -162,7 +161,7 @@
         password: "{{admin_password}}"
         operation: 'add'
         rule_name: 'SSH 221 traffic'
-        application: ['ping','ssh']
+        application: ['ping', '_ssh']
         service: 'service-tcp-221'
         description: 'Allow SSH traffic'
         source_zone: ['untrust']

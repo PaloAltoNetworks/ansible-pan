@@ -28,75 +28,85 @@ module: panos_ipsec_profile
 short_description: Configures IPSec Crypto profile on the firewall with subset of settings.
 description:
     - IPSec Crypto profiles specify protocols and algorithms for authentication and encryption in VPN tunnels based on
-    - IPSec SA negotiation (Phase 2).
+      IPSec SA negotiation (Phase 2).
 author: "Ivan Bojer (@ivanbojer)"
 version_added: "2.8"
 requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
 notes:
-    - Checkmode is not supported.
-    - Panorama is NOT supported.
+    - Panorama is supported.
+    - Check mode is supported.
+extends_documentation_fragment:
+    - panos.transitional_provider
+    - panos.state
+    - panos.full_template_support
 options:
-    ip_address:
-        description:
-            - IP address (or hostname) of PAN-OS device being configured.
-        required: true
-    username:
-        description:
-            - Username credentials to use for auth unless I(api_key) is set.
-        default: "admin"
-    password:
-        description:
-            - Password credentials to use for auth unless I(api_key) is set.
-        required: true
-    api_key:
-        description:
-            - API key that can be used instead of I(username)/I(password) credentials.
-    state:
-        description:
-            - Create or remove static route.
-        choices: ['present', 'absent']
-        default: 'present'
-    commit:
-        description:
-            - Commit configuration if changed.
-        default: true
     name:
         description:
             - Name for the profile.
         required: true
-    dhgroup:
-        description:
-            - Specify the priority for Diffie-Hellman (DH) groups.
-        default: group2
-    authentication:
-        description:
-            - Specify the priority for hash algorithms.
-        default: sha1
-    encryption:
-        description:
-            - Select the appropriate Encapsulating Security Payload (ESP) authentication options.
+    esp_encryption:
+        description: Encryption algorithms for ESP mode.
+        choices: ['des', '3des', 'null', 'aes-128-cbc', 'aes-192-cbc',
+                  'aes-256-cbc', 'aes-128-gcm', 'aes-256-gcm']
         default: ['aes-256-cbc', '3des']
-    lifetime_hrs:
+        aliases: encryption
+    esp_authentication:
+        description: Authentication algorithms for ESP mode.
+        choices: ['none', 'md5', 'sha1', 'sha256', 'sha384', 'sha512']
+        default: sha1
+        aliases: authentication
+    ah_authentication:
+        description: Authentication algorithms for AH mode.
+        choices: ['md5', 'sha1', 'sha256', 'sha384', 'sha512']
+    dh_group:
         description:
-            - Select units and enter the length of time (default is 1hr) that the negotiated key will stay effective.
-        default: 1
+            - Diffie-Hellman (DH) groups.
+        choices: ['no-pfs', 'group1', 'group2', 'group5', 'group14', 'group19', 'group20']
+        default: group2
+        aliases: dhgroup
+    lifetime_seconds:
+        description:
+            -  IPSec SA lifetime in seconds.
+    lifetime_minutes:
+        description:
+            - IPSec SA lifetime in minutes.
+    lifetime_hours:
+        description:
+            - IPSec SA lifetime in hours.  If no other key lifetimes are
+              specified, default to 1 hour.
+        aliases: lifetime_hrs
+    lifetime_days:
+        description:
+            - IPSec SA lifetime in days.
+    lifesize_kb:
+        description:
+            -  IPSec SA lifetime in kilobytes.
+    lifesize_mb:
+        description:
+            - IPSec SA lifetime in megabytes.
+    lifesize_gb:
+        description:
+            - IPSec SA lifetime in gigabytes.
+    lifesize_tb:
+        description:
+            - IPSec SA lifetime in terabytes.
+    commit:
+        description:
+            - Commit configuration if changed.
+        default: true
 '''
 
 EXAMPLES = '''
 - name: Add IPSec crypto config to the firewall
     panos_ipsec_profile:
-      ip_address: '{{ ip_address }}'
-      username: '{{ username }}'
-      password: '{{ password }}'
+      provider: '{{ provider }}'
       state: 'present'
-      name: 'IPSec-Ansible'
-      encryption: ['aes-256-cbc', '3des']
-      authentication: 'sha1'
-      dhgroup: 'group2'
-      lifetime_hrs: '1'
-      commit: 'False'
+      name: 'ipsec-vpn-0cc61dd8c06f95cfd-0'
+      esp_authentication: ['sha1']
+      esp_encryption: ['aes-128-cbc']
+      lifetime_seconds: '3600'
 '''
 
 RETURN = '''
@@ -104,121 +114,133 @@ RETURN = '''
 '''
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.basic import get_exception
+from ansible.module_utils.network.panos.panos import get_connection
 
 try:
-    from pan.xapi import PanXapiError
-    import pandevice
-    from pandevice import base
-    from pandevice import panorama
+    from pandevice.network import IpsecCryptoProfile
     from pandevice.errors import PanDeviceError
-    from pandevice import network
-
-    HAS_LIB = True
 except ImportError:
-    HAS_LIB = False
-
-
-# def get_devicegroup(device, devicegroup):
-#     dg_list = device.refresh_devices()
-#     for group in dg_list:
-#         if isinstance(group, pandevice.panorama.DeviceGroup):
-#             if group.name == devicegroup:
-#                 return group
-#     return False
-
-
-class IPSecProfile:
-    def __init__(self, *args, **kwargs):
-        self.name = kwargs.get('name')
-        self.authentication = kwargs.get('authentication')
-        self.encryption = kwargs.get('encryption')
-        self.dh_group = kwargs.get('dh_group')
-        self.lifetime_hrs = kwargs.get('lifetime_hrs')
+    pass
 
 
 def main():
-    argument_spec = dict(
-        ip_address=dict(required=True),
-        password=dict(no_log=True),
-        username=dict(default='admin'),
-        api_key=dict(no_log=True),
-        state=dict(default='present', choices=['present', 'absent']),
-        name=dict(required=True),
-        encryption=dict(type='list', default=['aes-256-cbc', '3des']),
-        authentication=dict(default='sha1'),
-        dhgroup=dict(default='group2'),
-        lifetime_hrs=dict(type='int', default=1),
-        commit=dict(type='bool', default=True)
+    helper = get_connection(
+        template=True,
+        template_stack=True,
+        with_classic_provider_spec=True,
+        with_state=True,
+        required_one_of=[
+            ['lifetime_seconds', 'lifetime_minutes', 'lifetime_hours', 'lifetime_days']
+        ],
+        argument_spec=dict(
+            name=dict(required=True),
+            esp_encryption=dict(
+                type='list',
+                choices=[
+                    'des', '3des', 'null', 'aes-128-cbc', 'aes-192-cbc',
+                    'aes-256-cbc', 'aes-128-gcm', 'aes-256-gcm'
+                ],
+                aliases=['encryption']
+            ),
+            esp_authentication=dict(
+                type='list',
+                choices=[
+                    'none', 'md5', 'sha1', 'sha256', 'sha384', 'sha512'
+                ],
+                aliases=['authentication']
+            ),
+            ah_authentication=dict(
+                type='list',
+                choices=[
+                    'md5', 'sha1', 'sha256', 'sha384', 'sha512'
+                ]
+            ),
+            dh_group=dict(
+                choices=[
+                    'no-pfs', 'group1', 'group2', 'group5', 'group14', 'group19',
+                    'group20'
+                ],
+                default='group2',
+                aliases=['dhgroup']
+            ),
+            lifetime_seconds=dict(type='int'),
+            lifetime_minutes=dict(type='int'),
+            lifetime_hours=dict(type='int', aliases=['lifetime_hrs']),
+            lifetime_days=dict(type='int'),
+            lifesize_kb=dict(type='int'),
+            lifesize_mb=dict(type='int'),
+            lifesize_gb=dict(type='int'),
+            lifesize_tb=dict(type='int'),
+            commit=dict(type='bool', default=True)
+        )
     )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
-                           required_one_of=[['api_key', 'password']])
-    if not HAS_LIB:
-        module.fail_json(msg='Missing required libraries.')
 
-    ip_address = module.params['ip_address']
-    password = module.params['password']
-    username = module.params['username']
-    api_key = module.params['api_key']
-    state = module.params['state']
-    profile_name = module.params['name']
-    encryption = module.params['encryption']
-    authentication = module.params['authentication']
-    dhgroup = module.params['dhgroup']
-    lifetime_hrs = module.params['lifetime_hrs']
+    module = AnsibleModule(
+        argument_spec=helper.argument_spec,
+        required_one_of=helper.required_one_of,
+        mutually_exclusive=[
+            ['esp_encryption', 'ah_authentication'],
+            ['esp_authentication', 'ah_authentication'],
+            ['lifetime_seconds', 'lifetime_minutes', 'lifetime_hours', 'lifetime_days'],
+            ['lifesize_kb', 'lifesize_mb', 'lifesize_gb', 'lifesize_tb']
+        ],
+        supports_check_mode=True
+    )
+
+    # Verify libs are present, get parent object.
+    parent = helper.get_pandevice_parent(module)
+
+    spec = {
+        'name': module.params['name'],
+        'esp_encryption': module.params['esp_encryption'],
+        'esp_authentication': module.params['esp_authentication'],
+        'ah_authentication': module.params['ah_authentication'],
+        'dh_group': module.params['dh_group'],
+        'lifetime_seconds': module.params['lifetime_seconds'],
+        'lifetime_minutes': module.params['lifetime_minutes'],
+        'lifetime_hours': module.params['lifetime_hours'],
+        'lifetime_days': module.params['lifetime_days'],
+        'lifesize_kb': module.params['lifesize_kb'],
+        'lifesize_mb': module.params['lifesize_mb'],
+        'lifesize_gb': module.params['lifesize_gb'],
+        'lifesize_tb': module.params['lifesize_tb']
+    }
+
+    # Other info.
     commit = module.params['commit']
 
-    # If Panorama, validate the devicegroup
-    # dev_group = None
-    # if devicegroup and isinstance(device, panorama.Panorama):
-    #     dev_group = get_devicegroup(device, devicegroup)
-    #     if dev_group:
-    #         device.add(dev_group)
-    #     else:
-    #         module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
+    if spec['esp_encryption'] is None and spec['ah_authentication'] is None:
+        spec['esp_encryption'] = ['aes-256-cbc', '3des']
 
-    ipsecProfile = IPSecProfile(name=profile_name, encryption=encryption,
-                                authentication=authentication, dhgroup=dhgroup,
-                                lifetime_hrs=lifetime_hrs)
+    if spec['esp_authentication'] is None and spec['ah_authentication'] is None:
+        spec['esp_authentication'] = ['sha1']
 
-    ipsec_crypto_prof = network.IpsecCryptoProfile(name=ipsecProfile.name, esp_encryption=ipsecProfile.encryption,
-                                                   esp_authentication=ipsecProfile.authentication,
-                                                   ah_authentication=None, dh_group=ipsecProfile.dh_group,
-                                                   lifetime_hours=ipsecProfile.lifetime_hrs)
+    # Reflect GUI behavior.  Default is 1 hour key lifetime if nothing else is
+    # specified.
+    if not any([
+        spec['lifetime_seconds'], spec['lifetime_minutes'], spec['lifetime_hours'], spec['lifetime_days']
+    ]):
+        spec['lifetime_hours'] = 1
 
-    # Create the device with the appropriate pandevice type
-    device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
-
-    changed = False
+    # Retrieve current info.
     try:
-        # fetch all IpsecCryptoProfiles
-        crypto_profiles = network.IpsecCryptoProfile.refreshall(device)
-        if state == "present":
-            device.add(ipsec_crypto_prof)
-            for p in crypto_profiles:
-                if p.name == ipsec_crypto_prof.name:
-                    if not ipsec_crypto_prof.equal(p):
-                        ipsec_crypto_prof.apply()
-                        changed = True
-                    break
-            else:
-                ipsec_crypto_prof.create()
-                changed = True
-        elif state == "absent":
-            ipsec_crypto_prof = device.find(ipsecProfile.name, network.IpsecCryptoProfile)
-            if ipsec_crypto_prof:
-                ipsec_crypto_prof.delete()
-                changed = True
-        else:
-            module.fail_json(msg='[%s] state is not implemented yet' % state)
-    except PanDeviceError:
-        exc = get_exception()
-        module.fail_json(msg=exc.message)
+        listing = IpsecCryptoProfile.refreshall(parent, add=False)
+    except PanDeviceError as e:
+        module.fail_json(msg='Failed refresh: {0}'.format(e))
 
+    # Build the object based on the user spec.
+    obj = IpsecCryptoProfile(**spec)
+    parent.add(obj)
+
+    # Apply the state.
+    changed = helper.apply_state(obj, listing, module)
+
+    # Commit.
     if commit and changed:
-        device.commit(sync=True)
+        helper.commit(module)
 
-    module.exit_json(msg='IPSec crypto profile config successful.', changed=changed)
+    # Done.
+    module.exit_json(changed=changed)
 
 
 if __name__ == '__main__':

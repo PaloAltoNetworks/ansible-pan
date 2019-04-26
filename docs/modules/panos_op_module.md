@@ -24,6 +24,7 @@ This module will allow user to pass and execute any supported OP command on the 
 | cmd | yes |  |  | The OP command to be performed. |
 | cmd_is_xml |  |  |  | The cmd is already given in XML format, so don't convert it. |
 | ip_address | yes |  |  | IP address (or hostname) of PAN-OS device or Panorama management console being configured. |
+| api_port | no | 443 |  | TCP port of PAN-OS device or Panorama management console being configured. |
 | password | yes |  |  | Password credentials to use for authentication. |
 | username |  | admin |  | Username credentials to use for authentication. |
 

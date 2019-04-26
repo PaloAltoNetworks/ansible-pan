@@ -29,42 +29,26 @@ short_description: Configures a BGP Aggregation Prefix Policy
 description:
     - Use BGP to publish and consume routes from disparate networks.
 author: "Joshua Colson (@freakinhippie)"
-version_added: "2.9"
+version_added: "2.8"
 requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
 notes:
-    - Checkmode is not supported.
-    - Panorama is NOT supported.
+    - Checkmode is supported.
+    - Panorama is supported.
+extends_documentation_fragment:
+    - panos.transitional_provider
+    - panos.state
+    - panos.full_template_support
 options:
-    ip_address:
-        description:
-            - IP address (or hostname) of PAN-OS device being configured.
-            required: True
-    username:
-        description:
-            - Username credentials to use for auth unless I(api_key) is set.
-            default: admin
-    password:
-        description:
-            - Password credentials to use for auth unless I(api_key) is set.
-    api_key:
-        description:
-            - API key that can be used instead of I(username)/I(password) credentials.
-    state:
-        description:
-            - Add or remove BGP Aggregate Policy.
-                - present
-                - absent
-            default: present
     commit:
         description:
             - Commit configuration if changed.
-            default: True
+        default: True
     as_set:
         description:
             - Generate AS-set attribute.
-            default: False
+        default: False
     attr_as_path_limit:
         description:
             - Add AS path limit attribute if it does not exist.
@@ -74,35 +58,38 @@ options:
     attr_as_path_type:
         description:
             - AS path update options.
-                - none
-                - remove
-                - prepend
-                - remove-and-prepend
-            default: none
+        choices:
+            - none
+            - remove
+            - prepend
+            - remove-and-prepend
+        default: none
     attr_community_argument:
         description:
             - Argument to the action community value if needed.
     attr_community_type:
         description:
             - Community update options.
-                - none
-                - remove-all
-                - remove-regex
-                - append
-                - overwrite
-            default: none
+        choices:
+            - none
+            - remove-all
+            - remove-regex
+            - append
+            - overwrite
+        default: none
     attr_extended_community_argument:
         description:
             - Argument to the action extended community value if needed.
     attr_extended_community_type:
         description:
             - Extended community update options.
-                - none
-                - remove-all
-                - remove-regex
-                - append
-                - overwrite
-            default: none
+        choices:
+            - none
+            - remove-all
+            - remove-regex
+            - append
+            - overwrite
+        default: none
     attr_local_preference:
         description:
             - New Local Preference value.
@@ -115,21 +102,23 @@ options:
     attr_origin:
         description:
             - New route origin.
-                - igp
-                - egp
-                - incomplete
-            default: incomplete
+        choices:
+            - igp
+            - egp
+            - incomplete
+        default: incomplete
     attr_weight:
         description:
             - New weight value.
     enable:
         description:
             - Enable policy.
-            default: True
+        default: True
+        type: bool
     name:
         description:
             - Name of policy.
-            required: True
+        required: True
     prefix:
         description:
             - Aggregating address prefix.
@@ -139,27 +128,25 @@ options:
     vr_name:
         description:
             - Name of the virtual router; it must already exist; see panos_virtual_router.
-            default: default
+        default: default
 '''
 
 EXAMPLES = '''
-    - name: Create BGP Aggregation Rule
-      panos_bgp_aggregate:
-        ip_address: '{{ ip_address }}'
-        password: '{{ password }}'
-        vr_name: default
-        name: aggr-rule-01
-        prefix: 10.0.0.0/24
-        enable: true
-        summary: true
+- name: Create BGP Aggregation Rule
+  panos_bgp_aggregate:
+    provider: '{{ provider }}'
+    vr_name: 'default'
+    name: 'aggr-rule-01'
+    prefix: '10.0.0.0/24'
+    enable: true
+    summary: true
 
-    - name: Remove BGP Aggregation Rule
-      panos_bgp_aggregate:
-        ip_address: '{{ ip_address }}'
-        password: '{{ password }}'
-        state: absent
-        vr_name: default
-        name: aggr-rule-01
+- name: Remove BGP Aggregation Rule
+  panos_bgp_aggregate:
+    provider: '{{ provider }}'
+    vr_name: 'default'
+    name: 'aggr-rule-01'
+    state: 'absent'
 '''
 
 RETURN = '''
@@ -167,38 +154,20 @@ RETURN = '''
 '''
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.basic import get_exception
+from ansible.module_utils.network.panos.panos import get_connection
+
 
 try:
-    from pan.xapi import PanXapiError
-    import pandevice
-    from pandevice import base
-    from pandevice import panorama
     from pandevice.errors import PanDeviceError
-    from pandevice import network
-
-    HAS_LIB = True
+    from pandevice.network import Bgp
+    from pandevice.network import BgpPolicyAggregationAddress
+    from pandevice.network import VirtualRouter
 except ImportError:
-    HAS_LIB = False
+    pass
 
 
 def setup_args():
     return dict(
-        ip_address=dict(
-            required=True,
-            help='IP address (or hostname) of PAN-OS device being configured'),
-        password=dict(
-            no_log=True,
-            help='Password credentials to use for auth unless I(api_key) is set'),
-        username=dict(
-            default='admin',
-            help='Username credentials to use for auth unless I(api_key) is set'),
-        api_key=dict(
-            no_log=True,
-            help='API key that can be used instead of I(username)/I(password) credentials'),
-        state=dict(
-            default='present', choices=['present', 'absent'],
-            help='Add or remove BGP Aggregate Policy'),
         commit=dict(
             type='bool', default=True,
             help='Commit configuration if changed'),
@@ -262,111 +231,69 @@ def setup_args():
 
 
 def main():
-    argument_spec = setup_args()
+    helper = get_connection(
+        template=True,
+        template_stack=True,
+        with_state=True,
+        with_classic_provider_spec=True,
+        argument_spec=setup_args(),
+    )
 
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
-                           required_one_of=[['api_key', 'password']])
-    if not HAS_LIB:
-        module.fail_json(msg='Missing required libraries.')
+    module = AnsibleModule(
+        argument_spec=helper.argument_spec,
+        supports_check_mode=True,
+        required_one_of=helper.required_one_of,
+    )
 
-    # Get the firewall / panorama auth.
-    auth = [module.params[x] for x in
-            ('ip_address', 'username', 'password', 'api_key')]
+    parent = helper.get_pandevice_parent(module)
 
-    # exclude the default items from kwargs passed to the object
-    exclude_list = ['ip_address', 'username', 'password', 'api_key', 'state', 'commit']
-    # exclude these items from the kwargs passed to the object
-    exclude_list += ['vr_name']
+    spec = {
+        'name': module.params['name'],
+        'enable': module.params['enable'],
+        'prefix': module.params['prefix'],
+        'summary': module.params['summary'],
+        'as_set': module.params['as_set'],
+        'attr_local_preference': module.params['attr_local_preference'],
+        'attr_med': module.params['attr_med'],
+        'attr_weight': module.params['attr_weight'],
+        'attr_nexthop': module.params['attr_nexthop'],
+        'attr_origin': module.params['attr_origin'],
+        'attr_as_path_limit': module.params['attr_as_path_limit'],
+        'attr_as_path_type': module.params['attr_as_path_type'],
+        'attr_as_path_prepend_times': module.params['attr_as_path_prepend_times'],
+        'attr_community_type': module.params['attr_community_type'],
+        'attr_community_argument': module.params['attr_community_argument'],
+        'attr_extended_community_type': module.params['attr_extended_community_type'],
+        'attr_extended_community_argument': module.params['attr_extended_community_argument'],
+    }
+    obj = BgpPolicyAggregationAddress(**spec)
 
-    # generate the kwargs for network.BgpPolicyRule
-    obj_spec = dict((k, module.params[k]) for k in argument_spec.keys() if k not in exclude_list)
-
-    name = module.params['name']
-    state = module.params['state']
     vr_name = module.params['vr_name']
     commit = module.params['commit']
 
-    attr_as_path_type = module.params['attr_as_path_type']
-    attr_as_path_prepend_times = module.params['attr_as_path_prepend_times']
-    attr_community_type = module.params['attr_community_type']
-    attr_community_argument = module.params['attr_community_argument']
-    attr_extended_community_type = module.params['attr_extended_community_type']
-    attr_extended_community_argument = module.params['attr_extended_community_argument']
+    vr = VirtualRouter(vr_name)
+    parent.add(vr)
 
-    changed = False
     try:
-        # Create the device with the appropriate pandevice type
-        device = base.PanDevice.create_from_device(*auth)
-        network.VirtualRouter.refreshall(device)
+        vr.refresh()
+    except PanDeviceError as e:
+        module.fail_json(msg='Failed refresh: {0}'.format(e))
 
-        # grab the virtual router
-        vr = device.find(vr_name, network.VirtualRouter)
-        if vr is None:
-            raise ValueError('Virtual router {0} does not exist'.format(vr_name))
+    bgp = vr.find('', Bgp)
+    if bgp is None:
+        module.fail_json(msg='BGP is not configured for "{0}"'.format(vr.name))
 
-        # fetch the current settings
-        bgp = vr.find('', network.Bgp) or network.Bgp()
+    listing = bgp.findall(BgpPolicyAggregationAddress)
+    bgp.add(obj)
 
-        new_obj = network.BgpPolicyAggregationAddress(**obj_spec)
-        cur_obj = vr.find(name, network.BgpPolicyAggregationAddress, recursive=True)
+    # Apply the desired state.
+    changed = helper.apply_state(obj, listing, module)
 
-        # compare differences between the current state vs desired state
-        if state == 'present':
-            # confirm values are set as needed
-            if attr_as_path_type in ['prepend', 'remove-and-prepend']:
-                if attr_as_path_prepend_times is None:
-                    raise ValueError(
-                        ' '.join(
-                            [
-                                "An attr_as_path_type of 'prepend'|'remove-and-prepend'",
-                                'requires attr_as_path_prepend_times be set'
-                            ]
-                        )
-                    )
-            if attr_community_type in ['remove-regex', 'append', 'overwrite']:
-                if attr_community_argument is None:
-                    raise ValueError(
-                        ' '.join(
-                            [
-                                "An attr_community_type of 'remove-regex'|'append'|'overwrite'",
-                                'requires attr_community_argument be set'
-                            ]
-                        )
-                    )
-            if attr_extended_community_type in ['remove-regex', 'append', 'overwrite']:
-                if attr_extended_community_argument is None:
-                    raise ValueError(
-                        ' '.join(
-                            [
-                                "An attr_extended_community_type of 'remove-regex'|'append'|'overwrite'",
-                                'requires attr_extended_community_argument be set'
-                            ]
-                        )
-                    )
+    # Optional: commit.
+    if changed and commit:
+        helper.commit(module)
 
-            # it seems all is well, preceed with update
-            if cur_obj is None or not new_obj.equal(cur_obj, compare_children=True):
-                bgp.add(new_obj)
-                vr.add(bgp)
-                new_obj.create()
-                changed = True
-        elif state == 'absent':
-            if cur_obj is not None:
-                cur_obj.delete()
-                changed = True
-        else:
-            module.fail_json(msg='[%s] state is not implemented yet' % state)
-    except (PanDeviceError, KeyError):
-        exc = get_exception()
-        module.fail_json(msg=exc.message)
-
-    if commit and changed:
-        device.commit(sync=True, exception=True)
-
-    if changed:
-        module.exit_json(msg='BGP aggregation address update successful.', changed=changed)
-    else:
-        module.exit_json(msg='no changes required.', changed=changed)
+    module.exit_json(changed=changed, msg='done')
 
 
 if __name__ == '__main__':

@@ -31,32 +31,20 @@ version_added: "2.6"
 requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
-    - xmltodict can be obtained from PyPI U(https://pypi.python.org/pypi/xmltodict)
 notes:
-    - Checkmode is NOT supported.
+    - Checkmode is supported.
     - Panorama is supported.
+extends_documentation_fragment:
+    - panos.transitional_provider
+    - panos.full_template_support
+    - panos.state
 options:
-    ip_address:
-        description:
-            - IP address (or hostname) of PAN-OS device or Panorama management console being configured.
-        required: true
-    username:
-        description:
-            - Username credentials to use for authentication.
-        default: "admin"
-    password:
-        description:
-            - Password credentials to use for authentication.
-    api_key:
-        description:
-            - API key that can be used instead of I(username)/I(password) credentials.
-    state:
-        description:
-            - The state.  Can be either I(present)/I(absent).
-        default: "present"
     panorama_template:
         description:
-            - The template name (required if 'ip_address' is a Panorama); ignored if 'ip_address' is a firewall.
+            - B(Deprecated)
+            - Use I(template) instead.
+            - HORIZONTALLINE
+            - (Panorama only) The template name.
     name:
         description:
             - The management profile name.
@@ -119,18 +107,14 @@ options:
 EXAMPLES = '''
 - name: ensure mngt profile foo exists and allows ping and ssh and commit
   panos_management_profile:
-    ip_address: '{{ ip_address }}'
-    username: '{{ username }}'
-    password: '{{ password }}'
+    provider: '{{ provider }}'
     name: 'foo'
     ping: true
     ssh: true
 
 - name: make sure mngt profile bar does not exist without doing a commit
   panos_management_profile:
-    ip_address: '{{ ip_address }}'
-    username: '{{ username }}'
-    password: '{{ password }}'
+    provider: '{{ provider }}'
     name: 'bar'
     state: 'absent'
     commit: false
@@ -143,122 +127,84 @@ RETURN = '''
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.basic import get_exception
+from ansible.module_utils.network.panos.panos import get_connection
+
 
 try:
-    from pandevice.base import PanDevice
     from pandevice.network import ManagementProfile
-    from pandevice.panorama import Template
     from pandevice.errors import PanDeviceError
-    # Needed for Template.refreshall().
-    from pandevice import ha, device, objects
-
-    HAS_LIB = True
 except ImportError:
-    HAS_LIB = False
+    pass
 
 
 def main():
-    argument_spec = dict(
-        ip_address=dict(required=True),
-        username=dict(default='admin'),
-        password=dict(no_log=True),
-        api_key=dict(no_log=True),
-        state=dict(default='present', choices=['present', 'absent']),
-        panorama_template=dict(),
-        name=dict(required=True),
-        ping=dict(type='bool'),
-        telnet=dict(type='bool'),
-        ssh=dict(type='bool'),
-        http=dict(type='bool'),
-        http_ocsp=dict(type='bool'),
-        https=dict(type='bool'),
-        snmp=dict(type='bool'),
-        response_pages=dict(type='bool'),
-        userid_service=dict(type='bool'),
-        userid_syslog_listener_ssl=dict(type='bool'),
-        userid_syslog_listener_udp=dict(type='bool'),
-        permitted_ip=dict(type='list'),
-        commit=dict(type='bool', default=True),
-    )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
-                           required_one_of=[['api_key', 'password']])
-    if not HAS_LIB:
-        module.fail_json(msg='Missing required libraries.')
+    helper = get_connection(
+        template=True,
+        template_stack=True,
+        with_classic_provider_spec=True,
+        with_state=True,
+        min_pandevice_version=(0, 8, 0),
+        argument_spec=dict(
+            name=dict(required=True),
+            ping=dict(type='bool'),
+            telnet=dict(type='bool'),
+            ssh=dict(type='bool'),
+            http=dict(type='bool'),
+            http_ocsp=dict(type='bool'),
+            https=dict(type='bool'),
+            snmp=dict(type='bool'),
+            response_pages=dict(type='bool'),
+            userid_service=dict(type='bool'),
+            userid_syslog_listener_ssl=dict(type='bool'),
+            userid_syslog_listener_udp=dict(type='bool'),
+            permitted_ip=dict(type='list'),
+            commit=dict(type='bool', default=True),
 
-    auth = [module.params[x] for x in
-            ('ip_address', 'username', 'password', 'api_key')]
-    state = module.params['state']
-    panorama_template = module.params['panorama_template']
+            # TODO(gfreeman) - Removed in the next role release.
+            panorama_template=dict(),
+        ),
+    )
+    module = AnsibleModule(
+        argument_spec=helper.argument_spec,
+        supports_check_mode=True,
+        required_one_of=helper.required_one_of,
+    )
+
+    # TODO(gfreeman) - Removed when "panorama_template" is removed.
+    if module.params['panorama_template'] is not None:
+        module.deprecate('Param "panorama_template" is deprecated; use "template"', '2.12')
+        if module.params['template'] is not None:
+            msg = [
+                'Both "template" and "panorama_template" have been given',
+                'Specify one or the other, not both.',
+            ]
+            module.fail_json(msg='. '.join(msg))
+        module.params['template'] = module.params['panorama_template']
+
+    # Verify imports, build pandevice object tree.
+    parent = helper.get_pandevice_parent(module)
+
+    # Build the object based on the spec.
     obj = ManagementProfile(
         *[module.params[x] for x in (
             'name', 'ping', 'telnet', 'ssh', 'http', 'http_ocsp', 'https',
             'snmp', 'response_pages', 'userid_service',
             'userid_syslog_listener_ssl', 'userid_syslog_listener_udp',
             'permitted_ip')])
-    commit = module.params['commit']
-
-    # Create the device with the appropriate pandevice type
-    dev = PanDevice.create_from_device(*auth)
-
-    # Object tree initialization and parent selection.
-    parent = dev
-    if hasattr(dev, 'refresh_devices'):
-        # This is Panorama.
-        if not panorama_template:
-            module.fail_json(msg="'panorama_template' is required for Panorama")
-        ts = Template.refreshall(dev)
-        for x in ts:
-            if x.name == panorama_template:
-                parent = x
-                break
-        else:
-            module.fail_json(msg='template "{0}" not found'.format(panorama_template))
-
-    # Check current status.
-    try:
-        cur_list = ManagementProfile.refreshall(parent)
-    except PanDeviceError:
-        e = get_exception()
-        module.fail_json(msg='Failed refreshall: {0}'.format(e.message))
     parent.add(obj)
 
-    # Determine what function to use based on the desired state.
-    func = None
-    changed = False
-    if state == 'present':
-        for x in cur_list:
-            if x.name == obj.name:
-                if not x.equal(obj, compare_children=False):
-                    for child in x.children:
-                        obj.add(child)
-                    func = 'apply'
-                break
-        else:
-            func = 'create'
-    else:
-        for x in cur_list:
-            if x.name == obj.name:
-                func = 'delete'
-                break
+    # Retrieve current config.
+    try:
+        profiles = ManagementProfile.refreshall(parent, add=False)
+    except PanDeviceError as e:
+        module.fail_json(msg='Failed refresh: {0}'.format(e))
 
-    # Perform create / apply / delete, if needed.
-    if func is not None:
-        try:
-            getattr(obj, func)()
-        except PanDeviceError:
-            e = get_exception()
-            module.fail_json(msg='Failed {0}: {1}'.format(func, e.message))
-        changed = True
+    # Perform requested action.
+    changed = helper.apply_state(obj, profiles, module)
+    if changed and module.params['commit']:
+        helper.commit(module)
 
-        # Perform commit if requested.
-        if commit:
-            try:
-                dev.commit()
-            except PanDeviceError:
-                e = get_exception()
-                module.fail_json(msg='Failed commit: {0}'.format(e.message))
-
-    # Done
+    # Done.
     module.exit_json(changed=changed, msg="Done")
 
 

@@ -20,30 +20,17 @@ module: panos_mgtconfig
 short_description: Module used to configure some of the device management.
 description:
     - Configure management settings of device. Not all configuration options are configurable at this time.
-author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer), Patrik Malinen (@pmalinen)"
+author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer), Patrik Malinen (@pmalinen), Francesco Vigo (@fvigo)"
 version_added: "2.4"
 requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
 notes:
-    - Checkmode is not supported.
+    - Checkmode is supported.
     - Panorama is supported
+extends_documentation_fragment:
+    - panos.transitional_provider
 options:
-    ip_address:
-        description:
-            - IP address (or hostname) of PAN-OS device being configured.
-        required: true
-    username:
-        description:
-            - Username credentials to use for auth unless I(api_key) is set.
-        default: "admin"
-    password:
-        description:
-            - Password credentials to use for auth unless I(api_key) is set.
-        required: true
-    api_key:
-        description:
-            - API key that can be used instead of I(username)/I(password) credentials.
     dns_server_primary:
         description:
             - IP address of primary DNS server.
@@ -77,21 +64,23 @@ options:
     domain:
         description:
             - The domain of the device
+    verify_update_server:
+        description:
+            - Verify the identify of the update server.
+        type: bool
     devicegroup:
         description:
-            - Device groups are used for the Panorama interaction with Firewall(s). The group must exists on Panorama.
+            - B(Removed)
     commit:
         description:
             - Commit configuration if changed.
         default: true
-
 '''
 
 EXAMPLES = '''
 - name: set dns and panorama
   panos_mgtconfig:
-    ip_address: "192.168.1.1"
-    password: "admin"
+    provider: '{{ provider }}'
     dns_server_primary: "1.1.1.1"
     dns_server_secondary: "1.1.1.2"
     panorama_primary: "1.1.1.3"
@@ -109,142 +98,113 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'supported_by': 'community'}
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.basic import get_exception
+from ansible.module_utils.network.panos.panos import get_connection
+
 
 try:
-    from pan.xapi import PanXapiError
-    import pandevice
-    from pandevice import base
-    from pandevice import panorama
+    from pandevice.errors import PanDeviceError
     from pandevice.device import SystemSettings
-    HAS_LIB = True
+    from pandevice.device import NTPServerPrimary
+    from pandevice.device import NTPServerSecondary
 except ImportError:
-    HAS_LIB = False
-
-
-def get_devicegroup(device, devicegroup):
-    dg_list = device.refresh_devices()
-    for group in dg_list:
-        if isinstance(group, pandevice.panorama.DeviceGroup):
-            if group.name == devicegroup:
-                return group
-    return False
-
-
-def set_ntp_server(system_settings, new_ntp_server, primary=True):
-    ntp = None
-    if primary:
-        from pandevice.device import NTPServerPrimary
-        ntp = NTPServerPrimary(address=new_ntp_server)
-    else:
-        from pandevice.device import NTPServerSecondary
-        ntp = NTPServerSecondary(address=new_ntp_server)
-
-    system_settings.add(ntp)
-
-    return True
+    pass
 
 
 def main():
-    argument_spec = dict(
-        ip_address=dict(required=True),
-        password=dict(required=True, no_log=True),
-        username=dict(default='admin'),
-        api_key=dict(no_log=True),
-        dns_server_primary=dict(),
-        dns_server_secondary=dict(),
-        panorama_primary=dict(),
-        panorama_secondary=dict(),
-        ntp_server_primary=dict(),
-        ntp_server_secondary=dict(),
-        timezone=dict(),
-        login_banner=dict(),
-        update_server=dict(),
-        hostname=dict(),
-        domain=dict(),
-        devicegroup=dict(),
-        commit=dict(type='bool', default=True)
+    helper = get_connection(
+        with_classic_provider_spec=True,
+        argument_spec=dict(
+            hostname=dict(),
+            domain=dict(),
+            dns_server_primary=dict(),
+            dns_server_secondary=dict(),
+            timezone=dict(),
+            panorama_primary=dict(),
+            panorama_secondary=dict(),
+            login_banner=dict(),
+            update_server=dict(),
+            verify_update_server=dict(type='bool'),
+            ntp_server_primary=dict(),
+            ntp_server_secondary=dict(),
+            commit=dict(type='bool', default=True),
+
+            # TODO(gfreeman) - remove in the next role release.
+            devicegroup=dict(),
+        ),
     )
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
-                           required_one_of=[['api_key', 'password']])
-    if not HAS_LIB:
-        module.fail_json(msg='Missing required libraries.')
 
-    ip_address = module.params["ip_address"]
-    password = module.params["password"]
-    username = module.params['username']
-    dns_server_primary = module.params['dns_server_primary']
-    dns_server_secondary = module.params['dns_server_secondary']
-    ntp_server_primary = module.params['ntp_server_primary']
-    ntp_server_secondary = module.params['ntp_server_secondary']
-    panorama_primary = module.params['panorama_primary']
-    panorama_secondary = module.params['panorama_secondary']
-    commit = module.params['commit']
-    api_key = module.params['api_key']
-    timezone = module.params['timezone']
-    login_banner = module.params['login_banner']
-    update_server = module.params['update_server']
-    hostname = module.params['hostname']
-    domain = module.params['domain']
-    devicegroup = module.params['devicegroup']
+    module = AnsibleModule(
+        argument_spec=helper.argument_spec,
+        supports_check_mode=True,
+        required_one_of=helper.required_one_of,
+    )
 
-    # Create the device with the appropriate pandevice type
-    device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
+    parent = helper.get_pandevice_parent(module)
 
-    # If Panorama, validate the devicegroup
-    dev_group = None
-    if devicegroup and isinstance(device, panorama.Panorama):
-        dev_group = get_devicegroup(device, devicegroup)
-        if dev_group:
-            device.add(dev_group)
-        else:
-            module.fail_json(msg='\'%s\' device group not found in Panorama. Is the name correct?' % devicegroup)
+    # TODO(gfreeman) - remove this in the next role release.
+    if module.params['devicegroup'] is not None:
+        module.fail_json(msg='Param "devicegroup" has been removed')
+
+    obj = SystemSettings()
+    parent.add(obj)
+    try:
+        obj.refresh()
+    except PanDeviceError as e:
+        module.fail_json(msg='Failed refresh: {0}'.format(e))
+
+    param_relationships = {
+        'hostname': 'hostname',
+        'domain': 'domain',
+        'dns_server_primary': 'dns_primary',
+        'dns_server_secondary': 'dns_secondary',
+        'timezone': 'timezone',
+        'panorama_primary': 'panorama',
+        'panorama_secondary': 'panorama2',
+        'login_banner': 'login_banner',
+        'update_server': 'update_server',
+        'verify_update_server': 'verify_update_server',
+    }
 
     changed = False
-    try:
-        ss = SystemSettings.refreshall(device)[0]
+    for ansible_param, obj_param in param_relationships.items():
+        value = module.params[ansible_param]
+        if value is not None and getattr(obj, obj_param) != value:
+            changed = True
+            setattr(obj, obj_param, value)
 
-        if dns_server_primary is not None:
-            ss.dns_primary = dns_server_primary
-            changed = True
-        if dns_server_secondary is not None:
-            ss.dns_secondary = dns_server_secondary
-            changed = True
-        if panorama_primary is not None:
-            ss.panorama = panorama_primary
-            changed = True
-        if panorama_secondary is not None:
-            ss.panorama2 = panorama_secondary
-            changed = True
-        if ntp_server_primary is not None:
-            changed |= set_ntp_server(ss, ntp_server_primary, primary=True)
-        if ntp_server_secondary is not None:
-            changed |= set_ntp_server(ss, ntp_server_secondary, primary=False)
-        if login_banner:
-            ss.login_banner = login_banner
-            changed = True
-        if timezone:
-            ss.timezone = timezone
-            changed = True
-        if update_server:
-            ss.update_server = update_server
-            changed = True
-        if hostname:
-            ss.hostname = hostname
-            changed = True
-        if domain:
-            ss.domain = domain
-            changed = True
+    ntp_relationships = {
+        'ntp_server_primary': NTPServerPrimary,
+        'ntp_server_secondary': NTPServerSecondary,
+    }
 
-        if changed:
-            ss.apply()
-        if commit:
-            device.commit(sync=True)
-    except PanXapiError:
-        exc = get_exception()
-        module.fail_json(msg=exc.message)
+    for ansible_param, ntp_obj_cls in ntp_relationships.items():
+        value = module.params[ansible_param]
+        if value is not None:
+            # As of pandevice v0.8.0, can't use .find() here as NTP objects
+            # erroneously have cls.NAME != None.
+            for ntp_obj in obj.children:
+                if isinstance(ntp_obj, ntp_obj_cls):
+                    break
+            else:
+                ntp_obj = ntp_obj_cls()
+                obj.add(ntp_obj)
+            if ntp_obj.address != value:
+                changed = True
+                ntp_obj.address = value
 
-    module.exit_json(changed=changed, msg="okey dokey")
+    if changed:
+        # Apply the settings if not in check mode.
+        if not module.check_mode:
+            try:
+                obj.apply()
+            except PanDeviceError as e:
+                module.fail_json(msg='Failed apply: {0}'.format(e))
+
+        # Optional commit.
+        if module.params['commit']:
+            helper.commit(module)
+
+    module.exit_json(changed=changed, msg='done')
 
 
 if __name__ == '__main__':
