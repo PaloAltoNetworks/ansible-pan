@@ -30,26 +30,14 @@ requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
 notes:
-    - Checkmode is not supported.
     - Panorama is supported.
+    - Check mode is supported.
+extends_documentation_fragment:
+    - panos.transitional_provider
 options:
-    ip_address:
-        description:
-            - IP address or hostname of PAN-OS device.
-        required: true
-    username:
-        description:
-            - Username for authentication for PAN-OS device.  Optional if I(api_key) is used.
-        default: 'admin'
-    password:
-        description:
-            - Password for authentication for PAN-OS device.  Optional if I(api_key) is used.
-    api_key:
-        description:
-            - API key to be used instead of I(username) and I(password).
     version:
         description:
-            - Desired PAN-OS release.
+            - Desired PAN-OS release for target device.
         required: true
     restart:
         description:
@@ -59,12 +47,10 @@ options:
 '''
 
 EXAMPLES = '''
-- name: Install PAN-OS 7.1.16 and restart
+- name: Install PAN-OS 8.1.6 and restart
   panos_software:
-    ip_address: '{{ fw_ip_address }}'
-    username: '{{ fw_username }}'
-    password: '{{ fw_password }}'
-    version: '7.1.16'
+    provider: '{{ provider }}'
+    version: '8.1.6'
     restart: true
 '''
 
@@ -75,51 +61,49 @@ version:
 '''
 
 from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.network.panos.panos import get_connection
 
 try:
     from pandevice import PanOSVersion
     from pandevice.errors import PanDeviceError
-    from pandevice import base
-
-    HAS_LIB = True
 except ImportError:
-    HAS_LIB = False
+    pass
 
 
 def main():
-    argument_spec = dict(
-        ip_address=dict(required=True),
-        username=dict(default='admin'),
-        password=dict(no_log=True),
-        api_key=dict(no_log=True),
-        version=dict(type='str', required=True),
-        restart=dict(type='bool', default=False)
+    helper = get_connection(
+        with_classic_provider_spec=True,
+        argument_spec=dict(
+            version=dict(type='str', required=True),
+            restart=dict(type='bool', default=False)
+        )
     )
 
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
-    if not HAS_LIB:
-        module.fail_json(msg='pan-python and pandevice are required for this module.')
+    module = AnsibleModule(
+        argument_spec=helper.argument_spec,
+        required_one_of=helper.required_one_of,
+        supports_check_mode=True
+    )
 
-    ip_address = module.params['ip_address']
-    username = module.params['username']
-    password = module.params['password']
-    api_key = module.params['api_key']
+    # Verify libs are present, get parent object.
+    device = helper.get_pandevice_parent(module)
+
+    # Module params.
     version = module.params['version']
     restart = module.params['restart']
 
     changed = False
 
     try:
-        device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
         device.software.check()
 
         if PanOSVersion(version) != PanOSVersion(device.version):
 
-            # Method only performs install if sync is set to true.
-            device.software.download_install(version, sync=True)
+            if not module.check_mode:
+                device.software.download_install(version, sync=True)
 
-            if restart:
-                device.restart()
+                if restart:
+                    device.restart()
 
             changed = True
 

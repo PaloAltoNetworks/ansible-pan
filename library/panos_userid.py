@@ -29,45 +29,30 @@ notes:
     - Checkmode is not supported.
     - Panorama is not supported.
     - This operation is runtime and does not require explicit commit of the firewall configuration.
+extends_documentation_fragment:
+    - panos.transitional_provider
+    - panos.state
 options:
-    ip_address:
-        description:
-            - IP address (or hostname) of PAN-OS device being configured.
-        required: true
-    username:
-        description:
-            - Username credentials to use for auth unless I(api_key) is set.
-        default: "admin"
-    password:
-        description:
-            - Password credentials to use for auth unless I(api_key) is set.
-        required: true
-    api_key:
-        description:
-            - API key that can be used instead of I(username)/I(password) credentials.
     operation:
         description:
-            - The action to be taken.  Supported values are I(login)/I(logout).
-        default: 'register'
+            - B(Removed)
+            - Use I(state) instead.
     userid:
         description:
             - User UPN
         required: true
     register_ip:
         description:
-            - ip of the user's machine that needs to be registered with userid.
+            - IP of the user's machine that needs to be registered with userid.
         required: true
 '''
 
 EXAMPLES = '''
-  - name: register user ivanb to 10.0.1.101
-    panos_userid:
-      ip_address: '{{ ip_address }}'
-      username: '{{ username }}'
-      password: '{{ password }}'
-      operation: 'login'
-      userid: 'ACMECORP\\ivanb'
-      register_ip: '10.0.1.101'
+- name: Register user ivanb to 10.0.1.101
+  panos_userid:
+    provider: '{{ provider }}'
+    userid: 'ACMECORP\\ivanb'
+    register_ip: '10.0.1.101'
 '''
 
 RETURN = '''
@@ -79,66 +64,57 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'supported_by': 'community'}
 
 
-from ansible.module_utils.basic import get_exception, AnsibleModule
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.network.panos.panos import get_connection
+
 
 try:
-    from pan.xapi import PanXapiError
-    from pandevice import base
-    from pandevice import panorama
-
-    HAS_LIB = True
+    from pandevice.errors import PanDeviceError
 except ImportError:
-    HAS_LIB = False
+    pass
 
 
 def main():
-    argument_spec = dict(
-        ip_address=dict(required=True),
-        username=dict(default='admin'),
-        password=dict(required=True, no_log=True),
-        api_key=dict(no_log=True),
-        operation=dict(default='login', choices=['login', 'logout']),
-        userid=dict(required=True),
-        register_ip=dict(required=True)
+    helper = get_connection(
+        with_state=True,
+        with_classic_provider_spec=True,
+        panorama_error='The user-id API is not supported on Panorama',
+        argument_spec=dict(
+            userid=dict(required=True),
+            register_ip=dict(required=True),
+
+            # TODO(gfreeman) - remove in the next role release.
+            operation=dict(),
+        ),
     )
 
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
-                           required_one_of=[['api_key', 'password']])
-    if not HAS_LIB:
-        module.fail_json(msg='Missing required libraries.')
+    module = AnsibleModule(
+        argument_spec=helper.argument_spec,
+        supports_check_mode=False,
+        required_one_of=helper.required_one_of,
+    )
 
-    ip_address = module.params["ip_address"]
-    password = module.params["password"]
-    username = module.params['username']
-    api_key = module.params['api_key']
-    operation = module.params['operation']
-    userid = module.params['userid']
-    register_ip = module.params['register_ip']
+    parent = helper.get_pandevice_parent(module)
 
-    # Create the device with the appropriate pandevice type
-    device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
+    # TODO(gfreeman) - remove in the next role release.
+    if module.params['operation'] is not None:
+        module.fail_json(msg='Param "operation" is removed; use "state" instead')
 
-    if isinstance(device, panorama.Panorama):
-        module.fail_json(msg='Connected to a Panorama, but user-id API is not possible on Panorama.  Exiting.')
+    func = None
+    prefix = ''
+    if module.params['state'] == 'present':
+        func = 'login'
+    else:
+        func = 'logout'
+        prefix = 'un'
 
-    # Which action shall we take on the object?
+    # Apply the state.
     try:
-        if operation == "login":
-            device.userid.login(userid, register_ip)
-            module.exit_json(changed=True, msg='User \'%s\' successfully registered' % userid)
-        elif operation == "logout":
-            try:
-                device.userid.logout(userid, register_ip)
-                module.exit_json(changed=True, msg='User \'%s\' successfully unregistered' % userid)
-            except PanXapiError:
-                exc = get_exception()
-                if exc.message in 'No multiusersystem configured name':
-                    module.fail_json(msg=exc.message)
-                else:
-                    module.exit_json(changed=True, msg='User \'%s\' successfully unregistered' % userid)
-    except PanXapiError:
-        exc = get_exception()
-        module.fail_json(msg=exc.message)
+        getattr(parent.userid, func)(module.params['userid'], module.params['register_ip'])
+    except PanDeviceError as e:
+        module.fail_json(msg='Failed to {0} {1}: {2}'.format(func, module.params['userid'], e))
+
+    module.exit_json(msg="User '{0}' successfully {1}registered".format(module.params['userid'], prefix))
 
 
 if __name__ == '__main__':

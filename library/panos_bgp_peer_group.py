@@ -34,88 +34,77 @@ requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
 notes:
-    - Checkmode is not supported.
-    - Panorama is NOT supported.
+    - Checkmode is supported.
+    - Panorama is supported.
+extends_documentation_fragment:
+    - panos.transitional_provider
+    - panos.state
+    - panos.full_template_support
 options:
-    ip_address:
-        description:
-            - IP address (or hostname) of PAN-OS device being configured.
-            required: True
-    username:
-        description:
-            - Username credentials to use for auth unless I(api_key) is set.
-            default: admin
-    password:
-        description:
-            - Password credentials to use for auth unless I(api_key) is set.
-    api_key:
-        description:
-            - API key that can be used instead of I(username)/I(password) credentials.
-    state:
-        description:
-            - Add or remove BGP Peer Group configuration.
-                - present
-                - absent
-            default: present
     commit:
         description:
             - Commit configuration if changed.
-            default: True
+        default: True
+        type: bool
     aggregated_confed_as_path:
         description:
             - The peers understand Aggregated Confederation AS Path.
+        type: bool
     enable:
         description:
             - Enable BGP peer group.
-            default: True
+        default: True
+        type: bool
     export_nexthop:
         description:
-            - Export locally resolved nexthop I("resolve")/I("use-self").
-                - resolve
-                - use-self
-            default: resolve
+            - Export locally resolved nexthop.
+        choices:
+            - resolve
+            - use-self
+        default: 'resolve'
     import_nexthop:
         description:
-            - Override nexthop with peer address I("original")/I("use-peer"), only with "ebgp".
-                - original
-                - use-peer
-            default: original
+            - I(type=ebgp) only; override nexthop with peer address.
+        choices:
+            - original
+            - use-peer
+        default: 'original'
     name:
         description:
             - Name of the BGP peer group.
-            required: True
+        required: True
     remove_private_as:
         description:
-            - Remove private AS when exporting route, only with "ebgp".
+            - I(type=ebgp) only; remove private AS when exporting route.
+        type: bool
     soft_reset_with_stored_info:
         description:
             - Enable soft reset with stored info.
+        type: bool
     type:
         description:
-            - Peer group type I("ebgp")/I("ibgp")/I("ebgp-confed")/I("ibgp-confed").
-                - ebgp
-                - ibgp
-                - ebgp-confed
-                - ibgp-confed
-            default: ebgp
+            - Peer group type.
+        choices:
+            - ebgp
+            - ibgp
+            - ebgp-confed
+            - ibgp-confed
+        default: 'ebgp'
     vr_name:
         description:
             - Name of the virtual router; it must already exist; see panos_virtual_router.
-            default: default
+        default: 'default'
 '''
 
 EXAMPLES = '''
 - name: Create BGP Peer Group
-    panos_bgp_peer_group:
-      ip_address: '{{ ip_address }}'
-      username: '{{ username }}'
-      password: '{{ password }}'
-      state: 'present'
-      name: peer-group-1
-      enable: true
-      aggregated_confed_as_path: true
-      soft_reset_with_stored_info: false
-      commit: true
+  panos_bgp_peer_group:
+    provider: '{{ provider }}'
+    name: 'peer-group-1'
+    enable: true
+    aggregated_confed_as_path: true
+    soft_reset_with_stored_info: false
+    commit: true
 '''
 
 RETURN = '''
@@ -123,38 +112,20 @@ RETURN = '''
 '''
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.basic import get_exception
+from ansible.module_utils.network.panos.panos import get_connection
+
 
 try:
-    from pan.xapi import PanXapiError
-    import pandevice
-    from pandevice import base
-    from pandevice import panorama
     from pandevice.errors import PanDeviceError
-    from pandevice import network
-
-    HAS_LIB = True
+    from pandevice.network import Bgp
+    from pandevice.network import BgpPeerGroup
+    from pandevice.network import VirtualRouter
 except ImportError:
-    HAS_LIB = False
+    pass
 
 
 def setup_args():
     return dict(
-        ip_address=dict(
-            required=True,
-            help='IP address (or hostname) of PAN-OS device being configured'),
-        password=dict(
-            no_log=True,
-            help='Password credentials to use for auth unless I(api_key) is set'),
-        username=dict(
-            default='admin',
-            help='Username credentials to use for auth unless I(api_key) is set'),
-        api_key=dict(
-            no_log=True,
-            help='API key that can be used instead of I(username)/I(password) credentials'),
-        state=dict(
-            default='present', choices=['present', 'absent'],
-            help='Add or remove BGP Peer Group configuration'),
         name=dict(
             type='str', required=True,
             help='Name of the BGP peer group'),
@@ -189,82 +160,57 @@ def setup_args():
 
 
 def main():
-    argument_spec = setup_args()
+    helper = get_connection(
+        template=True,
+        template_stack=True,
+        with_state=True,
+        with_classic_provider_spec=True,
+        argument_spec=setup_args(),
+    )
 
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False,
-                           required_one_of=[['api_key', 'password']])
-    if not HAS_LIB:
-        module.fail_json(msg='Missing required libraries.')
+    module = AnsibleModule(
+        argument_spec=helper.argument_spec,
+        supports_check_mode=True,
+        required_one_of=helper.required_one_of,
+    )
 
-    # Get the firewall / panorama auth.
-    auth = [module.params[x] for x in
-            ('ip_address', 'username', 'password', 'api_key')]
+    # Verify libs are present, get pandevice parent.
+    parent = helper.get_pandevice_parent(module)
 
-    # exclude the default items from kwargs passed to the object
-    exclude_list = ['ip_address', 'username', 'password', 'api_key', 'state', 'commit']
-    # exclude these items from the kwargs passed to the object
-    exclude_list += ['vr_name']
-
-    # generate the kwargs for network.BgpPeer
-    obj_spec = dict((k, module.params[k]) for k in argument_spec.keys() if k not in exclude_list)
-
-    # # generate the kwargs for network.BgpPeerGroup
-    # group_params = [
-    #     'name', 'enable', 'aggregated_confed_as_path', 'soft_reset_with_stored_info',
-    #     'type', 'export_nexthop', 'import_nexthop', 'remove_private_as'
-    # ]
-    # group_spec = dict((k, module.params[k]) for k in group_params)
-
-    name = module.params['name']
-    state = module.params['state']
-    vr_name = module.params['vr_name']
-    commit = module.params['commit']
-
-    # create the new state object
-    group = network.BgpPeerGroup(**obj_spec)
-
-    changed = False
+    # Verify the virtual router is present.
+    vr = VirtualRouter(module.params['vr_name'])
+    parent.add(vr)
     try:
-        # Create the device with the appropriate pandevice type
-        device = base.PanDevice.create_from_device(*auth)
-        network.VirtualRouter.refreshall(device)
+        vr.refresh()
+    except PanDeviceError as e:
+        module.fail_json(msg='Failed refresh: {0}'.format(e))
 
-        # grab the virtual router
-        vr = device.find(vr_name, network.VirtualRouter)
-        if vr is None:
-            raise ValueError('Virtual router {0} does not exist'.format(vr_name))
+    bgp = vr.find('', Bgp)
+    if bgp is None:
+        module.fail_json(msg='BGP is not configured for "{0}"'.format(vr.name))
 
-        # fetch the current settings
-        bgp = vr.find('', network.Bgp) or network.Bgp()
-        current_group = vr.find(name, network.BgpPeerGroup, recursive=True)
+    listing = bgp.findall(BgpPeerGroup)
+    spec = {
+        'name': module.params['name'],
+        'enable': module.params['enable'],
+        'aggregated_confed_as_path': module.params['aggregated_confed_as_path'],
+        'soft_reset_with_stored_info': module.params['soft_reset_with_stored_info'],
+        'type': module.params['type'],
+        'export_nexthop': module.params['export_nexthop'],
+        'import_nexthop': module.params['import_nexthop'],
+        'remove_private_as': module.params['remove_private_as'],
+    }
+    obj = BgpPeerGroup(**spec)
+    bgp.add(obj)
 
-        # compare differences between the current state vs desired state
-        if not group.equal(current_group, compare_children=False):
-            changed = True
+    # Apply the state.
+    changed = helper.apply_state(obj, listing, module)
 
-        if state == 'present':
-            if current_group is None or not group.equal(current_group, compare_children=False):
-                bgp.add(group)
-                vr.add(bgp)
-                group.create()
-                changed = True
-        elif state == 'absent':
-            if current_group is not None:
-                current_group.delete()
-                changed = True
-        else:
-            module.fail_json(msg='[%s] state is not implemented yet' % state)
-    except (PanDeviceError, KeyError):
-        exc = get_exception()
-        module.fail_json(msg=exc.message)
+    # Optional commit.
+    if changed and module.params['commit']:
+        helper.commit(module)
 
-    if commit and changed:
-        device.commit(sync=True, exception=True)
-
-    if changed:
-        module.exit_json(msg='BGP peer group update successful.', changed=changed)
-    else:
-        module.exit_json(msg='no changes required.', changed=changed)
+    module.exit_json(changed=changed, msg='done')
 
 
 if __name__ == '__main__':

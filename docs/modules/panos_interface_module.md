@@ -8,13 +8,14 @@ _(versionadded:: 2.3)_
 
 ## Synopsis
 
-Configure data-port (DP) network interface for DHCP. By default DP interfaces are static.
+Configure data-port (DP) network interface. By default DP interfaces are static.
 
 
 ## Requirements (on host that executes module)
 
 - pan-python can be obtained from PyPI https://pypi.python.org/pypi/pan-python
 - pandevice can be obtained from PyPI https://pypi.python.org/pypi/pandevice
+- pandevice >= 0.8.0
 
 ## Options
 
@@ -22,7 +23,7 @@ Configure data-port (DP) network interface for DHCP. By default DP interfaces ar
 | --- | --- | --- | --- | --- |
 | adjust_tcp_mss |  |  |  | Adjust TCP MSS for layer3 interface. |
 | aggregate_group |  |  |  | Aggregate interface name. |
-| api_key |  |  |  | API key that can be used instead of *username*/*password* credentials. |
+| api_key |  |  |  | *Deprecated*; use *provider* instead. API key that can be used instead of *username*/*password* credentials. |
 | comment |  |  |  | Interface comment. |
 | commit |  | True |  | Commit if changed |
 | create_default_route |  | false |  | Whether or not to add default route with router learned via DHCP. |
@@ -30,7 +31,7 @@ Configure data-port (DP) network interface for DHCP. By default DP interfaces ar
 | enable_dhcp |  | true |  | Enable DHCP on this interface. |
 | if_name | yes |  |  | Name of the interface to configure. |
 | ip |  |  |  | List of static IP addresses. |
-| ip_address | yes |  |  | IP address (or hostname) of PAN-OS device being configured. |
+| ip_address | |  |  | *Deprecated*; use *provider* instead. IP address (or hostname) of PAN-OS device being configured. |
 | ipv4_mss_adjust |  |  |  | (7.1+) TCP MSS adjustment for IPv4. |
 | ipv6_enabled |  |  |  | Enable IPv6. |
 | ipv6_mss_adjust |  |  |  | (7.1+) TCP MSS adjustment for IPv6. |
@@ -45,12 +46,14 @@ Configure data-port (DP) network interface for DHCP. By default DP interfaces ar
 | netflow_profile |  |  |  | Netflow profile for layer3 interface. |
 | netflow_profile_l2 |  |  |  | Netflow profile name for layer2 interface. |
 | operation |  | add |  | The action to be taken.  Supported values are *add*/*update*/*delete*.This is used only if "state" is unspecified. |
-| password |  |  |  | Password credentials to use for auth. |
+| password |  |  |  | *Deprecated*; use *provider* instead. Password credentials to use for auth. |
 | state |  |  |  | The state.  Can be either *present*/*absent*.If this is defined, then "operation" is ignored. |
-| username |  | admin |  | Username credentials to use for auth. |
+| username |  | admin |  | *Deprecated*; use *provider* instead. Username credentials to use for auth. |
 | vr_name |  | default |  | Name of the virtual router; it must already exist. |
-| vsys_dg |  | vsys1 |  | Name of the vsys (if firewall) or device group (if panorama) to put this object. |
-| zone_name | yes |  |  | Name of the zone for the interface. If the zone does not exist it is created.If the zone exists and it is not of the correct mode the operation will fail. |
+| vsys_dg |  | |  | *Deprecated*; use *vsys* instead. Name of the vsys (if firewall) or device group (if panorama) to put this object. |
+| vsys | | | | The vsys to import this interface into.  If unspecified, this defaults to "vsys1". |
+| zone_name | |  |  | Name of the zone for the interface. If the zone does not exist it is created.If the zone exists and it is not of the correct mode the operation will fail. |
+| vlan_name | | | | Name of the VLAN for this interface.  This should only be specified if *mode* is "layer2". |
 
 ## Examples
 

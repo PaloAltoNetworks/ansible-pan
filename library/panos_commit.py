@@ -33,156 +33,78 @@ version_added: "2.3"
 requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
+extends_documentation_fragment:
+    - panos.transitional_provider
+    - panos.device_group
 options:
-    ip_address:
+    include_template:
         description:
-            - IP address or hostname of PAN-OS device.
-        required: true
-    username:
+            - (Panorama only) Include template changes with the commit.
+        type: bool
+    devicegroup:
         description:
-            - Username for authentication for PAN-OS device.  Optional if I(api_key) is used.
-        default: 'admin'
-    password:
-        description:
-            - Password for authentication for PAN-OS device.  Optional if I(api_key) is used.
-    api_key:
-        description:
-            - API key to be used instead of I(username) and I(password).
-    device_group:
-        description:
-            - If I(ip_address) is a Panorama device, perform a commit-all to the devices in this
-              device group in addition to commiting to Panorama.
-        type: str
-        aliases: ['devicegroup']
+            - B(Deprecated)
+            - Use I(device_group) instead.
+            - HORIZONTALLINE
+            - (Panorama only) The device group.
 '''
 
 EXAMPLES = '''
 - name: commit candidate config on firewall
   panos_commit:
-    ip_address: '{{ ip_address }}'
-    username: '{{ username }}'
-    password: '{{ password }}'
+    provider: '{{ provider }}'
 
-- name: commit candidate config on Panorama using api_key
+- name: commit candidate config on Panorama
   panos_commit:
-    ip_address: '{{ ip_address }}'
-    api_key: '{{ api_key }}'
+    provider: '{{ provider }}'
     device_group: 'Cloud-Edge'
 '''
 
 RETURN = '''
 # Default return values
 '''
-try:
-    from pandevice import base
-    from pandevice import firewall
-    from pandevice import panorama
-    from pandevice.errors import PanDeviceError
-
-    HAS_LIB = True
-except ImportError:
-    HAS_LIB = False
 
 
 from ansible.module_utils.basic import AnsibleModule
-
-
-def get_devicegroup(device, device_group):
-    if isinstance(device, panorama.Panorama):
-        dgs = device.refresh_devices()
-
-        for dg in dgs:
-            if isinstance(dg, panorama.DeviceGroup):
-                if dg.name == device_group:
-                    return dg
-
-    return None
-
-
-def check_commit_result(module, result):
-    if result['result'] == 'FAIL':
-        if 'xml' in result:
-            result.pop('xml')
-
-        module.fail_json(msg='Commit failed', result=result)
+from ansible.module_utils.network.panos.panos import get_connection
 
 
 def main():
-    argument_spec = dict(
-        ip_address=dict(required=True),
-        username=dict(default='admin'),
-        password=dict(no_log=True),
-        api_key=dict(no_log=True),
-        device_group=dict(type='str', aliases=['devicegroup'])
+    helper = get_connection(
+        device_group=True,
+        with_classic_provider_spec=True,
+        argument_spec=dict(
+            include_template=dict(type='bool'),
+
+            # TODO(gfreeman) - remove in 2.12.
+            devicegroup=dict(),
+        ),
     )
 
     module = AnsibleModule(
-        argument_spec=argument_spec, supports_check_mode=False,
-        required_one_of=[['api_key', 'password']]
+        argument_spec=helper.argument_spec,
+        supports_check_mode=False,
+        required_one_of=helper.required_one_of,
     )
 
-    if not HAS_LIB:
-        module.fail_json(msg='pan-python and pandevice are required for this module.')
+    # TODO(gfreeman) - remove in 2.12
+    if module.params['devicegroup'] is not None:
+        module.deprecate('Param "devicegroup" is deprecated; use "device_group"', '2.12')
+        if module.params['device_group'] is not None:
+            msg = [
+                'Both "devicegroup" and "device_group" specified',
+                'please use one or the other.',
+            ]
+            module.fail_json(msg='; '.join(msg))
+        module.params['device_group'] = module.params['devicegroup']
 
-    ip_address = module.params['ip_address']
-    username = module.params['username']
-    password = module.params['password']
-    api_key = module.params['api_key']
-    device_group = module.params['device_group']
+    helper.get_pandevice_parent(module)
+    helper.commit(
+        module,
+        include_template=module.params['include_template'],
+    )
 
-    changed = False
-    results = []
-
-    try:
-        device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
-
-        if device_group:
-            if device_group.lower() == 'shared':
-                device_group = None
-            else:
-                if not get_devicegroup(device, device_group):
-                    module.fail_json(msg='Could not find {} device group.'.format(device_group))
-
-        if isinstance(device, firewall.Firewall):
-            result = device.commit(sync=True)
-
-            if result:
-                check_commit_result(module, result)
-
-                changed = True
-                results.append(result)
-
-        elif isinstance(device, panorama.Panorama):
-            # Panorama commit is two potential steps, one to Panorama itself, and one to the
-            # device group.
-            result = device.commit(sync=True)
-
-            if result:
-                check_commit_result(module, result)
-
-                changed = True
-                results.append(result)
-
-            if device_group:
-                result = device.commit_all(
-                    sync=True, sync_all=True, devicegroup=device_group
-                )
-
-                if result:
-                    check_commit_result(module, result)
-
-                    changed = True
-                    results.append(result)
-
-        # Clean XML out of results becasue Ansible doesn't like it.
-        for result in results:
-            if 'xml' in result:
-                result.pop('xml')
-
-    except PanDeviceError as e:
-        module.fail_json(msg=e.message)
-
-    module.exit_json(changed=changed, result=results)
+    module.exit_json(changed=True)
 
 
 if __name__ == '__main__':

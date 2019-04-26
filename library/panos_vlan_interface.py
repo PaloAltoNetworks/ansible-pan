@@ -1,6 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 
-#  Copyright 2018 Palo Alto Networks, Inc
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+#  Copyright 2019 Palo Alto Networks, Inc
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -16,27 +19,29 @@
 
 DOCUMENTATION = '''
 ---
-module: panos_tunnel
-short_description: configure tunnel interfaces
+module: panos_vlan_interface
+short_description: configure VLAN interfaces
 description:
-    - Configure tunnel interfaces on PanOS
-author: "Joshua Colson (@freakinhippie)"
+    - Configure VLAN interfaces.
+author: "Garfield Lee Freeman (@shinmog)"
 version_added: "2.8"
 requirements:
-    - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
-    - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
+    - pan-python
+    - pandevice
 notes:
     - Checkmode is supported.
-    - Panorama is supported.
+    - If the PAN-OS device is a firewall and I(vsys) is not specified, then
+      the vsys will default to I(vsys=vsys1).
 extends_documentation_fragment:
     - panos.transitional_provider
     - panos.state
     - panos.vsys_import
     - panos.template_only
 options:
-    if_name:
+    name:
         description:
             - Name of the interface to configure.
+            - This should be in the format "vlan.<some_number>".
         required: true
     ip:
         description:
@@ -48,59 +53,82 @@ options:
         type: bool
     management_profile:
         description:
-            - Interface management profile name; it must already exist.
+            - Interface management profile name.
     mtu:
         description:
-            - MTU for tunnel interface.
+            - MTU for layer3 interface.
         type: int
+    adjust_tcp_mss:
+        description:
+            - Adjust TCP MSS for layer3 interface.
+        type: bool
     netflow_profile:
         description:
-            - Netflow profile for tunnel interface.
+            - Netflow profile for layer3 interface.
     comment:
         description:
             - Interface comment.
+    ipv4_mss_adjust:
+        description:
+            - (7.1+) TCP MSS adjustment for IPv4.
+        type: int
+    ipv6_mss_adjust:
+        description:
+            - (7.1+) TCP MSS adjustment for IPv6.
+        type: int
+    enable_dhcp:
+        description:
+            - Enable DHCP on this interface.
+        type: bool
+    create_dhcp_default_route:
+        description:
+            - Whether or not to add default route with router learned via DHCP.
+        type: bool
+    dhcp_default_route_metric:
+        description:
+            - Metric for the DHCP default route.
+        type: int
     zone_name:
         description:
-            - Name of the zone for the interface. If the zone does not exist it is created but
-            - if the zone exists and it is not of the correct mode the operation will fail.
+            - Name of the zone for the interface.
+            - If the zone does not exist it is created.
+            - If the zone already exists it should be I(mode=layer3).
+    vlan_name:
+        description:
+            - The VLAN to put this interface in.
+            - If the VLAN does not exist it is created.
     vr_name:
         description:
-            - Name of the virtual router; it must already exist.
-    vsys_dg:
-        description:
-            - B(Deprecated)
-            - Use I(vsys) to specify the vsys instead.
-            - HORIZONTALLINE
-            - Name of the vsys (if firewall) or device group (if panorama) to put this object.
-    commit:
-        description:
-            - Commit if changed
-        default: true
-        type: bool
+            - Name of the virtual router
 '''
 
 EXAMPLES = '''
-# Create tunnel.1
-- name: create tunnel.1
-  panos_tunnel:
+# Create vlan.2 as DHCP
+- name: enable DHCP client on ethernet1/1 in zone public
+  panos_vlan_interface:
     provider: '{{ provider }}'
-    if_name: "tunnel.1"
-    ip: ["10.1.1.1/32"]
+    name: "vlan.2"
+    zone_name: "public"
+    enable_dhcp: true
+    create_default_route: true
 
-# Update tunnel comment.
-- name: update tunnel.1 comment
-  panos_tunnel:
+# Set vlan.7 with a static IP
+- name: Configure vlan.7
+  panos_vlan_interface:
     provider: '{{ provider }}'
-    if_name: "tunnel.1"
-    ip: ["10.1.1.1/32"]
-    comment: "tunnel interface"
+    name: "vlan.7"
+    ip: ["10.1.1.1/24"]
+    management_profile: "allow ping"
+    vlan_name: "dmz"
+    zone_name: "L3-untrust"
+    vr_name: "default"
 '''
 
 RETURN = '''
 # Default return values
 '''
 
-ANSIBLE_METADATA = {'metadata_version': '1.0',
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
                     'supported_by': 'community'}
 
@@ -109,7 +137,8 @@ from ansible.module_utils.network.panos.panos import get_connection
 
 
 try:
-    from pandevice.network import TunnelInterface
+    from pandevice.network import Vlan
+    from pandevice.network import VlanInterface
     from pandevice.errors import PanDeviceError
 except ImportError:
     pass
@@ -121,21 +150,24 @@ def main():
         template=True,
         with_classic_provider_spec=True,
         with_state=True,
-        min_pandevice_version=(0, 8, 0),
+        min_pandevice_version=(0, 9, 0),
         argument_spec=dict(
-            if_name=dict(required=True),
+            name=dict(required=True),
             ip=dict(type='list'),
             ipv6_enabled=dict(type='bool'),
             management_profile=dict(),
             mtu=dict(type='int'),
+            adjust_tcp_mss=dict(type='bool'),
             netflow_profile=dict(),
             comment=dict(),
+            ipv4_mss_adjust=dict(type='int'),
+            ipv6_mss_adjust=dict(type='int'),
+            enable_dhcp=dict(type='bool'),
+            create_dhcp_default_route=dict(type='bool'),
+            dhcp_default_route_metric=dict(type='int'),
             zone_name=dict(),
+            vlan_name=dict(),
             vr_name=dict(),
-            commit=dict(type='bool', default=True),
-
-            # TODO(gfreeman) - remove this in 2.12
-            vsys_dg=dict(),
         ),
     )
 
@@ -147,54 +179,43 @@ def main():
 
     # Get the object params.
     spec = {
-        'name': module.params['if_name'],
+        'name': module.params['name'],
         'ip': module.params['ip'],
         'ipv6_enabled': module.params['ipv6_enabled'],
         'management_profile': module.params['management_profile'],
         'mtu': module.params['mtu'],
+        'adjust_tcp_mss': module.params['adjust_tcp_mss'],
         'netflow_profile': module.params['netflow_profile'],
         'comment': module.params['comment'],
+        'ipv4_mss_adjust': module.params['ipv4_mss_adjust'],
+        'ipv6_mss_adjust': module.params['ipv6_mss_adjust'],
+        'enable_dhcp': True if module.params['enable_dhcp'] else None,
+        'create_dhcp_default_route': True if module.params['create_dhcp_default_route'] else None,
+        'dhcp_default_route_metric': module.params['dhcp_default_route_metric'],
     }
 
     # Get other info.
-    state = module.params['state']
     zone_name = module.params['zone_name']
+    vlan_name = module.params['vlan_name']
     vr_name = module.params['vr_name']
     vsys = module.params['vsys']
-    vsys_dg = module.params['vsys_dg']
-    commit = module.params['commit']
 
-    # TODO(gfreeman) - Remove vsys_dg in 2.12, as well as this code chunk.
-    # In the mean time, we'll need to do this special handling.
-    if vsys_dg is not None:
-        module.deprecate('Param "vsys_dg" is deprecated, use "vsys"', '2.12')
-        if vsys is None:
-            vsys = vsys_dg
-        else:
-            msg = [
-                'Params "vsys" and "vsys_dg" both given',
-                'Specify one or the other, not both.',
-            ]
-            module.fail_json(msg='.  '.join(msg))
-    elif vsys is None:
-        # TODO(gfreeman) - v2.12, just set the default for vsys to 'vsys1'.
+    if vsys is None:
         vsys = 'vsys1'
-
-    # Make sure 'vsys' is set appropriately.
-    module.params['vsys'] = vsys
+        module.params['vsys'] = vsys
 
     # Verify libs are present, get the parent object.
     parent = helper.get_pandevice_parent(module)
 
     # Retrieve the current config.
     try:
-        interfaces = TunnelInterface.refreshall(
+        listing = VlanInterface.refreshall(
             parent, add=False, matching_vsys=False)
     except PanDeviceError as e:
         module.fail_json(msg='Failed refresh: {0}'.format(e))
 
     # Build the object based on the user spec.
-    obj = TunnelInterface(**spec)
+    obj = VlanInterface(**spec)
     parent.add(obj)
 
     # Which action should we take on the interface?
@@ -204,8 +225,8 @@ def main():
         'update': not module.check_mode,
         'return_type': 'bool',
     }
-    if state == 'present':
-        for item in interfaces:
+    if module.params['state'] == 'present':
+        for item in listing:
             if item.name != obj.name:
                 continue
             # Interfaces have children, so don't compare them.
@@ -229,21 +250,23 @@ def main():
         # Set references.
         try:
             changed |= obj.set_vsys(vsys, **reference_params)
+            changed |= obj.set_vlan_interface(vlan_name, **reference_params)
             changed |= obj.set_zone(zone_name, mode='layer3', **reference_params)
             changed |= obj.set_virtual_router(vr_name, **reference_params)
         except PanDeviceError as e:
             module.fail_json(msg='Failed setref: {0}'.format(e))
-    elif state == 'absent':
+    elif module.params['state'] == 'absent':
         # Remove references.
         try:
             changed |= obj.set_virtual_router(None, **reference_params)
             changed |= obj.set_zone(None, mode='layer3', **reference_params)
+            changed |= obj.set_vlan_interface(None, **reference_params)
             changed |= obj.set_vsys(None, **reference_params)
         except PanDeviceError as e:
             module.fail_json(msg='Failed setref: {0}'.format(e))
 
         # Remove the interface.
-        if obj.name in [x.name for x in interfaces]:
+        if obj.name in [x.name for x in listing]:
             changed = True
             if not module.check_mode:
                 try:
@@ -251,12 +274,8 @@ def main():
                 except PanDeviceError as e:
                     module.fail_json(msg='Failed delete: {0}'.format(e))
 
-    # Commit if we were asked to do so.
-    if changed and commit:
-        helper.commit(module)
-
     # Done!
-    module.exit_json(changed=changed, msg='Done')
+    module.exit_json(changed=changed, msg='done')
 
 
 if __name__ == '__main__':

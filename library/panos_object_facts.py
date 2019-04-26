@@ -35,177 +35,156 @@ requirements:
 notes:
     - Panorama is supported.
     - Check mode is not supported.
+extends_documentation_fragment:
+    - panos.transitional_provider
 options:
-    ip_address:
-        description:
-            - IP address or hostname of PAN-OS device.
-        required: true
-    username:
-        description:
-            - Username for authentication for PAN-OS device.  Optional if I(api_key) is used.
-        default: 'admin'
-    password:
-        description:
-            - Password for authentication for PAN-OS device.  Optional if I(api_key) is used.
-    api_key:
-        description:
-            - API key to be used instead of I(username) and I(password).
     name:
         description:
             - Name of object to retrieve.
-        required: true
+            - Mutually exclusive with I(name_regex).
+    name_regex:
+        description:
+            - A python regex for an object's name to retrieve.
+            - Mutually exclusive with I(name).
     object_type:
         description:
             - Type of object to retrieve.
         choices: ['address', 'address-group', 'service', 'service-group', 'tag']
         default: 'address'
-        required: true
 '''
 
 EXAMPLES = '''
 - name: Retrieve address group object 'Prod'
   panos_object_facts:
-    ip_address: '{{ ip_address }}'
-    username: '{{ username }}'
-    password: '{{ password }}'
+    provider: '{{ provider }}'
     name: 'Prod'
     object_type: 'address-group'
   register: result
 
 - name: Retrieve service group object 'Prod-Services'
   panos_object_facts:
-    ip_address: '{{ ip_address }}'
-    username: '{{ username }}'
-    password: '{{ password }}'
+    provider: '{{ provider }}'
     name: 'Prod-Services'
     object_type: 'service-group'
+  register: result
+
+- name: Find all address objects with "Prod" in the name
+  panos_object_facts:
+    provider: '{{ provider }}'
+    name_regex: '.*Prod.*'
+    object_type: 'address'
   register: result
 '''
 
 RETURN = '''
 results:
     description: Dict containing object attributes.  Empty if object is not found.
-    returned: always
+    returned: when "name" is specified
     type: dict
+objects:
+    description: List of object dicts.
+    returned: always
+    type: list
 '''
 
+import re
+
 from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.network.panos.panos import get_connection
+
 
 try:
-    from pandevice import base
-    from pandevice import firewall
     from pandevice import objects
-    from pandevice import panorama
     from pandevice.errors import PanDeviceError
-
-    HAS_LIB = True
 except ImportError:
-    HAS_LIB = False
+    pass
 
 
-COLOR_NAMES = [
-    'red', 'green', 'blue', 'yellow', 'copper', 'orange', 'purple', 'gray', 'light green',
-    'cyan', 'light gray', 'blue gray', 'lime', 'black', 'gold', 'brown'
-]
+COLORS = {
+    'color1': 'red',
+    'color2': 'green',
+    'color3': 'blue',
+    'color4': 'yellow',
+    'color5': 'copper',
+    'color6': 'orange',
+    'color7': 'purple',
+    'color8': 'gray',
+    'color9': 'light green',
+    'color10': 'cyan',
+    'color11': 'light gray',
+    'color12': 'blue gray',
+    'color13': 'lime',
+    'color14': 'black',
+    'color15': 'gold',
+    'color16': 'brown',
+}
 
 
-def find_object(device, obj_name, obj_type, device_group=None):
-    obj_type.refreshall(device)
+def colorize(obj, object_type):
+    ans = obj.about()
+    if object_type == 'tag':
+        # Fail gracefully if the color is unknown.
+        ans['color'] = COLORS.get(obj.color, obj.color)
 
-    if isinstance(device, firewall.Firewall):
-        return device.find(obj_name, obj_type)
-    elif isinstance(device, panorama.Panorama):
-        if device_group:
-            dg = get_devicegroup(device, device_group)
-            device.add(dg)
-            obj_type.refreshall(dg)
-            return dg.find(obj_name, obj_type)
-        else:
-            return device.find(obj_name, obj_type)
-
-    return None
-
-
-def get_devicegroup(device, device_group):
-
-    if isinstance(device, panorama.Panorama):
-        dgs = device.refresh_devices()
-
-        for dg in dgs:
-            if isinstance(dg, panorama.DeviceGroup):
-                if dg.name == device_group:
-                    return dg
-
-    return None
+    return ans
 
 
 def main():
-    argument_spec = dict(
-        ip_address=dict(required=True),
-        username=dict(default='admin'),
-        password=dict(no_log=True),
-        api_key=dict(no_log=True),
-        name=dict(type='str', required=True),
-        object_type=dict(
-            type='str',
-            choices=['address', 'address-group', 'service', 'service-group', 'tag'],
-            required=True
+    name_params = ['name', 'name_regex']
+    obj_types = {
+        'address': objects.AddressObject,
+        'address-group': objects.AddressGroup,
+        'service': objects.ServiceObject,
+        'service-group': objects.ServiceGroup,
+        'tag': objects.Tag,
+    }
+    helper = get_connection(
+        vsys=True,
+        device_group=True,
+        with_classic_provider_spec=True,
+        required_one_of=[name_params, ],
+        argument_spec=dict(
+            name=dict(),
+            name_regex=dict(),
+            object_type=dict(default='address', choices=obj_types.keys()),
         ),
-        device_group=dict(type='str')
     )
 
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
-    if not HAS_LIB:
-        module.fail_json(msg='pan-python and pandevice are required for this module.')
+    module = AnsibleModule(
+        argument_spec=helper.argument_spec,
+        supports_check_mode=False,
+        required_one_of=helper.required_one_of,
+        mutually_exclusive=[name_params, ],
+    )
 
-    ip_address = module.params['ip_address']
-    username = module.params['username']
-    password = module.params['password']
-    api_key = module.params['api_key']
+    parent = helper.get_pandevice_parent(module)
+
     object_type = module.params['object_type']
-    name = module.params['name']
-    device_group = module.params['device_group']
-
-    results = {}
+    obj_type = obj_types[object_type]
 
     try:
-        device = base.PanDevice.create_from_device(ip_address, username, password, api_key=api_key)
-
-        if device_group:
-            if device_group.lower() == 'shared':
-                device_group = None
-            else:
-                if not get_devicegroup(device, device_group):
-                    module.fail_json(msg='Could not find {} device group.'.format(device_group))
-
-        obj = None
-        obj_type = None
-
-        if object_type == 'address':
-            obj_type = objects.AddressObject
-        elif object_type == 'address-group':
-            obj_type = objects.AddressGroup
-        elif object_type == 'service':
-            obj_type = objects.ServiceObject
-        elif object_type == 'service-group':
-            obj_type = objects.ServiceGroup
-        elif object_type == 'tag':
-            obj_type = objects.Tag
-
-        obj = find_object(device, name, obj_type, device_group)
-
-        if obj:
-            results = obj.about()
-
-            # If the object type was a tag, convert the color id back into the name.
-            if object_type == 'tag':
-                color_index = int(results['entry']['color'][5:]) - 1
-                results['entry']['color'] = COLOR_NAMES[color_index]
-
-        module.exit_json(changed=False, results=results)
-
+        obj_listing = obj_type.refreshall(parent)
     except PanDeviceError as e:
-        module.fail_json(msg=e.message)
+        module.fail_json(msg='Failed {0} refresh: {1}'.format(object_type, e))
+
+    results = {}
+    ans_objects = []
+    if module.params['name'] is not None:
+        obj = parent.find(module.params['name'], obj_type)
+        if obj:
+            results = colorize(obj, object_type)
+            ans_objects.append(results)
+    else:
+        try:
+            matcher = re.compile(module.params['name_regex'])
+        except Exception as e:
+            module.fail_json(msg='Invalid regex: {0}'.format(e))
+
+        for x in obj_listing:
+            if matcher.search(x.uid) is not None:
+                ans_objects.append(colorize(x, object_type))
+
+    module.exit_json(changed=False, results=results, objects=ans_objects)
 
 
 if __name__ == '__main__':
