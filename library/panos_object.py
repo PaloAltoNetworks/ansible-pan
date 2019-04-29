@@ -33,13 +33,10 @@ requirements:
 deprecated:
   removed_in: "2.9"
   why: Updated to idempotent modules
-  alternative:
-    - Use the any of the following alternatives
-    - M(panos_address_object)
-    - M(panos_address_group)
-    - M(panos_service_object)
-    - M(panos_service_group)
-    - M(panos_tag_object)
+  alternative: >
+                 Use M(panos_address_object), M(panos_address_group),
+                 M(panos_service_object), M(panos_service_group), or
+                 M(panos_tag_object) as appropriate.
 notes:
     - Checkmode is not supported.
     - Panorama is supported.
