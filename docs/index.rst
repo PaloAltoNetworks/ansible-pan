@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Palo Alto Networks Ansible Galaxy Role's documentation!
-==================================================================
+Palo Alto Networks Ansible Galaxy Role Documentation
+====================================================
 
 The Palo Alto Networks Ansible Galaxy role is a collection of modules that
 automate configuration and operational tasks on Palo Alto Networks Next
