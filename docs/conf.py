@@ -42,12 +42,16 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
+def setup(app):
+    app.add_stylesheet('css/partial_theme.css')
+
 
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
+# Leave this undefined to use the RTD default theme.
 #html_theme = 'alabaster'
 
 # Add any paths that contain custom static files (such as style sheets) here,
