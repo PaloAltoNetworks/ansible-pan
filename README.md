@@ -7,27 +7,28 @@ API calls that are wrapped within the Ansible framework.
 
 -   Free software: Apache 2.0 License
 -   Documentation:
-    <https://paloaltonetworks.github.io/ansible-pan/>
+    <https://ansible-pan.readthedocs.io>
 -   PANW community supported live page:
     <http://live.paloaltonetworks.com/ansible>
 
 ## Installation
 
-PANW PANOS Ansible modules are part of the default Ansible distribution
+The recommended way to install the modules is installing the Palo Alto
+Networks Ansible Galaxy role:
+
+```bash
+$ ansible-galaxy install PaloAltoNetworks.paloaltonetworks
+```
+
+Older modules modules are part of the default Ansible distribution
 which is available at:
 
 > <https://github.com/ansible/ansible/tree/devel/lib/ansible/modules/network/panos>
 
 It is also available as free **Apache 2.0** licensed code from Palo Alto
-Networks Github repo. This repo usually contains the newest feature and
-bug fixes and it is synchronised with official RedHat Ansible repo upon
-every new Ansible release.
+Networks Github repo if you want to see what is coming in the next release:
 
 > <https://github.com/PaloAltoNetworks/ansible-pan/>
-
-Or as ansible role installed from ansible-galaxy
-
-    ansible-galaxy install PaloAltoNetworks.paloaltonetworks
 
 ## Sample playbooks
 
