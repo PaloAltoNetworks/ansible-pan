@@ -1,14 +1,10 @@
----
-title: Authors
----
-
 Authors
-=======
+---
 
 **Development Leads**
 
 -   Ivan Bojer (@ivanbojer)
--   Garfield Freeman (@shinmog)
+-   Garfield Lee Freeman (@shinmog)
 
 
 **Contributors**
@@ -16,6 +12,9 @@ Authors
 -   Robert Hagen (@rnh556)
 -   Luigi Mori (@jtschichold)
 -   Vinay Venkataraghavan (@vinayvenkat)
+-   Michael Richardson (@mrichardson03)
+-   Joshua Colson (freakinhippie)
+
 
 **Credits**
 

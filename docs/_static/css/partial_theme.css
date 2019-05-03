@@ -1,0 +1,34 @@
+/*
+ * This is a snippit of theme.css from Ansible's website. Trying to
+ * get the parameter documentation to look the same without affecting
+ * the rest of the RTD documentation.
+ */
+th, td {
+    min-width: 100px;
+}
+
+
+table {
+       overflow-x: auto;
+       display: block;
+       max-width: 100%;
+}
+
+.documentation-table td.elbow-placeholder {
+    border-left: 1px solid #000;
+    border-top: 0px;
+    width: 30px;
+    min-width: 30px;
+}
+
+.documentation-table th, .documentation-table td {
+    padding: 4px;
+    border-left: 1px solid #000;
+    border-top: 1px solid #000;
+}
+
+.documentation-table {
+    border-right: 1px solid #000;
+    border-bottom: 1px solid #000;
+}
+

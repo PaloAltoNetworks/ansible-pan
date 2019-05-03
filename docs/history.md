@@ -1,9 +1,5 @@
----
-title: History and changelog
----
-
-History
-=======
+Release History
+===============
 
 V2.1.0
 ------

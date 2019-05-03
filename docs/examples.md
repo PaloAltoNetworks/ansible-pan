@@ -1,10 +1,6 @@
----
-title: Examples
----
-
 # Examples
 
-### Note: You can see a complete examples [here](https://github.com/PaloAltoNetworks/ansible-pan/tree/master/examples)
+**Note**: You can see complete examples [here](https://github.com/PaloAltoNetworks/ansible-pan/tree/master/examples)
 
 ## Add security policy to Firewall or Panorama
 
@@ -14,14 +10,12 @@ title: Examples
 > that matches the traffic is applied, the more specific rules must
 > precede the more general ones.
 
-##### Firewall
+### Firewall
 
+```yaml
       - name: Add test rule 1 to the firewall
         panos_security_rule:
-          ip_address: '{{ ip_address }}'
-          username: '{{ username }}'
-          password: '{{ password }}'
-          operation: 'add'
+          provider: '{{ provider }}'
           rule_name: 'Ansible test 1'
           description: 'An Ansible test rule'
           source_zone: ['internal']
@@ -35,15 +29,14 @@ title: Examples
           hip_profiles: ['any']
           action: 'allow'
           commit: 'False'
+```
 
-##### Panorama
-    
+### Panorama
+
+```yaml
       - name: Add test pre-rule to Panorama
         panos_security_rule:
-          ip_address: '{{ ip_address }}'
-          username: '{{ username }}'
-          password: '{{ password }}'
-          operation: 'add'
+          provider: '{{ provider }}'
           rule_name: 'Ansible test 1'
           description: 'An Ansible test pre-rule'
           source_zone: ['internal']
@@ -56,8 +49,9 @@ title: Examples
           service: ['service-http']
           hip_profiles: ['any']
           action: 'allow'
-          devicegroup: 'DeviceGroupA'
-          commit: 'False'
+          device_group: 'DeviceGroupA'
+          commit: False
+```
 
 ## Add NAT policy to Firewall or Panorama
 
@@ -69,24 +63,21 @@ title: Examples
 > (trusted) zone to a public (untrusted) zone. NAT is also supported on
 > virtual wire interfaces.
     
-##### Firewall
+### Firewall
 
-      - name: Add the necessary service object to the firewall first
-        panos_object:
-          ip_address: '{{ ip_address }}'
-          username: '{{ username }}'
-          password: '{{ password }}'
-          serviceobject: 'service-tcp-221'
+```yaml
+      - name: Add the service object to the firewall first
+        panos_service_object:
+          provider: '{{ provider }}'
+          name: 'service-tcp-221'
           protocol: 'tcp'
           destination_port: '221'
           description: 'SSH on port 221'
-          operation: 'add'
-    
+          commit: false
+
       - name: Create dynamic NAT rule on the firewall
         panos_nat_rule:
-          ip_address: '{{ ip_address }}'
-          username: '{{ username }}'
-          password: '{{ password }}'
+          provider: '{{ provider }}'
           rule_name: 'Web SSH inbound'
           source_zone: ['external']
           destination_zone: 'external'
@@ -97,27 +88,24 @@ title: Examples
           snat_interface: ['ethernet1/2']
           dnat_address: '10.0.1.101'
           dnat_port: '22'
-          operation: 'add'
+```
       
-##### Panorama
+### Panorama
 
+```yaml
       - name: Add the necessary service object to Panorama first
         panos_object:
-          ip_address: '{{ ip_address }}'
-          username: '{{ username }}'
-          password: '{{ password }}'
-          serviceobject: 'service-tcp-221'
+          provider: '{{ provider }}'
+          name: 'service-tcp-221'
           protocol: 'tcp'
           destination_port: '221'
           description: 'SSH on port 221'
-          devicegroup: 'shared_services_11022'
-          operation: 'add'
-    
+          commit: false
+          device_group: 'shared_services_11022'
+
       - name: Create dynamic NAT rule on Panorama
         panos_nat_rule:
-          ip_address: '{{ ip_address }}'
-          username: '{{ username }}'
-          password: '{{ password }}'
+          provider: '{{ provider }}'
           rule_name: 'Web SSH inbound'
           source_zone: ['external']
           destination_zone: 'external'
@@ -128,65 +116,22 @@ title: Examples
           snat_interface: ['ethernet1/2']
           dnat_address: '10.0.1.101'
           dnat_port: '22'
-          devicegroup: 'shared_services_11022'
-          operation: 'add'
-
-## Add address service object
-
-> Create address service object of different types \[IP Range, FQDN, or
-> IP Netmask\].
-
-##### Firewall
-
-      - name: Add an address object to the firewall
-        panos_object:
-          ip_address: '{{ ip_address }}'
-          username: '{{ username }}'
-          password: '{{ password }}'
-          addressobject: 'test-address'
-          address: '192.168.100.89/24'
-          address_type: 'ip-netmask'
-          description: 'This is a test address object'
-          operation: 'add'
-
-##### Panorama
-    
-      - name: Add an address object to Panorama
-        panos_object:
-          ip_address: '{{ ip_address }}'
-          username: '{{ username }}'
-          password: '{{ password }}'
-          addressobject: 'test-address'
-          address: '192.168.100.89/24'
-          address_type: 'ip-netmask'
-          description: 'This is a test address object'
-          devicegroup: 'shared_services_11022'
-          operation: 'add'
-
-## Change firewall admin password
-
-> PanOS module that allows changes to the user account passwords by
-> doing API calls to the Firewall using pan-api as the protocol.
-    
-      - name: Set admin password
-        panos_admin:
-          ip_address: '{{ ip_address }}'
-          password: '{{ password }}'
-          admin_username: admin
-          admin_password: "paloalto"
-          commit: False
+          device_group: 'shared_services_11022'
+```
 
 ## Change firewall admin password using SSH
 
 > Change admin password of PAN-OS device using SSH with SSH key. This is
 > used in particular when NGFW is deployed in the cloud (such as AWS).
     
+```yaml
       - name: Change user password using ssh protocol
         panos_admpwd:
           ip_address: '{{ ip_address }}'
           password: '{{ password }}'
           newpassword: '{{ new_password }}'
           key_filename: '{{ key_filename }}'
+```
 
 ## Generates self-signed certificate
 
@@ -194,7 +139,8 @@ title: Examples
 > GlobalProtect client, SSL connector, or otherwise. Root certificate
 > must be preset on the system first. This module depends on paramiko
 > for ssh.
-    
+
+```yaml
       - name: generate self signed certificate
         panos_cert_gen_ssh:
           ip_address: "{{ ip_address }}"
@@ -203,72 +149,59 @@ title: Examples
           cert_cn: "{{ cn }}"
           cert_friendly_name: "{{ friendly_name }}"
           signed_by: "{{ signed_by }}"
+```
 
 ## Check if FW is ready
 
 > Check if PAN-OS device is ready for being configured (no pending
 > jobs). The check could be done once or multiple times until the device
 > is ready.
-    
+
+```yaml
       - name: Wait for FW reboot
         panos_check:
-          ip_address: "{{ ip_address }}"
-          username: "{{ username }}"
-          password: "{{ password }}"
+          provider: '{{ provider }}'
         register: result
         until: not result|failed
         retries: 50
         delay: 5
-
-## Dynamic address group (DAG)
-
-> Create a dynamic address group object in the firewall used for policy
-> rules.
-
-    - name: Create the tags to map IP addresses
-      panos_dag_tags:
-        ip_address: "{{ ip_address }}"
-        password: "{{ password }}"
-        ip_to_register: "{{ ip_to_register }}"
-        tag_names: "{{ tag_names }}"
-        description: "Tags to allow certain IP's to access various SaaS Applications"
-        operation: 'add'
-      tags: "add-dagip"
+```
 
 ## Import configuration
 
 > Import file into PAN-OS device.
 
+```yaml
     - name: import configuration file into PAN-OS
       panos_import:
-          ip_address: "{{ ip_address }}"
-          username: "{{ username }}"
-          password: "{{ password }}"
-          file: "{{ config_file }}"
-          category: "configuration"
-      
+        ip_address: "{{ ip_address }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        file: "{{ config_file }}"
+        category: "configuration"
+```
+
 ## DHCP on DataPort
 
 > Configure data-port (DP) network interface for DHCP. By default DP
 > interfaces are static.
 
+```yaml
     - name: enable DHCP client on ethernet1/1 in zone external
       panos_interface:
-          ip_address: '{{ ip_address }}'
-          username: '{{ username }}'
-          password: '{{ password }}'
-          if_name: "ethernet1/1"
-          zone_name: "external"
-          create_default_route: "yes"
-          operation: "update"
-          commit: False
+        provider: '{{ provider }}'
+        if_name: "ethernet1/1"
+        zone_name: "external"
+        create_default_route: "yes"
+        commit: False
+```
 
 ## Load configuration
 
--   This is example playbook that imports and loads firewall
-    configuration from a configuration file
+> This is example playbook that imports and loads firewall
+> configuration from a configuration file
 
-```
+```yaml
     - name: import config
       hosts: my-firewall
       connection: local
@@ -277,19 +210,20 @@ title: Examples
       vars:
         cfg_file: candidate-template-empty.xml
 
+      roles:
+        - role: PaloAltoNetworks.paloaltonetworks
+
       tasks:
       - name: Grab the credentials from ansible-vault
         include_vars: 'firewall-secrets.yml'
         no_log: 'yes'
 
       - name: wait for SSH (timeout 10min)
-        wait_for: port=22 host='{{ ip_address }}' search_regex=SSH timeout=600
+        wait_for: port=22 host='{{ provider.ip_address }}' search_regex=SSH timeout=600
 
       - name: checking if device ready
         panos_check:
-          ip_address: '{{ ip_address }}'
-          username: '{{ username }}'
-          password: '{{ password }}'
+          provider: '{{ provider }}'
         register: result
         until: not result|failed
         retries: 10
@@ -297,42 +231,30 @@ title: Examples
 
       - name: import configuration
         panos_import:
-          ip_address: '{{ ip_address }}'
-          username: '{{ username }}'
-          password: '{{ password }}'
+          ip_address: '{{ provider.ip_address }}'
+          username: '{{ provider.username }}'
+          password: '{{ provider.password }}'
           file: '{{cfg_file}}'
           category: 'configuration'
         register: result
 
       - name: load configuration
         panos_loadcfg:
-          ip_address: '{{ ip_address }}'
-          username: '{{ username }}'
-          password: '{{ password }}'
+          ip_address: '{{ provider.ip_address }}'
+          username: '{{ provider.username }}'
+          password: '{{ provider.password }}'
           file: '{{result.filename}}'
           commit: False
 
       - name: set admin password
-        panos_admin:
-          ip_address: '{{ ip_address }}'
-          password: '{{ password }}'
-          admin_username: admin
-          admin_password: '{{password}}'
+        panos_administrator:
+          provider: '{{ provider }}'
+          admin_username: 'admin'
+          admin_password: '{{ provider.password }}'
+          superuser: True
           commit: False
 
-      - name: commit
+      - name: commit (blocks until finished)
         panos_commit:
-          ip_address: '{{ ip_address }}'
-          username: '{{ username }}'
-          password: '{{ password }}'
-          sync: False
-      - name: waiting for commit
-        panos_check:
-          ip_address: '{{ ip_address }}'
-          username: '{{ username }}'
-          password: '{{ password }}'
-        register: result
-        until: not result|failed
-        retries: 10
-        delay: 10
+          provider: '{{ provider }}'
 ```
