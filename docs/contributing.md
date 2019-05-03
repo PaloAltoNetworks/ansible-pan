@@ -1,5 +1,4 @@
----
-title: Contributing to PANW Ansible modules
+Contributing to PANW Ansible modules
 ---
 
 # Developing Palo Alto Networks Ansible Modules
@@ -17,13 +16,13 @@ module. If you are not sure feel free to email PANW maintainers.
 
 #### Does a Pull Request already exist?
 
-An existing Pull Request may cover the functionality you want. If someone else has already started developing a similar 
+An existing Pull Request may cover the functionality you want. If someone else has already started developing a similar
 module, you can review and test it.
 
 * GitHub new module PRs <https://github.com/PaloAltoNetworks/ansible-pan/pulls>
 * Already closed bun not yet released modules <https://github.com/PaloAltoNetworks/ansible-pan/blob/develop/docs/history.md>
 
-If you find an existing PR that looks like it addresses your needs, please provide feedback on the PR. Community feedback 
+If you find an existing PR that looks like it addresses your needs, please provide feedback on the PR. Community feedback
 speeds up the review and merge process.
 
 #### Should you write multiple modules instead of one module?
@@ -42,5 +41,5 @@ In order to do this you need to (draft):
     - update [history.md](https://github.com/PaloAltoNetworks/ansible-pan/blob/develop/docs/history.md) with changes
     - make sure you run code through linter (TBD)
 3. create pull request against **DEVELOP** branch
-    - sometimes it is necessary to rebase your changes. If you need more info on how to this here is a good write-up
-    that can be applied in our case <https://docs.ansible.com/ansible/2.5/dev_guide/developing_rebasing.html>
+    - sometimes it is necessary to rebase your changes. If you need more info on how to do this there is a good write-up
+    that can be applied in our case: <https://docs.ansible.com/ansible/2.5/dev_guide/developing_rebasing.html>
