@@ -27,6 +27,9 @@ install this, you can use the `ansible-galaxy` command like so:
 
     ansible-galaxy install PaloAltoNetworks.paloaltonetworks
 
+To upgrade your existing role, add in the additional `-f` parameter to the
+above command.
+
 Once the role is installed, update your playbooks to tell Ansible to use the
 role you've installed:
 
@@ -43,9 +46,9 @@ https://github.com/PaloAltoNetworks/ansible-pan.
    :maxdepth: 2
    :caption: Contents:
 
+   examples
    modules/index
    history
-   examples
    contributing
    authors
    license
