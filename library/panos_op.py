@@ -127,7 +127,7 @@ def main():
         tokens[-1] = '"{0}"'.format(tokens[-1])
         cmd2 = ' '.join(tokens)
         try:
-            xml_output = dev.op(cmd2, xml=True)
+            xml_output = parent.op(cmd2, xml=True)
         except PanDeviceError as e2:
             module.fail_json(msg='Failed to run command : {0} : {1}'.format(cmd2, e2))
 
