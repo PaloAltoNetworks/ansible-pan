@@ -1,11 +1,20 @@
 Release History
 ===============
 
+V2.1.1
+------
+
+- *Released*: 2019-04-26
+- *Status*: Released
+
+- Minor bug fix with `panos_op`
+- Documentation tweaks
+
 V2.1.0
 ------
 
-- *Released*: In development
-- *Status*: In development
+- *Released*: 2019-04-26
+- *Status*: Released
 
 New modules:
 
