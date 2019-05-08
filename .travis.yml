@@ -16,6 +16,9 @@ install:
   - pip install pycodestyle
 
 script:
+  # Perform unittests
+  #- ansible-playbook tests/test.yml -i tests/inventory --syntax-check
+  # Verify style guidelines are met
   - cd library; find . -name \*.py -exec pycodestyle --max-line-length=120 --ignore=E402 {} +
 
 notifications:
