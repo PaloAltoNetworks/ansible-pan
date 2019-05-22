@@ -41,6 +41,9 @@ options:
     tags:
         description:
             - List of tags to retrieve facts for.  If not specified, retrieve all tags.
+    ips:
+        description:
+            - List of IP addresses to retrieve facts for.  If not specified, retrieve all addresses.
 '''
 
 EXAMPLES = '''
