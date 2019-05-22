@@ -360,7 +360,7 @@ class Vr(Factbase):
             virtual_routers.append(info)
 
         self.facts.update({
-            'virtual-routers': virtual_routers
+            'virtual_routers': virtual_routers
         })
 
 
