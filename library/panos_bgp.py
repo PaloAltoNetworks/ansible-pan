@@ -219,6 +219,7 @@ def main():
     helper = get_connection(
         template=True,
         template_stack=True,
+        with_state=True,
         with_classic_provider_spec=True,
         argument_spec=setup_args(),
     )
