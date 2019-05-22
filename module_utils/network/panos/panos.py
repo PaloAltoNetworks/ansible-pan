@@ -42,6 +42,7 @@ try:
     from pandevice.policies import PreRulebase, PostRulebase, Rulebase
     from pandevice.device import Vsys
     from pandevice.errors import PanDeviceError
+    from pandevice.errors import PanCommitNotNeeded
 except ImportError:
     HAS_PANDEVICE = False
 
@@ -437,6 +438,8 @@ class ConnectionHelper(object):
 
         try:
             self.device.commit(sync=True, exception=True)
+        except PanCommitNotNeeded:
+            pass
         except PanDeviceError as e:
             module.fail_json(msg='Failed commit: {0}'.format(e))
 
@@ -462,6 +465,8 @@ class ConnectionHelper(object):
                 include_template=include_template,
                 exception=True,
             )
+        except PanCommitNotNeeded:
+            pass
         except PanDeviceError as e:
             module.fail_json(msg='Failed commit-all: {0}'.format(e))
 
