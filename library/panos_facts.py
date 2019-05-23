@@ -39,9 +39,9 @@ options:
         description:
             - Scopes what information is gathered from the device.
               Possible values for this argument include all, system, session,
-              interfaces, ha, vr, vsys and config. You can specify a list of
-              values to include a larger subset. Values can also be used with
-              an initial ! to specify that a specific subset should not be
+              interfaces, ha, routing, vr, vsys and config. You can specify a
+              list of values to include a larger subset. Values can also be used
+              with an initial ! to specify that a specific subset should not be
               collected. Certain subsets might be supported by Panorama.
         required: false
         default: ['!config']
@@ -200,6 +200,35 @@ ansible_net_virtual_systems:
         vsys_zonelist:
             description: List of security zones attached to the VSYS.
             type: list
+ansible_net_routing_table:
+    description: Routing Table information.
+    returned: When C(routing) is specified in C(gather_subset).
+    type: complex
+    contains:
+        age:
+            description: Age of the route entry in the routing table.
+            type: str
+        destination:
+            description: IP prefix of the destination.
+            type: str
+        flags:
+            description: Flags for the route entry in the routing table.
+            type: str
+        interface:
+            description: Egress interface the router will use to reach the next hop.
+            type: str
+        metric:
+            description: Metric for the route.
+            type: str
+        nexthop:
+            description: Address of the device at the next hop toward the destination network.
+            type: str
+        route_table:
+            description: Unicast or multicast route table.
+            type: str
+        virtual_router:
+            description: Virtual router the route belongs to.
+            type: str
 '''
 
 from ansible.module_utils.basic import AnsibleModule
@@ -281,6 +310,19 @@ class Session(Factbase):
             'session_max': root.find('./result/num-max').text,
             'pps': root.find('./result/pps').text,
             'kbps': root.find('./result/kbps').text
+        })
+
+
+class Routing(Factbase):
+    def populate_facts(self):
+        entries = self.parent.op('show routing route').findall('./result/entry')
+        routing_table = [
+            {route.tag.replace('-', '_'): route.text for route in entry}
+            for entry in entries
+        ]
+
+        self.facts.update({
+            'routing_table': routing_table
         })
 
 
@@ -415,7 +457,8 @@ FACT_SUBSETS = dict(
     ha=Ha,
     vr=Vr,
     vsys=VsysFacts,
-    config=Config
+    config=Config,
+    routing=Routing,
 )
 
 VALID_SUBSETS = frozenset(FACT_SUBSETS.keys())
