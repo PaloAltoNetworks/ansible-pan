@@ -152,8 +152,7 @@ options:
             - dnat translated port
     location:
         description:
-            - Position to place the created rule in the rule base.  Supported values are
-              I(top)/I(bottom)/I(before)/I(after).
+            - Position to place the created rule in the rule base.
         choices:
             - top
             - bottom
@@ -297,7 +296,7 @@ def main():
             dnat_port=dict(),
             tag=dict(type='list'),
             state=dict(default='present', choices=['present', 'absent', 'enable', 'disable']),
-            location=dict(default='bottom', choices=['top', 'bottom', 'before', 'after']),
+            location=dict(choices=['top', 'bottom', 'before', 'after']),
             existing_rule=dict(),
             commit=dict(type='bool', default=True),
 
