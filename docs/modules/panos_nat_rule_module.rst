@@ -217,7 +217,7 @@ Parameters
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>Position to place the created rule in the rule base.  Supported values are <em>top</em>/<em>bottom</em>/<em>before</em>/<em>after</em>.</div>
+                                                                        <div>Position to place the created rule in the rule base.</div>
                                                                                 </td>
             </tr>
                                 <tr>

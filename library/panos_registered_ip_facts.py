@@ -41,6 +41,9 @@ options:
     tags:
         description:
             - List of tags to retrieve facts for.  If not specified, retrieve all tags.
+    ips:
+        description:
+            - List of IP addresses to retrieve facts for.  If not specified, retrieve all addresses.
 '''
 
 EXAMPLES = '''
@@ -54,6 +57,12 @@ EXAMPLES = '''
     provider: '{{ provider }}'
     tags: ['First_Tag']
   register: first_tag_registered_ip_facts
+
+- name: Get facts for a specific IP address
+  panos_registered_ip_facts:
+    provider: '{{ provider }}'
+    ips: ['192.168.1.1']
+  register: ipaddress_registered_ip_facts
 '''
 
 RETURN = '''
@@ -79,7 +88,8 @@ def main():
         with_classic_provider_spec=True,
         panorama_error='Panorama is not supported for this module.',
         argument_spec=dict(
-            tags=dict(type='list')
+            tags=dict(type='list'),
+            ips=dict(type='list')
         )
     )
 
@@ -89,11 +99,12 @@ def main():
     )
 
     tags = module.params['tags']
+    ips = module.params['ips']
 
     device = helper.get_pandevice_parent(module)
 
     try:
-        registered_ips = device.userid.get_registered_ip(tags=tags)
+        registered_ips = device.userid.get_registered_ip(tags=tags, ip=ips)
 
     except PanDeviceError as e:
         module.fail_json(msg='Failed get_registered_ip: {0}'.format(e))
