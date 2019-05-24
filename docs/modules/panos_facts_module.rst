@@ -489,6 +489,114 @@ Common return values are `documented here <https://docs.ansible.com/ansible/late
             </tr>
                                 <tr>
                                 <td colspan="2">
+                    <b>ansible_net_routing_table</b>
+                    <div style="font-size: small; color: purple">complex</div>
+                                    </td>
+                <td>When <code>routing</code> is specified in <code>gather_subset</code>.</td>
+                <td>
+                                            <div>Routing Table information.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>age</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>Age of the route entry in the routing table.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>destination</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>IP prefix of the destination.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>flags</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>Flags for the route entry in the routing table.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>interface</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>Egress interface the router will use to reach the next hop.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>metric</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>Metric for the route.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>nexthop</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>Address of the device at the next hop toward the destination network.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>route_table</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>Unicast or multicast route table.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>virtual_router</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>Virtual router the route belongs to.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                    
+                                                <tr>
+                                <td colspan="2">
                     <b>ansible_net_serial</b>
                     <div style="font-size: small; color: purple">string</div>
                                     </td>
