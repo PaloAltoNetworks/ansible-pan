@@ -57,6 +57,12 @@ EXAMPLES = '''
     provider: '{{ provider }}'
     tags: ['First_Tag']
   register: first_tag_registered_ip_facts
+
+- name: Get facts for a specific IP address
+  panos_registered_ip_facts:
+    provider: '{{ provider }}'
+    ips: ['192.168.1.1']
+  register: ipaddress_registered_ip_facts
 '''
 
 RETURN = '''

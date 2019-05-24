@@ -66,7 +66,7 @@ Parameters
                                                                                                                                                                     <b>Default:</b><br/><div style="color: blue">[&#39;!config&#39;]</div>
                                     </td>
                                                                 <td>
-                                                                        <div>Scopes what information is gathered from the device. Possible values for this argument include all, system, session, interfaces, ha, vr, vsys and config. You can specify a list of values to include a larger subset. Values can also be used with an initial ! to specify that a specific subset should not be collected. Certain subsets might be supported by Panorama.</div>
+                                                                        <div>Scopes what information is gathered from the device. Possible values for this argument include all, system, session, interfaces, ha, routing, vr, vsys and config. You can specify a list of values to include a larger subset. Values can also be used with an initial ! to specify that a specific subset should not be collected. Certain subsets might be supported by Panorama.</div>
                                                                                 </td>
             </tr>
                                 <tr>

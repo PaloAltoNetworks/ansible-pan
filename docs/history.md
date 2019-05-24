@@ -1,6 +1,23 @@
 Release History
 ===============
 
+V2.1.2
+------
+
+- *Released*: 2019-05-24
+
+Enhancements:
+
+* `panos_registered_ip_facts` can now filter on IP addresses (in addition to tags)
+* All modules: Panorama commits can now still push to a device group even if a Panorama
+  commit is unnecessary
+* `panos_nat_rule`: Changed the default location to unspecified instead of bottom
+
+Bug fixes:
+
+* `panos_bgp`: Added the "state" param to this module
+* `panos_facts`: Corrected virtual router output name to use underscores
+
 V2.1.1
 ------
 

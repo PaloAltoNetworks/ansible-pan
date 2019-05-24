@@ -74,6 +74,19 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="2">
+                    <b>ips</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>List of IP addresses to retrieve facts for.  If not specified, retrieve all addresses.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
                     <b>password</b>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
@@ -218,20 +231,6 @@ Parameters
                                                                         <div>List of tags to retrieve facts for.  If not specified, retrieve all tags.</div>
                                                                                 </td>
             </tr>
-
-                                                <tr>
-                                                                <td colspan="2">
-                    <b>ips</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">-</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                                                        <div>List of IP addresses to retrieve facts for.  If not specified, retrieve all addresses.</div>
-                                                                                </td>
-            </tr>
                                 <tr>
                                                                 <td colspan="2">
                     <b>username</b>
@@ -293,7 +292,7 @@ Examples
         tags: ['First_Tag']
       register: first_tag_registered_ip_facts
 
-    - name: Get facts for specific tag
+    - name: Get facts for a specific IP address
       panos_registered_ip_facts:
         provider: '{{ provider }}'
         ips: ['192.168.1.1']
