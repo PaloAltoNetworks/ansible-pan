@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 #  Copyright 2019 Palo Alto Networks, Inc
@@ -46,6 +47,7 @@ options:
     rule_name:
         description:
             - Name of the security rule.
+    all_details
 '''
 
 EXAMPLES = '''
@@ -194,6 +196,7 @@ def main():
         error_on_shared=True,
         argument_spec=dict(
             rule_name=dict(),
+            all_details=dict(default=False, type=bool),
         ),
     )
 
@@ -205,8 +208,36 @@ def main():
 
     parent = helper.get_pandevice_parent(module)
 
+    renames = (
+        ('name', 'rule_name'),
+        ('fromzone', 'source_zone'),
+        ('tozone', 'destination_zone'),
+        ('source', 'source_ip'),
+        ('destination', 'destination_ip'),
+        ('type', 'rule_type'),
+        ('tag', 'tag_name'),
+        ('group', 'group_profile'),
+        ('virus', 'antivirus'),
+    )
+
     name = module.params['rule_name']
-    if name is None:
+    all_details = module.params['all_details']
+    if all_details and name is None:
+        try:
+            listing = SecurityRule.refreshall(parent)
+        except PanDeviceError as e:
+            module.fail_json(msg='Failed refreshall: {0}'.format(e))
+        rules = [rule.about() for rule in listing]
+        for rule in rules:
+            for pandevice_param, ansible_param in renames:
+                rule[ansible_param] = rule[pandevice_param]
+                del rule[pandevice_param]
+
+        module.exit_json(
+            changed=False,
+            rules=rules,
+        )
+    elif name is None:
         try:
             listing = SecurityRule.refreshall(parent, name_only=True)
         except PanDeviceError as e:
@@ -222,17 +253,6 @@ def main():
 
     spec = rule.about()
 
-    renames = (
-        ('name', 'rule_name'),
-        ('fromzone', 'source_zone'),
-        ('tozone', 'destination_zone'),
-        ('source', 'source_ip'),
-        ('destination', 'destination_ip'),
-        ('type', 'rule_type'),
-        ('tag', 'tag_name'),
-        ('group', 'group_profile'),
-        ('virus', 'antivirus'),
-    )
     for pandevice_param, ansible_param in renames:
         spec[ansible_param] = spec[pandevice_param]
         del(spec[pandevice_param])
