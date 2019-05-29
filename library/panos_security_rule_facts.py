@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import, division, print_function
-
 __metaclass__ = type
 
 #  Copyright 2019 Palo Alto Networks, Inc
@@ -47,7 +46,9 @@ options:
     rule_name:
         description:
             - Name of the security rule.
-    all_details
+    all_details:
+        description:
+            - Get full-policy details when name is not set.
 '''
 
 EXAMPLES = '''
@@ -75,6 +76,104 @@ rules:
     returned: When I(rule_name) is not specified
     type: list
     sample: ['rule1', 'rule2', 'rule3']
+rules_verbose:
+    description: List of security rules present with details
+    returned: When I(rule_name) is not specified and I(all_details) is True.
+    type: complex
+    contains:
+        rule_name:
+            description: Name of the security rule.
+            type: str
+        source_zone:
+            description: List of source zones.
+            type: list
+        source_ip:
+            description: List of source addresses.
+            type: list
+        source_user:
+            description: List of source users.
+            type: list
+        hip_profiles:
+            description: GlobalProtect host information profile list.
+            type: list
+        destination_zone:
+            description: List of destination zones.
+            type: list
+        destination_ip:
+            description: List of destination addresses.
+            type: list
+        application:
+            description: List of applications, application groups, and/or application filters.
+            type: list
+        service:
+            description: List of services and/or service groups.
+            type: list
+        category:
+            description: List of destination URL categories.
+            type: list
+        action:
+            description: The rule action.
+            type: str
+        log_setting:
+            description: Log forwarding profile.
+            type: str
+        log_start:
+            description: Whether to log at session start.
+            type: bool
+        log_end:
+            description: Whether to log at session end.
+            type: bool
+        description:
+            description: Description of the security rule.
+            type: str
+        rule_type:
+            description: Type of security rule (version 6.1 of PanOS and above).
+            type: str
+        tag_name:
+            description: List of tags associated with the rule.
+            type: list
+        negate_source:
+            description: Match on the reverse of the 'source_ip' attribute
+            type: bool
+        negate_destination:
+            description: Match on the reverse of the 'destination_ip' attribute
+            type: bool
+        disabled:
+            description: Disable this rule.
+            type: bool
+        schedule:
+            description: Schedule in which this rule is active.
+            type: str
+        icmp_unreachable:
+            description: Send 'ICMP Unreachable'.
+            type: bool
+        disable_server_response_inspection:
+            description: Disables packet inspection from the server to the client.
+            type: bool
+        group_profile:
+            description: Security profile group setting.
+            type: str
+        antivirus:
+            description: Name of the already defined antivirus profile.
+            type: str
+        vulnerability:
+            description: Name of the already defined vulnerability profile.
+            type: str
+        spyware:
+            description: Name of the already defined spyware profile.
+            type: str
+        url_filtering:
+            description: Name of the already defined url_filtering profile.
+            type: str
+        file_blocking:
+            description: Name of the already defined file_blocking profile.
+            type: str
+        data_filtering:
+            description: Name of the already defined data_filtering profile.
+            type: str
+        wildfire_analysis:
+            description: Name of the already defined wildfire_analysis profile.
+            type: str
 spec:
     description: The security rule definition
     returned: When I(rule_name) is specified
@@ -235,7 +334,7 @@ def main():
 
         module.exit_json(
             changed=False,
-            rules=rules,
+            rules_verbose=rules,
         )
     elif name is None:
         try:
