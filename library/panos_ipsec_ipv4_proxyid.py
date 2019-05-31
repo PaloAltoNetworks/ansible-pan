@@ -104,7 +104,7 @@ try:
     from pandevice.errors import PanDeviceError
 except ImportError:
     pass
-import sys
+
 
 def main():
     helper = get_connection(
