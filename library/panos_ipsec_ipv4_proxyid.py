@@ -189,7 +189,6 @@ def main():
         module.fail_json(msg='Failed refresh: {0}'.format(e))
     tunnel_list = parent.findall(IpsecTunnel)
 
-
     # get the specific tunnel object named by tunnel_name
     for tunnel in tunnel_list:
         if tunnel.name == tunnel_name:
