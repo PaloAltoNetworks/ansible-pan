@@ -46,38 +46,45 @@ options:
         required: true
     tunnel_name:
         description:
-            - Tunnel Name
+            - IPSec Tunnel Name
         required: true
     local:
         description:
-            - IP subnet or IP address represents local network
+            - IP subnet or IP address represents the local network
         required: true
     remote:
         description:
-            - IP subnet or IP address represents remote network
+            - IP subnet or IP address represents the remote network
         required: true
     any_protocol:
         description:
-            - Any protocol boolean, default: True
+            - Any protocol boolean
+        default: True
     number_proto:
         description:
             - Numbered Protocol: protocol number (1-254)
+        type: int
     tcp_local_port:
         description:
             - Protocol TCP: local port
+        type: int
     tcp_remote_port:
         description:
             - Protocol TCP: remote port
+        type: int
     udp_local_port:
         description:
             Protocol UDP: local port
+        type: int
     udp_remote_port:
         description:
             - Protocol UDP: remote port
+        type: int
     commit:
         description:
             - Commit configuration if changed.
         default: True
+        type: bool
 '''
 
 EXAMPLES = '''
@@ -113,17 +120,39 @@ def main():
         with_classic_provider_spec=True,
         with_state=True,
         argument_spec=dict(
-            name=dict(required=True),
-            tunnel_name=dict(default='default'),
-            local=dict(default='192.168.2.0/24'),
-            remote=dict(default='192.168.1.0/24'),
-            any_protocol=dict(type='bool', default=True),
-            number_proto=dict(),
-            tcp_local_port=dict(),
-            tcp_remote_port=dict(),
-            udp_local_port=dict(),
-            udp_remote_port=dict(),
-            commit=dict(type='bool', default=True),
+            name=dict(
+                type='str', required=True,
+                help='The Proxy ID'),
+            tunnel_name=dict(
+                default='default',
+                help='The IPSec Tunnel Name'),
+            local=dict(
+                default='192.168.2.0/24',
+                help='IP subnet or IP address represents the local network'),
+            remote=dict(
+                default='192.168.1.0/24',
+                help='IP subnet or IP address represents the remote network'),
+            any_protocol=dict(
+                type='bool', default=True,
+                help='Any protocol boolean'),
+            number_proto=dict(
+                type='int',
+                help='Numbered Protocol: protocol number (1-254)'),
+            tcp_local_port=dict(
+                type='int',
+                help='Protocol TCP: local port'),
+            tcp_remote_port=dict(
+                type='int',
+                help='Protocol TCP: remote port'),
+            udp_local_port=dict(
+                type='int',
+                help='Protocol UDP: local port'),
+            udp_remote_port=dict(
+                type='int',
+                help='Protocol UDP: remote port'),
+            commit=dict(
+                type='bool', default=True,
+                help='Commit configuration if changed'),
         )
     )
 
@@ -155,9 +184,11 @@ def main():
 
     # Retrieve list of tunnel objects
     try:
-        tunnel_list = IpsecTunnel.refreshall(parent, add=False)
+        IpsecTunnel.refreshall(parent)
     except PanDeviceError as e:
         module.fail_json(msg='Failed refresh: {0}'.format(e))
+    tunnel_list = parent.findall(IpsecTunnel)
+
 
     # get the specific tunnel object named by tunnel_name
     for tunnel in tunnel_list:
@@ -168,11 +199,7 @@ def main():
         module.fail_json(msg='Tunnel named "{0}" does not exist'.format(tunnel_name))
 
     # get the listing
-    try:
-        listing = IpsecTunnelIpv4ProxyId.refreshall(tunnel, add=False)
-    except PanDeviceError as e:
-        module.fail_json(msg='Failed refresh: {0}'.format(e))
-
+    listing = tunnel.findall(IpsecTunnelIpv4ProxyId)
     obj = IpsecTunnelIpv4ProxyId(**spec)
     tunnel.add(obj)
 
