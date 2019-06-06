@@ -105,7 +105,7 @@ EXAMPLES = '''
 - name: enable DHCP client on ethernet1/1.5 in zone public
   panos_l3_subinterface:
     provider: '{{ provider }}'
-    name: "ethernet1/1.1"
+    name: "ethernet1/1.5"
     tag: 1
     create_default_route: True
     zone_name: "public"
@@ -117,7 +117,7 @@ EXAMPLES = '''
     provider: '{{ provider }}'
     name: "ethernet1/2.7"
     tag: 7
-    mode: "layer3"
+    enable_dhcp: false
     ip: ["10.1.1.1/24"]
     zone_name: "dmz"
 '''
