@@ -71,13 +71,29 @@ spec:
             description: Admin distance for this protocol.
             type: int
         ad_static_ipv6:
+            description: Admin distance for this protocol.
+            type: int
         ad_ospf_int:
+            description: Admin distance for this protocol.
+            type: int
         ad_ospf_ext:
+            description: Admin distance for this protocol.
+            type: int
         ad_ospfv3_int:
+            description: Admin distance for this protocol.
+            type: int
         ad_ospfv3_ext:
+            description: Admin distance for this protocol.
+            type: int
         ad_ibgp:
+            description: Admin distance for this protocol.
+            type: int
         ad_ebgp:
+            description: Admin distance for this protocol.
+            type: int
         ad_rip:
+            description: Admin distance for this protocol.
+            type: int
 vrlist:
     description: List of virtual router specs.
     returned: When I(name) is not specified.

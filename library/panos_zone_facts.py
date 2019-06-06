@@ -58,7 +58,35 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
-# Default return values
+spec:
+    description: The spec of the specified virtual router.
+    returned: When I(name) is specified.
+    type: complex
+    contains:
+        zone:
+            description: The name.
+        mode:
+            description: The mode of the zone.
+        interface:
+            description: List of interfaces.
+            type: list
+        zone_profile:
+            description: Zone protection profile.
+        log_setting:
+            description: Log forwarding setting.
+        enable_userid:
+            description: Enable user identification.
+            type: bool
+        include_acl:
+            description: User identification ACL include list.
+            type: list
+        exclude_acl:
+            description: User identification ACL exclude list.
+            type: list
+zones:
+    description: List of zone specs.
+    returned: When I(name) is not specified.
+    type: list
 '''
 
 ANSIBLE_METADATA = {'metadata_version': '1.1',
