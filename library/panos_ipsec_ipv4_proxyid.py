@@ -60,6 +60,7 @@ options:
         description:
             - Any protocol boolean
         default: True
+        type: bool
     number_proto:
         description:
             - Numbered Protocol: protocol number (1-254)
@@ -182,20 +183,13 @@ def main():
     parent = helper.get_pandevice_parent(module)
     tunnel_name = module.params['tunnel_name']
 
-    # Retrieve list of tunnel objects
+    # get the tunnel object
+    tunnel = IpsecTunnel(tunnel_name)
+    parent.add(tunnel)
     try:
-        IpsecTunnel.refreshall(parent)
+        tunnel.refresh()
     except PanDeviceError as e:
         module.fail_json(msg='Failed refresh: {0}'.format(e))
-    tunnel_list = parent.findall(IpsecTunnel)
-
-    # get the specific tunnel object named by tunnel_name
-    for tunnel in tunnel_list:
-        if tunnel.name == tunnel_name:
-            parent.add(tunnel)
-            break
-    else:
-        module.fail_json(msg='Tunnel named "{0}" does not exist'.format(tunnel_name))
 
     # get the listing
     listing = tunnel.findall(IpsecTunnelIpv4ProxyId)
