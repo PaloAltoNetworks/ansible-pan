@@ -44,11 +44,15 @@ Parameters
                                                                 <td colspan="2">
                     <b>all_details</b>
                     <div style="font-size: small">
-                        <span style="color: purple">-</span>
+                        <span style="color: purple">boolean</span>
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                            </td>
+                                                                                                                                                                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
                                                                 <td>
                                                                         <div>Get full-policy details when name is not set.</div>
                                                                                 </td>
@@ -348,23 +352,10 @@ Common return values are `documented here <https://docs.ansible.com/ansible/late
         </tr>
                     <tr>
                                 <td colspan="2">
-                    <b>rules</b>
-                    <div style="font-size: small; color: purple">list</div>
-                                    </td>
-                <td>When <em>rule_name</em> is not specified</td>
-                <td>
-                                            <div>List of security rules present</div>
-                                        <br/>
-                                            <div style="font-size: smaller"><b>Sample:</b></div>
-                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[&#x27;rule1&#x27;, &#x27;rule2&#x27;, &#x27;rule3&#x27;]</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                <td colspan="2">
-                    <b>rules_verbose</b>
+                    <b>policy</b>
                     <div style="font-size: small; color: purple">complex</div>
                                     </td>
-                <td>When <em>rule_name</em> is not specified and <em>all_details</em> is True.</td>
+                <td>When <em>rule_name</em> is not specified and <em>all_details</em> is True</td>
                 <td>
                                             <div>List of security rules present with details</div>
                                         <br/>
@@ -744,6 +735,19 @@ Common return values are `documented here <https://docs.ansible.com/ansible/late
             </tr>
                     
                                                 <tr>
+                                <td colspan="2">
+                    <b>rules</b>
+                    <div style="font-size: small; color: purple">list</div>
+                                    </td>
+                <td>When <em>rule_name</em> is not specified and <em>all_details</em> is False</td>
+                <td>
+                                            <div>List of security rules present</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">[&#x27;rule1&#x27;, &#x27;rule2&#x27;, &#x27;rule3&#x27;]</div>
+                                    </td>
+            </tr>
+                                <tr>
                                 <td colspan="2">
                     <b>spec</b>
                     <div style="font-size: small; color: purple">complex</div>

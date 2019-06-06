@@ -49,6 +49,7 @@ options:
     all_details:
         description:
             - Get full-policy details when name is not set.
+        type: bool
 '''
 
 EXAMPLES = '''
@@ -73,12 +74,12 @@ EXAMPLES = '''
 RETURN = '''
 rules:
     description: List of security rules present
-    returned: When I(rule_name) is not specified
+    returned: When I(rule_name) is not specified and I(all_details) is False
     type: list
     sample: ['rule1', 'rule2', 'rule3']
-rules_verbose:
+policy:
     description: List of security rules present with details
-    returned: When I(rule_name) is not specified and I(all_details) is True.
+    returned: When I(rule_name) is not specified and I(all_details) is True
     type: complex
     contains:
         rule_name:
