@@ -296,7 +296,7 @@ def main():
         error_on_shared=True,
         argument_spec=dict(
             rule_name=dict(),
-            all_details=dict(default=False, type=bool),
+            all_details=dict(default=False, type='bool'),
         ),
     )
 
@@ -335,7 +335,7 @@ def main():
 
         module.exit_json(
             changed=False,
-            rules_verbose=rules,
+            policy=rules,
         )
     elif name is None:
         try:
