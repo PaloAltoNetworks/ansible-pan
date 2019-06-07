@@ -79,22 +79,22 @@ options:
             - Outbound SPI in hex (manual-key).
     mk_interface:
         description:
-             – Interface to terminate tunnel (manual-key).
+            - Interface to terminate tunnel (manual-key).
     mk_remote_spi:
         description:
-             – Inbound SPI in hex (manual-key).
+            - Inbound SPI in hex (manual-key).
     mk_remote_address:
         description:
-             – Tunnel peer IP address (manual-key).
+            - Tunnel peer IP address (manual-key).
     mk_local_address_ip:
         description:
-             – Exact IP address if interface has multiple IP addresses (manual-key).
+            - Exact IP address if interface has multiple IP addresses (manual-key).
     mk_local_address_floating_ip:
         description:
-             – Floating IP address in HA Active-Active configuration (manual-key).
+            - Floating IP address in HA Active-Active configuration (manual-key).
     mk_protocol:
         description:
-            – Protocol for traffic through the tunnel (manual-key).
+            - Protocol for traffic through the tunnel (manual-key).
         choices: ['esp', 'ah']
     mk_auth_type:
         description:
@@ -102,7 +102,7 @@ options:
         choices: ['md5', 'sha1', 'sha256', 'sha384', 'sha512']
     mk_auth_key:
         description:
-             – Authentication key (manual-key).
+            - Authentication key (manual-key).
     mk_esp_encryption:
         description:
             - Encryption algorithm for tunnel traffic (manual-key).
@@ -112,30 +112,30 @@ options:
             - Encryption key (manual-key).
     gps_portal_address:
         description:
-             – GlobalProtect portal address (global-protect-satellite).
+            - GlobalProtect portal address (global-protect-satellite).
     gps_prefer_ipv6:
         description:
-             – Prefer to register portal in IPv6 (8.0+) (global-protect-satellite).
+            - Prefer to register portal in IPv6 (8.0+) (global-protect-satellite).
         type: bool
         default: False
     gps_interface:
         description:
-            – Interface to communicate with portal (global-protect-satellite).
+            - Interface to communicate with portal (global-protect-satellite).
     gps_interface_ipv4_ip:
         description:
-            – Exact IPv4 IP address if interface has multiple IP addresses (global-protect-satellite).
+            - Exact IPv4 IP address if interface has multiple IP addresses (global-protect-satellite).
     gps_interface_ipv6_ip:
         description:
-             – Exact IPv6 IP address if interface has multiple IP addresses (8.0+) (global-protect-satellite).
+            - Exact IPv6 IP address if interface has multiple IP addresses (8.0+) (global-protect-satellite).
     gps_interface_ipv4_floating_ip:
         description:
-            – Floating IPv4 IP address in HA Active-Active configuration (7.0+) (global-protect-satellite).
+            - Floating IPv4 IP address in HA Active-Active configuration (7.0+) (global-protect-satellite).
     gps_interface_ipv6_floating_ip:
         description:
-            – Floating IPv6 IP address in HA Active-Active configuration (8.0+) (global-protect-satellite).
+            - Floating IPv6 IP address in HA Active-Active configuration (8.0+) (global-protect-satellite).
     gps_publish_connected_routes:
         description:
-            – Enable publishing of connected and static routes (global-protect-satellite).
+            - Enable publishing of connected and static routes (global-protect-satellite).
         type: bool
         default: False
     gps_publish_routes:
@@ -147,7 +147,7 @@ options:
             - GlobalProtect satellite certificate file name (global-protect-satellite).
     gps_certificate_profile:
         description:
-            – Profile for authenticating GlobalProtect gateway certificates (global-protect-satellite).
+            - Profile for authenticating GlobalProtect gateway certificates (global-protect-satellite).
     copy_tos:
         description:
             - Copy IP TOS bits from inner packet to IPSec packet (not recommended).
@@ -155,7 +155,7 @@ options:
         default: False
     copy_flow_label:
         description:
-            – Copy IPv6 flow label for 6in6 tunnel from inner packet to IPSec packet (not recommended) (7.0+).
+            - Copy IPv6 flow label for 6in6 tunnel from inner packet to IPSec packet (not recommended) (7.0+).
         type: bool
         default: False
     enable_tunnel_monitor:
