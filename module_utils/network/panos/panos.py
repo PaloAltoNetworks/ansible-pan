@@ -67,6 +67,7 @@ class ConnectionHelper(object):
         self.template = None
         self.template_stack = None
         self.vsys_importable = None
+        self.vsys_shared = None
         self.min_pandevice_version = min_pandevice_version
         self.min_panos_version = min_panos_version
         self.error_on_shared = error_on_shared
@@ -229,7 +230,7 @@ class ConnectionHelper(object):
                     module.fail_json(msg=no_shared)
 
             # Spec: vsys importable.
-            vsys_name = self.vsys_importable or self.vsys
+            vsys_name = self.vsys_importable or self.vsys or self.vsys_shared
             if dg_name is None and templated and vsys_name is not None:
                 name = module.params[vsys_name]
                 if name not in (None, 'shared'):
@@ -261,7 +262,7 @@ class ConnectionHelper(object):
                 module.fail_json(msg=self.firewall_error)
 
             # Spec: vsys or vsys_dg or vsys_importable.
-            vsys_name = self.vsys_dg or self.vsys or self.vsys_importable
+            vsys_name = self.vsys_dg or self.vsys or self.vsys_importable or self.vsys_shared
             if vsys_name is not None:
                 parent.vsys = module.params[vsys_name]
                 if parent.vsys == 'shared' and self.error_on_shared:
@@ -502,7 +503,7 @@ class ConnectionHelper(object):
         return ans
 
 
-def get_connection(vsys=None, device_group=None,
+def get_connection(vsys=None, shared_vsys=None, device_group=None,
                    vsys_dg=None, vsys_importable=None,
                    rulebase=None, template=None, template_stack=None,
                    with_classic_provider_spec=False, with_state=False,
@@ -512,7 +513,7 @@ def get_connection(vsys=None, device_group=None,
                    panorama_error=None, firewall_error=None):
     """Returns a helper object that handles pandevice object tree init.
 
-    The `vsys`, `device_group`, `vsys_dg`, `vsys_importable`, `rulebase`,
+    The `vsys`, `shared_vsys`, `device_group`, `vsys_dg`, `vsys_importable`, `rulebase`,
     `template`, and `template_stack` params can be any of the following types:
 
         * None - do not include this in the spec
@@ -529,6 +530,7 @@ def get_connection(vsys=None, device_group=None,
 
     Arguments:
         vsys: The vsys (default: 'vsys1').
+        shared_vsys: The vsys (default: 'shared').
         device_group: Panorama only - The device group (default: 'shared').
         vsys_dg: The param name if vsys and device_group are a shared param.
         vsys_importable: Either this or `vsys` should be specified.  For:
@@ -628,6 +630,17 @@ def get_connection(vsys=None, device_group=None,
                 param = vsys_importable
             spec[param] = {}
             helper.vsys_importable = param
+        if vsys_shared is not None:
+            if vsys is not None:
+                raise KeyError('Define "vsys" or "vsys_shared", not both.')
+            elif vsys_importable is not None:
+                raise KeyError('Define "vsys_importable" or "vsys_shared", not both.')
+            if isinstance(vsys_shared, bool):
+                param = 'vsys'
+            else:
+                param = vsys_shared
+            spec[param] = {'default': 'shared'}
+            helper.vsys_shared = param
 
     if rulebase is not None:
         if isinstance(rulebase, bool):
