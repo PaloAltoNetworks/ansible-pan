@@ -132,7 +132,8 @@ def main():
             log_forwarding_profile=dict(required=True),
             name=dict(required=True),
             description=dict(),
-            log_type=dict(default='traffic', choices=['traffic', 'threat', 'wildfire',
+            log_type=dict(default='traffic', choices=[
+                'traffic', 'threat', 'wildfire',
                 'url', 'data', 'gtp', 'tunnel', 'auth', 'sctp']),
             filter=dict(),
             send_to_panorama=dict(type='bool'),
