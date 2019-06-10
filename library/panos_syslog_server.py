@@ -128,7 +128,8 @@ def main():
             transport=dict(default='UDP', choices=['UDP', 'TCP', 'SSL']),
             syslog_port=dict(type='int'),
             format=dict(default='BSD', choices=['BSD', 'IETF']),
-            facility=dict(default='LOG_USER', choices=['LOG_USER',
+            facility=dict(default='LOG_USER', choices=[
+                'LOG_USER',
                 'LOG_LOCAL0', 'LOG_LOCAL1', 'LOG_LOCAL2', 'LOG_LOCAL3',
                 'LOG_LOCAL4', 'LOG_LOCAL5', 'LOG_LOCAL6', 'LOG_LOCAL7']),
         ),
