@@ -21,7 +21,10 @@ module: panos_restart
 short_description: Restart a device
 description:
     - Restart a PAN-OS device.
-author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
+author:
+    - Luigi Mori (@jtschichold)
+    - Ivan Bojer (@ivanbojer)
+    - Garfield Lee Freeman (@shinmog)
 version_added: "2.3"
 requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)

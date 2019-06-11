@@ -61,7 +61,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">no</div>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">"no"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Allow redistribute default route to BGP.</div>
@@ -75,7 +75,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">no</div>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">"no"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Always compare MEDs.</div>
@@ -105,7 +105,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">2-byte</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"2-byte"</div>
                                     </td>
                                                                 <td>
                                                                         <div>AS format <em>&#x27;2-byte&#x27;</em>/<em>&#x27;4-byte&#x27;</em>.</div>
@@ -119,7 +119,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">yes</div>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">"yes"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Commit configuration if changed.</div>
@@ -160,7 +160,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">yes</div>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">"yes"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Deterministic MEDs comparison.</div>
@@ -174,7 +174,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">no</div>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">"no"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Support multiple AS in ECMP.</div>
@@ -188,7 +188,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">yes</div>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">"yes"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Enable BGP.</div>
@@ -202,7 +202,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">yes</div>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">"yes"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Enforce First AS for EBGP.</div>
@@ -255,7 +255,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">yes</div>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">"yes"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Enable graceful restart.</div>
@@ -269,7 +269,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">no</div>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">"no"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Populate BGP learned route to global route table.</div>
@@ -430,7 +430,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">admin</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"admin"</div>
                                     </td>
                                                                 <td>
                                                                         <div>The username to use for authentication.  This is ignored if <em>api_key</em> is specified.</div>
@@ -458,7 +458,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">yes</div>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">"yes"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Reject default route.</div>
@@ -528,7 +528,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">admin</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"admin"</div>
                                     </td>
                                                                 <td>
                                                                         <div><b>Deprecated</b></div>
@@ -545,7 +545,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">default</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"default"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Name of the virtual router; it must already exist.</div>
@@ -602,5 +602,6 @@ Authors
 ~~~~~~~
 
 - Joshua Colson (@freakinhippie)
+- Garfield Lee Freeman (@shinmog)
 
 

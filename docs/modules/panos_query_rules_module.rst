@@ -71,7 +71,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Name of the application or application group to be queried.</div>
@@ -85,7 +85,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
                                     </td>
                                                                 <td>
                                                                         <div>The destination IP address to be queried.</div>
@@ -99,7 +99,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
                                     </td>
                                                                 <td>
                                                                         <div>The destination port to be queried.</div>
@@ -113,7 +113,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Name of the destination security zone to be queried.</div>
@@ -127,7 +127,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
                                     </td>
                                                                 <td>
                                                                         <div>The Panorama device group in which to conduct the query.</div>
@@ -167,7 +167,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
                                     </td>
                                                                 <td>
                                                                         <div>The protocol used to be queried.  Must be either <em>tcp</em> or <em>udp</em>.</div>
@@ -181,7 +181,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
                                     </td>
                                                                 <td>
                                                                         <div>The source IP address to be queried.</div>
@@ -195,7 +195,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
                                     </td>
                                                                 <td>
                                                                         <div>The source port to be queried.</div>
@@ -209,7 +209,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Name of the source security zone to be queried.</div>
@@ -223,7 +223,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Name of the rule tag to be queried.</div>
@@ -237,7 +237,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">admin</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"admin"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Username credentials to use for authentication.</div>

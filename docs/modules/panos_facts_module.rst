@@ -63,7 +63,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">[&#39;!config&#39;]</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">["!config"]</div>
                                     </td>
                                                                 <td>
                                                                         <div>Scopes what information is gathered from the device. Possible values for this argument include all, system, session, interfaces, ha, routing, vr, vsys and config. You can specify a list of values to include a larger subset. Values can also be used with an initial ! to specify that a specific subset should not be collected. Certain subsets might be supported by Panorama.</div>
@@ -225,7 +225,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">admin</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"admin"</div>
                                     </td>
                                                                 <td>
                                                                         <div>The username to use for authentication.  This is ignored if <em>api_key</em> is specified.</div>
@@ -240,7 +240,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">admin</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"admin"</div>
                                     </td>
                                                                 <td>
                                                                         <div><b>Deprecated</b></div>
@@ -862,5 +862,6 @@ Authors
 ~~~~~~~
 
 - Tomi Raittinen (@traittinen)
+- Garfield Lee Freeman (@shinmog)
 
 

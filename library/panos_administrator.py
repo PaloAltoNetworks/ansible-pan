@@ -28,7 +28,7 @@ module: panos_administrator
 short_description: Manage PAN-OS administrator user accounts.
 description:
     - Manages PAN-OS administrator user accounts.
-author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
+author: "Garfield Lee Freeman (@shinmog)"
 version_added: "2.8"
 requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
