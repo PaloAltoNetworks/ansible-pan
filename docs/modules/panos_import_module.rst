@@ -49,7 +49,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">software</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"software"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Category of file uploaded. The default is software.</div>
@@ -63,7 +63,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Location of the file to import into device.</div>
@@ -103,7 +103,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
                                     </td>
                                                                 <td>
                                                                         <div>URL of the file that will be imported to device.</div>
@@ -117,7 +117,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">admin</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"admin"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Username for device authentication.</div>

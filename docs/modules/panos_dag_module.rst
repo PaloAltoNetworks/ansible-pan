@@ -68,7 +68,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">yes</div>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">"yes"</div>
                                     </td>
                                                                 <td>
                                                                         <div>commit if changed</div>
@@ -82,7 +82,7 @@ Parameters
                          / <span style="color: red">required</span>                    </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">null</div>
                                     </td>
                                                                 <td>
                                                                         <div>dynamic filter user by the dynamic address group</div>
@@ -96,7 +96,7 @@ Parameters
                          / <span style="color: red">required</span>                    </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">null</div>
                                     </td>
                                                                 <td>
                                                                         <div>name of the dynamic address group</div>
@@ -123,7 +123,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
                                     </td>
                                                                 <td>
                                                                         <div>The name of the Panorama device group. The group must exist on Panorama. If device group is not defined it is assumed that we are contacting a firewall.</div>
@@ -137,7 +137,7 @@ Parameters
                          / <span style="color: red">required</span>                    </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">null</div>
                                     </td>
                                                                 <td>
                                                                         <div>IP address (or hostname) of PAN-OS device</div>
@@ -151,7 +151,7 @@ Parameters
                          / <span style="color: red">required</span>                    </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">null</div>
                                     </td>
                                                                 <td>
                                                                         <div>The operation to perform Supported values are <em>add</em>/<em>list</em>/<em>delete</em>.</div>
@@ -165,7 +165,7 @@ Parameters
                          / <span style="color: red">required</span>                    </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">null</div>
                                     </td>
                                                                 <td>
                                                                         <div>password for authentication</div>
@@ -179,7 +179,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">null</div>
                                     </td>
                                                                 <td>
                                                                         <div>Add administrative tags to the DAG</div>
@@ -193,7 +193,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">admin</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"admin"</div>
                                     </td>
                                                                 <td>
                                                                         <div>username for authentication</div>

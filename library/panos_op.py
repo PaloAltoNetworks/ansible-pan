@@ -28,7 +28,9 @@ module: panos_op
 short_description: execute arbitrary OP commands on PANW devices (e.g. show interface all)
 description:
     - This module will allow user to pass and execute any supported OP command on the PANW device.
-author: "Ivan Bojer (@ivanbojer)"
+author:
+    - Ivan Bojer (@ivanbojer)
+    - Garfield Lee Freeman (@shinmog)
 version_added: "2.5"
 requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)

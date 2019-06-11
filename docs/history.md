@@ -1,6 +1,43 @@
 Release History
 ===============
 
+V2.2.0
+------
+
+- *Released*: 2019-06-11
+
+New modules:
+
+* `panos_zone_facts`
+* `panos_ipsec_ipv4_proxyid`
+* `panos_virtual_router_facts`
+* `panos_l3_subinterface`
+* `panos_l2_subinterface`
+* `panos_log_forwarding_profile`
+* `panos_log_forwarding_profile_match_list`
+* `panos_log_forwarding_profile_match_list_action`
+* `panos_email_profile`
+* `panos_email_server`
+* `panos_snmp_profile`
+* `panos_snmp_v2c_server`
+* `panos_snmp_v3_server`
+* `panos_syslog_profile`
+* `panos_syslog_server`
+* `panos_http_profile`
+* `panos_http_profile_header`
+* `panos_http_profile_param`
+* `panos_http_server`
+* `panos_type_cmd`
+
+Enhancements:
+
+* `panos_security_rule_facts` can now return full policy info.
+
+Bug fixes:
+
+* Added module encoding to all modules.
+* Various documentation fixes.
+
 V2.1.2
 ------
 

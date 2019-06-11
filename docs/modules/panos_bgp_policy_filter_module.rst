@@ -437,7 +437,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">admin</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"admin"</div>
                                     </td>
                                                                 <td>
                                                                         <div>The username to use for authentication.  This is ignored if <em>api_key</em> is specified.</div>
@@ -497,7 +497,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">admin</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"admin"</div>
                                     </td>
                                                                 <td>
                                                                         <div><b>Deprecated</b></div>
@@ -514,7 +514,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">default</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"default"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Name of the virtual router; it must already exist and have BGP configured.</div>
@@ -595,5 +595,6 @@ Authors
 ~~~~~~~
 
 - Joshua Colson (@freakinhippie)
+- Garfield Lee Freeman (@shinmog)
 
 

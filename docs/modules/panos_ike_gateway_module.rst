@@ -64,7 +64,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">yes</div>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">"yes"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Commit configuration if changed.</div>
@@ -106,7 +106,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">no</div>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">"no"</div>
                                     </td>
                                                                 <td>
                                                                         <div>True to enable Dead Peer Detection on the gateway.</div>
@@ -121,7 +121,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">no</div>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">"no"</div>
                                     </td>
                                                                 <td>
                                                                         <div>True to enable IKE fragmentation</div>
@@ -137,7 +137,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">yes</div>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">"yes"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Enable sending empty information liveness check message.</div>
@@ -151,7 +151,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">no</div>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">"no"</div>
                                     </td>
                                                                 <td>
                                                                         <div>True to NAT Traversal mode</div>
@@ -166,7 +166,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">yes</div>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">"yes"</div>
                                     </td>
                                                                 <td>
                                                                         <div>True to have the firewall only respond to IKE connections and never initiate them.</div>
@@ -181,7 +181,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">default</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"default"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Crypto profile for IKEv1.</div>
@@ -201,7 +201,7 @@ Parameters
                                                                                                                                                                                                 <li>main</li>
                                                                                                                                                                                                 <li>aggressive</li>
                                                                                     </ul>
-                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
                                     </td>
                                                                 <td>
                                                                         <div>The IKE exchange mode to use</div>
@@ -215,7 +215,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">default</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"default"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Crypto profile for IKEv2.</div>
@@ -230,7 +230,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">ethernet1/1</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"ethernet1/1"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Specify the outgoing firewall interface to the VPN tunnel.</div>
@@ -282,7 +282,7 @@ Parameters
                                                                                                                                                                                                 <li>keyid</li>
                                                                                                                                                                                                 <li>dn</li>
                                                                                     </ul>
-                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Specify the type of local ID.</div>
@@ -296,7 +296,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
                                     </td>
                                                                 <td>
                                                                         <div>The value for the local_id.  (See also local_id_type, above.)</div>
@@ -310,7 +310,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Bind IKE gateway to the specified interface IP address</div>
@@ -329,7 +329,7 @@ Parameters
                                                                                                                                                                 <li>ip</li>
                                                                                                                                                                                                 <li>floating-ip</li>
                                                                                     </ul>
-                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
                                     </td>
                                                                 <td>
                                                                         <div>The address type of the bound interface IP address</div>
@@ -376,7 +376,7 @@ Parameters
                                                                                                                                                                 <li>exact</li>
                                                                                                                                                                                                 <li>wildcard</li>
                                                                                     </ul>
-                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Type of checking to do on peer_id.</div>
@@ -397,7 +397,7 @@ Parameters
                                                                                                                                                                                                 <li>keyid</li>
                                                                                                                                                                                                 <li>dn</li>
                                                                                     </ul>
-                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Specify the type of peer ID.</div>
@@ -411,7 +411,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
                                     </td>
                                                                 <td>
                                                                         <div>The value for the peer_id.  (See also peer_id_type, above.)</div>
@@ -425,7 +425,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">127.0.0.1</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"127.0.0.1"</div>
                                     </td>
                                                                 <td>
                                                                         <div>IPv4 address of the peer gateway.</div>
@@ -456,7 +456,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">CHANGEME</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"CHANGEME"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Specify pre-shared key.</div>
@@ -556,7 +556,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">admin</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"admin"</div>
                                     </td>
                                                                 <td>
                                                                         <div>The username to use for authentication.  This is ignored if <em>api_key</em> is specified.</div>
@@ -614,7 +614,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">admin</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"admin"</div>
                                     </td>
                                                                 <td>
                                                                         <div><b>Deprecated</b></div>
@@ -631,7 +631,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">ike2</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"ike2"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Specify the priority for Diffie-Hellman (DH) groups.</div>

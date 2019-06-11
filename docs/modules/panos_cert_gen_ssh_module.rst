@@ -48,7 +48,7 @@ Parameters
                          / <span style="color: red">required</span>                    </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">null</div>
                                     </td>
                                                                 <td>
                                                                         <div>Certificate CN (common name) embedded in the certificate signature.</div>
@@ -62,7 +62,7 @@ Parameters
                          / <span style="color: red">required</span>                    </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">null</div>
                                     </td>
                                                                 <td>
                                                                         <div>Human friendly certificate name (not CN but just a friendly name).</div>
@@ -76,7 +76,7 @@ Parameters
                          / <span style="color: red">required</span>                    </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">null</div>
                                     </td>
                                                                 <td>
                                                                         <div>IP address (or hostname) of PAN-OS device being configured.</div>
@@ -90,7 +90,7 @@ Parameters
                          / <span style="color: red">required</span>                    </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">null</div>
                                     </td>
                                                                 <td>
                                                                         <div>Location of the filename that is used for the auth. Either <em>key_filename</em> or <em>password</em> is required.</div>
@@ -104,7 +104,7 @@ Parameters
                          / <span style="color: red">required</span>                    </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">null</div>
                                     </td>
                                                                 <td>
                                                                         <div>Password credentials to use for auth. Either <em>key_filename</em> or <em>password</em> is required.</div>
@@ -118,7 +118,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">2048</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"2048"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Number of bits used by the RSA algorithm for the certificate generation.</div>
@@ -132,7 +132,7 @@ Parameters
                          / <span style="color: red">required</span>                    </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">null</div>
                                     </td>
                                                                 <td>
                                                                         <div>Undersigning authority (CA) that MUST already be presents on the device.</div>
@@ -146,7 +146,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">admin</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"admin"</div>
                                     </td>
                                                                 <td>
                                                                         <div>User name to use for auth. Default is admin.</div>
