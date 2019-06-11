@@ -503,7 +503,7 @@ class ConnectionHelper(object):
         return ans
 
 
-def get_connection(vsys=None, shared_vsys=None, device_group=None,
+def get_connection(vsys=None, vsys_shared=None, device_group=None,
                    vsys_dg=None, vsys_importable=None,
                    rulebase=None, template=None, template_stack=None,
                    with_classic_provider_spec=False, with_state=False,
@@ -513,7 +513,7 @@ def get_connection(vsys=None, shared_vsys=None, device_group=None,
                    panorama_error=None, firewall_error=None):
     """Returns a helper object that handles pandevice object tree init.
 
-    The `vsys`, `shared_vsys`, `device_group`, `vsys_dg`, `vsys_importable`, `rulebase`,
+    The `vsys`, `vsys_shared`, `device_group`, `vsys_dg`, `vsys_importable`, `rulebase`,
     `template`, and `template_stack` params can be any of the following types:
 
         * None - do not include this in the spec
@@ -530,7 +530,7 @@ def get_connection(vsys=None, shared_vsys=None, device_group=None,
 
     Arguments:
         vsys: The vsys (default: 'vsys1').
-        shared_vsys: The vsys (default: 'shared').
+        vsys_shared: The vsys (default: 'shared').
         device_group: Panorama only - The device group (default: 'shared').
         vsys_dg: The param name if vsys and device_group are a shared param.
         vsys_importable: Either this or `vsys` should be specified.  For:
