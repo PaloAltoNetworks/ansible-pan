@@ -42,6 +42,23 @@ Parameters
         </tr>
                     <tr>
                                                                 <td colspan="2">
+                    <b>all_details</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Get full-policy details when name is not set.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
                     <b>api_key</b>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
@@ -64,7 +81,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">shared</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"shared"</div>
                                     </td>
                                                                 <td>
                                                                         <div>(Panorama only) The device group the operation should target.</div>
@@ -212,7 +229,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">admin</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"admin"</div>
                                     </td>
                                                                 <td>
                                                                         <div>The username to use for authentication.  This is ignored if <em>api_key</em> is specified.</div>
@@ -258,7 +275,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">admin</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"admin"</div>
                                     </td>
                                                                 <td>
                                                                         <div><b>Deprecated</b></div>
@@ -275,7 +292,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">vsys1</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"vsys1"</div>
                                     </td>
                                                                 <td>
                                                                         <div>The vsys this object belongs to.</div>
@@ -335,10 +352,394 @@ Common return values are `documented here <https://docs.ansible.com/ansible/late
         </tr>
                     <tr>
                                 <td colspan="2">
+                    <b>policy</b>
+                    <div style="font-size: small; color: purple">complex</div>
+                                    </td>
+                <td>When <em>rule_name</em> is not specified and <em>all_details</em> is True</td>
+                <td>
+                                            <div>List of security rules present with details</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                                            <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>action</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>The rule action.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>antivirus</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>Name of the already defined antivirus profile.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>application</b>
+                    <div style="font-size: small; color: purple">list</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>List of applications, application groups, and/or application filters.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>category</b>
+                    <div style="font-size: small; color: purple">list</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>List of destination URL categories.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>data_filtering</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>Name of the already defined data_filtering profile.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>description</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>Description of the security rule.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>destination_ip</b>
+                    <div style="font-size: small; color: purple">list</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>List of destination addresses.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>destination_zone</b>
+                    <div style="font-size: small; color: purple">list</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>List of destination zones.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>disable_server_response_inspection</b>
+                    <div style="font-size: small; color: purple">boolean</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>Disables packet inspection from the server to the client.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>disabled</b>
+                    <div style="font-size: small; color: purple">boolean</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>Disable this rule.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>file_blocking</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>Name of the already defined file_blocking profile.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>group_profile</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>Security profile group setting.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>hip_profiles</b>
+                    <div style="font-size: small; color: purple">list</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>GlobalProtect host information profile list.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>icmp_unreachable</b>
+                    <div style="font-size: small; color: purple">boolean</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>Send &#x27;ICMP Unreachable&#x27;.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>log_end</b>
+                    <div style="font-size: small; color: purple">boolean</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>Whether to log at session end.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>log_setting</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>Log forwarding profile.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>log_start</b>
+                    <div style="font-size: small; color: purple">boolean</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>Whether to log at session start.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>negate_destination</b>
+                    <div style="font-size: small; color: purple">boolean</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>Match on the reverse of the &#x27;destination_ip&#x27; attribute</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>negate_source</b>
+                    <div style="font-size: small; color: purple">boolean</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>Match on the reverse of the &#x27;source_ip&#x27; attribute</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>rule_name</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>Name of the security rule.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>rule_type</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>Type of security rule (version 6.1 of PanOS and above).</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>schedule</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>Schedule in which this rule is active.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>service</b>
+                    <div style="font-size: small; color: purple">list</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>List of services and/or service groups.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>source_ip</b>
+                    <div style="font-size: small; color: purple">list</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>List of source addresses.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>source_user</b>
+                    <div style="font-size: small; color: purple">list</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>List of source users.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>source_zone</b>
+                    <div style="font-size: small; color: purple">list</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>List of source zones.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>spyware</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>Name of the already defined spyware profile.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>tag_name</b>
+                    <div style="font-size: small; color: purple">list</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>List of tags associated with the rule.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>url_filtering</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>Name of the already defined url_filtering profile.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>vulnerability</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>Name of the already defined vulnerability profile.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                                <tr>
+                                    <td class="elbow-placeholder">&nbsp;</td>
+                                <td colspan="1">
+                    <b>wildfire_analysis</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td></td>
+                <td>
+                                            <div>Name of the already defined wildfire_analysis profile.</div>
+                                        <br/>
+                                    </td>
+            </tr>
+                    
+                                                <tr>
+                                <td colspan="2">
                     <b>rules</b>
                     <div style="font-size: small; color: purple">list</div>
                                     </td>
-                <td>When <em>rule_name</em> is not specified</td>
+                <td>When <em>rule_name</em> is not specified and <em>all_details</em> is False</td>
                 <td>
                                             <div>List of security rules present</div>
                                         <br/>

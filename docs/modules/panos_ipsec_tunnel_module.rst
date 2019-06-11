@@ -49,7 +49,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">default</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"default"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Name of the existing IKE gateway (auto-key).</div>
@@ -64,7 +64,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">default</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"default"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Name of the existing IPsec profile or use default (auto-key).</div>
@@ -79,7 +79,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">yes</div>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">"yes"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Enable anti-replay check on this tunnel.</div>
@@ -109,7 +109,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">yes</div>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">"yes"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Commit configuration if changed.</div>
@@ -129,7 +129,7 @@ Parameters
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>– Copy IPv6 flow label for 6in6 tunnel from inner packet to IPSec packet (not recommended) (7.0+).</div>
+                                                                        <div>Copy IPv6 flow label for 6in6 tunnel from inner packet to IPSec packet (not recommended) (7.0+).</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -157,7 +157,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">no</div>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">"no"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Disable the IPsec tunnel.</div>
@@ -171,7 +171,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">no</div>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">"no"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Enable tunnel monitoring on this tunnel.</div>
@@ -187,7 +187,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>– Profile for authenticating GlobalProtect gateway certificates (global-protect-satellite).</div>
+                                                                        <div>Profile for authenticating GlobalProtect gateway certificates (global-protect-satellite).</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -200,7 +200,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>– Interface to communicate with portal (global-protect-satellite).</div>
+                                                                        <div>Interface to communicate with portal (global-protect-satellite).</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -213,7 +213,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>– Floating IPv4 IP address in HA Active-Active configuration (7.0+) (global-protect-satellite).</div>
+                                                                        <div>Floating IPv4 IP address in HA Active-Active configuration (7.0+) (global-protect-satellite).</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -226,7 +226,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>– Exact IPv4 IP address if interface has multiple IP addresses (global-protect-satellite).</div>
+                                                                        <div>Exact IPv4 IP address if interface has multiple IP addresses (global-protect-satellite).</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -239,7 +239,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>– Floating IPv6 IP address in HA Active-Active configuration (8.0+) (global-protect-satellite).</div>
+                                                                        <div>Floating IPv6 IP address in HA Active-Active configuration (8.0+) (global-protect-satellite).</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -252,7 +252,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>– Exact IPv6 IP address if interface has multiple IP addresses (8.0+) (global-protect-satellite).</div>
+                                                                        <div>Exact IPv6 IP address if interface has multiple IP addresses (8.0+) (global-protect-satellite).</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -278,7 +278,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>– GlobalProtect portal address (global-protect-satellite).</div>
+                                                                        <div>GlobalProtect portal address (global-protect-satellite).</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -295,7 +295,7 @@ Parameters
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>– Prefer to register portal in IPv6 (8.0+) (global-protect-satellite).</div>
+                                                                        <div>Prefer to register portal in IPv6 (8.0+) (global-protect-satellite).</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -312,7 +312,7 @@ Parameters
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>– Enable publishing of connected and static routes (global-protect-satellite).</div>
+                                                                        <div>Enable publishing of connected and static routes (global-protect-satellite).</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -371,7 +371,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>– Authentication key (manual-key).</div>
+                                                                        <div>Authentication key (manual-key).</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -438,7 +438,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>– Interface to terminate tunnel (manual-key).</div>
+                                                                        <div>Interface to terminate tunnel (manual-key).</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -451,7 +451,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>– Floating IP address in HA Active-Active configuration (manual-key).</div>
+                                                                        <div>Floating IP address in HA Active-Active configuration (manual-key).</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -464,7 +464,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>– Exact IP address if interface has multiple IP addresses (manual-key).</div>
+                                                                        <div>Exact IP address if interface has multiple IP addresses (manual-key).</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -494,7 +494,7 @@ Parameters
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>– Protocol for traffic through the tunnel (manual-key).</div>
+                                                                        <div>Protocol for traffic through the tunnel (manual-key).</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -507,7 +507,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>– Tunnel peer IP address (manual-key).</div>
+                                                                        <div>Tunnel peer IP address (manual-key).</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -520,7 +520,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>– Inbound SPI in hex (manual-key).</div>
+                                                                        <div>Inbound SPI in hex (manual-key).</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -662,7 +662,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">admin</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"admin"</div>
                                     </td>
                                                                 <td>
                                                                         <div>The username to use for authentication.  This is ignored if <em>api_key</em> is specified.</div>
@@ -720,7 +720,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">tunnel.1</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"tunnel.1"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Specify existing tunnel interface that will be used.</div>
@@ -747,7 +747,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Monitoring action.</div>
@@ -761,7 +761,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Which proxy-id (or proxy-id-v6) the monitoring traffic will use.</div>
@@ -793,7 +793,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">admin</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"admin"</div>
                                     </td>
                                                                 <td>
                                                                         <div><b>Deprecated</b></div>

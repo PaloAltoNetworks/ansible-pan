@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 #  Copyright 2016 Palo Alto Networks, Inc
 #
@@ -20,7 +21,10 @@ module: panos_interface
 short_description: configure data-port network interfaces
 description:
     - Configure data-port (DP) network interface. By default DP interfaces are static.
-author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
+author:
+    - Luigi Mori (@jtschichold)
+    - Ivan Bojer (@ivanbojer)
+    - Garfield Lee Freeman (@shinmog)
 version_added: "2.3"
 requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)

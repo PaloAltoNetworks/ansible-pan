@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
@@ -23,7 +24,9 @@ module: panos_zone
 short_description: configure security zone
 description:
     - Configure security zones on PAN-OS firewall or in Panorama template.
-author: "Robert Hagen (@stealthllama)"
+author:
+    - Robert Hagen (@stealthllama)
+    - Garfield Lee Freeman (@shinmog)
 version_added: "2.8"
 requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)

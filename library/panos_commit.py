@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 #  Copyright 2017 Palo Alto Networks, Inc
 #
@@ -28,7 +29,9 @@ short_description: Commit a PAN-OS device's candidate configuration.
 description:
     - Module that will commit the candidate configuration of a PAN-OS device.
     - The new configuration will become active immediately.
-author: "Michael Richardson (@mrichardson03)"
+author:
+    - Michael Richardson (@mrichardson03)
+    - Garfield Lee Freeman (@shinmog)
 version_added: "2.3"
 requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)

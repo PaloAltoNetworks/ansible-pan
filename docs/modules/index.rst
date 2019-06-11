@@ -28,15 +28,27 @@ Module Reference
    panos_commit_module
    panos_dag_module
    panos_dag_tags_module
+   panos_email_profile_module
+   panos_email_server_module
    panos_facts_module
+   panos_http_profile_header_module
+   panos_http_profile_module
+   panos_http_profile_param_module
+   panos_http_server_module
    panos_ike_crypto_profile_module
    panos_ike_gateway_module
    panos_import_module
    panos_interface_module
+   panos_ipsec_ipv4_proxyid_module
    panos_ipsec_profile_module
    panos_ipsec_tunnel_module
+   panos_l2_subinterface_module
+   panos_l3_subinterface_module
    panos_lic_module
    panos_loadcfg_module
+   panos_log_forwarding_profile_match_list_action_module
+   panos_log_forwarding_profile_match_list_module
+   panos_log_forwarding_profile_module
    panos_loopback_interface_module
    panos_management_profile_module
    panos_match_rule_module
@@ -56,12 +68,20 @@ Module Reference
    panos_security_rule_module
    panos_service_group_module
    panos_service_object_module
+   panos_snmp_profile_module
+   panos_snmp_v2c_server_module
+   panos_snmp_v3_server_module
    panos_software_module
    panos_static_route_module
+   panos_syslog_profile_module
+   panos_syslog_server_module
    panos_tag_object_module
    panos_tunnel_module
+   panos_type_cmd_module
    panos_userid_module
+   panos_virtual_router_facts_module
    panos_virtual_router_module
    panos_vlan_interface_module
    panos_vlan_module
+   panos_zone_facts_module
    panos_zone_module

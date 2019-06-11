@@ -87,7 +87,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">admin</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"admin"</div>
                                     </td>
                                                                 <td>
                                                                         <div>username for initial authentication</div>

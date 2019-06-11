@@ -125,7 +125,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">shared</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"shared"</div>
                                     </td>
                                                                 <td>
                                                                         <div>(Panorama only) The device group the operation should target.</div>
@@ -286,7 +286,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">admin</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"admin"</div>
                                     </td>
                                                                 <td>
                                                                         <div>The username to use for authentication.  This is ignored if <em>api_key</em> is specified.</div>
@@ -318,7 +318,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">admin</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"admin"</div>
                                     </td>
                                                                 <td>
                                                                         <div><b>Deprecated</b></div>
@@ -335,7 +335,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">vsys1</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"vsys1"</div>
                                     </td>
                                                                 <td>
                                                                         <div>The vsys this object belongs to.</div>

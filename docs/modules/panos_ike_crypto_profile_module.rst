@@ -85,7 +85,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">yes</div>
+                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">"yes"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Commit configuration if changed.</div>
@@ -128,7 +128,7 @@ Parameters
                                                                                                                                                                                                 <li>aes-192-cbc</li>
                                                                                                                                                                                                 <li><div style="color: blue"><b>aes-256-cbc</b>&nbsp;&larr;</div></li>
                                                                                     </ul>
-                                                                                    <b>Default:</b><br/><div style="color: blue">[&#39;aes-256-cbc&#39;, &#39;3des&#39;]</div>
+                                                                                    <b>Default:</b><br/><div style="color: blue">["aes-256-cbc", "3des"]</div>
                                     </td>
                                                                 <td>
                                                                         <div>Encryption algorithms used for IKE phase 1 proposal.</div>
@@ -342,7 +342,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">admin</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"admin"</div>
                                     </td>
                                                                 <td>
                                                                         <div>The username to use for authentication.  This is ignored if <em>api_key</em> is specified.</div>
@@ -400,7 +400,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">admin</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"admin"</div>
                                     </td>
                                                                 <td>
                                                                         <div><b>Deprecated</b></div>

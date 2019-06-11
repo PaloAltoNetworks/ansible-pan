@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
@@ -37,7 +38,9 @@ description:
       non-exist and one advertise filter.
     - When modifying a BGP conditional advertisement, any filters attached are left as-is,
       unless I(advertise_filter) or I(non_exist_filter) are specified.
-author: "Joshua Colson (@freakinhippie)"
+author:
+    - Joshua Colson (@freakinhippie)
+    - Garfield Lee Freeman (@shinmog)
 version_added: "2.8"
 requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)

@@ -21,6 +21,7 @@ description:
     - Collects fact information from Palo Alto Networks firewall running PanOS.
 author:
     - Tomi Raittinen (@traittinen)
+    - Garfield Lee Freeman (@shinmog)
 notes:
     - Tested on PanOS 8.0.5
     - Checkmode is not supported.

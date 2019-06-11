@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 #  Copyright 2016 Palo Alto Networks, Inc
 #
@@ -21,7 +22,10 @@ short_description: check if PAN-OS device is ready for configuration
 description:
     - Check if PAN-OS device is ready for being configured (no pending jobs).
     - The check could be done once or multiple times until the device is ready.
-author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
+author:
+    - Luigi Mori (@jtschichold)
+    - Ivan Bojer (@ivanbojer)
+    - Garfield Lee Freeman (@shinmog)
 version_added: "2.3"
 requirements:
     - pan-python

@@ -99,7 +99,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">[&#39;any&#39;]</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">["any"]</div>
                                     </td>
                                                                 <td>
                                                                         <div>List of applications, application groups, and/or application filters.</div>
@@ -113,7 +113,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">[&#39;any&#39;]</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">["any"]</div>
                                     </td>
                                                                 <td>
                                                                         <div>List of destination URL categories.</div>
@@ -170,7 +170,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">[&#39;any&#39;]</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">["any"]</div>
                                     </td>
                                                                 <td>
                                                                         <div>List of destination addresses.</div>
@@ -184,7 +184,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">[&#39;any&#39;]</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">["any"]</div>
                                     </td>
                                                                 <td>
                                                                         <div>List of destination zones.</div>
@@ -198,7 +198,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">shared</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"shared"</div>
                                     </td>
                                                                 <td>
                                                                         <div>(Panorama only) The device group the operation should target.</div>
@@ -301,7 +301,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">[&#39;any&#39;]</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">["any"]</div>
                                     </td>
                                                                 <td>
                                                                         <div>- If you are using GlobalProtect with host information profile (HIP) enabled, you can also base the policy on information collected by GlobalProtect. For example, the user access level can be determined HIP that notifies the firewall about the user&#x27;s local configuration.</div>
@@ -597,7 +597,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">admin</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"admin"</div>
                                     </td>
                                                                 <td>
                                                                         <div>The username to use for authentication.  This is ignored if <em>api_key</em> is specified.</div>
@@ -674,7 +674,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">[&#39;application-default&#39;]</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">["application-default"]</div>
                                     </td>
                                                                 <td>
                                                                         <div>List of services and/or service groups.</div>
@@ -688,7 +688,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">[&#39;any&#39;]</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">["any"]</div>
                                     </td>
                                                                 <td>
                                                                         <div>List of source addresses.</div>
@@ -702,7 +702,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">[&#39;any&#39;]</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">["any"]</div>
                                     </td>
                                                                 <td>
                                                                         <div>Use users to enforce policy for individual users or a group of users.</div>
@@ -716,7 +716,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">[&#39;any&#39;]</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">["any"]</div>
                                     </td>
                                                                 <td>
                                                                         <div>List of source zones.</div>
@@ -799,7 +799,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">admin</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"admin"</div>
                                     </td>
                                                                 <td>
                                                                         <div><b>Deprecated</b></div>
@@ -816,7 +816,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">vsys1</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"vsys1"</div>
                                     </td>
                                                                 <td>
                                                                         <div>The vsys this object belongs to.</div>
@@ -969,6 +969,9 @@ Status
 Authors
 ~~~~~~~
 
-- Ivan Bojer (@ivanbojer), Robert Hagen (@stealthllama), Michael Richardson (@mrichardson03)
+- Ivan Bojer (@ivanbojer)
+- Robert Hagen (@stealthllama)
+- Michael Richardson (@mrichardson03)
+- Garfield Lee Freeman (@shinmog)
 
 

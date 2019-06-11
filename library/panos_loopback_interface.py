@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 #  Copyright 2019 Palo Alto Networks, Inc
 #
@@ -20,9 +21,9 @@ module: panos_loopback_interface
 short_description: configure network loopback interfaces
 description:
     - Configure loopback interfaces on PanOS
-
-
-author: "Geraint Jones (@nexus_moneky_nz)"
+author:
+    - Geraint Jones (@nexus_moneky_nz)
+    - Garfield Lee Freeman (@shinmog)
 version_added: "2.8"
 requirements:
     - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)

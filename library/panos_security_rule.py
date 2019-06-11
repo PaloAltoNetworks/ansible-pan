@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 #  Copyright 2017 Palo Alto Networks, Inc
 #
@@ -27,7 +28,11 @@ description:
     - Security policies allow you to enforce rules and take action, and can be as general or specific as needed.
     - The policy rules are compared against the incoming traffic in sequence, and because the first rule that matches
     - the traffic is applied, the more specific rules must precede the more general ones.
-author: "Ivan Bojer (@ivanbojer), Robert Hagen (@stealthllama), Michael Richardson (@mrichardson03)"
+author:
+    - Ivan Bojer (@ivanbojer)
+    - Robert Hagen (@stealthllama)
+    - Michael Richardson (@mrichardson03)
+    - Garfield Lee Freeman (@shinmog)
 version_added: "2.4"
 requirements:
     - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)

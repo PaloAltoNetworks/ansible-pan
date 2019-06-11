@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 #  Copyright 2018 Palo Alto Networks, Inc
 #
@@ -24,7 +25,9 @@ module: panos_static_route
 short_description: Create static routes on PAN-OS devices.
 description:
     - Create static routes on PAN-OS devices.
-author: "Michael Richardson (@mrichardson03)"
+author:
+    - Michael Richardson (@mrichardson03)
+    - Garfield Lee Freeman (@shinmog)
 version_added: "2.6"
 requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)

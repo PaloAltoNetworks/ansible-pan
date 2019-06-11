@@ -95,7 +95,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">[&#39;any&#39;]</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">["any"]</div>
                                     </td>
                                                                 <td>
                                                                         <div>list of destination addresses</div>
@@ -122,7 +122,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">shared</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"shared"</div>
                                     </td>
                                                                 <td>
                                                                         <div>(Panorama only) The device group the operation should target.</div>
@@ -378,7 +378,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">admin</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"admin"</div>
                                     </td>
                                                                 <td>
                                                                         <div>The username to use for authentication.  This is ignored if <em>api_key</em> is specified.</div>
@@ -424,7 +424,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">any</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"any"</div>
                                     </td>
                                                                 <td>
                                                                         <div>service</div>
@@ -530,7 +530,7 @@ Parameters
                                                                                                                                                                                                 <li>dynamic-ip</li>
                                                                                                                                                                                                 <li>dynamic-ip-and-port</li>
                                                                                     </ul>
-                                                                                    <b>Default:</b><br/><div style="color: blue">None</div>
+                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
                                     </td>
                                                                 <td>
                                                                         <div>type of source translation</div>
@@ -544,7 +544,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">[&#39;any&#39;]</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">["any"]</div>
                                     </td>
                                                                 <td>
                                                                         <div>list of source addresses</div>
@@ -619,7 +619,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">any</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"any"</div>
                                     </td>
                                                                 <td>
                                                                         <div>Original packet&#x27;s destination interface.</div>
@@ -633,7 +633,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">admin</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"admin"</div>
                                     </td>
                                                                 <td>
                                                                         <div><b>Deprecated</b></div>
@@ -650,7 +650,7 @@ Parameters
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">vsys1</div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"vsys1"</div>
                                     </td>
                                                                 <td>
                                                                         <div>The vsys this object belongs to.</div>
@@ -719,6 +719,10 @@ Status
 Authors
 ~~~~~~~
 
-- Luigi Mori (@jtschichold),Ivan Bojer (@ivanbojer),Robert Hagen (@rnh556),Michael Richardson (@mrichardson03)
+- Luigi Mori (@jtschichold)
+- Ivan Bojer (@ivanbojer)
+- Robert Hagen (@rnh556)
+- Michael Richardson (@mrichardson03)
+- Garfield Lee Freeman (@shinmog)
 
 
