@@ -1,6 +1,15 @@
 Release History
 ===============
 
+V2.2.1
+------
+
+- *Released*: 2019-06-12
+
+Bug fixes:
+
+* Fixed `panos_l3_subinterface` DHCP handling to match `panos_interface`
+
 V2.2.0
 ------
 
