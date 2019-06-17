@@ -209,7 +209,7 @@ class ConnectionHelper(object):
                         ))
                 elif tmpl_required:
                     module.fail_json(msg=ts_error.format(''))
-                else:
+                elif not added_template:
                     module.fail_json(msg=pano_mia_param.format(self.template))
 
             # Spec: vsys_dg or device_group.
