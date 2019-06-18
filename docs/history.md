@@ -1,6 +1,15 @@
 Release History
 ===============
 
+V2.2.2
+------
+
+- *Released*: 2019-06-18
+
+Bug fixes:
+
+* Fixed module handling when targeting Panorama template stacks
+
 V2.2.1
 ------
 
