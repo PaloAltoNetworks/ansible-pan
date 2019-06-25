@@ -120,6 +120,18 @@ def main():
     cmd = module.params['cmd']
     cmd_is_xml = module.params['cmd_is_xml']
 
+    changed = True
+    safecmd = [
+      'diff',
+      'find',
+      'grep',
+      'less',
+      'ls',
+      'ping',
+      'show',
+      'tail'
+    ]
+
     xml_output = ''
     try:
         xml_output = parent.op(cmd, xml=True, cmd_xml=(not cmd_is_xml))
@@ -134,10 +146,12 @@ def main():
         except PanDeviceError as e2:
             module.fail_json(msg='Failed to run command : {0} : {1}'.format(cmd2, e2))
 
+        if tokens[0] in safecmd: changed = False
+          
     obj_dict = xmltodict.parse(xml_output)
     json_output = json.dumps(obj_dict)
 
-    module.exit_json(changed=True, msg="Done",
+    module.exit_json(changed=changed, msg="Done",
                      stdout=json_output, stdout_xml=xml_output)
 
 
