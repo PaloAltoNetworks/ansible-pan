@@ -139,7 +139,7 @@ def main():
 
         if tokens[0] in safecmd:
             changed = False
-          
+
     obj_dict = xmltodict.parse(xml_output)
     json_output = json.dumps(obj_dict)
 
