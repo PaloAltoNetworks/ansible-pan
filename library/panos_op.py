@@ -121,7 +121,7 @@ def main():
     cmd_is_xml = module.params['cmd_is_xml']
 
     changed = True
-    safecmd = ['diff', 'find', 'grep', 'less', 'ls', 'ping', 'show', 'tail']
+    safecmd = ['diff', 'show']
 
     xml_output = ''
     try:
