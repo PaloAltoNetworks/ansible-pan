@@ -192,9 +192,16 @@ def main():
         'ipv4_mss_adjust': module.params['ipv4_mss_adjust'],
         'ipv6_mss_adjust': module.params['ipv6_mss_adjust'],
         'enable_dhcp': True if module.params['enable_dhcp'] else None,
-        'create_dhcp_default_route': True if module.params['create_default_route'] else None,
+        # 'create_dhcp_default_route': set below
         'dhcp_default_route_metric': module.params['dhcp_default_route_metric'],
     }
+
+    if module.params['create_default_route']:
+        spec['create_dhcp_default_route'] = True
+    elif spec['enable_dhcp']:
+        spec['create_dhcp_default_route'] = False
+    else:
+        spec['create_dhcp_default_route'] = None
 
     # Get other info.
     state = module.params['state']
