@@ -1,10 +1,22 @@
 Release History
 ===============
 
-Proposed
+V2.2.4
 --------
 
+- *Unreleased*
+
 * add list of op commands that will not produce changes
+
+V2.2.3
+------
+
+- *Released*: 2019-07-09
+
+Bug fixes:
+
+* Fixed `create_default_route` handling with both `panos_interface`
+  and `panos_l3_subinterface`
 
 V2.2.2
 ------

@@ -10,7 +10,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='ansible-pan',
-    version='2.2.2',
+    version='2.2.3',
     packages=['library'],
     # The project's main homepage.
     url='https://github.com/PaloAltoNetworks/ansible-pan',
