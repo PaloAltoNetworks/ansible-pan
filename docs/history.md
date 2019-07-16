@@ -1,6 +1,13 @@
 Release History
 ===============
 
+V2.2.4
+--------
+
+- *Unreleased*
+
+* add list of op commands that will not produce changes
+
 V2.2.3
 ------
 
