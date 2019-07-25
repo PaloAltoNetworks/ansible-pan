@@ -185,7 +185,7 @@ def main():
         if obj:
             results = colorize(obj, object_type)
             ans_objects.append(results)
-    elif module.params['value'] is not None:   
+    elif module.params['value'] is not None:
         for x in obj_listing:
             AdressObject = x.about()
             if AdressObject['value'] == module.params['value']:
