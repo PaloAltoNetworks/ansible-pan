@@ -139,7 +139,7 @@ def colorize(obj, object_type):
 
 
 def main():
-    name_params = ['name', 'name_regex','value','value_regex']
+    name_params = ['name', 'name_regex', 'value', 'value_regex']
     obj_types = {
         'address': objects.AddressObject,
         'address-group': objects.AddressGroup,
@@ -185,12 +185,12 @@ def main():
         if obj:
             results = colorize(obj, object_type)
             ans_objects.append(results)
-    elif module.params['value'] is not None:    
+    elif module.params['value'] is not None:   
         for x in obj_listing:
             AdressObject = x.about()
             if AdressObject['value'] == module.params['value']:
                 ans_objects.append(colorize(x, object_type))
-    elif module.params['value_regex'] is not None:   
+    elif module.params['value_regex'] is not None:
         try:
             matcher = re.compile(module.params['value_regex'])
         except Exception as e:
