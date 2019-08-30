@@ -372,13 +372,15 @@ def main():
             changed |= eth.set_vsys(vsys, **reference_params)
             changed |= eth.set_zone(zone_name, mode=eth.mode, **reference_params)
             changed |= eth.set_vlan(vlan_name, **reference_params)
-            changed |= eth.set_virtual_router(vr_name, **reference_params)
+            if 'aggregate-group' not in eth.mode:
+                changed |= eth.set_virtual_router(vr_name, **reference_params)
         except PanDeviceError as e:
             module.fail_json(msg='Failed setref: {0}'.format(e))
     elif state == 'absent':
         # Remove references.
         try:
-            changed |= eth.set_virtual_router(None, **reference_params)
+            if 'aggregate-group' not in eth.mode:
+                changed |= eth.set_virtual_router(None, **reference_params)
             changed |= eth.set_vlan(None, **reference_params)
             changed |= eth.set_zone(None, mode=eth.mode, **reference_params)
             changed |= eth.set_vsys(None, **reference_params)
