@@ -215,7 +215,7 @@ def main():
         module.fail_json(msg='Interface name does not have "." in it')
 
     # check on EthernetInterface or AggregateInterface
-    parent_iname=spec['name'].split('.')[0]
+    parent_iname = spec['name'].split('.')[0]
 
     # Retrieve the current config.
     if parent_iname.startswith('ae'):
