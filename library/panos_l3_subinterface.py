@@ -218,7 +218,7 @@ def main():
     parent_iname=spec['name'].split('.')[0]
 
     # Retrieve the current config.
-    if 'ae' in parent_iname:
+    if parent_iname.startswith('ae'):
       parent_eth = AggregateInterface(parent_iname)
     else:
       parent_eth = EthernetInterface(parent_iname)
