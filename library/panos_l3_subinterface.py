@@ -219,10 +219,10 @@ def main():
 
     # Retrieve the current config.
     if parent_iname.startswith('ae'):
-      parent_eth = AggregateInterface(parent_iname)
+        parent_eth = AggregateInterface(parent_iname)
     else:
-      parent_eth = EthernetInterface(parent_iname)
-      
+        parent_eth = EthernetInterface(parent_iname)
+
     parent.add(parent_eth)
     try:
         parent_eth.refresh()
