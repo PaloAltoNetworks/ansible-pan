@@ -136,6 +136,7 @@ from ansible.module_utils.network.panos.panos import get_connection
 
 
 try:
+    from pandevice.network import AggregateInterface
     from pandevice.network import EthernetInterface
     from pandevice.network import Layer3Subinterface
     from pandevice.errors import PanDeviceError
@@ -213,8 +214,15 @@ def main():
     if '.' not in spec['name']:
         module.fail_json(msg='Interface name does not have "." in it')
 
+    # check on EthernetInterface or AggregateInterface
+    parent_iname=spec['name'].split('.')[0]
+
     # Retrieve the current config.
-    parent_eth = EthernetInterface(spec['name'].split('.')[0])
+    if 'ae' in parent_iname:
+      parent_eth = AggregateInterface(parent_iname)
+    else:
+      parent_eth = EthernetInterface(parent_iname)
+      
     parent.add(parent_eth)
     try:
         parent_eth.refresh()
