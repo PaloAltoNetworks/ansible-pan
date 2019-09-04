@@ -21,7 +21,7 @@
     include_vars: 'panorama-secrets.yml'
     no_log: 'yes'
 
-  - name: Commit pending Panorama device group changes
+  - name: Commit pending Panorama changes
     panos_commit:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
