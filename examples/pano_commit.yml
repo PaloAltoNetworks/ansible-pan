@@ -31,5 +31,5 @@
   - name: Commit pending Panorama changes for specified admin list
     panos_commit:
       provider: "{{ panos_provider }}"
-      admin: "{{ item }}"
-    with_items: "{{ admins }}"
+      admins: "{{ admins }}"
+  

@@ -50,7 +50,7 @@ options:
             - Use I(device_group) instead.
             - HORIZONTALLINE
             - (Panorama only) The device group.
-    admin:
+    admins:
         description:
             - (PanOS 8.0+ only) Commit only the changes made by specified list of administrators.
         type: list
@@ -69,7 +69,7 @@ EXAMPLES = '''
 - name: commit changes by specified admins to firewall
   panos_commit:
     provider: '{{ provider }}'
-    admin: ['admin1','admin2']
+    admins: ['admin1','admin2']
 '''
 
 RETURN = '''
@@ -87,7 +87,7 @@ def main():
         with_classic_provider_spec=True,
         argument_spec=dict(
             include_template=dict(type='bool'),
-            admin=dict(),
+            admins=dict(type='list'),
             # TODO(gfreeman) - remove in 2.12.
             devicegroup=dict(),
         ),
@@ -114,7 +114,7 @@ def main():
     helper.commit(
         module,
         include_template=module.params['include_template'],
-        admin=module.params['admin'],
+        admins=module.params['admins'],
     )
 
     module.exit_json(changed=True)
