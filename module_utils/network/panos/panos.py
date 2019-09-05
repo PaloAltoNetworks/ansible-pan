@@ -440,10 +440,7 @@ class ConnectionHelper(object):
             return
 
         try:
-            if admins is not None:
-                self.device.commit(sync=True, exception=True, admins=admins)
-            else:
-                self.device.commit(sync=True, exception=True)
+            self.device.commit(sync=True, exception=True, admins=admins)
         except PanCommitNotNeeded:
             pass
         except PanDeviceError as e:

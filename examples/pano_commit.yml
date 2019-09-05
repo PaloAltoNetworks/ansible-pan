@@ -32,4 +32,3 @@
     panos_commit:
       provider: "{{ panos_provider }}"
       admins: "{{ admins }}"
-  
