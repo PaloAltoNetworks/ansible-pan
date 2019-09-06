@@ -115,13 +115,14 @@ options:
 '''
 
 EXAMPLES = '''
-- pa_name: ae1
-  description: 'Aggregate Interface ae1'
-  ip_addresses: '[ "192.168.0.1" ]'
-  management_profile: '[ "ping" ]'
-  enable_dhcp: False
-  mode: 'layer3'
-  zone_name: 'untrust'
+# Create ethernet1/1 as DHCP.
+- name: create ae1 interface with IP in untrust zone
+  panos_aggregate_interface:
+    provider: '{{ provider }}'
+    if_name: "ae1"
+    ip: '[ "192.168.0.1" ]'
+    enable_dhcp: False
+    zone_name: 'untrust'
 '''
 
 RETURN = '''
