@@ -115,7 +115,7 @@ options:
 '''
 
 EXAMPLES = '''
-# Create ethernet1/1 as DHCP.
+# Create ae1 interface.
 - name: create ae1 interface with IP in untrust zone
   panos_aggregate_interface:
     provider: '{{ provider }}'
