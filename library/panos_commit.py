@@ -100,6 +100,8 @@ def main():
         required_one_of=helper.required_one_of,
     )
 
+    changed = False
+
     # TODO(gfreeman) - remove in 2.12
     if module.params['devicegroup'] is not None:
         module.deprecate('Param "devicegroup" is deprecated; use "device_group"', '2.12')
@@ -112,13 +114,13 @@ def main():
         module.params['device_group'] = module.params['devicegroup']
 
     helper.get_pandevice_parent(module)
-    helper.commit(
+    changed = helper.commit(
         module,
         include_template=module.params['include_template'],
         admins=module.params['admins'],
     )
 
-    module.exit_json(changed=True)
+    module.exit_json(changed=changed)
 
 
 if __name__ == '__main__':
