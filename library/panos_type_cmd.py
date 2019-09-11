@@ -110,10 +110,28 @@ EXAMPLES = '''
       /vsys/entry[@name='vsys1']
       /address/entry[@name='sales-block']
     new_name: 'dmz-block'
+
+- name: Show the address object.
+  panos_type_cmd:
+    provider: '{{ provider }}'
+    cmd: 'show'
+    xpath: |
+      /config/devices/entry[@name='localhost.localdomain']
+      /vsys/entry[@name='vsys1']
+      /address/entry[@name='dmz-block']
 '''
 
 RETURN = '''
-# Default return values
+stdout:
+    description: output (if any) of the given API command as JSON formatted string
+    returned: success
+    type: string
+    sample: "{entry: {@name: dmz-block, ip-netmask: 192.168.55.0/24, description: Address CIDR for sales org}}"
+stdout_xml:
+    description: output of the given API command as an XML formatted string
+    returned: success
+    type: string
+    sample: "<entry name=dmz-block><ip-netmask>192.168.55.0/24</ip-netmask><description>Address CIDR for sales org</description></entry>"
 '''
 
 
@@ -123,6 +141,8 @@ from ansible.module_utils.network.panos.panos import get_connection
 
 try:
     from pandevice.errors import PanDeviceError
+    import xmltodict
+    import json
 except ImportError:
     pass
 
@@ -155,6 +175,9 @@ def main():
     cmd = module.params['cmd']
     func = getattr(parent.xapi, cmd)
 
+    changed = True
+    safecmd = ['get', 'show']
+
     kwargs = {
         'xpath': ''.join(module.params['xpath'].strip().split('\n')),
         'extra_qs': module.params['extra_qs'],
@@ -173,12 +196,25 @@ def main():
     if cmd in ('clone', ):
         kwargs['xpath_from'] = module.params['xpath_from']
 
+    xml_output = ''
+
     try:
         func(**kwargs)
     except PanDeviceError as e:
         module.fail_json(msg='{0}'.format(e))
 
-    module.exit_json(changed=True)
+    xml_output = parent.xapi.xml_result()
+    obj_dict = None
+    json_output = None
+
+    if xml_output is not None:
+        obj_dict = xmltodict.parse(xml_output)
+        json_output = json.dumps(obj_dict)
+
+    if cmd in safecmd:
+        changed = False
+
+    module.exit_json(changed=changed, stdout=json_output, stdout_xml=xml_output)
 
 
 if __name__ == '__main__':
