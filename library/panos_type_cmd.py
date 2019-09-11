@@ -131,7 +131,7 @@ stdout_xml:
     description: output of the given API command as an XML formatted string
     returned: success
     type: string
-    sample: "<entry name=dmz-block><ip-netmask>192.168.55.0/24</ip-netmask><description>Address CIDR for sales org</description></entry>"
+    sample: "<entry name=dmz-block><ip-netmask>192.168.55.0/24</ip-netmask>...</entry>"
 '''
 
 
