@@ -1,0 +1,48 @@
+- name: Configure eth1/1 and eth1/2 in Vwire mode
+  hosts: my-firewall
+  connection: local
+  gather_facts: False
+
+  roles:
+    - role: PaloAltoNetworks.paloaltonetworks
+
+  tasks:
+  - name: Grab the credentials from ansible-vault
+    include_vars: 'firewall-secrets.yml'
+    no_log: 'yes'
+
+  - name: Set ethernet1/1 in virtual-wire mode
+    panos_interface:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      if_name: "ethernet1/1"
+      mode: "virtual-wire"
+      zone_name: "external"
+      enable_dhcp: false
+      vr_name:
+      commit: "false"
+
+  - name: Set ethernet1/2 in virtual-wire mode
+    panos_interface:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      if_name: "ethernet1/2"
+      mode: "virtual-wire"
+      enable_dhcp: false
+      zone_name: "internal"
+      vr_name:
+      commit: "false"
+
+  - name: Create Vwire
+    panos_vwire:
+      ip_address: '{{ ip_address }}'
+      username: '{{ username }}'
+      password: '{{ password }}'
+      name: 'vwire1'
+      interface1: 'ethernet1/1'
+      interface2: 'ethernet1/2'
+      tag: 100
+      multicast: 'true'
+      pass_through: 'true'
