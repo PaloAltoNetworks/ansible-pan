@@ -36,7 +36,7 @@
       commit: "false"
 
   - name: Create Vwire
-    panos_vwire:
+    panos_virtual_wire:
       ip_address: '{{ ip_address }}'
       username: '{{ username }}'
       password: '{{ password }}'

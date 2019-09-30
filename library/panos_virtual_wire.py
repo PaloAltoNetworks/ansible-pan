@@ -25,10 +25,10 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = '''
 ---
-module: panos_vwire
-short_description: Configures Vwires.
+module: panos_virtual_wire
+short_description: Configures Virtual Wires (vwire).
 description:
-    - Manage PAN-OS Vwires.
+    - Manage PAN-OS Virtual Wires (vwire).
 author: "Patrick Avery"
 version_added: "2.8"
 requirements:
@@ -45,19 +45,19 @@ notes:
 options:
     name:
         description:
-            -  Name of the Vwire.
+            -  Name of the Virtual Wire
         required: True
     interface1:
         description:
-            - First interface of Vwire
+            - First interface of Virtual Wire
         required: True 
     interface2:
         description:
-            - Second interface of Vwire
+            - Second interface of Virtual Wire
         required: True 
     tag:
         description:
-            - Set tag that is allowed over Vwire.  Currently
+            - Set tag that is allowed over Virtual Wire.  Currently
               pandevice only supports all (default) or 1 tag.
     multicast:
         description:
@@ -71,7 +71,7 @@ options:
 
 EXAMPLES = '''
 - name: Create Vwire
-  panos_vwire:
+  panos_virtual_wire:
     provider: '{{ provider }}'
     name: 'vwire1'
     interface1: 'ethernet1/1'
