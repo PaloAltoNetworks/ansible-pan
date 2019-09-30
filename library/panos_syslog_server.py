@@ -94,7 +94,8 @@ EXAMPLES = '''
     provider: '{{ provider }}'
     syslog_profile: 'my-profile'
     name: 'my-syslog-server'
-    port: 514
+    server: '10.1.1.1'
+    syslog_port: 514
 '''
 
 RETURN = '''
