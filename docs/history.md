@@ -6,8 +6,10 @@ V2.2.4
 
 - *Unreleased*
 
-New module:
-* `panos_zone_facts`
+New modules:
+* `panos_vwire`
+
+Enhancements:
 * add list of op commands that will not produce changes
 
 V2.2.3
