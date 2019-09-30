@@ -50,11 +50,11 @@ options:
     interface1:
         description:
             - First interface of Virtual Wire
-        required: True 
+        required: True
     interface2:
         description:
             - Second interface of Virtual Wire
-        required: True 
+        required: True
     tag:
         description:
             - Set tag that is allowed over Virtual Wire.  Currently
