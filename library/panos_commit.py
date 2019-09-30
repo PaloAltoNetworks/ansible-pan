@@ -85,6 +85,7 @@ def main():
     helper = get_connection(
         device_group=True,
         with_classic_provider_spec=True,
+        min_pandevice_version=(0, 12, 0),
         argument_spec=dict(
             include_template=dict(type='bool'),
             admins=dict(type='list'),
