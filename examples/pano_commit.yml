@@ -6,6 +6,16 @@
   roles:
     - role: PaloAltoNetworks.paloaltonetworks
 
+  vars:
+    panos_provider: 
+      ip_address: "{{ panos_ip_address }}"
+      username: "{{ panos_user }}"
+      password: "{{ panos_pass }}"
+    
+    admins:
+      - admin1
+      - admin2
+
   tasks:
   - name: Grab the credentials from ansible-vault
     include_vars: 'panorama-secrets.yml'
@@ -17,3 +27,8 @@
       username: '{{ username }}'
       password: '{{ password }}'
       devicegroup: 'shared_services_11022'
+
+  - name: Commit pending Panorama changes for specified admin list
+    panos_commit:
+      provider: "{{ panos_provider }}"
+      admins: "{{ admins }}"

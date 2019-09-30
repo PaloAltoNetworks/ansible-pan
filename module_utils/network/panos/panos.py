@@ -420,7 +420,7 @@ class ConnectionHelper(object):
         # Done.
         return changed
 
-    def commit(self, module, include_template=False):
+    def commit(self, module, include_template=False, admins=None):
         """Performs a commit.
 
         In the case where the device is Panorama, then a commit-all is
@@ -433,12 +433,14 @@ class ConnectionHelper(object):
 
         Args:
             include_template (bool): (Panorama only) Force include the template.
+            admins (list): This is the list of admins whose changes will be committed to
+                the firewall/Panorama. The admins argument works with PanOS 8.0+. 
         """
         if module.check_mode:
             return
 
         try:
-            self.device.commit(sync=True, exception=True)
+            self.device.commit(sync=True, exception=True, admins=admins)
         except PanCommitNotNeeded:
             pass
         except PanDeviceError as e:
