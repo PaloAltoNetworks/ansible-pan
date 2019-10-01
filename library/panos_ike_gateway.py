@@ -52,6 +52,10 @@ options:
         description:
             - Specify the priority for Diffie-Hellman (DH) groups.
         default: 'ike2'
+        choices:
+            - ikev1
+            - ikev2
+            - ikev2-preferred
         aliases: 'protocol_version'
     interface:
         description:
@@ -60,26 +64,31 @@ options:
     enable_passive_mode:
         description:
             - True to have the firewall only respond to IKE connections and never initiate them.
+        type: bool
         default: True
         aliases: 'passive_mode'
     enable_nat_traversal:
         description:
             - True to NAT Traversal mode
+        type: bool
         default: False
         aliases: 'nat_traversal'
     enable_fragmentation:
         description:
             - True to enable IKE fragmentation
             - Incompatible with pre-shared keys, or 'aggressive' exchange mode
+        type: bool
         default: False
         aliases: 'fragmentation'
     enable_liveness_check:
         description:
             - Enable sending empty information liveness check message.
+        type: bool
         default: True
     liveness_check_interval:
         description:
             - Delay interval before sending probing packets (in seconds).
+        type: int
         default: 5
         aliases: 'liveness_check'
     peer_ip_value:
@@ -89,15 +98,18 @@ options:
     enable_dead_peer_detection:
         description:
             - True to enable Dead Peer Detection on the gateway.
+        type: bool
         default: false
         aliases: 'dead_peer_detection'
     dead_peer_detection_interval:
         description:
             - Time in seconds to check for a dead peer.
+        type: int
         default: 99
     dead_peer_detection_retry:
         description:
             - Retry attempts before peer is marked dead.
+        type: int
         default: 10
     local_ip_address:
         description:
@@ -136,7 +148,7 @@ options:
         description:
             - Type of checking to do on peer_id.
         choices: ['exact', 'wildcard']
-        default: None
+        default: 'exact'
     ikev1_crypto_profile:
         description:
             - Crypto profile for IKEv1.
@@ -158,6 +170,7 @@ options:
     commit:
         description:
             - Commit configuration if changed.
+        type: bool
         default: true
 '''
 
@@ -200,7 +213,7 @@ def main():
         with_state=True,
         argument_spec=dict(
             name=dict(required=True),
-            version=dict(default='ikev2', aliases=['protocol_version']),
+            version=dict(default='ikev2', choices=['ikev1', 'ikev2', 'ikev2-preferred'], aliases=['protocol_version']),
             interface=dict(default='ethernet1/1'),
             local_ip_address_type=dict(default=None, choices=['ip', 'floating-ip']),
             local_ip_address=dict(default=None),
@@ -208,7 +221,7 @@ def main():
             enable_nat_traversal=dict(type='bool', default=False, aliases=['nat_traversal']),
             enable_fragmentation=dict(type='bool', default=False, aliases=['fragmentation']),
             enable_liveness_check=dict(type='bool', default=True),
-            liveness_check_interval=dict(type='int', default='5', aliases=['liveness_check']),
+            liveness_check_interval=dict(type='int', default=5, aliases=['liveness_check']),
             peer_ip_value=dict(default='127.0.0.1'),
             enable_dead_peer_detection=dict(type='bool', default=False, aliases=['dead_peer_detection']),
             dead_peer_detection_interval=dict(type='int', default=99),
@@ -218,12 +231,12 @@ def main():
             local_id_value=dict(default=None),
             peer_id_type=dict(default=None, choices=['ipaddr', 'fqdn', 'ufqdn', 'keyid', 'dn']),
             peer_id_value=dict(default=None),
-            peer_id_check=dict(default=None, choices=['exact', 'wildcard']),
+            peer_id_check=dict(default='exact', choices=['exact', 'wildcard']),
             ikev1_crypto_profile=dict(default='default', aliases=['crypto_profile_name']),
             ikev1_exchange_mode=dict(default=None, choices=['auto', 'main', 'aggressive']),
             ikev2_crypto_profile=dict(default='default', aliases=['crypto_profile_name']),
-            commit=dict(type='bool', default=True)
-        )
+            commit=dict(type='bool', default=True),
+        ),
     )
 
     module = AnsibleModule(
@@ -231,9 +244,9 @@ def main():
         supports_check_mode=True,
         required_one_of=helper.required_one_of,
         required_together=[
-            ['peer_id_value', 'peer_id_type', 'peer_id_check'],
-            ['local_id_value', 'local_id_type']
-        ]
+            ['peer_id_value', 'peer_id_type'],
+            ['local_id_value', 'local_id_type'],
+        ],
     )
 
     # Verify libs are present, get parent object.
@@ -260,10 +273,11 @@ def main():
         'local_id_type': module.params['local_id_type'],
         'local_id_value': module.params['local_id_value'],
         'peer_id_type': module.params['peer_id_type'],
+        'peer_id_value': module.params['peer_id_value'],
         'peer_id_check': module.params['peer_id_check'],
         'ikev1_crypto_profile': module.params['ikev1_crypto_profile'],
         'ikev1_exchange_mode': module.params['ikev1_exchange_mode'],
-        'ikev2_crypto_profile': module.params['ikev2_crypto_profile']
+        'ikev2_crypto_profile': module.params['ikev2_crypto_profile'],
     }
 
     # Other info.
