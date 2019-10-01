@@ -7,7 +7,7 @@ V2.2.4
 - *Unreleased*
 
 New modules:
-* `panos_vwire`
+* `panos_virtual_wire`
 
 Enhancements:
 * add list of op commands that will not produce changes
