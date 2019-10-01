@@ -75,6 +75,7 @@ options:
     commit:
         description:
             - Commit configuration if changed.
+        type: bool
         default: true
 '''
 
@@ -172,6 +173,12 @@ def main():
         if value is not None and getattr(obj, obj_param) != value:
             changed = True
             setattr(obj, obj_param, value)
+            if not module.check_mode:
+                try:
+                    obj.update(obj_param)
+                except PanDeviceError as e:
+                    module.fail_json(msg='Failed to update {0}: {1}'.format(
+                        obj_param, e))
 
     ntp_relationships = {
         'ntp_server_primary': NTPServerPrimary,
@@ -181,6 +188,7 @@ def main():
     for ansible_param, ntp_obj_cls in ntp_relationships.items():
         value = module.params[ansible_param]
         if value is not None:
+            ntp_obj = None
             # As of pandevice v0.8.0, can't use .find() here as NTP objects
             # erroneously have cls.NAME != None.
             for ntp_obj in obj.children:
@@ -192,18 +200,16 @@ def main():
             if ntp_obj.address != value:
                 changed = True
                 ntp_obj.address = value
+                if not module.check_mode:
+                    try:
+                        ntp_obj.apply()
+                    except PanDeviceError as e:
+                        module.fail_json(msg='Failed to set {0}: {1}'.format(
+                            ansible_param, e))
 
-    if changed:
-        # Apply the settings if not in check mode.
-        if not module.check_mode:
-            try:
-                obj.apply()
-            except PanDeviceError as e:
-                module.fail_json(msg='Failed apply: {0}'.format(e))
-
-        # Optional commit.
-        if module.params['commit']:
-            helper.commit(module)
+    # Optional commit.
+    if changed and module.params['commit'] and not module.check_mode:
+        helper.commit(module)
 
     module.exit_json(changed=changed, msg='done')
 
