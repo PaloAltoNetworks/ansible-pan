@@ -463,7 +463,8 @@ class ConnectionHelper(object):
         In the case where the device is Panorama, then a commit-all is
         executed after the commit.  The device group is taken from either
         vsys_dg or device_group.  The template is set to True if template
-        is specified.
+        is specified.  Returns True if the configuration was committed,
+        False if not.
 
         Note:  If module.check_mode is True, then this function does not
         perform the commit.
@@ -473,25 +474,28 @@ class ConnectionHelper(object):
             admins (list): This is the list of admins whose changes will be committed to
                 the firewall/Panorama. The admins argument works with PanOS 8.0+. 
         """
+        committed = False
+
         if module.check_mode:
             return
 
         try:
             self.device.commit(sync=True, exception=True, admins=admins)
+            committed = True
         except PanCommitNotNeeded:
             pass
         except PanDeviceError as e:
             module.fail_json(msg='Failed commit: {0}'.format(e))
 
         if not hasattr(self.device, 'commit_all'):
-            return
+            return committed
 
         dg_name = self.vsys_dg or self.device_group
         if dg_name is not None:
             dg_name = module.params[dg_name]
 
         if dg_name in (None, 'shared'):
-            return
+            return committed
 
         if not include_template:
             if self.template:
@@ -505,10 +509,13 @@ class ConnectionHelper(object):
                 include_template=include_template,
                 exception=True,
             )
+            committed = True
         except PanCommitNotNeeded:
             pass
         except PanDeviceError as e:
             module.fail_json(msg='Failed commit-all: {0}'.format(e))
+
+        return committed
 
     def to_module_dict(self, element, renames=None):
         """Changes a pandevice object or list of objects into a dict / list of dicts.

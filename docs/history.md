@@ -9,6 +9,8 @@ V2.2.4
 * add list of op commands that will not produce changes
 * Add list of type commands that will not produce changes
 * Return output from commands in `panos_type_cmd`
+* Fixed `panos_commit` returning changed as True, even if a commit was not
+  performed.
 
 V2.2.3
 ------
