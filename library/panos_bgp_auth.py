@@ -156,10 +156,10 @@ def main():
     bgp = vr.find('', Bgp)
     if bgp is None:
         module.fail_json(msg='BGP config not yet added to {0}'.format(vr.name))
-
     parent = bgp
 
-    state = module.params['state']
+    listing = parent.findall(BgpAuthProfile)
+
     commit = module.params['commit']
 
     spec = {
@@ -167,24 +167,9 @@ def main():
         'secret': module.params['secret'],
     }
     obj = BgpAuthProfile(**spec)
+    parent.add(obj)
 
-    if state == 'present':
-        changed = True
-        parent.add(obj)
-        if not module.check_mode:
-            try:
-                obj.apply()
-            except PanDeviceError as e:
-                module.fail_json(msg='Failed apply: {0}'.format(e))
-    else:
-        cur_obj = parent.find(obj.name, BgpAuthProfile)
-        if cur_obj is not None:
-            changed = True
-            if not module.check_mode:
-                try:
-                    cur_obj.delete()
-                except PanDeviceError as e:
-                    module.fail_json(msg='Failed delete: {0}'.format(e))
+    changed = helper.apply_state(obj, listing, module)
 
     if commit and changed:
         helper.commit(module)
