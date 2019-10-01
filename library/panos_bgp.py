@@ -41,13 +41,21 @@ notes:
     - Panorama is supported.
 extends_documentation_fragment:
     - panos.transitional_provider
-    - panos.state
     - panos.full_template_support
 options:
     commit:
         description:
             - Commit configuration if changed.
         default: true
+    state:
+        description:
+            - The state.
+        choices:
+            - present
+            - absent
+            - enabled
+            - disabled
+        default: 'present'
     enable:
         description:
             - Enable BGP.
@@ -222,7 +230,7 @@ def main():
     helper = get_connection(
         template=True,
         template_stack=True,
-        with_state=True,
+        with_enabled_state=True,
         with_classic_provider_spec=True,
         argument_spec=setup_args(),
     )
@@ -236,7 +244,6 @@ def main():
     parent = helper.get_pandevice_parent(module)
 
     # Other params.
-    state = module.params['state']
     vr_name = module.params['vr_name']
     commit = module.params['commit']
 
@@ -247,6 +254,8 @@ def main():
     except PanDeviceError as e:
         module.fail_json(msg='Failed refresh: {0}'.format(e))
     parent = vr
+
+    listing = parent.findall(Bgp)
 
     # Generate the kwargs for network.Bgp.
     bgp_params = [
@@ -267,52 +276,10 @@ def main():
     bgp = Bgp(**bgp_spec)
     bgp_routing_options = BgpRoutingOptions(**bgp_routing_options_spec)
     bgp.add(bgp_routing_options)
+    parent.add(bgp)
 
-    changed = False
-    live_bgp = parent.find('', Bgp)
-    if state == 'present':
-        if live_bgp is None:
-            changed = True
-            parent.add(bgp)
-            if not module.check_mode:
-                try:
-                    bgp.create()
-                except PanDeviceError as e:
-                    module.fail_json(msg='Failed create: {0}'.format(e))
-        else:
-            live_options = None
-            other_children = []
-            options_children = []
-            for x in live_bgp.children:
-                if x.__class__ == BgpRoutingOptions:
-                    live_options = x
-                    options_children = x.children
-                    x.removeall()
-                else:
-                    other_children.append(x)
-
-            live_bgp.removeall()
-            if live_options is not None:
-                live_bgp.add(live_options)
-
-            parent.add(bgp)
-            if not live_bgp.equal(bgp):
-                changed = True
-                bgp.extend(other_children)
-                bgp_routing_options.extend(options_children)
-                if not module.check_mode:
-                    try:
-                        bgp.apply()
-                    except PanDeviceError as e:
-                        module.fail_json(msg='Failed apply: {0}'.format(e))
-    else:
-        if live_bgp is not None:
-            changed = True
-            if not module.check_mode:
-                try:
-                    live_bgp.delete()
-                except PanDeviceError as e:
-                    module.fail_json(msg='Failed delete: {0}'.format(e))
+    # Apply the state.
+    changed = helper.apply_state(bgp, listing, module, 'enable')
 
     if commit and changed:
         helper.commit(module)
