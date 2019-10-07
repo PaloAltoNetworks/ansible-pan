@@ -110,7 +110,7 @@ def main():
     obj = Vlan(**spec)
 
     try:
-        listing = Vlan.refreshall(parent)
+        listing = Vlan.refreshall(parent, matching_vsys=False)
     except PanDeviceError as e:
         module.fail_json(msg='Failed refresh: {0}'.format(e))
 
