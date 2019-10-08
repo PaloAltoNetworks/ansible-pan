@@ -132,7 +132,7 @@ def main():
     obj = VirtualWire(**spec)
 
     try:
-        listing = VirtualWire.refreshall(parent)
+        listing = VirtualWire.refreshall(parent, matching_vsys=False)
     except PanDeviceError as e:
         module.fail_json(msg='Failed refresh: {0}'.format(e))
 
