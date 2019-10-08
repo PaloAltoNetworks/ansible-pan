@@ -13,9 +13,7 @@
 
   - name: Set ethernet1/1 in virtual-wire mode
     panos_interface:
-      ip_address: '{{ ip_address }}'
-      username: '{{ username }}'
-      password: '{{ password }}'
+      provider: '{{ provider }}'
       if_name: "ethernet1/1"
       mode: "virtual-wire"
       zone_name: "external"
@@ -25,9 +23,7 @@
 
   - name: Set ethernet1/2 in virtual-wire mode
     panos_interface:
-      ip_address: '{{ ip_address }}'
-      username: '{{ username }}'
-      password: '{{ password }}'
+      provider: '{{ provider }}'
       if_name: "ethernet1/2"
       mode: "virtual-wire"
       enable_dhcp: false
@@ -37,9 +33,7 @@
 
   - name: Create Vwire
     panos_virtual_wire:
-      ip_address: '{{ ip_address }}'
-      username: '{{ username }}'
-      password: '{{ password }}'
+      provider: '{{ provider }}'
       name: 'vwire1'
       interface1: 'ethernet1/1'
       interface2: 'ethernet1/2'
