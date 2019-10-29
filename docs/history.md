@@ -6,6 +6,10 @@ V2.2.4
 
 - *Unreleased*
 
+New modules:
+* `panos_virtual_wire`
+
+Enhancements:
 * add list of op commands that will not produce changes
 * Add list of type commands that will not produce changes
 * Return output from commands in `panos_type_cmd`
