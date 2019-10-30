@@ -362,6 +362,7 @@ def main():
         template=True,
         template_stack=True,
         with_state=True,
+        min_pandevice_version=(0, 13, 0),
         with_classic_provider_spec=True,
         argument_spec=setup_args(),
     )
