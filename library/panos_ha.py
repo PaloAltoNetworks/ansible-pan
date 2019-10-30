@@ -266,10 +266,10 @@ def setup_args():
             description='HA Peer’s HA1 Backup IP address'),
         ha_mode=dict(
             type=str, choices=['active-passive', 'active-active'],
-            default ='active-passive', description='Mode of HA'),
+            default='active-passive', description='Mode of HA'),
         ha_passive_link_state=dict(
             type=str, choices=['shutdown', 'auto'],
-            default ='auto', description='Passive link state'),
+            default='auto', description='Passive link state'),
         ha_state_sync=dict(
             type=bool, default=False,
             description='Enable state synchronization'),
