@@ -31,7 +31,7 @@ description:
     - Configures High Availability on PAN-OS in A/S and A/A modes including
       all HA interface configuration.  Assumes physical interfaces are of
       type HA already using panos_interface.
-      
+
       This module has the following limitations due to no support in pandevice:
       - No peer_backup_ip, this prevents full configuration of ha1_backup links
       - Speed and Duplex of ports was intentially skipped
@@ -41,8 +41,7 @@ version_added: "2.9"
 requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
-    - currently requires specific pandevice development branch:
-        - pip install -e https://github.com/patrickdaj/pandevice@ha-enhancements#egg=pandevice
+    - currently requires specific pandevice release 0.13
 extends_documentation_fragment:
     - panos.transitional_provider
     - panos.state
@@ -57,10 +56,10 @@ options:
             - Commit configuration if changed.
         default: true
         type: bool
-    
+
     # ha.HighAvailability
     ha_enabled:
-        descrition: 
+        descrition:
             - Enable HA
         default: true
         type: bool
@@ -157,7 +156,7 @@ options:
         description: Interface to use for this HA1Backup interface (eg. ethernet1/5)
     ha1b_gateway:
         descripton: Default gateway of the HA1Backup interface
-    
+
     # ha.HA2
     ha2_ip_address:
         description: IP of the HA2 interface
@@ -167,7 +166,7 @@ options:
         description: Interface to use for this HA2 interface (eg. ethernet1/5)
     ha2_gateway:
         descripton: Default gateway of the HA2 interface
-    
+
     # ha.HA2Backup
     ha2b_ip_address:
         description: IP of the HA2Backup interface
@@ -177,7 +176,7 @@ options:
         description: Interface to use for this HA2Backup interface (eg. ethernet1/5)
     ha2b_gateway:
         descripton: Default gateway of the HA2Backup interface
-    
+
     # ha.HA3
     ha3_port:
         descripton: Interface to use for this HA3 interface (eg. ethernet1/5, ae1)
@@ -269,89 +268,90 @@ def setup_args():
         ha_mode=dict(
             type=str, choices=['active-passive', 'active-active'],
             default ='active-passive', description = 'Mode of HA'),
-        ha_passive_link_state = dict(
+        ha_passive_link_state=dict(
             type=str, choices=['shutdown', 'auto'],
             default ='auto', description = 'Passive link state'),
-        ha_state_sync = dict(
+        ha_state_sync=dict(
             type=bool, default=False,
             description='Enable state synchronization'),
-        ha_ha2_keepalive = dict(
+        ha_ha2_keepalive=dict(
             type=bool, default=True,
             description='Enable HA2 keepalives'),
-        ha_ha2_keepalive_action = dict(
+        ha_ha2_keepalive_action=dict(
             type=str,
             description='HA2 keepalive action'),
-        ha_ha2_keepalive_threshold = dict(
+        ha_ha2_keepalive_threshold=dict(
             type=int,
             description='HA2 keepalive threshold'),
-        ha_device_id = dict(
+        ha_device_id=dict(
             type=int, choices=[0, 1],
             description='HA3 device id (0 or 1)'),
         ha_session_owner_selection=dict(
             type=str, choices=['primary-device', 'first-packet'],
             description='active-active session owner mode'),
-        ha_session_setup = dict(
+        ha_session_setup=dict(
             type=str, choices=['primary-device', 'first-packet', 'ip-modulo', 'ip-hash'],
             description='active-active session setup mode'),
-        ha_tentative_hold_time = dict(
+        ha_tentative_hold_time=dict(
             type=int,
             description='active-active tentative hold timer'),
-        ha_sync_qos = dict(
+        ha_sync_qos=dict(
             type=bool,
             description='active-active network sync qos'),
-        ha_sync_virtual_router = dict(
+        ha_sync_virtual_router=dict(
             type=bool,
             description='active-active network sync virtual router'),
-        ha_ip_hash_key = dict(
+        ha_ip_hash_key=dict(
             type=str, choices=['source', 'source-and-destination'],
             description='active-active hash key used by ip-hash algorithm'),
-        ha1_ip_address = dict(
+        ha1_ip_address=dict(
             type=str,
             description='IP of the HA1 interface'),
-        ha1_netmask = dict(
+        ha1_netmask=dict(
             type=str,
             description='Netmask of the HA1 interface'),
-        ha1_port = dict(
+        ha1_port=dict(
             type=str,
             description='Interface to use for this HA1 interface (eg. ethernet1/5)'),
-        ha1_gateway = dict(
+        ha1_gateway=dict(
             type=str,
             description='Default gateway of the HA1 interface'),
-        ha1b_ip_address = dict(
+        ha1b_ip_address=dict(
             type=str,
             description='IP of the HA1 Backup interface'),
-        ha1b_netmask = dict(type=str,
+        ha1b_netmask=dict(
+            type=str,
             description='Netmask of the HA1 Backup interface'),
-        ha1b_port = dict(
+        ha1b_port=dict(
             type=str,
             description='Interface to use for this HA1 Backup interface (eg. ethernet1/5)'),
-        ha1b_gateway = dict(
+        ha1b_gateway=dict(
             type=str, description='Default gateway of the HA1 Backup interface'),
-        ha2_ip_address = dict(
+        ha2_ip_address=dict(
             type=str,
             description='IP of the HA2 interface'),
-        ha2_netmask = dict(
+        ha2_netmask=dict(
             type=str,
             description='Netmask of the HA2 interface'),
-        ha2_port = dict(
+        ha2_port=dict(
             type=str, default='ha2-a',
             description='Interface to use for this HA2 interface (eg. ethernet1/5)'),
-        ha2_gateway = dict(
+        ha2_gateway=dict(
             type=str,
             description='Default gateway of the HA2 interface'),
-        ha2b_ip_address = dict(
+        ha2b_ip_address=dict(
             type=str,
             description='IP of the HA2 Backup interface'),
-        ha2b_netmask = dict(
+        ha2b_netmask=dict(
             type=str,
             description='Netmask of the HA2 Backup interface'),
-        ha2b_port = dict(
+        ha2b_port=dict(
             type=str,
             description='Interface to use for this HA2 Backup interface (eg. ethernet1/5)'),
-        ha2b_gateway = dict(
+        ha2b_gateway=dict(
             type=str,
             description='Default gateway of the HA2 Backup interface'),
-        ha3_port = dict(
+        ha3_port=dict(
             type=str,
             description='Interface to use for this HA3 interface (eg. ethernet1/5)'),
     )
