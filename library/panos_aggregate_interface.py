@@ -23,7 +23,7 @@ description:
     - Configure aggregate network interfaces on PanOS
 author:
     - Heiko Burghardt (@odysseus107)
-version_added: "2.8"
+version_added: "2.9"
 requirements:
     - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
@@ -107,6 +107,12 @@ options:
         description:
             - Metric for the DHCP default route
         type: int
+    zone_name:
+        description:
+            - The zone to put this interface into.
+    vr_name:
+        description:
+            - The virtual router to associate with this interface.
     commit:
         description:
             - Commit if changed
@@ -121,7 +127,6 @@ EXAMPLES = '''
     provider: '{{ provider }}'
     if_name: "ae1"
     ip: '[ "192.168.0.1" ]'
-    enable_dhcp: False
     zone_name: 'untrust'
 '''
 
@@ -172,15 +177,12 @@ def main():
             comment=dict(),
             ipv4_mss_adjust=dict(type='int'),
             ipv6_mss_adjust=dict(type='int'),
-            enable_dhcp=dict(type='bool', default=True),
-            create_dhcp_default_route=dict(type='bool', default=False),
+            enable_dhcp=dict(type='bool'),
+            create_dhcp_default_route=dict(type='bool'),
             dhcp_default_route_metric=dict(type='int'),
             zone_name=dict(),
             vr_name=dict(default='default'),
             commit=dict(type='bool', default=True),
-
-            # TODO(gfreeman) - remove this in 2.12.
-            vsys_dg=dict(),
         ),
     )
 
@@ -216,27 +218,7 @@ def main():
     zone_name = module.params['zone_name']
     vr_name = module.params['vr_name']
     vsys = module.params['vsys']
-    vsys_dg = module.params['vsys_dg']
     commit = module.params['commit']
-
-    # TODO(gfreeman) - Remove vsys_dg in 2.12, as well as this code chunk.
-    # In the mean time, we'll need to do this special handling.
-    if vsys_dg is not None:
-        module.deprecate('Param "vsys_dg" is deprecated, use "vsys"', '2.12')
-        if vsys is None:
-            vsys = vsys_dg
-        else:
-            msg = [
-                'Params "vsys" and "vsys_dg" both given',
-                'Specify one or the other, not both.',
-            ]
-            module.fail_json(msg='.  '.join(msg))
-    elif vsys is None:
-        # TODO(gfreeman) - v2.12, just set the default for vsys to 'vsys1'.
-        vsys = 'vsys1'
-
-    # Make sure 'vsys' is set appropriately.
-    module.params['vsys'] = vsys
 
     # Verify libs are present, get the parent object.
     parent = helper.get_pandevice_parent(module)
