@@ -43,6 +43,19 @@ Parameters
         </tr>
                     <tr>
                                                                 <td colspan="2">
+                    <b>admins</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>(PanOS 8.0+ only) Commit only the changes made by specified list of administrators.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
                     <b>api_key</b>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
@@ -296,6 +309,11 @@ Examples
       panos_commit:
         provider: '{{ provider }}'
         device_group: 'Cloud-Edge'
+
+    - name: commit changes by specified admins to firewall
+      panos_commit:
+        provider: '{{ provider }}'
+        admins: ['admin1','admin2']
 
 
 

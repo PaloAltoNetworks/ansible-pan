@@ -50,6 +50,10 @@ options:
             - Use I(device_group) instead.
             - HORIZONTALLINE
             - (Panorama only) The device group.
+    admins:
+        description:
+            - (PanOS 8.0+ only) Commit only the changes made by specified list of administrators.
+        type: list
 '''
 
 EXAMPLES = '''
@@ -61,6 +65,11 @@ EXAMPLES = '''
   panos_commit:
     provider: '{{ provider }}'
     device_group: 'Cloud-Edge'
+
+- name: commit changes by specified admins to firewall
+  panos_commit:
+    provider: '{{ provider }}'
+    admins: ['admin1','admin2']
 '''
 
 RETURN = '''
@@ -76,9 +85,10 @@ def main():
     helper = get_connection(
         device_group=True,
         with_classic_provider_spec=True,
+        min_pandevice_version=(0, 12, 0),
         argument_spec=dict(
             include_template=dict(type='bool'),
-
+            admins=dict(type='list'),
             # TODO(gfreeman) - remove in 2.12.
             devicegroup=dict(),
         ),
@@ -89,6 +99,8 @@ def main():
         supports_check_mode=False,
         required_one_of=helper.required_one_of,
     )
+
+    changed = False
 
     # TODO(gfreeman) - remove in 2.12
     if module.params['devicegroup'] is not None:
@@ -102,12 +114,13 @@ def main():
         module.params['device_group'] = module.params['devicegroup']
 
     helper.get_pandevice_parent(module)
-    helper.commit(
+    changed = helper.commit(
         module,
         include_template=module.params['include_template'],
+        admins=module.params['admins'],
     )
 
-    module.exit_json(changed=True)
+    module.exit_json(changed=changed)
 
 
 if __name__ == '__main__':

@@ -25,11 +25,11 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = '''
 ---
-module: panos_vlan
-short_description: Configures VLANs.
+module: panos_virtual_wire
+short_description: Configures Virtual Wires (vwire).
 description:
-    - Manage PAN-OS VLANs.
-author: "Garfield Lee Freeman (@shinmog)"
+    - Manage PAN-OS Virtual Wires (vwire).
+author: "Patrick Avery"
 version_added: "2.8"
 requirements:
     - pan-python
@@ -45,24 +45,40 @@ notes:
 options:
     name:
         description:
-            -  Name of the VLAN.
+            -  Name of the Virtual Wire
         required: True
-    interface:
+    interface1:
         description:
-            -  List of interface names
-        type: list
-    virtual_interface:
+            - First interface of Virtual Wire
+        required: True
+    interface2:
         description:
-            - The VLAN interface
-            - See M(panos_vlan_interface)
+            - Second interface of Virtual Wire
+        required: True
+    tag:
+        description:
+            - Set tag that is allowed over Virtual Wire.  Currently
+              pandevice only supports all (default) or 1 tag.
+    multicast:
+        description:
+            - Enable multicast firewalling
+        type: bool
+    pass_through:
+        description:
+            - Enable link state pass through
+        type: bool
 '''
 
 EXAMPLES = '''
-- name: Create VLAN
-  panos_vlan:
+- name: Create Vwire
+  panos_virtual_wire:
     provider: '{{ provider }}'
-    name: 'Internal'
-    virtual_interface: 'vlan.2'
+    name: 'vwire1'
+    interface1: 'ethernet1/1'
+    interface2: 'ethernet1/2'
+    tag: 100
+    multicast: 'true'
+    pass_through: 'true'
 '''
 
 RETURN = '''
@@ -74,7 +90,7 @@ from ansible.module_utils.network.panos.panos import get_connection
 
 
 try:
-    from pandevice.network import Vlan
+    from pandevice.network import VirtualWire
     from pandevice.errors import PanDeviceError
 except ImportError:
     pass
@@ -89,8 +105,11 @@ def main():
         with_classic_provider_spec=True,
         argument_spec=dict(
             name=dict(required=True, ),
-            interface=dict(type='list', ),
-            virtual_interface=dict(),
+            interface1=dict(required=True),
+            interface2=dict(required=True),
+            tag=dict(type=int,),
+            multicast=dict(type=bool,),
+            pass_through=dict(type=bool,),
         ),
     )
 
@@ -104,13 +123,16 @@ def main():
 
     spec = {
         'name': module.params['name'],
-        'interface': module.params['interface'],
-        'virtual_interface': module.params['virtual_interface'],
+        'interface1': module.params['interface1'],
+        'interface2': module.params['interface2'],
+        'tag': module.params['tag'],
+        'multicast': module.params['multicast'],
+        'pass_through': module.params['pass_through']
     }
-    obj = Vlan(**spec)
+    obj = VirtualWire(**spec)
 
     try:
-        listing = Vlan.refreshall(parent, matching_vsys=False)
+        listing = VirtualWire.refreshall(parent, matching_vsys=False)
     except PanDeviceError as e:
         module.fail_json(msg='Failed refresh: {0}'.format(e))
 
@@ -123,12 +145,12 @@ def main():
 
     changed = False
     if module.params['state'] == 'present':
-        for vlan in listing:
-            if vlan.name != obj.name:
+        for vwire in listing:
+            if vwire.name != obj.name:
                 continue
-            if not vlan.equal(obj, compare_children=False):
+            if not vwire.equal(obj, compare_children=False):
                 changed = True
-                obj.extend(vlan.children)
+                obj.extend(vwire.children)
                 if not module.check_mode:
                     try:
                         obj.apply()

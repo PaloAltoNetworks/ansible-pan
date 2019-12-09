@@ -33,10 +33,9 @@ requirements:
     - xmltodict
 notes:
     - Checkmode is not supported.
-    - Panorama NOT is supported.
+    - Panorama NOT is supported.  However, specifying Panorama I(provider) info with a target serial number is.
 extends_documentation_fragment:
     - panos.transitional_provider
-    - panos.rulebase
     - panos.vsys
 options:
     rule_type:
@@ -90,6 +89,10 @@ options:
         description:
             - B(Removed)
             - Use I(vsys) instead.
+    rulebase:
+        description:
+            - B(DEPRECATED)
+            - This is no longer used and may safely be removed from your playbook.
 '''
 
 EXAMPLES = '''
@@ -156,7 +159,18 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
-# Default return values
+stdout_lines:
+    description: B(DEPRECATED); use "rule" instead
+    returned: always
+    type: str
+rule:
+    description: The rule definition, either security rule or NAT rule
+    returned: always
+    type: complex
+rulebase:
+    description: Rule location; panorama-pre-rulebase, firewall-rulebase, or panorama-post-rulebase
+    returned: always
+    type: str
 '''
 
 import json
@@ -185,7 +199,6 @@ except ImportError:
 def main():
     helper = get_connection(
         vsys=True,
-        rulebase=True,
         with_classic_provider_spec=True,
         panorama_error='Panorama is not supported',
         argument_spec=dict(
@@ -204,6 +217,7 @@ def main():
 
             # TODO(gfreeman) - Remove this in the next role release.
             vsys_id=dict(),
+            rulebase=dict(),
         ),
     )
 
@@ -218,6 +232,11 @@ def main():
         module.fail_json(msg='Missing xmltodict library')
     if module.params['vsys_id'] is not None:
         module.fail_json(msg='Param "vsys_id" is removed; use vsys')
+    if module.params['rulebase'] is not None:
+        module.deprecate(
+            'Param "rulebase" is deprecated and may safely be removed from your playbook',
+            '2.12',
+        )
 
     parent = helper.get_pandevice_parent(module)
 
@@ -236,13 +255,37 @@ def main():
 
     cmd = []
     rtype = module.params['rule_type']
+    vsys = module.params['vsys']
+
+    # This module used to refreshall on either the security rules or the NAT
+    # rules, however if the rule matched came from Panorama, then this module
+    # failed.  To account for this, instead directly query the 3 path locations
+    # where the rule could exist, and return that instead.  When pandevice
+    # supports querying the firewall for the pushed down Panorama config, change
+    # this back to using normal pandevice objects.
+    rule_locations = (
+        (
+            'panorama-pre-rulebase',
+            "/config/panorama/vsys/entry[@name='{0}']/pre-rulebase",
+        ),
+        (
+            'firewall-rulebase',
+            "/config/devices/entry[@name='localhost.localdomain']/vsys/entry[@name='{0}']/rulebase",
+        ),
+        (
+            'panorama-post-rulebase',
+            "/config/panorama/vsys/entry[@name='{0}']/post-rulebase",
+        ),
+    )
+    suffix = "/{0}/rules/entry[@name='{1}']"
 
     if rtype == 'security':
         cmd.append('test security-policy-match')
-        listing = SecurityRule.refreshall(parent)
+        obj = SecurityRule()
     else:
         cmd.append('test nat-policy-match')
-        listing = NatRule.refreshall(parent)
+        obj = NatRule()
+    parent.add(obj)
 
     for ansible_param, cmd_param, rule_types in params:
         if rtype not in rule_types or module.params[ansible_param] is None:
@@ -265,17 +308,39 @@ def main():
     else:
         module.exit_json(msg='No matching {0} rule.'.format(rtype))
 
-    for x in listing:
-        if x.name != rule_name:
-            continue
-        module.deprecate('The "stdout_lines" output is deprecated; use "rule" instead', '2.12')
-        module.exit_json(
-            stdout_lines=json.dumps(xmltodict.parse(x.element_str()), indent=2),
-            msg='Rule matched',
-            rule=x.about(),
-        )
+    '''
+    Example response (newlines after newlines to appease pycodestyle line length limitations):
 
-    module.fail_json(msg='Matched "{0}" with "{1}", but wasn\'t in rulebase'.format(rule_name, test_string))
+    <response cmd="status" status="success"><result><rules>\n
+\t<entry>deny all and log; index: 3</entry>\n
+</rules>\n
+</result></response>
+    '''
+    tokens = rule_name.split(';')
+    if len(tokens) == 2 and tokens[1].startswith(' index: '):
+        rule_name = tokens[0]
+
+    fw = obj.nearest_pandevice()
+    for rulebase, prefix in rule_locations:
+        xpath = prefix.format(vsys) + suffix.format(rtype, rule_name)
+        ans = fw.xapi.get(xpath)
+        if ans is None:
+            continue
+        rules = obj.refreshall_from_xml(ans.find('./result'))
+        if rules:
+            x = rules[0]
+            module.deprecate(
+                'The "stdout_lines" output is deprecated; use "rule" instead',
+                '2.12',
+            )
+            module.exit_json(
+                stdout_lines=json.dumps(xmltodict.parse(x.element_str()), indent=2),
+                msg='Rule matched',
+                rule=x.about(),
+                rulebase=rulebase,
+            )
+
+    module.fail_json(msg='Matched "{0}" with "{1}", but wasn\'t in any rulebase'.format(rule_name, test_string))
 
 
 if __name__ == '__main__':

@@ -17,35 +17,41 @@
 
 DOCUMENTATION = '''
 ---
-module: panos_l3_subinterface
-short_description: configure layer3 subinterface
+module: panos_aggregate_interface
+short_description: configure aggregate network interfaces
 description:
-    - Configure a layer3 subinterface.
-author: "Garfield Lee Freeman (@shinmog)"
-version_added: "2.8"
+    - Configure aggregate network interfaces on PanOS
+author:
+    - Heiko Burghardt (@odysseus107)
+version_added: "2.9"
 requirements:
-    - pan-python
-    - pandevice >= 0.8.0
+    - pan-python can be obtained from PyPi U(https://pypi.python.org/pypi/pan-python)
+    - pandevice can be obtained from PyPi U(https://pypi.python.org/pypi/pandevice)
 notes:
-    - Panorama is supported.
     - Checkmode is supported.
-    - If the PAN-OS device is a firewall and I(vsys) is not specified, then
-      the vsys will default to I(vsys=vsys1).
+    - Panorama is supported.
 extends_documentation_fragment:
     - panos.transitional_provider
-    - panos.state
     - panos.vsys_import
     - panos.template_only
+    - panos.state
 options:
-    name:
+    if_name:
         description:
             - Name of the interface to configure.
         required: true
-    tag:
+    mode:
         description:
-            - Tag (vlan id) for the interface
-        required: true
-        type: int
+            - The interface mode.
+        default: "layer3"
+        choices:
+            - layer3
+            - layer2
+            - virtual-wire
+            - tap
+            - ha
+            - decrypt-mirror
+            - aggregate-group
     ip:
         description:
             - List of static IP addresses.
@@ -59,15 +65,25 @@ options:
             - Interface management profile name.
     mtu:
         description:
-            - MTU for layer3 interface.
+            - MTU for aggregate interface.
         type: int
     adjust_tcp_mss:
         description:
-            - Adjust TCP MSS for layer3 interface.
+            - Adjust TCP MSS.
         type: bool
     netflow_profile:
         description:
-            - Netflow profile for layer3 interface.
+            - Netflow profile for aggregate interface.
+    lldp_enabled:
+        description:
+            - Layer2: Enable LLDP
+        type: bool
+    lldp_profile:
+        description:
+            - Layer2: Reference to an lldp profile
+    netflow_profile_l2:
+        description:
+            - Netflow profile for aggregate interface.
     comment:
         description:
             - Interface comment.
@@ -81,46 +97,37 @@ options:
         type: int
     enable_dhcp:
         description:
-            - Enable DHCP on this interface.
+            - Enable DHCP on this interface
         type: bool
-        default: true
-    create_default_route:
+    create_dhcp_default_route:
         description:
-            - Whether or not to add default route with router learned via DHCP.
+            - Create default route pointing to default gateway provided by server
         type: bool
     dhcp_default_route_metric:
         description:
-            - Metric for the DHCP default route.
+            - Metric for the DHCP default route
         type: int
     zone_name:
         description:
-            - Name of the zone for the interface.
-            - If the zone does not exist it is created.
+            - The zone to put this interface into.
     vr_name:
         description:
-            - Virtual router to add this interface to.
+            - The virtual router to associate with this interface.
+    commit:
+        description:
+            - Commit if changed
+        default: true
+        type: bool
 '''
 
 EXAMPLES = '''
-# Create ethernet1/1.5 as DHCP.
-- name: enable DHCP client on ethernet1/1.5 in zone public
-  panos_l3_subinterface:
+# Create ae1 interface.
+- name: create ae1 interface with IP in untrust zone
+  panos_aggregate_interface:
     provider: '{{ provider }}'
-    name: "ethernet1/1.5"
-    tag: 1
-    create_default_route: True
-    zone_name: "public"
-    create_default_route: "yes"
-
-# Update ethernet1/2.7 with a static IP address in zone dmz.
-- name: ethernet1/2.7 as static in zone dmz
-  panos_l3_subinterface:
-    provider: '{{ provider }}'
-    name: "ethernet1/2.7"
-    tag: 7
-    enable_dhcp: false
-    ip: ["10.1.1.1/24"]
-    zone_name: "dmz"
+    if_name: "ae1"
+    ip: '[ "192.168.0.1" ]'
+    zone_name: 'untrust'
 '''
 
 RETURN = '''
@@ -137,8 +144,6 @@ from ansible.module_utils.network.panos.panos import get_connection
 
 try:
     from pandevice.network import AggregateInterface
-    from pandevice.network import EthernetInterface
-    from pandevice.network import Layer3Subinterface
     from pandevice.errors import PanDeviceError
 except ImportError:
     pass
@@ -152,91 +157,82 @@ def main():
         with_state=True,
         min_pandevice_version=(0, 8, 0),
         argument_spec=dict(
-            name=dict(required=True),
-            tag=dict(required=True, type='int'),
+            if_name=dict(required=True),
+            mode=dict(
+                default='layer3',
+                choices=[
+                    'layer3', 'layer2', 'virtual-wire', 'tap', 'ha',
+                    'decrypt-mirror', 'aggregate-group',
+                ],
+            ),
             ip=dict(type='list'),
             ipv6_enabled=dict(type='bool'),
             management_profile=dict(),
             mtu=dict(type='int'),
             adjust_tcp_mss=dict(type='bool'),
             netflow_profile=dict(),
+            lldp_enabled=dict(type='bool'),
+            lldp_profile=dict(),
+            netflow_profile_l2=dict(),
             comment=dict(),
             ipv4_mss_adjust=dict(type='int'),
             ipv6_mss_adjust=dict(type='int'),
-            enable_dhcp=dict(type='bool', default=True),
-            create_default_route=dict(type='bool', default=False),
+            enable_dhcp=dict(type='bool'),
+            create_dhcp_default_route=dict(type='bool'),
             dhcp_default_route_metric=dict(type='int'),
             zone_name=dict(),
             vr_name=dict(default='default'),
+            commit=dict(type='bool', default=True),
         ),
     )
+
     module = AnsibleModule(
         argument_spec=helper.argument_spec,
         supports_check_mode=True,
         required_one_of=helper.required_one_of,
     )
 
-    # Verify libs are present, get the parent object.
-    parent = helper.get_pandevice_parent(module)
-
     # Get the object params.
     spec = {
-        'name': module.params['name'],
-        'tag': module.params['tag'],
+        'name': module.params['if_name'],
+        'mode': module.params['mode'],
         'ip': module.params['ip'],
         'ipv6_enabled': module.params['ipv6_enabled'],
         'management_profile': module.params['management_profile'],
         'mtu': module.params['mtu'],
         'adjust_tcp_mss': module.params['adjust_tcp_mss'],
         'netflow_profile': module.params['netflow_profile'],
+        'lldp_enabled': module.params['lldp_enabled'],
+        'lldp_profile': module.params['lldp_profile'],
+        'netflow_profile_l2': module.params['netflow_profile_l2'],
         'comment': module.params['comment'],
         'ipv4_mss_adjust': module.params['ipv4_mss_adjust'],
         'ipv6_mss_adjust': module.params['ipv6_mss_adjust'],
-        'enable_dhcp': True if module.params['enable_dhcp'] else None,
-        # 'create_dhcp_default_route': set below
+        'enable_dhcp': module.params['enable_dhcp'],
+        'create_dhcp_default_route': module.params['create_dhcp_default_route'],
         'dhcp_default_route_metric': module.params['dhcp_default_route_metric'],
     }
-
-    if module.params['create_default_route']:
-        spec['create_dhcp_default_route'] = True
-    elif spec['enable_dhcp']:
-        spec['create_dhcp_default_route'] = False
-    else:
-        spec['create_dhcp_default_route'] = None
 
     # Get other info.
     state = module.params['state']
     zone_name = module.params['zone_name']
     vr_name = module.params['vr_name']
     vsys = module.params['vsys']
+    commit = module.params['commit']
 
-    # Sanity check.
-    if '.' not in spec['name']:
-        module.fail_json(msg='Interface name does not have "." in it')
-
-    # check on EthernetInterface or AggregateInterface
-    parent_iname = spec['name'].split('.')[0]
+    # Verify libs are present, get the parent object.
+    parent = helper.get_pandevice_parent(module)
 
     # Retrieve the current config.
-    if parent_iname.startswith('ae'):
-        parent_eth = AggregateInterface(parent_iname)
-    else:
-        parent_eth = EthernetInterface(parent_iname)
-
-    parent.add(parent_eth)
     try:
-        parent_eth.refresh()
+        interfaces = AggregateInterface.refreshall(
+            parent, add=False, matching_vsys=False)
     except PanDeviceError as e:
         module.fail_json(msg='Failed refresh: {0}'.format(e))
 
-    if parent_eth.mode != 'layer3':
-        module.fail_json(msg='{0} mode is {1}, not layer3'.format(parent_eth.name, parent_eth.mode))
-
-    interfaces = parent_eth.findall(Layer3Subinterface)
-
     # Build the object based on the user spec.
-    eth = Layer3Subinterface(**spec)
-    parent_eth.add(eth)
+    obj = AggregateInterface(**spec)
+    parent.add(obj)
 
     # Which action should we take on the interface?
     changed = False
@@ -247,15 +243,15 @@ def main():
     }
     if state == 'present':
         for item in interfaces:
-            if item.name != eth.name:
+            if item.name != obj.name:
                 continue
             # Interfaces have children, so don't compare them.
-            if not item.equal(eth, compare_children=False):
+            if not item.equal(obj, compare_children=False):
                 changed = True
-                eth.extend(item.children)
+                obj.extend(item.children)
                 if not module.check_mode:
                     try:
-                        eth.apply()
+                        obj.apply()
                     except PanDeviceError as e:
                         module.fail_json(msg='Failed apply: {0}'.format(e))
             break
@@ -263,34 +259,38 @@ def main():
             changed = True
             if not module.check_mode:
                 try:
-                    eth.create()
+                    obj.create()
                 except PanDeviceError as e:
                     module.fail_json(msg='Failed create: {0}'.format(e))
 
         # Set references.
         try:
-            changed |= eth.set_vsys(vsys, **reference_params)
-            changed |= eth.set_zone(zone_name, mode=parent_eth.mode, **reference_params)
-            changed |= eth.set_virtual_router(vr_name, **reference_params)
+            changed |= obj.set_vsys(vsys, **reference_params)
+            changed |= obj.set_zone(zone_name, mode=eth.mode, **reference_params)
+            changed |= obj.set_virtual_router(vr_name, **reference_params)
         except PanDeviceError as e:
             module.fail_json(msg='Failed setref: {0}'.format(e))
     elif state == 'absent':
         # Remove references.
         try:
-            changed |= eth.set_virtual_router(None, **reference_params)
-            changed |= eth.set_zone(None, mode=parent_eth.mode, **reference_params)
-            changed |= eth.set_vsys(None, **reference_params)
+            changed |= obj.set_virtual_router(None, **reference_params)
+            changed |= obj.set_zone(None, mode=eth.mode, **reference_params)
+            changed |= obj.set_vsys(None, **reference_params)
         except PanDeviceError as e:
             module.fail_json(msg='Failed setref: {0}'.format(e))
 
         # Remove the interface.
-        if eth.name in [x.name for x in interfaces]:
+        if obj.name in [x.name for x in interfaces]:
             changed = True
             if not module.check_mode:
                 try:
-                    eth.delete()
+                    obj.delete()
                 except PanDeviceError as e:
                     module.fail_json(msg='Failed delete: {0}'.format(e))
+
+    # Commit if we were asked to do so.
+    if changed and commit:
+        helper.commit(module)
 
     # Done!
     module.exit_json(changed=changed, msg='Done')

@@ -277,7 +277,8 @@ class ConnectionHelper(object):
         # Done.
         return parent
 
-    def apply_state(self, obj, listing, module):
+    def apply_state(self, obj, listing, module, enabled_disabled_param=None,
+                    invert_enabled_disabled=False):
         """Generic state handling.
 
         Note:  If module.check_mode is True, then this function returns
@@ -287,16 +288,28 @@ class ConnectionHelper(object):
             obj: The pandevice object to be applied.
             listing(list): List of objects currently configured.
             module: The Ansible module.
+            enabled_disabled_param: If this is set, then this function also
+                supports a state of "enabled" or "disabled", and the pandevice
+                param has the specified name.
+            invert_enabled_disabled (bool): Set this to True if the param
+                specified in "enabled_disabled_param" is a disabled flag
+                instead of an enabled flag.
 
         Returns:
             bool: If a change was made or not.
         """
+        supported_states = ['present', 'absent']
+        if enabled_disabled_param is not None:
+            supported_states.extend(['enabled', 'disabled'])
+
         # Sanity check.
         if 'state' not in module.params:
             module.fail_json(msg='No "state" present')
-        elif module.params['state'] not in ('present', 'absent'):
+        elif module.params['state'] not in supported_states:
             module.fail_json(msg='Unsupported state: {0}'.format(
-                    module.params['state']))
+                module.params['state']))
+        elif enabled_disabled_param is not None and not hasattr(obj, enabled_disabled_param):
+            module.fail_json(msg='enabled/disabled param {0} not present'.format(enabled_disabled_param))
 
         # Apply the state.
         changed = False
@@ -327,7 +340,7 @@ class ConnectionHelper(object):
                         obj.create()
                     except PanDeviceError as e:
                         module.fail_json(msg='Failed create: {0}'.format(e))
-        else:
+        elif module.params['state'] == 'absent':
             if obj.uid in [x.uid for x in listing]:
                 changed = True
                 if not module.check_mode:
@@ -335,6 +348,30 @@ class ConnectionHelper(object):
                         obj.delete()
                     except PanDeviceError as e:
                         module.fail_json(msg='Failed delete: {0}'.format(e))
+        else:
+            for item in listing:
+                if item.uid != obj.uid:
+                    continue
+
+                val = getattr(item, enabled_disabled_param)
+                if invert_enabled_disabled:
+                    val = not val
+
+                if module.params['state'] == 'enabled' and not val:
+                    changed = True
+                elif module.params['state'] == 'disabled' and val:
+                    changed = True
+
+                if changed:
+                    setattr(item, enabled_disabled_param, not val)
+                    if not module.check_mode:
+                        try:
+                            item.update(enabled_disabled_param)
+                        except PanDeviceError as e:
+                            module.fail_json(msg='Failed toggle: {0}'.format(e))
+                break
+            else:
+                module.fail_json(msg='Cannot enable/disable non-existing obj')
 
         return changed
 
@@ -420,39 +457,45 @@ class ConnectionHelper(object):
         # Done.
         return changed
 
-    def commit(self, module, include_template=False):
+    def commit(self, module, include_template=False, admins=None):
         """Performs a commit.
 
         In the case where the device is Panorama, then a commit-all is
         executed after the commit.  The device group is taken from either
         vsys_dg or device_group.  The template is set to True if template
-        is specified.
+        is specified.  Returns True if the configuration was committed,
+        False if not.
 
         Note:  If module.check_mode is True, then this function does not
         perform the commit.
 
         Args:
             include_template (bool): (Panorama only) Force include the template.
+            admins (list): This is the list of admins whose changes will be committed to
+                the firewall/Panorama. The admins argument works with PanOS 8.0+. 
         """
+        committed = False
+
         if module.check_mode:
             return
 
         try:
-            self.device.commit(sync=True, exception=True)
+            self.device.commit(sync=True, exception=True, admins=admins)
+            committed = True
         except PanCommitNotNeeded:
             pass
         except PanDeviceError as e:
             module.fail_json(msg='Failed commit: {0}'.format(e))
 
         if not hasattr(self.device, 'commit_all'):
-            return
+            return committed
 
         dg_name = self.vsys_dg or self.device_group
         if dg_name is not None:
             dg_name = module.params[dg_name]
 
         if dg_name in (None, 'shared'):
-            return
+            return committed
 
         if not include_template:
             if self.template:
@@ -466,10 +509,13 @@ class ConnectionHelper(object):
                 include_template=include_template,
                 exception=True,
             )
+            committed = True
         except PanCommitNotNeeded:
             pass
         except PanDeviceError as e:
             module.fail_json(msg='Failed commit-all: {0}'.format(e))
+
+        return committed
 
     def to_module_dict(self, element, renames=None):
         """Changes a pandevice object or list of objects into a dict / list of dicts.
@@ -506,7 +552,8 @@ class ConnectionHelper(object):
 def get_connection(vsys=None, vsys_shared=None, device_group=None,
                    vsys_dg=None, vsys_importable=None,
                    rulebase=None, template=None, template_stack=None,
-                   with_classic_provider_spec=False, with_state=False,
+                   with_classic_provider_spec=False,
+                   with_state=False, with_enabled_state=False,
                    argument_spec=None, required_one_of=None,
                    min_pandevice_version=None, min_panos_version=None,
                    error_on_shared=False,
@@ -545,6 +592,8 @@ def get_connection(vsys=None, vsys_shared=None, device_group=None,
             password, api_key, and port params in the base spec, and make the
             "provider" param optional.
         with_state(bool): Include the standard 'state' param.
+        with_enabled_state(bool): Include 'state', but also support "enabled"
+            and "disabled" as valid states.
         argument_spec(dict): The argument spec to mixin with the
             generated spec based on the given parameters.
         required_one_of(list): List of lists to extend into required_one_of.
@@ -597,6 +646,12 @@ def get_connection(vsys=None, vsys_shared=None, device_group=None,
         spec['state'] = {
             'default': 'present',
             'choices': ['present', 'absent'],
+        }
+
+    if with_enabled_state:
+        spec['state'] = {
+            'default': 'present',
+            'choices': ['present', 'absent', 'enabled', 'disabled'],
         }
 
     if vsys_dg is not None:

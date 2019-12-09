@@ -1,6 +1,43 @@
 Release History
 ===============
 
+V2.3.0
+--------
+
+- *Unreleased*
+
+New modules:
+
+* `panos_virtual_wire`
+* `panos_aggregate_interface`
+* `panos_ha`
+
+Enhancements:
+
+* `panos_op` now reports `changed=False` for safe commands
+* `panos_l3_subinterface` can now create aggregate subinterfaces
+* `panos_commit` can now perform partial commits
+* `panos_type_cmd` now reports `changed=False` for safe commands
+* `panos_bgp` now supports `enable` and `disable` as states
+* `panos_match_rule` should now work with rules that came from Panorama
+
+Bug Fixes:
+
+* `panos_ike_gateway`
+* `panos_mgtconfig`
+* `panos_bgp_auth`
+* `panos_vlan`
+
+New modules:
+* `panos_virtual_wire`
+
+Enhancements:
+* add list of op commands that will not produce changes
+* Add list of type commands that will not produce changes
+* Return output from commands in `panos_type_cmd`
+* Fixed `panos_commit` returning changed as True, even if a commit was not
+  performed.
+
 V2.2.3
 ------
 
