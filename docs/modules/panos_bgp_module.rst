@@ -481,13 +481,15 @@ Parameters
                                                                 <td colspan="2">
                     <b>state</b>
                     <div style="font-size: small">
-                        <span style="color: purple">string</span>
+                        <span style="color: purple">-</span>
                                             </div>
                                     </td>
                                 <td>
                                                                                                                             <ul style="margin: 0; padding: 0"><b>Choices:</b>
                                                                                                                                                                 <li><div style="color: blue"><b>present</b>&nbsp;&larr;</div></li>
                                                                                                                                                                                                 <li>absent</li>
+                                                                                                                                                                                                <li>enabled</li>
+                                                                                                                                                                                                <li>disabled</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>

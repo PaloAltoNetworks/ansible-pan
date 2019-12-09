@@ -32,9 +32,9 @@ description:
       all HA interface configuration.  Assumes physical interfaces are of
       type HA already using panos_interface.
 
-      This module has the following limitations due to no support in pandevice:
-      - No peer_backup_ip, this prevents full configuration of ha1_backup links
-      - Speed and Duplex of ports was intentially skipped
+      This module has the following limitations due to no support in pandevice -
+      * No peer_backup_ip, this prevents full configuration of ha1_backup links
+      * Speed and Duplex of ports was intentially skipped
 author:
     - Patrick Avery
 version_added: "2.9"
@@ -59,7 +59,7 @@ options:
 
     # ha.HighAvailability
     ha_enabled:
-        descrition:
+        description:
             - Enable HA
         default: true
         type: bool
@@ -145,7 +145,7 @@ options:
     ha1_port:
         description: Interface to use for this HA1 interface (eg. ethernet1/5)
     ha1_gateway:
-        descripton: Default gateway of the HA1 interface
+        description: Default gateway of the HA1 interface
 
     # ha.HA1Backup
     ha1b_ip_address:
@@ -155,7 +155,7 @@ options:
     ha1b_port:
         description: Interface to use for this HA1Backup interface (eg. ethernet1/5)
     ha1b_gateway:
-        descripton: Default gateway of the HA1Backup interface
+        description: Default gateway of the HA1Backup interface
 
     # ha.HA2
     ha2_ip_address:
@@ -165,7 +165,7 @@ options:
     ha2_port:
         description: Interface to use for this HA2 interface (eg. ethernet1/5)
     ha2_gateway:
-        descripton: Default gateway of the HA2 interface
+        description: Default gateway of the HA2 interface
 
     # ha.HA2Backup
     ha2b_ip_address:
@@ -175,11 +175,11 @@ options:
     ha2b_port:
         description: Interface to use for this HA2Backup interface (eg. ethernet1/5)
     ha2b_gateway:
-        descripton: Default gateway of the HA2Backup interface
+        description: Default gateway of the HA2Backup interface
 
     # ha.HA3
     ha3_port:
-        descripton: Interface to use for this HA3 interface (eg. ethernet1/5, ae1)
+        description: Interface to use for this HA3 interface (eg. ethernet1/5, ae1)
 '''
 
 EXAMPLES = '''

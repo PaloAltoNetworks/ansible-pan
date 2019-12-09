@@ -389,8 +389,58 @@ Examples
           /address/entry[@name='sales-block']
         new_name: 'dmz-block'
 
+    - name: Show the address object.
+      panos_type_cmd:
+        provider: '{{ provider }}'
+        cmd: 'show'
+        xpath: |
+          /config/devices/entry[@name='localhost.localdomain']
+          /vsys/entry[@name='vsys1']
+          /address/entry[@name='dmz-block']
 
 
+
+
+Return Values
+-------------
+Common return values are `documented here <https://docs.ansible.com/ansible/latest/reference_appendices/common_return_values.html#common-return-values>`_, the following are the fields unique to this module:
+
+.. raw:: html
+
+    <table border=0 cellpadding=0 class="documentation-table">
+        <tr>
+            <th colspan="1">Key</th>
+            <th>Returned</th>
+            <th width="100%">Description</th>
+        </tr>
+                    <tr>
+                                <td colspan="1">
+                    <b>stdout</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>success</td>
+                <td>
+                                            <div>output (if any) of the given API command as JSON formatted string</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">{entry: {@name: dmz-block, ip-netmask: 192.168.55.0/24, description: Address CIDR for sales org}}</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                <td colspan="1">
+                    <b>stdout_xml</b>
+                    <div style="font-size: small; color: purple">string</div>
+                                    </td>
+                <td>success</td>
+                <td>
+                                            <div>output of the given API command as an XML formatted string</div>
+                                        <br/>
+                                            <div style="font-size: smaller"><b>Sample:</b></div>
+                                                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">&lt;entry name=dmz-block&gt;&lt;ip-netmask&gt;192.168.55.0/24&lt;/ip-netmask&gt;...&lt;/entry&gt;</div>
+                                    </td>
+            </tr>
+                        </table>
+    <br/><br/>
 
 
 Status

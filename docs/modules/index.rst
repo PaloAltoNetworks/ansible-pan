@@ -12,6 +12,7 @@ Module Reference
    panos_admin_module
    panos_administrator_module
    panos_admpwd_module
+   panos_aggregate_interface_module
    panos_api_key_module
    panos_bgp_aggregate_module
    panos_bgp_auth_module
@@ -31,6 +32,7 @@ Module Reference
    panos_email_profile_module
    panos_email_server_module
    panos_facts_module
+   panos_ha_module
    panos_http_profile_header_module
    panos_http_profile_module
    panos_http_profile_param_module
@@ -81,6 +83,7 @@ Module Reference
    panos_userid_module
    panos_virtual_router_facts_module
    panos_virtual_router_module
+   panos_virtual_wire_module
    panos_vlan_interface_module
    panos_vlan_module
    panos_zone_facts_module

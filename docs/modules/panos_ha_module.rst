@@ -1,14 +1,14 @@
-:source: panos_ike_gateway.py
+:source: panos_ha.py
 
 :orphan:
 
-.. _panos_ike_gateway_module:
+.. _panos_ha_module:
 
 
-panos_ike_gateway -- Configures IKE gateway on the firewall with subset of settings
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+panos_ha -- Configures High Availability on PAN-OS
+++++++++++++++++++++++++++++++++++++++++++++++++++
 
-.. versionadded:: 2.8
+.. versionadded:: 2.9
 
 .. contents::
    :local:
@@ -17,7 +17,8 @@ panos_ike_gateway -- Configures IKE gateway on the firewall with subset of setti
 
 Synopsis
 --------
-- Use this to manage or define a gateway, including the configuration information necessary to perform Internet Key Exchange (IKE) protocol negotiation with a peer gateway. This is the Phase 1 portion of the IKE/IPSec VPN setup.
+- Configures High Availability on PAN-OS in A/S and A/A modes including all HA interface configuration.  Assumes physical interfaces are of type HA already using panos_interface.
+This module has the following limitations due to no support in pandevice - * No peer_backup_ip, this prevents full configuration of ha1_backup links * Speed and Duplex of ports was intentially skipped
 
 
 
@@ -27,6 +28,7 @@ The below requirements are needed on the host that executes this module.
 
 - pan-python can be obtained from PyPI https://pypi.python.org/pypi/pan-python
 - pandevice can be obtained from PyPI https://pypi.python.org/pypi/pandevice
+- currently requires specific pandevice release 0.13
 
 
 Parameters
@@ -75,183 +77,508 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="2">
-                    <b>dead_peer_detection_interval</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">integer</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">99</div>
-                                    </td>
-                                                                <td>
-                                                                        <div>Time in seconds to check for a dead peer.</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
-                    <b>dead_peer_detection_retry</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">integer</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">10</div>
-                                    </td>
-                                                                <td>
-                                                                        <div>Retry attempts before peer is marked dead.</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
-                    <b>enable_dead_peer_detection</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">boolean</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                                                                                                                                                <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
-                                                                                                                                                                                                <li>yes</li>
-                                                                                    </ul>
-                                                                            </td>
-                                                                <td>
-                                                                        <div>True to enable Dead Peer Detection on the gateway.</div>
-                                                                                        <div style="font-size: small; color: darkgreen"><br/>aliases: d, e, a, d, _, p, e, e, r, _, d, e, t, e, c, t, i, o, n</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
-                    <b>enable_fragmentation</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">boolean</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                                                                                                                                                <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
-                                                                                                                                                                                                <li>yes</li>
-                                                                                    </ul>
-                                                                            </td>
-                                                                <td>
-                                                                        <div>True to enable IKE fragmentation</div>
-                                                    <div>Incompatible with pre-shared keys, or &#x27;aggressive&#x27; exchange mode</div>
-                                                                                        <div style="font-size: small; color: darkgreen"><br/>aliases: f, r, a, g, m, e, n, t, a, t, i, o, n</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
-                    <b>enable_liveness_check</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">boolean</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                                                                                                                                                <li>no</li>
-                                                                                                                                                                                                <li><div style="color: blue"><b>yes</b>&nbsp;&larr;</div></li>
-                                                                                    </ul>
-                                                                            </td>
-                                                                <td>
-                                                                        <div>Enable sending empty information liveness check message.</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
-                    <b>enable_nat_traversal</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">boolean</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                                                                                                                                                <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
-                                                                                                                                                                                                <li>yes</li>
-                                                                                    </ul>
-                                                                            </td>
-                                                                <td>
-                                                                        <div>True to NAT Traversal mode</div>
-                                                                                        <div style="font-size: small; color: darkgreen"><br/>aliases: n, a, t, _, t, r, a, v, e, r, s, a, l</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
-                    <b>enable_passive_mode</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">boolean</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                                                                                                                                                <li>no</li>
-                                                                                                                                                                                                <li><div style="color: blue"><b>yes</b>&nbsp;&larr;</div></li>
-                                                                                    </ul>
-                                                                            </td>
-                                                                <td>
-                                                                        <div>True to have the firewall only respond to IKE connections and never initiate them.</div>
-                                                                                        <div style="font-size: small; color: darkgreen"><br/>aliases: p, a, s, s, i, v, e, _, m, o, d, e</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
-                    <b>ikev1_crypto_profile</b>
+                    <b>ha1_gateway</b>
                     <div style="font-size: small">
                         <span style="color: purple">-</span>
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"default"</div>
-                                    </td>
+                                                                                                                                                            </td>
                                                                 <td>
-                                                                        <div>Crypto profile for IKEv1.</div>
-                                                                                        <div style="font-size: small; color: darkgreen"><br/>aliases: c, r, y, p, t, o, _, p, r, o, f, i, l, e, _, n, a, m, e</div>
-                                    </td>
+                                                                        <div>Default gateway of the HA1 interface</div>
+                                                                                </td>
             </tr>
                                 <tr>
                                                                 <td colspan="2">
-                    <b>ikev1_exchange_mode</b>
+                    <b>ha1_ip_address</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>IP of the HA1 interface</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha1_netmask</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Netmask of the HA1 interface</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha1_port</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Interface to use for this HA1 interface (eg. ethernet1/5)</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha1b_gateway</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Default gateway of the HA1Backup interface</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha1b_ip_address</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>IP of the HA1Backup interface</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha1b_netmask</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Netmask of the HA1Backup interface</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha1b_port</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Interface to use for this HA1Backup interface (eg. ethernet1/5)</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha2_gateway</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Default gateway of the HA2 interface</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha2_ip_address</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>IP of the HA2 interface</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha2_netmask</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Netmask of the HA2 interface</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha2_port</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Interface to use for this HA2 interface (eg. ethernet1/5)</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha2b_gateway</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Default gateway of the HA2Backup interface</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha2b_ip_address</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>IP of the HA2Backup interface</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha2b_netmask</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Netmask of the HA2Backup interface</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha2b_port</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Interface to use for this HA2Backup interface (eg. ethernet1/5)</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha3_port</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Interface to use for this HA3 interface (eg. ethernet1/5, ae1)</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha_config_sync</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li><div style="color: blue"><b>yes</b>&nbsp;&larr;</div></li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Enabled configuration synchronization</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha_device_id</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>0</li>
+                                                                                                                                                                                                <li>1</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>HA3 device id (0 or 1)</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha_enabled</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li><div style="color: blue"><b>yes</b>&nbsp;&larr;</div></li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Enable HA</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha_group_id</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">1</div>
+                                    </td>
+                                                                <td>
+                                                                        <div>The group identifier</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha_ha2_keepalive</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Enable HA2 keepalives</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha_ha2_keepalive_action</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>HA2 keepalive action</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha_ha2_keepalive_threshold</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>HA2 keepalive threshold</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha_ip_hash_key</b>
                     <div style="font-size: small">
                         <span style="color: purple">-</span>
                                             </div>
                                     </td>
                                 <td>
                                                                                                                             <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                                                                                                                                                <li>auto</li>
-                                                                                                                                                                                                <li>main</li>
-                                                                                                                                                                                                <li>aggressive</li>
+                                                                                                                                                                <li>source</li>
+                                                                                                                                                                                                <li>source-and-destination</li>
                                                                                     </ul>
-                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
-                                    </td>
+                                                                            </td>
                                                                 <td>
-                                                                        <div>The IKE exchange mode to use</div>
+                                                                        <div>active-active hash key used by ip-hash algorithm</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="2">
-                    <b>ikev2_crypto_profile</b>
+                    <b>ha_mode</b>
                     <div style="font-size: small">
                         <span style="color: purple">-</span>
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"default"</div>
-                                    </td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>active-passive</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>active-active</li>
+                                                                                    </ul>
+                                                                            </td>
                                                                 <td>
-                                                                        <div>Crypto profile for IKEv2.</div>
-                                                                                        <div style="font-size: small; color: darkgreen"><br/>aliases: c, r, y, p, t, o, _, p, r, o, f, i, l, e, _, n, a, m, e</div>
-                                    </td>
+                                                                        <div>Mode of HA</div>
+                                                                                </td>
             </tr>
                                 <tr>
                                                                 <td colspan="2">
-                    <b>interface</b>
+                    <b>ha_passive_link_state</b>
                     <div style="font-size: small">
                         <span style="color: purple">-</span>
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"ethernet1/1"</div>
-                                    </td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>shutdown</li>
+                                                                                                                                                                                                <li><div style="color: blue"><b>auto</b>&nbsp;&larr;</div></li>
+                                                                                    </ul>
+                                                                            </td>
                                                                 <td>
-                                                                        <div>Specify the outgoing firewall interface to the VPN tunnel.</div>
+                                                                        <div>Passive link state</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha_peer_ip</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>HA Peer’s HA1 IP address</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha_peer_ip_backup</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>HA Peer’s HA1 Backup IP address</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha_session_owner_selection</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>primary-device</li>
+                                                                                                                                                                                                <li>first-packet</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>active-active session owner mode</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha_session_setup</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>primary-device</li>
+                                                                                                                                                                                                <li>first-packet</li>
+                                                                                                                                                                                                <li>ip-module</li>
+                                                                                                                                                                                                <li>ip-hash</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>active-active session setup mode</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha_state_sync</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Enabled state synchronization</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha_sync_qos</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>active-active network sync qos</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha_sync_virtual_router</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>active-active network sync virtual router</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ha_tentative_hold_time</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>active-active tentative hold timer</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -272,102 +599,6 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="2">
-                    <b>liveness_check_interval</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">integer</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">5</div>
-                                    </td>
-                                                                <td>
-                                                                        <div>Delay interval before sending probing packets (in seconds).</div>
-                                                                                        <div style="font-size: small; color: darkgreen"><br/>aliases: l, i, v, e, n, e, s, s, _, c, h, e, c, k</div>
-                                    </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
-                    <b>local_id_type</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">-</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                                                                                                                                                <li>ipaddr</li>
-                                                                                                                                                                                                <li>fwdn</li>
-                                                                                                                                                                                                <li>ufqdn</li>
-                                                                                                                                                                                                <li>keyid</li>
-                                                                                                                                                                                                <li>dn</li>
-                                                                                    </ul>
-                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
-                                    </td>
-                                                                <td>
-                                                                        <div>Specify the type of local ID.</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
-                    <b>local_id_value</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">-</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
-                                    </td>
-                                                                <td>
-                                                                        <div>The value for the local_id.  (See also local_id_type, above.)</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
-                    <b>local_ip_address</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">-</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
-                                    </td>
-                                                                <td>
-                                                                        <div>Bind IKE gateway to the specified interface IP address</div>
-                                                    <div>It should include the mask, such as &#x27;192.168.1.1/24&#x27;</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
-                    <b>local_ip_address_type</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">-</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                                                                                                                                                <li>ip</li>
-                                                                                                                                                                                                <li>floating-ip</li>
-                                                                                    </ul>
-                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
-                                    </td>
-                                                                <td>
-                                                                        <div>The address type of the bound interface IP address</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
-                    <b>name</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">-</span>
-                         / <span style="color: red">required</span>                    </div>
-                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                                                        <div>Name for the profile.</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
                     <b>password</b>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
@@ -380,72 +611,6 @@ Parameters
                                                     <div>Use <em>provider</em> to specify PAN-OS connectivity instead.</div>
                                                     <div><hr/></div>
                                                     <div>The password to use for authentication.  This is ignored if <em>api_key</em> is specified.</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
-                    <b>peer_id_check</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">-</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                                                                                                                                                <li><div style="color: blue"><b>exact</b>&nbsp;&larr;</div></li>
-                                                                                                                                                                                                <li>wildcard</li>
-                                                                                    </ul>
-                                                                            </td>
-                                                                <td>
-                                                                        <div>Type of checking to do on peer_id.</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
-                    <b>peer_id_type</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">-</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                                                                                                                                                <li>ipaddr</li>
-                                                                                                                                                                                                <li>fwdn</li>
-                                                                                                                                                                                                <li>ufqdn</li>
-                                                                                                                                                                                                <li>keyid</li>
-                                                                                                                                                                                                <li>dn</li>
-                                                                                    </ul>
-                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
-                                    </td>
-                                                                <td>
-                                                                        <div>Specify the type of peer ID.</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
-                    <b>peer_id_value</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">-</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"None"</div>
-                                    </td>
-                                                                <td>
-                                                                        <div>The value for the peer_id.  (See also peer_id_type, above.)</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
-                    <b>peer_ip_value</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">-</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"127.0.0.1"</div>
-                                    </td>
-                                                                <td>
-                                                                        <div>IPv4 address of the peer gateway.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -464,21 +629,6 @@ Parameters
                                                     <div><hr/></div>
                                                     <div>The port number to connect to the PAN-OS device on.</div>
                                                                                 </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
-                    <b>pre_shared_key</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">-</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"CHANGEME"</div>
-                                    </td>
-                                                                <td>
-                                                                        <div>Specify pre-shared key.</div>
-                                                                                        <div style="font-size: small; color: darkgreen"><br/>aliases: p, s, k</div>
-                                    </td>
             </tr>
                                 <tr>
                                                                 <td colspan="2">
@@ -642,23 +792,16 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="2">
-                    <b>version</b>
+                    <b>vsys</b>
                     <div style="font-size: small">
-                        <span style="color: purple">-</span>
+                        <span style="color: purple">string</span>
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                                                                                                                                                <li>ikev1</li>
-                                                                                                                                                                                                <li>ikev2</li>
-                                                                                                                                                                                                <li>ikev2-preferred</li>
-                                                                                    </ul>
-                                                                                    <b>Default:</b><br/><div style="color: blue">"ike2"</div>
-                                    </td>
+                                                                                                                                                            </td>
                                                                 <td>
-                                                                        <div>Specify the priority for Diffie-Hellman (DH) groups.</div>
-                                                                                        <div style="font-size: small; color: darkgreen"><br/>aliases: p, r, o, t, o, c, o, l, _, v, e, r, s, i, o, n</div>
-                                    </td>
+                                                                        <div>The vsys this object should be imported into.  Objects that are imported include interfaces, virtual routers, virtual wires, and VLANs.  Interfaces are typically imported into vsys1 if no vsys is specified.</div>
+                                                                                </td>
             </tr>
                         </table>
     <br/>
@@ -668,8 +811,8 @@ Notes
 -----
 
 .. note::
+   - Checkmode is supported.
    - Panorama is supported.
-   - Check mode is supported.
    - PAN-OS connectivity should be specified using *provider* or the classic PAN-OS connectivity params (*ip_address*, *username*, *password*, *api_key*, and *port*).  If both are present, then the classic params are ignored.
    - If the PAN-OS to be configured is Panorama, either *template* or *template_stack* must be specified.
 
@@ -681,20 +824,50 @@ Examples
 .. code-block:: yaml+jinja
 
     
-    - name: Add IKE gateway config to the firewall
-      panos_ike_gateway:
-        provider: '{{ provider }}'
-        state: 'present'
-        name: 'IKEGW-Ansible'
-        version: 'ikev2'
-        interface: 'ethernet1/1'
-        enable_passive_mode: True
-        enable_liveness_check: True
-        liveness_check_interval: '5'
-        peer_ip_value: '1.2.3.4'
-        pre_shared_key: 'CHANGEME'
-        ikev2_crypto_profile: 'IKE-Ansible'
-        commit: False
+      - name: set ports to HA mode
+        panos_interface:
+          provider: '{{ provider }}'
+          if_name: "{{ item }}"
+          mode: "ha"
+          enable_dhcp: false
+          commit: false
+        with_items:
+          - ethernet1/1
+          - ethernet1/2
+          - ethernet1/3
+          - ethernet1/4
+          - ethernet1/5
+
+      - name: Configure Active/Standby HA
+        panos_ha:
+          provider: '{{ provider }}'
+          state: present
+          ha_peer_ip: "192.168.50.1"
+          ha1_ip_address: "192.168.50.2"
+          ha1_netmask: "255.255.255.252"
+          ha1_port: "ethernet1/1"
+          ha2_port: "ethernet1/3"
+          commit: "true"
+
+      - name: Configure Active/Active HA
+        panos_ha:
+          provider: "{{ provider }}"
+          state: present
+          ha_mode: "active-active"
+          ha_device_id: 0
+          ha_session_owner_selection: "first-packet"
+          ha_session_setup: "first-packet"
+          ha_peer_ip: "192.168.50.1"
+          ha_peer_ip_backup: "192.168.50.5"
+          ha1_port: "ethernet1/1"
+          ha1_ip_address: "192.168.50.2"
+          ha1_netmask: "255.255.255.252"
+          ha1b_port: "ethernet1/2"
+          ha1b_ip_address: "192.168.50.6"
+          ha1b_netmask: "255.255.255.252"
+          ha2_port: "ethernet1/3"
+          ha2b_port: "ethernet1/4"
+          ha3_port: "ethernet1/5"
 
 
 
@@ -718,6 +891,6 @@ Status
 Authors
 ~~~~~~~
 
-- Ivan Bojer (@ivanbojer)
+- Patrick Avery
 
 
