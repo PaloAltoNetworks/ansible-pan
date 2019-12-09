@@ -683,8 +683,8 @@ Examples
         rule_name: "Web SSH"
         source_zone: ["external"]
         destination_zone: "external"
-        source: ["any"]
-        destination: ["10.0.0.100"]
+        source_ip: ["any"]
+        destination_ip: ["10.0.0.100"]
         service: "service-tcp-221"
         snat_type: "dynamic-ip-and-port"
         snat_interface: "ethernet1/2"

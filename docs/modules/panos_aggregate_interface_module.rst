@@ -1,14 +1,14 @@
-:source: panos_mgtconfig.py
+:source: panos_aggregate_interface.py
 
 :orphan:
 
-.. _panos_mgtconfig_module:
+.. _panos_aggregate_interface_module:
 
 
-panos_mgtconfig -- Module used to configure some of the device management
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+panos_aggregate_interface -- configure aggregate network interfaces
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-.. versionadded:: 2.4
+.. versionadded:: 2.9
 
 .. contents::
    :local:
@@ -17,7 +17,7 @@ panos_mgtconfig -- Module used to configure some of the device management
 
 Synopsis
 --------
-- Configure management settings of device. Not all configuration options are configurable at this time.
+- Configure aggregate network interfaces on PanOS
 
 
 
@@ -25,8 +25,8 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- pan-python can be obtained from PyPI https://pypi.python.org/pypi/pan-python
-- pandevice can be obtained from PyPI https://pypi.python.org/pypi/pandevice
+- pan-python can be obtained from PyPi https://pypi.python.org/pypi/pan-python
+- pandevice can be obtained from PyPi https://pypi.python.org/pypi/pandevice
 
 
 Parameters
@@ -41,6 +41,23 @@ Parameters
                         <th width="100%">Comments</th>
         </tr>
                     <tr>
+                                                                <td colspan="2">
+                    <b>adjust_tcp_mss</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Adjust TCP MSS.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
                                                                 <td colspan="2">
                     <b>api_key</b>
                     <div style="font-size: small">
@@ -58,6 +75,19 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="2">
+                    <b>comment</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Interface comment.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
                     <b>commit</b>
                     <div style="font-size: small">
                         <span style="color: purple">boolean</span>
@@ -70,72 +100,80 @@ Parameters
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>Commit configuration if changed.</div>
+                                                                        <div>Commit if changed</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="2">
-                    <b>devicegroup</b>
+                    <b>create_dhcp_default_route</b>
                     <div style="font-size: small">
-                        <span style="color: purple">-</span>
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Create default route pointing to default gateway provided by server</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>dhcp_default_route_metric</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
                                             </div>
                                     </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div><b>Removed</b></div>
+                                                                        <div>Metric for the DHCP default route</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="2">
-                    <b>dns_server_primary</b>
+                    <b>enable_dhcp</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Enable DHCP on this interface</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>if_name</b>
                     <div style="font-size: small">
                         <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Name of the interface to configure.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ip</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
                                             </div>
                                     </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>IP address of primary DNS server.</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
-                    <b>dns_server_secondary</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">-</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                                                        <div>IP address of secondary DNS server.</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
-                    <b>domain</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">-</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                                                        <div>The domain of the device</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
-                    <b>hostname</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">-</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                                                        <div>The hostname of the device.</div>
+                                                                        <div>List of static IP addresses.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -156,59 +194,67 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="2">
-                    <b>login_banner</b>
+                    <b>ipv4_mss_adjust</b>
                     <div style="font-size: small">
-                        <span style="color: purple">-</span>
+                        <span style="color: purple">integer</span>
                                             </div>
                                     </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Login banner text.</div>
+                                                                        <div>(7.1+) TCP MSS adjustment for IPv4.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="2">
-                    <b>ntp_server_primary</b>
+                    <b>ipv6_enabled</b>
                     <div style="font-size: small">
-                        <span style="color: purple">-</span>
+                        <span style="color: purple">boolean</span>
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                            </td>
+                                                                                                                                                                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
                                                                 <td>
-                                                                        <div>IP address (or hostname) of primary NTP server.</div>
+                                                                        <div>Enable IPv6.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="2">
-                    <b>ntp_server_secondary</b>
+                    <b>ipv6_mss_adjust</b>
                     <div style="font-size: small">
-                        <span style="color: purple">-</span>
+                        <span style="color: purple">integer</span>
                                             </div>
                                     </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>IP address (or hostname) of secondary NTP server.</div>
+                                                                        <div>(7.1+) TCP MSS adjustment for IPv6.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="2">
-                    <b>panorama_primary</b>
+                    <b>lldp_enabled</b>
                     <div style="font-size: small">
-                        <span style="color: purple">-</span>
+                        <span style="color: purple">boolean</span>
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                            </td>
+                                                                                                                                                                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
                                                                 <td>
-                                                                        <div>IP address (or hostname) of primary Panorama server.</div>
+                                                                        <div>{&#x27;Layer2&#x27;: &#x27;Enable LLDP&#x27;}</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="2">
-                    <b>panorama_secondary</b>
+                    <b>lldp_profile</b>
                     <div style="font-size: small">
                         <span style="color: purple">-</span>
                                             </div>
@@ -216,7 +262,81 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>IP address (or hostname) of secondary Panorama server.</div>
+                                                                        <div>{&#x27;Layer2&#x27;: &#x27;Reference to an lldp profile&#x27;}</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>management_profile</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Interface management profile name.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>mode</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>layer3</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>layer2</li>
+                                                                                                                                                                                                <li>virtual-wire</li>
+                                                                                                                                                                                                <li>tap</li>
+                                                                                                                                                                                                <li>ha</li>
+                                                                                                                                                                                                <li>decrypt-mirror</li>
+                                                                                                                                                                                                <li>aggregate-group</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>The interface mode.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>mtu</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>MTU for aggregate interface.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>netflow_profile</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Netflow profile for aggregate interface.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>netflow_profile_l2</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Netflow profile for aggregate interface.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -354,28 +474,32 @@ Parameters
                     
                                                 <tr>
                                                                 <td colspan="2">
-                    <b>timezone</b>
+                    <b>state</b>
                     <div style="font-size: small">
-                        <span style="color: purple">-</span>
+                        <span style="color: purple">string</span>
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                            </td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>present</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>absent</li>
+                                                                                    </ul>
+                                                                            </td>
                                                                 <td>
-                                                                        <div>Device timezone.</div>
+                                                                        <div>The state.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="2">
-                    <b>update_server</b>
+                    <b>template</b>
                     <div style="font-size: small">
-                        <span style="color: purple">-</span>
+                        <span style="color: purple">string</span>
                                             </div>
                                     </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>IP or hostname of the update server.</div>
+                                                                        <div>(Panorama only) The template this operation should target.  This param is required if the PAN-OS device is Panorama.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -397,19 +521,41 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="2">
-                    <b>verify_update_server</b>
+                    <b>vr_name</b>
                     <div style="font-size: small">
-                        <span style="color: purple">boolean</span>
+                        <span style="color: purple">-</span>
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                                                                                                                                                <li>no</li>
-                                                                                                                                                                                                <li>yes</li>
-                                                                                    </ul>
-                                                                            </td>
+                                                                                                                                                            </td>
                                                                 <td>
-                                                                        <div>Verify the identify of the update server.</div>
+                                                                        <div>The virtual router to associate with this interface.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>vsys</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The vsys this object should be imported into.  Objects that are imported include interfaces, virtual routers, virtual wires, and VLANs.  Interfaces are typically imported into vsys1 if no vsys is specified.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>zone_name</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The zone to put this interface into.</div>
                                                                                 </td>
             </tr>
                         </table>
@@ -421,7 +567,7 @@ Notes
 
 .. note::
    - Checkmode is supported.
-   - Panorama is supported
+   - Panorama is supported.
    - PAN-OS connectivity should be specified using *provider* or the classic PAN-OS connectivity params (*ip_address*, *username*, *password*, *api_key*, and *port*).  If both are present, then the classic params are ignored.
 
 
@@ -432,15 +578,13 @@ Examples
 .. code-block:: yaml+jinja
 
     
-    - name: set dns and panorama
-      panos_mgtconfig:
+    # Create ae1 interface.
+    - name: create ae1 interface with IP in untrust zone
+      panos_aggregate_interface:
         provider: '{{ provider }}'
-        dns_server_primary: "1.1.1.1"
-        dns_server_secondary: "1.1.1.2"
-        panorama_primary: "1.1.1.3"
-        panorama_secondary: "1.1.1.4"
-        ntp_server_primary: "1.1.1.5"
-        ntp_server_secondary: "1.1.1.6"
+        if_name: "ae1"
+        ip: '[ "192.168.0.1" ]'
+        zone_name: 'untrust'
 
 
 
@@ -464,6 +608,6 @@ Status
 Authors
 ~~~~~~~
 
-- Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer), Patrik Malinen (@pmalinen), Francesco Vigo (@fvigo)
+- Heiko Burghardt (@odysseus107)
 
 
