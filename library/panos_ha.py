@@ -4,7 +4,7 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-#  Copyright 2018 Palo Alto Networks, Inc
+#  Copyright 2019 Palo Alto Networks, Inc
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -415,12 +415,25 @@ def main():
     # Create the new state object.
     obj = HighAvailability(**ha_obj_spec)
 
-    # Add HA interfaces
+    # Add sub-objects only if at least one param for that type is specified.
+    '''
     obj.add(HA1(**ha1_obj_spec))
     obj.add(HA1Backup(**ha1b_obj_spec))
     obj.add(HA2(**ha2_obj_spec))
     obj.add(HA2Backup(**ha2b_obj_spec))
     obj.add(HA3(**ha3_obj_spec))
+    '''
+    class_specs = [
+        (HA1, ha1_obj_spec),
+        (HA1Backup, ha1b_obj_spec),
+        (HA2, ha2_obj_spec),
+        (HA2Backup, ha2b_obj_spec),
+        (HA3, ha3_obj_spec),
+    ]
+    for cls_type, cls_spec in class_specs:
+        if any(x is not None for x in cls_spec.values()):
+            sub_obj = cls_type(**cls_spec)
+            obj.add(sub_obj)
 
     # Add ha object to parent
     parent.add(obj)
