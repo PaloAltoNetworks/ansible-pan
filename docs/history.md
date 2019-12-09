@@ -18,6 +18,7 @@ Enhancements:
 * `panos_commit` can now perform partial commits
 * `panos_type_cmd` now reports `changed=False` for safe commands
 * `panos_bgp` now supports `enable` and `disable` as states
+* `panos_match_rule` should now work with rules that came from Panorama
 
 Bug Fixes:
 
