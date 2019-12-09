@@ -10,6 +10,7 @@ New modules:
 
 * `panos_virtual_wire`
 * `panos_aggregate_interface`
+* `panos_ha`
 
 Enhancements:
 
