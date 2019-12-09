@@ -308,7 +308,14 @@ def main():
     else:
         module.exit_json(msg='No matching {0} rule.'.format(rtype))
 
-    # Example response: <response cmd="status" status="success"><result><rules>\n\t<entry>deny all and log; index: 3</entry>\n</rules>\n</result></response>
+    '''
+    Example response (newlines after newlines to appease pycodestyle line length limitations):
+
+    <response cmd="status" status="success"><result><rules>\n
+\t<entry>deny all and log; index: 3</entry>\n
+</rules>\n
+</result></response>
+    '''
     tokens = rule_name.split(';')
     if len(tokens) == 2 and tokens[1].startswith(' index: '):
         rule_name = tokens[0]
