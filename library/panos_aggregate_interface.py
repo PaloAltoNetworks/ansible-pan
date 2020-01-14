@@ -48,10 +48,7 @@ options:
             - layer3
             - layer2
             - virtual-wire
-            - tap
             - ha
-            - decrypt-mirror
-            - aggregate-group
     ip:
         description:
             - List of static IP addresses.
@@ -81,9 +78,6 @@ options:
     lldp_profile:
         description:
             - Layer2: Reference to an lldp profile
-    netflow_profile_l2:
-        description:
-            - Netflow profile for aggregate interface.
     comment:
         description:
             - Interface comment.
@@ -155,15 +149,12 @@ def main():
         template=True,
         with_classic_provider_spec=True,
         with_state=True,
-        min_pandevice_version=(0, 8, 0),
+        min_pandevice_version=(0, 13, 0),
         argument_spec=dict(
             if_name=dict(required=True),
             mode=dict(
                 default='layer3',
-                choices=[
-                    'layer3', 'layer2', 'virtual-wire', 'tap', 'ha',
-                    'decrypt-mirror', 'aggregate-group',
-                ],
+                choices=['layer3', 'layer2', 'virtual-wire', 'ha'],
             ),
             ip=dict(type='list'),
             ipv6_enabled=dict(type='bool'),
@@ -173,7 +164,6 @@ def main():
             netflow_profile=dict(),
             lldp_enabled=dict(type='bool'),
             lldp_profile=dict(),
-            netflow_profile_l2=dict(),
             comment=dict(),
             ipv4_mss_adjust=dict(type='int'),
             ipv6_mss_adjust=dict(type='int'),
@@ -204,7 +194,6 @@ def main():
         'netflow_profile': module.params['netflow_profile'],
         'lldp_enabled': module.params['lldp_enabled'],
         'lldp_profile': module.params['lldp_profile'],
-        'netflow_profile_l2': module.params['netflow_profile_l2'],
         'comment': module.params['comment'],
         'ipv4_mss_adjust': module.params['ipv4_mss_adjust'],
         'ipv6_mss_adjust': module.params['ipv6_mss_adjust'],
