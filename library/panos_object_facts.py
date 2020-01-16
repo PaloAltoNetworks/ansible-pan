@@ -47,6 +47,14 @@ options:
         description:
             - A python regex for an object's name to retrieve.
             - Mutually exclusive with I(name).
+    value:
+        description:
+            - IP of object to retrieve.
+            - Mutually exclusive with I(value_regex).
+    value_regex:
+        description:
+            - A python regex for an object's IP to retrieve.
+            - Mutually exclusive with I(value).
     object_type:
         description:
             - Type of object to retrieve.
@@ -131,7 +139,7 @@ def colorize(obj, object_type):
 
 
 def main():
-    name_params = ['name', 'name_regex']
+    name_params = ['name', 'name_regex', 'value', 'value_regex']
     obj_types = {
         'address': objects.AddressObject,
         'address-group': objects.AddressGroup,
@@ -147,6 +155,8 @@ def main():
         argument_spec=dict(
             name=dict(),
             name_regex=dict(),
+            value=dict(),
+            value_regex=dict(),
             object_type=dict(default='address', choices=obj_types.keys()),
         ),
     )
@@ -175,6 +185,21 @@ def main():
         if obj:
             results = colorize(obj, object_type)
             ans_objects.append(results)
+    elif module.params['value'] is not None:
+        for x in obj_listing:
+            AdressObject = x.about()
+            if AdressObject['value'] == module.params['value']:
+                ans_objects.append(colorize(x, object_type))
+    elif module.params['value_regex'] is not None:
+        try:
+            matcher = re.compile(module.params['value_regex'])
+        except Exception as e:
+            module.fail_json(msg='Invalid regex: {0}'.format(e))
+
+        for x in obj_listing:
+            AdressObject = x.about()
+            if matcher.search(AdressObject['value']) is not None:
+                ans_objects.append(colorize(x, object_type))
     else:
         try:
             matcher = re.compile(module.params['name_regex'])
