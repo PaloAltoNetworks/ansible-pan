@@ -5,8 +5,8 @@
 .. _panos_software_module:
 
 
-panos_software -- Install specific release of PAN-OS
-++++++++++++++++++++++++++++++++++++++++++++++++++++
+panos_software -- Manage PAN-OS software versions
++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. versionadded:: 2.6
 
@@ -54,6 +54,40 @@ Parameters
                                                     <div>Use <em>provider</em> to specify PAN-OS connectivity instead.</div>
                                                     <div><hr/></div>
                                                     <div>The API key to use instead of generating it using <em>username</em> / <em>password</em>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>download</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li><div style="color: blue"><b>yes</b>&nbsp;&larr;</div></li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Download PAN-OS version to the device.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>install</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li><div style="color: blue"><b>yes</b>&nbsp;&larr;</div></li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Perform installation of the PAN-OS version on the device.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -209,14 +243,34 @@ Parameters
                                                                 <td colspan="2">
                     <b>restart</b>
                     <div style="font-size: small">
-                        <span style="color: purple">-</span>
+                        <span style="color: purple">boolean</span>
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                                                                <b>Default:</b><br/><div style="color: blue">"no"</div>
-                                    </td>
+                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
                                                                 <td>
                                                                         <div>Restart device after installing desired version.  Use in conjunction with panos_check to determine when firewall is ready again.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>sync_to_peer</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>no</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>If device is a member of a HA pair, perform actions on the peer device as well.  Only used when downloading software - installation must be performed on both devices.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -274,6 +328,21 @@ Examples
         provider: '{{ provider }}'
         version: '8.1.6'
         restart: true
+
+    - name: Download PAN-OS 9.0.0 base image only
+      panos_software:
+        provider: '{{ provider }}'
+        version: '9.0.0'
+        install: false
+        restart: false
+
+    - name: Download PAN-OS 9.0.1 and sync to HA peer
+      panos_software:
+        provider: '{{ provider }}'
+        version: '9.0.1'
+        sync_to_peer: true
+        install: false
+        restart: false
 
 
 

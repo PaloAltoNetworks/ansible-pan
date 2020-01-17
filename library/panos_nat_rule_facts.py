@@ -87,6 +87,7 @@ object:
     description: Single rule definition
     returned: When I(rule_name) or I(uuid) is specified
     type: complex
+    contains:
         description:
             description: Description
             type: str
@@ -151,66 +152,6 @@ listing:
     description: List of rules
     returned: When I(listing) or I(rule_regex) is set
     type: list
-        description:
-            description: Description
-            type: str
-        destination_ip:
-            description: Destination addresses
-            type: list
-        destination_zone:
-            description: To zones
-            type: list
-        dnat_address:
-            description: Destination NAT translated address
-            type: str
-        dnat_port:
-            description: Destination NAT translated port
-            type: int
-        nat_type:
-            description: The NAT type
-            type: str
-        rule_name:
-            description: Rule name
-            type: str
-        service:
-            description: The service
-            type: str
-        snat_address_type:
-            description: Type of source translation
-            type: str
-        snat_bidirectional:
-            description: Bidirectional flag
-            type: bool
-        snat_dynamic_address:
-            description: Source NAT translated address
-            type: list
-        snat_interface:
-            description: Source NAT interface
-            type: str
-        snat_interface_address:
-            description: SNAT interface address
-            type: str
-        snat_static_address:
-            description: Static IP SNAT translated address
-            type: str
-        snat_type:
-            description: Type of source translation
-            type: str
-        source_ip:
-            description: Source addresses
-            type: list
-        source_zone:
-            description: Source zone
-            type: list
-        tag_val:
-            description: Administrative tags for this rule
-            type: list
-        to_interface:
-            description: Egress interface from route lookup
-            type: str
-        uuid:
-            description: The UUID of the rule (PAN-OS 9.0+)
-            type: str
 '''
 
 

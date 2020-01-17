@@ -1,10 +1,29 @@
 Release History
 ===============
 
+V2.4.0
+------
+
+- *Released*: 2020-01-17
+
+New modules:
+
+* `panos_pbf_rule`
+* `panos_gre_tunnel`
+* `panos_nat_rule_facts`
+
+Enhancements:
+
+* `panos_aggregate_interface` has had its params fixed
+* `panos_ike_gateway` does not force peer_id_check anymore
+* `panos_software` has new flags allowing just download or just install
+* `panos_object_facts` has new search options
+* Various bug and doc fixes / updates
+
 V2.3.0
 --------
 
-- *Unreleased*
+- *Released*: 2019-12-09
 
 New modules:
 

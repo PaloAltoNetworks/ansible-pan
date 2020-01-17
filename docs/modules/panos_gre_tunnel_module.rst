@@ -1,14 +1,14 @@
-:source: panos_object_facts.py
+:source: panos_gre_tunnel.py
 
 :orphan:
 
-.. _panos_object_facts_module:
+.. _panos_gre_tunnel_module:
 
 
-panos_object_facts -- Retrieve facts about objects on PAN-OS devices
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+panos_gre_tunnel -- Create GRE tunnels on PAN-OS devices
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-.. versionadded:: 2.8
+.. versionadded:: 2.9
 
 .. contents::
    :local:
@@ -17,7 +17,7 @@ panos_object_facts -- Retrieve facts about objects on PAN-OS devices
 
 Synopsis
 --------
-- Retrieves tag information objects on PAN-OS devices.
+- Create GRE tunnel objects on PAN-OS devices.
 
 
 
@@ -58,38 +58,58 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="2">
-                    <b>field</b>
+                    <b>copy_tos</b>
                     <div style="font-size: small">
-                        <span style="color: purple">-</span>
+                        <span style="color: purple">boolean</span>
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                                                        <div>The field to search instead of name.</div>
-                                                    <div>Mutually exclusive with <em>name</em> and <em>name_regex</em></div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
-                    <b>field_search_type</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">-</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                                                                                                                                                <li><div style="color: blue"><b>exact</b>&nbsp;&larr;</div></li>
-                                                                                                                                                                                                <li>regex</li>
+                                                                                                                                                                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li>yes</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The type of search to perform when doing a <em>field</em> search.</div>
+                                                                        <div>Copy IP TOS bits from inner packet to GRE packet.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="2">
-                    <b>field_search_value</b>
+                    <b>disabled</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Disable the GRE tunnel.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>enable_keep_alive</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Enable tunnel monitoring.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>interface</b>
                     <div style="font-size: small">
                         <span style="color: purple">-</span>
                                             </div>
@@ -97,7 +117,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>The value for the <em>field_search</em> and <em>field</em> specified.</div>
+                                                                        <div>Interface to terminate the tunnel.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -118,50 +138,87 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="2">
-                    <b>name</b>
+                    <b>keep_alive_hold_timer</b>
                     <div style="font-size: small">
-                        <span style="color: purple">-</span>
+                        <span style="color: purple">integer</span>
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                            </td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">5</div>
+                                    </td>
                                                                 <td>
-                                                                        <div>Name of object to retrieve.</div>
-                                                    <div>Mutually exclusive with <em>name_regex</em> and <em>field</em>.</div>
+                                                                        <div>Keep alive hold timer.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="2">
-                    <b>name_regex</b>
+                    <b>keep_alive_interval</b>
                     <div style="font-size: small">
-                        <span style="color: purple">-</span>
+                        <span style="color: purple">integer</span>
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                            </td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">10</div>
+                                    </td>
                                                                 <td>
-                                                                        <div>A python regex for an object&#x27;s name to retrieve.</div>
-                                                    <div>Mutually exclusive with <em>name</em> and <em>field</em>.</div>
+                                                                        <div>Keep alive interval.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="2">
-                    <b>object_type</b>
+                    <b>keep_alive_retry</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">3</div>
+                                    </td>
+                                                                <td>
+                                                                        <div>Keep alive retry time.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>local_address_type</b>
                     <div style="font-size: small">
                         <span style="color: purple">-</span>
                                             </div>
                                     </td>
                                 <td>
                                                                                                                             <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                                                                                                                                                <li><div style="color: blue"><b>address</b>&nbsp;&larr;</div></li>
-                                                                                                                                                                                                <li>address-group</li>
-                                                                                                                                                                                                <li>service</li>
-                                                                                                                                                                                                <li>service-group</li>
-                                                                                                                                                                                                <li>tag</li>
+                                                                                                                                                                <li><div style="color: blue"><b>ip</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>floating-ip</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>Type of object to retrieve.</div>
+                                                                        <div>Type of local address.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>local_address_value</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>IP address value.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>name</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                         / <span style="color: red">required</span>                    </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Name of object to create.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -178,6 +235,19 @@ Parameters
                                                     <div>Use <em>provider</em> to specify PAN-OS connectivity instead.</div>
                                                     <div><hr/></div>
                                                     <div>The password to use for authentication.  This is ignored if <em>api_key</em> is specified.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>peer_address</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>Peer IP address.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -299,6 +369,76 @@ Parameters
                     
                                                 <tr>
                                                                 <td colspan="2">
+                    <b>state</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>present</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>absent</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>The state.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>template</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>(Panorama only) The template this operation should target. Mutually exclusive with <em>template_stack</em>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>template_stack</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>(Panorama only) The template stack this operation should target. Mutually exclusive with <em>template</em>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>ttl</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">integer</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">64</div>
+                                    </td>
+                                                                <td>
+                                                                        <div>TTL.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>tunnel_interface</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>To apply GRE tunnels to tunnel interface.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
                     <b>username</b>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
@@ -322,9 +462,11 @@ Notes
 -----
 
 .. note::
+   - Minimum PAN-OS version: 9.0
    - Panorama is supported.
-   - Check mode is not supported.
+   - Check mode is supported.
    - PAN-OS connectivity should be specified using *provider* or the classic PAN-OS connectivity params (*ip_address*, *username*, *password*, *api_key*, and *port*).  If both are present, then the classic params are ignored.
+   - If the PAN-OS to be configured is Panorama, either *template* or *template_stack* must be specified.
 
 
 
@@ -334,75 +476,18 @@ Examples
 .. code-block:: yaml+jinja
 
     
-    - name: Retrieve address group object 'Prod'
-      panos_object_facts:
+    - name: Create GRE tunnel
+      panos_gre_tunnel:
         provider: '{{ provider }}'
-        name: 'Prod'
-        object_type: 'address-group'
-      register: result
-
-    - name: Retrieve service group object 'Prod-Services'
-      panos_object_facts:
-        provider: '{{ provider }}'
-        name: 'Prod-Services'
-        object_type: 'service-group'
-      register: result
-
-    - name: Find all address objects with "Prod" in the name
-      panos_object_facts:
-        provider: '{{ provider }}'
-        name_regex: '.*Prod.*'
-        object_type: 'address'
-      register: result
-
-    - name: Find all static address objects that use addy1
-      panos_object_facts:
-        provider: '{{ provider }}'
-        object_type: 'address-group'
-        field: 'static_value'
-        field_search_type: 'exact'
-        field_search_value: 'addy1'
-      register: result
+        name: 'myGreTunnel'
+        interface: 'ethernet1/5'
+        local_address_value: '10.1.1.1/24'
+        peer_address: '192.168.1.1'
+        tunnel_interface: 'tunnel.7'
+        ttl: 42
 
 
 
-
-Return Values
--------------
-Common return values are `documented here <https://docs.ansible.com/ansible/latest/reference_appendices/common_return_values.html#common-return-values>`_, the following are the fields unique to this module:
-
-.. raw:: html
-
-    <table border=0 cellpadding=0 class="documentation-table">
-        <tr>
-            <th colspan="1">Key</th>
-            <th>Returned</th>
-            <th width="100%">Description</th>
-        </tr>
-                    <tr>
-                                <td colspan="1">
-                    <b>ansible_module_results</b>
-                    <div style="font-size: small; color: purple">dictionary</div>
-                                    </td>
-                <td>when &quot;name&quot; is specified</td>
-                <td>
-                                            <div>Dict containing object attributes.  Empty if object is not found.</div>
-                                        <br/>
-                                    </td>
-            </tr>
-                                <tr>
-                                <td colspan="1">
-                    <b>objects</b>
-                    <div style="font-size: small; color: purple">list</div>
-                                    </td>
-                <td>always</td>
-                <td>
-                                            <div>List of object dicts.</div>
-                                        <br/>
-                                    </td>
-            </tr>
-                        </table>
-    <br/><br/>
 
 
 Status
@@ -423,7 +508,6 @@ Status
 Authors
 ~~~~~~~
 
-- Michael Richardson (@mrichardson03)
 - Garfield Lee Freeman (@shinmog)
 
 

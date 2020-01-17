@@ -1,12 +1,12 @@
-:source: panos_aggregate_interface.py
+:source: panos_pbf_rule.py
 
 :orphan:
 
-.. _panos_aggregate_interface_module:
+.. _panos_pbf_rule_module:
 
 
-panos_aggregate_interface -- configure aggregate network interfaces
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+panos_pbf_rule -- Manage Policy Based Forwarding rules on PAN-OS
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. versionadded:: 2.9
 
@@ -17,7 +17,7 @@ panos_aggregate_interface -- configure aggregate network interfaces
 
 Synopsis
 --------
-- Configure aggregate network interfaces on PanOS
+- Manage Policy Based Forwarding rules on PAN-OS.
 
 
 
@@ -25,8 +25,8 @@ Requirements
 ------------
 The below requirements are needed on the host that executes this module.
 
-- pan-python can be obtained from PyPi https://pypi.python.org/pypi/pan-python
-- pandevice can be obtained from PyPi https://pypi.python.org/pypi/pandevice
+- pandevice >= 0.13.0
+- pan-python
 
 
 Parameters
@@ -42,19 +42,21 @@ Parameters
         </tr>
                     <tr>
                                                                 <td colspan="2">
-                    <b>adjust_tcp_mss</b>
+                    <b>action</b>
                     <div style="font-size: small">
-                        <span style="color: purple">boolean</span>
+                        <span style="color: purple">-</span>
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                                                                                                                                                <li>no</li>
-                                                                                                                                                                                                <li>yes</li>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>forward</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>forward-to-vsys</li>
+                                                                                                                                                                                                <li>discard</li>
+                                                                                                                                                                                                <li>no-pbf</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>Adjust TCP MSS.</div>
+                                                                        <div>The action to take.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -75,7 +77,21 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="2">
-                    <b>comment</b>
+                    <b>applications</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">["any"]</div>
+                                    </td>
+                                                                <td>
+                                                                        <div>List of applications.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>description</b>
                     <div style="font-size: small">
                         <span style="color: purple">-</span>
                                             </div>
@@ -83,29 +99,40 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Interface comment.</div>
+                                                                        <div>The description.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="2">
-                    <b>commit</b>
+                    <b>destination_addresses</b>
                     <div style="font-size: small">
-                        <span style="color: purple">boolean</span>
+                        <span style="color: purple">list</span>
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                                                                                    <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                                                                                                                                                <li>no</li>
-                                                                                                                                                                                                <li><div style="color: blue"><b>yes</b>&nbsp;&larr;</div></li>
-                                                                                    </ul>
-                                                                            </td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">["any"]</div>
+                                    </td>
                                                                 <td>
-                                                                        <div>Commit if changed</div>
+                                                                        <div>List of destination addresses.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="2">
-                    <b>create_dhcp_default_route</b>
+                    <b>device_group</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"shared"</div>
+                                    </td>
+                                                                <td>
+                                                                        <div>(Panorama only) The device group the operation should target.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>disabled</b>
                     <div style="font-size: small">
                         <span style="color: purple">boolean</span>
                                             </div>
@@ -117,25 +144,12 @@ Parameters
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>Create default route pointing to default gateway provided by server</div>
+                                                                        <div>Disable this rule.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="2">
-                    <b>dhcp_default_route_metric</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">integer</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                                                        <div>Metric for the DHCP default route</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
-                    <b>enable_dhcp</b>
+                    <b>enable_enforce_symmetric_return</b>
                     <div style="font-size: small">
                         <span style="color: purple">boolean</span>
                                             </div>
@@ -147,25 +161,143 @@ Parameters
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>Enable DHCP on this interface</div>
+                                                                        <div>Set to enforce symmetric return.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="2">
-                    <b>if_name</b>
+                    <b>existing_rule</b>
                     <div style="font-size: small">
                         <span style="color: purple">-</span>
-                         / <span style="color: red">required</span>                    </div>
+                                            </div>
                                     </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Name of the interface to configure.</div>
+                                                                        <div>If &#x27;location&#x27; is set to &#x27;before&#x27; or &#x27;after&#x27;, this option specifies an existing rule name.  The new rule will be created in the specified position relative to this rule.  If &#x27;location&#x27; is set to &#x27;before&#x27; or &#x27;after&#x27;, this option is required.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="2">
-                    <b>ip</b>
+                    <b>forward_egress_interface</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The egress interface.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>forward_monitor_disable_if_unreachable</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Set to disable this rule if nexthop / monitor IP is unreachable.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>forward_monitor_ip_address</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The monitor IP address.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>forward_monitor_profile</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The monitor profile to use.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>forward_next_hop_type</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>None</li>
+                                                                                                                                                                                                <li>ip-address</li>
+                                                                                                                                                                                                <li>fqdn</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>The next hop type.</div>
+                                                    <div>Leave this as None for a next hop type of &#x27;None&#x27;.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>forward_next_hop_value</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The next hop value if forward next hop type is not None.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>forward_vsys</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The vsys to forward to if action is set to forward to a vsys.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>from_type</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li><div style="color: blue"><b>zone</b>&nbsp;&larr;</div></li>
+                                                                                                                                                                                                <li>interface</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Source from type.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>from_value</b>
                     <div style="font-size: small">
                         <span style="color: purple">list</span>
                                             </div>
@@ -173,7 +305,7 @@ Parameters
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>List of static IP addresses.</div>
+                                                                        <div>The source values for the given type.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -194,133 +326,87 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="2">
-                    <b>ipv4_mss_adjust</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">integer</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                                                        <div>(7.1+) TCP MSS adjustment for IPv4.</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
-                    <b>ipv6_enabled</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">boolean</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                                                                                                                                                <li>no</li>
-                                                                                                                                                                                                <li>yes</li>
-                                                                                    </ul>
-                                                                            </td>
-                                                                <td>
-                                                                        <div>Enable IPv6.</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
-                    <b>ipv6_mss_adjust</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">integer</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                                                        <div>(7.1+) TCP MSS adjustment for IPv6.</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
-                    <b>lldp_enabled</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">boolean</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                                                                                                                                                <li>no</li>
-                                                                                                                                                                                                <li>yes</li>
-                                                                                    </ul>
-                                                                            </td>
-                                                                <td>
-                                                                        <div>{&#x27;Layer2&#x27;: &#x27;Enable LLDP&#x27;}</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
-                    <b>lldp_profile</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">-</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                                                        <div>{&#x27;Layer2&#x27;: &#x27;Reference to an lldp profile&#x27;}</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
-                    <b>management_profile</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">-</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                                                        <div>Interface management profile name.</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
-                    <b>mode</b>
+                    <b>location</b>
                     <div style="font-size: small">
                         <span style="color: purple">-</span>
                                             </div>
                                     </td>
                                 <td>
                                                                                                                             <ul style="margin: 0; padding: 0"><b>Choices:</b>
-                                                                                                                                                                <li><div style="color: blue"><b>layer3</b>&nbsp;&larr;</div></li>
-                                                                                                                                                                                                <li>layer2</li>
-                                                                                                                                                                                                <li>virtual-wire</li>
-                                                                                                                                                                                                <li>ha</li>
+                                                                                                                                                                <li>top</li>
+                                                                                                                                                                                                <li>bottom</li>
+                                                                                                                                                                                                <li>before</li>
+                                                                                                                                                                                                <li>after</li>
+                                                                                                                                                                                                <li>None</li>
                                                                                     </ul>
                                                                             </td>
                                                                 <td>
-                                                                        <div>The interface mode.</div>
+                                                                        <div>Position to place the created rule in the rule base.</div>
                                                                                 </td>
             </tr>
                                 <tr>
                                                                 <td colspan="2">
-                    <b>mtu</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">integer</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                                                        <div>MTU for aggregate interface.</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
-                    <b>netflow_profile</b>
+                    <b>name</b>
                     <div style="font-size: small">
                         <span style="color: purple">-</span>
-                                            </div>
+                         / <span style="color: red">required</span>                    </div>
                                     </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>Netflow profile for aggregate interface.</div>
+                                                                        <div>Name of the rule.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>negate_destination</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Set to negate the destination.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>negate_source</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>Set to negate the source.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>negate_target</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">boolean</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                        <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>no</li>
+                                                                                                                                                                                                <li>yes</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>For Panorama devices only.</div>
+                                                    <div>Exclude this rule from the listed firewalls in Panorama.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -458,6 +544,79 @@ Parameters
                     
                                                 <tr>
                                                                 <td colspan="2">
+                    <b>rulebase</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>pre-rulebase</li>
+                                                                                                                                                                                                <li>rulebase</li>
+                                                                                                                                                                                                <li>post-rulebase</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                                                        <div>The rulebase in which the rule is to exist.  If left unspecified, this defaults to <em>rulebase=pre-rulebase</em> for Panorama.  For NGFW, this is always set to be <em>rulebase=rulebase</em>.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>schedule</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">-</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>The schedule.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>services</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">["any"]</div>
+                                    </td>
+                                                                <td>
+                                                                        <div>List of services.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>source_addresses</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">["any"]</div>
+                                    </td>
+                                                                <td>
+                                                                        <div>List of source IP addresses.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>source_users</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">["any"]</div>
+                                    </td>
+                                                                <td>
+                                                                        <div>List of source users.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
                     <b>state</b>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
@@ -475,15 +634,42 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="2">
-                    <b>template</b>
+                    <b>symmetric_return_addresses</b>
                     <div style="font-size: small">
-                        <span style="color: purple">string</span>
+                        <span style="color: purple">list</span>
                                             </div>
                                     </td>
                                 <td>
                                                                                                                                                             </td>
                                                                 <td>
-                                                                        <div>(Panorama only) The template this operation should target.  This param is required if the PAN-OS device is Panorama.</div>
+                                                                        <div>List of symmetric return addresses.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>tags</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>List of tags.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>target</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                                                        <div>For Panorama devices only.</div>
+                                                    <div>Apply this rule exclusively to the listed firewalls in Panorama.</div>
                                                                                 </td>
             </tr>
                                 <tr>
@@ -505,41 +691,16 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="2">
-                    <b>vr_name</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">-</span>
-                                            </div>
-                                    </td>
-                                <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                                                        <div>The virtual router to associate with this interface.</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
                     <b>vsys</b>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
                                             </div>
                                     </td>
                                 <td>
-                                                                                                                                                            </td>
-                                                                <td>
-                                                                        <div>The vsys this object should be imported into.  Objects that are imported include interfaces, virtual routers, virtual wires, and VLANs.  Interfaces are typically imported into vsys1 if no vsys is specified.</div>
-                                                                                </td>
-            </tr>
-                                <tr>
-                                                                <td colspan="2">
-                    <b>zone_name</b>
-                    <div style="font-size: small">
-                        <span style="color: purple">-</span>
-                                            </div>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"vsys1"</div>
                                     </td>
-                                <td>
-                                                                                                                                                            </td>
                                                                 <td>
-                                                                        <div>The zone to put this interface into.</div>
+                                                                        <div>The vsys this object belongs to.</div>
                                                                                 </td>
             </tr>
                         </table>
@@ -562,13 +723,13 @@ Examples
 .. code-block:: yaml+jinja
 
     
-    # Create ae1 interface.
-    - name: create ae1 interface with IP in untrust zone
-      panos_aggregate_interface:
+    - name: add a pbf rule
+      panos_pbf_rule:
         provider: '{{ provider }}'
-        if_name: "ae1"
-        ip: '[ "192.168.0.1" ]'
-        zone_name: 'untrust'
+        name: 'my-pbf'
+        description: 'Made by Ansible'
+        from_value: ['myZone']
+        action: 'discard'
 
 
 
@@ -592,6 +753,6 @@ Status
 Authors
 ~~~~~~~
 
-- Heiko Burghardt (@odysseus107)
+- Garfield Lee Freeman (@shinmog)
 
 
