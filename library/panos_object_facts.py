@@ -91,10 +91,19 @@ EXAMPLES = '''
     name_regex: '.*Prod.*'
     object_type: 'address'
   register: result
+
+- name: Find all static address objects that use addy1
+  panos_object_facts:
+    provider: '{{ provider }}'
+    object_type: 'address-group'
+    field: 'static_value'
+    field_search_type: 'exact'
+    field_search_value: 'addy1'
+  register: result
 '''
 
 RETURN = '''
-results:
+ansible_module_results:
     description: Dict containing object attributes.  Empty if object is not found.
     returned: when "name" is specified
     type: dict
@@ -232,11 +241,13 @@ def main():
             if matcher.search(x.uid) is not None
         ]
     else:
+        # Sanity checks.
         if not hasattr(obj_type(), module.params['field']):
             module.fail_json(msg='Object({0}) does not have field({1})'.format(object_type, module.params['field']))
         elif not module.params['field_search_value']:
             module.fail_json(msg='Searching a field requires that field_search_value is specified')
 
+        # Perform requested search type.
         if module.params['field_search_type'] == 'exact':
             ans_objects = [
                 colorize(x, object_type)
@@ -255,6 +266,7 @@ def main():
                 if matches(x, module.params['field'], regex=regex)
             ]
 
+    # Done.
     module.exit_json(changed=False, ansible_module_results=results, objects=ans_objects)
 
 
