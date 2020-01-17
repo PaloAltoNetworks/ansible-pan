@@ -32,6 +32,7 @@ Module Reference
    panos_email_profile_module
    panos_email_server_module
    panos_facts_module
+   panos_gre_tunnel_module
    panos_ha_module
    panos_http_profile_header_module
    panos_http_profile_module
@@ -55,10 +56,12 @@ Module Reference
    panos_management_profile_module
    panos_match_rule_module
    panos_mgtconfig_module
+   panos_nat_rule_facts_module
    panos_nat_rule_module
    panos_object_facts_module
    panos_object_module
    panos_op_module
+   panos_pbf_rule_module
    panos_pg_module
    panos_query_rules_module
    panos_redistribution_module

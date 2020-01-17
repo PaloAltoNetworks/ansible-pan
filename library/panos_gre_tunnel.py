@@ -35,7 +35,7 @@ requirements:
     - pan-python can be obtained from PyPI U(https://pypi.python.org/pypi/pan-python)
     - pandevice can be obtained from PyPI U(https://pypi.python.org/pypi/pandevice)
 notes:
-    - Minimum PAN-OS version: 9.0
+    - 'Minimum PAN-OS version: 9.0'
     - Panorama is supported.
     - Check mode is supported.
 extends_documentation_fragment:
@@ -80,6 +80,7 @@ options:
             - Enable tunnel monitoring.
         type: bool
     keep_alive_interval:
+        description:
             - Keep alive interval.
         type: int
         default: 10
