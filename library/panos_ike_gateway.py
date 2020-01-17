@@ -148,7 +148,6 @@ options:
         description:
             - Type of checking to do on peer_id.
         choices: ['exact', 'wildcard']
-        default: 'exact'
     ikev1_crypto_profile:
         description:
             - Crypto profile for IKEv1.
@@ -231,7 +230,7 @@ def main():
             local_id_value=dict(default=None),
             peer_id_type=dict(default=None, choices=['ipaddr', 'fqdn', 'ufqdn', 'keyid', 'dn']),
             peer_id_value=dict(default=None),
-            peer_id_check=dict(default='exact', choices=['exact', 'wildcard']),
+            peer_id_check=dict(choices=['exact', 'wildcard']),
             ikev1_crypto_profile=dict(default='default', aliases=['crypto_profile_name']),
             ikev1_exchange_mode=dict(default=None, choices=['auto', 'main', 'aggressive']),
             ikev2_crypto_profile=dict(default='default', aliases=['crypto_profile_name']),

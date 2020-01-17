@@ -22,7 +22,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 DOCUMENTATION = '''
 ---
 module: panos_software
-short_description: Install specific release of PAN-OS.
+short_description: Manage PAN-OS software versions.
 description:
     - Install specific release of PAN-OS.
 author: "Michael Richardson (@mrichardson03)"
@@ -40,11 +40,29 @@ options:
         description:
             - Desired PAN-OS release for target device.
         required: true
+    sync_to_peer:
+        description:
+            - If device is a member of a HA pair, perform actions on the peer
+              device as well.  Only used when downloading software -
+              installation must be performed on both devices.
+        default: false
+        type: bool
+    download:
+        description:
+            - Download PAN-OS version to the device.
+        default: true
+        type: bool
+    install:
+        description:
+            - Perform installation of the PAN-OS version on the device.
+        default: true
+        type: bool
     restart:
         description:
             - Restart device after installing desired version.  Use in conjunction with
               panos_check to determine when firewall is ready again.
         default: false
+        type: bool
 '''
 
 EXAMPLES = '''
@@ -53,6 +71,21 @@ EXAMPLES = '''
     provider: '{{ provider }}'
     version: '8.1.6'
     restart: true
+
+- name: Download PAN-OS 9.0.0 base image only
+  panos_software:
+    provider: '{{ provider }}'
+    version: '9.0.0'
+    install: false
+    restart: false
+
+- name: Download PAN-OS 9.0.1 and sync to HA peer
+  panos_software:
+    provider: '{{ provider }}'
+    version: '9.0.1'
+    sync_to_peer: true
+    install: false
+    restart: false
 '''
 
 RETURN = '''
@@ -76,6 +109,9 @@ def main():
         with_classic_provider_spec=True,
         argument_spec=dict(
             version=dict(type='str', required=True),
+            sync_to_peer=dict(type='bool', default=False),
+            download=dict(type='bool', default=True),
+            install=dict(type='bool', default=True),
             restart=dict(type='bool', default=False)
         )
     )
@@ -91,6 +127,9 @@ def main():
 
     # Module params.
     version = module.params['version']
+    sync_to_peer = module.params['sync_to_peer']
+    download = module.params['download']
+    install = module.params['install']
     restart = module.params['restart']
 
     changed = False
@@ -101,7 +140,11 @@ def main():
         if PanOSVersion(version) != PanOSVersion(device.version):
 
             if not module.check_mode:
-                device.software.download_install(version, sync=True)
+                if download:
+                    device.software.download(version, sync_to_peer=sync_to_peer, sync=True)
+
+                if install:
+                    device.software.install(version, sync=True)
 
                 if restart:
                     device.restart()
