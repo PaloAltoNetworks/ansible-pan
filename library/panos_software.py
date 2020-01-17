@@ -46,19 +46,23 @@ options:
               device as well.  Only used when downloading software -
               installation must be performed on both devices.
         default: false
+        type: bool
     download:
         description:
             - Download PAN-OS version to the device.
         default: true
+        type: bool
     install:
         description:
             - Perform installation of the PAN-OS version on the device.
         default: true
+        type: bool
     restart:
         description:
             - Restart device after installing desired version.  Use in conjunction with
               panos_check to determine when firewall is ready again.
         default: false
+        type: bool
 '''
 
 EXAMPLES = '''
