@@ -56,6 +56,20 @@ Parameters
                                                     <div>The API key to use instead of generating it using <em>username</em> / <em>password</em>.</div>
                                                                                 </td>
             </tr>
+            <tr>
+                                                                <td colspan="2">
+                    <b>device_group</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"shared"</div>
+                                    </td>
+                                                                <td>
+                                                                        <div>(Panorama only) The device group the operation should target.</div>
+                                                                                </td>
+            </tr>
                                 <tr>
                                                                 <td colspan="2">
                     <b>field</b>
