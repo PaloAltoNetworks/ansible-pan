@@ -230,6 +230,27 @@ def main():
                         obj.apply()
                     except PanDeviceError as e:
                         module.fail_json(msg='Failed apply: {0}'.format(e))
+
+                    # If changing the current user's password, we have to
+                    # fetch the new API key before any subsequent API commands
+                    # (aka - commit) will work.
+                    if (
+                        helper.device._api_username == obj.name and
+                        (password is not None or phash is not None)
+                    ):
+                        if phash is not None:
+                            msg = [
+                                'Password of current user was changed by hash.',
+                                'Exiting module as API key cannot be determined.',
+                            ]
+                            module.warn(' '.join(msg))
+                            module.exit_json(changed=changed)
+                        helper.device._api_key = None
+                        helper.device._api_password = password
+                        try:
+                            helper.device.xapi.api_key = helper.device.api_key
+                        except PanDeviceError as e:
+                            module.fail_json(msg='Failed API key refresh: {0}'.format(e))
             break
         else:
             changed = True
