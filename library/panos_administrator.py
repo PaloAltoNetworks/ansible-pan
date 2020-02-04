@@ -235,8 +235,8 @@ def main():
                     # fetch the new API key before any subsequent API commands
                     # (aka - commit) will work.
                     if (
-                        helper.device._api_username == obj.name and
-                        (password is not None or phash is not None)
+                        helper.device._api_username == obj.name
+                        and (password is not None or phash is not None)
                     ):
                         if phash is not None:
                             msg = [
