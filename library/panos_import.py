@@ -95,14 +95,24 @@ except ImportError:
     HAS_LIB = False
 
 
-def import_file(xapi, module, ip_address, file_, category):
+def import_file(xapi, module, ip_address, file_, category, cert_name, cert_pass, cert_type):
     xapi.keygen()
 
-    params = {
-        'type': 'import',
-        'category': category,
-        'key': xapi.api_key
-    }
+    if category == "certificate":
+        params = {
+            'type': 'import',
+            'category': category,
+            'certificate-name': cert_name,
+            'passphrase': cert_pass,
+            'format': cert_type,
+            'key': xapi.api_key
+        }
+    else:
+        params = {
+            'type': 'import',
+            'category': category,
+            'key': xapi.api_key
+        }
 
     filename = os.path.basename(file_)
 
@@ -149,7 +159,54 @@ def main():
         ip_address=dict(required=True),
         password=dict(required=True, no_log=True),
         username=dict(default='admin'),
-        category=dict(default='software'),
+        category=dict(
+            default='software',
+            choices = [
+                "anti-virus", 
+                "application-block-page", 
+                "captive-portal-text", 
+                "certificate", 
+                "configuration", 
+                "content", 
+                "credential-block-page", 
+                "credential-coach-text", 
+                "custom-logo", 
+                "data-filter-block-page", 
+                "device-state", 
+                "file-block-continue-page", 
+                "file-block-page", 
+                "global-protect-client", 
+                "global-protect-clientless-vpn", 
+                "global-protect-portal-custom-help-page", 
+                "global-protect-portal-custom-home-page", 
+                "global-protect-portal-custom-login-page", 
+                "global-protect-portal-custom-welcome-page", 
+                "high-availability-key", 
+                "idp-metadata", 
+                "keypair", 
+                "license", 
+                "logdb", 
+                "mfa-login-page", 
+                "pandb-url-database", 
+                "plugin", 
+                "private-key", 
+                "safe-search-block-page", 
+                "saml-auth-internal-error-page", 
+                "signed-url-database", 
+                "software", 
+                "ssl-cert-status-page", 
+                "ssl-optout-text", 
+                "ui-translation-mapping", 
+                "url-block-page", 
+                "url-coach-text", 
+                "url-database", 
+                "virus-block-page", 
+                "wildfire"
+            ]
+        ),
+        cert_name=dict(),
+        cert_pass=dict(no_log=True),
+        cert_type=dict(choices=['pem', 'pkcs12']),
         file=dict(),
         url=dict()
     )
@@ -172,12 +229,26 @@ def main():
 
     category = module.params['category']
 
+    # Certificate related variables
+    cert_name = module.params['cert_name']
+    cert_pass = module.params['cert_pass']
+    cert_type = module.params['cert_type']
+
+    # Check to ensure proper variables are set
+    if category == "certificate":
+        if not cert_name:
+            module.fail_json(msg='If the category is certificate, then cert_name is required.')
+        if not cert_pass:
+            module.fail_json(msg='If the category is certificate, then cert_pass is required.')
+        if not cert_type:
+            module.fail_json(msg='If the category is certificate, then cert_type is required.')
+
     # we can get file from URL or local storage
     if url is not None:
         file_ = download_file(url)
 
     try:
-        changed, filename = import_file(xapi, module, ip_address, file_, category)
+        changed, filename = import_file(xapi, module, ip_address, file_, category, cert_name, cert_pass, cert_type)
     except Exception:
         exc = get_exception()
         module.fail_json(msg=exc.message)
@@ -186,7 +257,7 @@ def main():
     if url is not None:
         delete_file(file_)
 
-    module.exit_json(changed=changed, filename=filename, msg="okey dokey")
+    module.exit_json(changed=changed, filename=filename, msg="Done")
 
 
 if __name__ == '__main__':
