@@ -98,7 +98,7 @@ except ImportError:
 def import_file(xapi, module, ip_address, file_, category, cert_name, cert_pass, cert_type):
     xapi.keygen()
 
-    if category == "certificate":
+    if (category == "certificate" or category == "keypair"):
         params = {
             'type': 'import',
             'category': category,
@@ -235,7 +235,7 @@ def main():
     cert_type = module.params['cert_type']
 
     # Check to ensure proper variables are set
-    if category == "certificate":
+    if (category == "certificate" or category == "keypair"):
         if not cert_name:
             module.fail_json(msg='If the category is certificate, then cert_name is required.')
         if not cert_pass:
