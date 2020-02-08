@@ -70,15 +70,12 @@ options:
         default: 'address'
     vsys:
         description:
-            - The vsys to put the object into.
-            - Firewall only.
+            - The vsys this object belongs to.
         default: "vsys1"
-    devicegroup:
+    device_group:
         description:
-            - The name of the (preexisting) Panorama device group.
-            - If undefined and ip_address is Panorama, this defaults to shared.
-        required: false
-        default: None
+            - (Panorama only) The device group the operation should target.
+        default: "shared"
 '''
 
 EXAMPLES = '''
