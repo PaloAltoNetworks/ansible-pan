@@ -68,6 +68,17 @@ options:
             - Type of object to retrieve.
         choices: ['address', 'address-group', 'service', 'service-group', 'tag']
         default: 'address'
+    vsys:
+        description:
+            - The vsys to put the object into.
+            - Firewall only.
+        default: "vsys1"
+    devicegroup:
+        description:
+            - The name of the (preexisting) Panorama device group.
+            - If undefined and ip_address is Panorama, this defaults to shared.
+        required: false
+        default: None
 '''
 
 EXAMPLES = '''
