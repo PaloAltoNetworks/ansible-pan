@@ -36,12 +36,36 @@ active development will take place on the collection moving forwared.  Users are
 encouraged to upgrade to Ansible 2.9 and start using the new collection to stay
 up-to-date with features and bug fixes.
 
-Installation
-------------
 
-The most recent release of the role is available on Ansible Galaxy:
-https://galaxy.ansible.com/PaloAltoNetworks/paloaltonetworks. To
-install this, you can use the `ansible-galaxy` command like so:
+Installation - Collection (Recommended)
+---------------------------------------
+
+(For Ansible >= v2.9)
+
+Install the collection using `ansible-galaxy`:
+
+.. code-block:: bash
+
+    ansible-galaxy collection install paloaltonetworks.panos
+
+Then in your playbooks you can specify that you want to use the
+`panos` collection like so:
+
+.. code-block:: yaml
+
+    collections:
+        - paloaltonetworks.panos
+
+Ansible Galaxy: https://galaxy.ansible.com/PaloAltoNetworks/panos
+GitHub repo:  https://github.com/PaloAltoNetworks/pan-os-ansible
+
+
+Installation - Role
+-------------------
+
+(For Ansible < v2.9)
+
+Install the collection using `ansible-galaxy`:
 
 .. code-block:: bash
 
@@ -50,16 +74,16 @@ install this, you can use the `ansible-galaxy` command like so:
 To upgrade your existing role, add in the additional `-f` parameter to the
 above command.
 
-Once the role is installed, update your playbooks to tell Ansible to use the
-role you've installed:
+Then in your playbooks you can specify that you want to use the
+`paloaltonetworks` role like so:
 
 .. code-block:: yaml
 
     roles:
         - role: PaloAltoNetworks.paloaltonetworks
 
-The role is built from the Palo Alto Networks github repo:
-https://github.com/PaloAltoNetworks/ansible-pan.
+Ansible Galaxy: https://galaxy.ansible.com/PaloAltoNetworks/paloaltonetworks
+GitHub repo: https://github.com/PaloAltoNetworks/ansible-pan
 
 
 .. toctree::
