@@ -56,8 +56,8 @@ Then in your playbooks you can specify that you want to use the
     collections:
         - paloaltonetworks.panos
 
-Ansible Galaxy: https://galaxy.ansible.com/PaloAltoNetworks/panos
-GitHub repo:  https://github.com/PaloAltoNetworks/pan-os-ansible
+* Ansible Galaxy: https://galaxy.ansible.com/PaloAltoNetworks/panos
+* GitHub repo:  https://github.com/PaloAltoNetworks/pan-os-ansible
 
 
 Installation - Role
@@ -82,8 +82,8 @@ Then in your playbooks you can specify that you want to use the
     roles:
         - role: PaloAltoNetworks.paloaltonetworks
 
-Ansible Galaxy: https://galaxy.ansible.com/PaloAltoNetworks/paloaltonetworks
-GitHub repo: https://github.com/PaloAltoNetworks/ansible-pan
+* Ansible Galaxy: https://galaxy.ansible.com/PaloAltoNetworks/paloaltonetworks
+* GitHub repo: https://github.com/PaloAltoNetworks/ansible-pan
 
 
 .. toctree::
