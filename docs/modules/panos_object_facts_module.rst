@@ -58,6 +58,20 @@ Parameters
             </tr>
                                 <tr>
                                                                 <td colspan="2">
+                    <b>device_group</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"shared"</div>
+                                    </td>
+                                                                <td>
+                                                                        <div>(Panorama only) The device group the operation should target.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
                     <b>field</b>
                     <div style="font-size: small">
                         <span style="color: purple">-</span>
@@ -312,6 +326,20 @@ Parameters
                                                     <div>Use <em>provider</em> to specify PAN-OS connectivity instead.</div>
                                                     <div><hr/></div>
                                                     <div>The username to use for authentication.  This is ignored if <em>api_key</em> is specified.</div>
+                                                                                </td>
+            </tr>
+                                <tr>
+                                                                <td colspan="2">
+                    <b>vsys</b>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                            </div>
+                                    </td>
+                                <td>
+                                                                                                                                                                    <b>Default:</b><br/><div style="color: blue">"vsys1"</div>
+                                    </td>
+                                                                <td>
+                                                                        <div>The vsys this object belongs to.</div>
                                                                                 </td>
             </tr>
                         </table>
