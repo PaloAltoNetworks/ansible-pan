@@ -16,6 +16,26 @@ This is a **community supported project**. You can find the community
 supported live page at https://live.paloaltonetworks.com/ansible.
 
 
+Role / Collection Compatibility
+-------------------------------
+
+The Palo Alto Networks PAN-OS Ansible modules were previously distributed as an
+Ansible Galaxy role (https://galaxy.ansible.com/paloaltonetworks/paloaltonetworks).
+Since Ansible 2.9, RedHat has urged developers to migrate to `collections` to
+organize and distribute their integrations.  The new collection can be found here:
+https://galaxy.ansible.com/paloaltonetworks/panos
+
+The 1.0 version of this collection is a straight port of the Ansible Galaxy
+role v2.4.0.  If you are using Ansible 2.9 or later and you are using the
+role, then you can safely use this instead with no change in functionality.  Just
+specify the `collections` spec (as mentioned above in the Usage section), remove
+`PaloAltoNetworks.paloaltonetworks` from the `roles` spec, and you're done!
+
+Now that the collection is live, no new features will be added to the role.  All
+active development will take place on the collection moving forwared.  Users are
+encouraged to upgrade to Ansible 2.9 and start using the new collection to stay
+up-to-date with features and bug fixes.
+
 Installation
 ------------
 
