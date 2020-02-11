@@ -68,6 +68,14 @@ options:
             - Type of object to retrieve.
         choices: ['address', 'address-group', 'service', 'service-group', 'tag']
         default: 'address'
+    vsys:
+        description:
+            - The vsys this object belongs to.
+        default: "vsys1"
+    device_group:
+        description:
+            - (Panorama only) The device group the operation should target.
+        default: "shared"
 '''
 
 EXAMPLES = '''
