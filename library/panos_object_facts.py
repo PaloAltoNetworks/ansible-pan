@@ -40,6 +40,8 @@ notes:
     - Check mode is not supported.
 extends_documentation_fragment:
     - panos.transitional_provider
+    - panos.vsys
+    - panos.device_group
 options:
     name:
         description:
@@ -68,14 +70,6 @@ options:
             - Type of object to retrieve.
         choices: ['address', 'address-group', 'service', 'service-group', 'tag']
         default: 'address'
-    vsys:
-        description:
-            - The vsys this object belongs to.
-        default: "vsys1"
-    device_group:
-        description:
-            - (Panorama only) The device group the operation should target.
-        default: "shared"
 '''
 
 EXAMPLES = '''
