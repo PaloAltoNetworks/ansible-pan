@@ -22,10 +22,10 @@ organize and distribute their integrations.  The new collection can be found her
 The 1.0 version of this collection is a straight port of the Ansible Galaxy
 role v2.4.0.  If you are using Ansible 2.9 or later and you are using the
 role, then you can safely use this instead with no change in functionality.  Just
-specify the `collections` spec (as mentioned above in the Usage section), remove
+specify the `collections` spec, remove
 `PaloAltoNetworks.paloaltonetworks` from the `roles` spec, and you're done!
 
-Now that the collection is live, no new features will be added to the role.  All
+Now that the collection is live, **no new features will be added to the role**.  All
 active development will take place on the collection moving forwared.  Users are
 encouraged to upgrade to Ansible 2.9 and start using the new collection to stay
 up-to-date with features and bug fixes.
