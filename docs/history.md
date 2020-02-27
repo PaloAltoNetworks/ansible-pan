@@ -1,6 +1,16 @@
 Release History
 ===============
 
+V2.4.1
+------
+
+- *Released*: 2020-02-27
+
+Bug Fixes:
+
+* `panos_aggregate_interface`
+* `panos_match_rule`
+
 V2.4.0
 ------
 
