@@ -17,7 +17,5 @@
       password: '{{ password }}'
     register: auth
 
-  - name: Display API Key
-    debug:
-      var: '{{ auth.api_key }}'
-      verbosity: 0
+  - debug:
+      msg: '{{ auth.api_key }}'
