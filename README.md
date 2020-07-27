@@ -1,3 +1,6 @@
+**Please note**, the Ansible Galaxy role is now deprecated in favor for the new Ansible collection and no new features
+will be added to it.  Please begin using the [Ansible collection](https://github.com/PaloAltoNetworks/pan-os-ansible) instead.
+
 # Palo Alto Networks Ansible modules
 
 A collection of Ansible modules that automate configuration and
