@@ -1,5 +1,7 @@
-**Please note**, the Ansible Galaxy role is now deprecated in favor for the new Ansible collection and no new features
-will be added to it.  Please begin using the [Ansible collection](https://github.com/PaloAltoNetworks/pan-os-ansible) instead.
+# Deprecated
+
+This Ansible Galaxy role is now deprecated in favor of the new Ansible collection.
+Please use the Ansible collection instead: https://github.com/PaloAltoNetworks/pan-os-ansible.
 
 # Palo Alto Networks Ansible modules
 
