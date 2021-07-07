@@ -89,18 +89,19 @@ _PROMPTBUFF = 4096
 
 def wait_with_timeout(module, shell, prompt, timeout=60):
     now = time.time()
-    result = ""
+    result = b""
     while True:
         if shell.recv_ready():
             result += shell.recv(_PROMPTBUFF)
-            endresult = result.strip()
+            resultstr = result.decode("utf-8")
+            endresult = resultstr.strip()
             if len(endresult) != 0 and endresult[-1] == prompt:
                 break
 
         if time.time() - now > timeout:
             module.fail_json(msg="Timeout waiting for prompt")
 
-    return result
+    return resultstr
 
 
 def set_panwfw_password(module, ip_address, key_filename, newpassword, username):
