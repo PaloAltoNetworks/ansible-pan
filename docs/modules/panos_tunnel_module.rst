@@ -17,6 +17,7 @@ panos_tunnel -- configure tunnel interfaces
 
 Synopsis
 --------
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
 - Configure tunnel interfaces on PanOS
 
 

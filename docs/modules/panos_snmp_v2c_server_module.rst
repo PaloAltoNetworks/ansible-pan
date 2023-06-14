@@ -17,6 +17,7 @@ panos_snmp_v2c_server -- Manage SNMP v2c servers
 
 Synopsis
 --------
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
 - Manages SNMP v2c servers.
 
 

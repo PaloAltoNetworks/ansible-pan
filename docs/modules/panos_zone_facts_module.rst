@@ -17,6 +17,7 @@ panos_zone_facts -- Retrieves zone information
 
 Synopsis
 --------
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
 - Retrieves information on zones from a firewall or Panorama.
 
 

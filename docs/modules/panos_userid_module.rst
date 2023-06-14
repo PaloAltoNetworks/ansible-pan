@@ -17,6 +17,7 @@ panos_userid -- Allow for registration and de-registration of userid
 
 Synopsis
 --------
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
 - Userid allows for user to IP mapping that can be used in the policy rules.
 
 

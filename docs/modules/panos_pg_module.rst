@@ -17,6 +17,7 @@ panos_pg -- create a security profiles group
 
 Synopsis
 --------
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
 - Create a security profile group
 
 

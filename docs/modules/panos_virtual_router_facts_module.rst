@@ -17,6 +17,7 @@ panos_virtual_router_facts -- Retrieves virtual router information
 
 Synopsis
 --------
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
 - Retrieves information on virtual routers from a firewall or Panorama.
 
 

@@ -17,6 +17,7 @@ panos_interface -- configure data-port network interfaces
 
 Synopsis
 --------
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
 - Configure data-port (DP) network interface. By default DP interfaces are static.
 
 

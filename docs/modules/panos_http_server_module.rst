@@ -17,6 +17,7 @@ panos_http_server -- Manage HTTP servers in a HTTP server profile
 
 Synopsis
 --------
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
 - Manages HTTP servers in a HTTP server profile.
 
 

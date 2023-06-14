@@ -17,6 +17,7 @@ panos_static_route -- Create static routes on PAN-OS devices
 
 Synopsis
 --------
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
 - Create static routes on PAN-OS devices.
 
 

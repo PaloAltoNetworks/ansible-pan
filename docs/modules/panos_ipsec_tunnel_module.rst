@@ -17,6 +17,7 @@ panos_ipsec_tunnel -- Configures IPSec Tunnels on the firewall with subset of se
 
 Synopsis
 --------
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
 - Use IPSec Tunnels to establish and manage IPSec VPN tunnels between firewalls. This is the Phase 2 portion of the
 - IKE/IPSec VPN setup.
 

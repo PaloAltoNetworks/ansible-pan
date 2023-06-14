@@ -17,6 +17,7 @@ panos_bgp_policy_rule -- Configures a BGP Policy Import/Export Rule
 
 Synopsis
 --------
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
 - Use BGP to publish and consume routes from disparate networks.
 
 

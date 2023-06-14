@@ -17,6 +17,7 @@ panos_zone -- configure security zone
 
 Synopsis
 --------
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
 - Configure security zones on PAN-OS firewall or in Panorama template.
 
 
