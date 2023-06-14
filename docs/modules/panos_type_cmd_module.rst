@@ -17,6 +17,7 @@ panos_type_cmd -- Execute arbitrary TYPE commands on PAN-OS
 
 Synopsis
 --------
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
 - This module allows you to execute arbitrary TYPE commands on PAN-OS.
 - This module does not provide guards of any sort, so USE AT YOUR OWN RISK.
 - Refer to the PAN-OS and Panorama API guide for more info.

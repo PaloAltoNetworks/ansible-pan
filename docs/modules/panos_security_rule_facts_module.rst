@@ -17,6 +17,7 @@ panos_security_rule_facts -- Get information about a security rule
 
 Synopsis
 --------
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
 - Get information about a single security rule or the names of all security rules.
 
 

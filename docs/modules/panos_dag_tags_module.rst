@@ -24,6 +24,7 @@ DEPRECATED
 
 Synopsis
 --------
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
 - Create the ip address to tag associations. Tags will in turn be used to create DAG's
 
 

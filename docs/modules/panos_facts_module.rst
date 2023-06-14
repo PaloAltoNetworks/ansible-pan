@@ -17,6 +17,7 @@ panos_facts -- Collects facts from Palo Alto Networks device
 
 Synopsis
 --------
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
 - Collects fact information from Palo Alto Networks firewall running PanOS.
 
 

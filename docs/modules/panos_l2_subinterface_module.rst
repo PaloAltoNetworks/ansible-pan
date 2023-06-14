@@ -17,6 +17,7 @@ panos_l2_subinterface -- configure layer2 subinterface
 
 Synopsis
 --------
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
 - Configure a layer2 subinterface.
 
 

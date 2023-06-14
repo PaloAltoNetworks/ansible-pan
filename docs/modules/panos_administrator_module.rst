@@ -17,6 +17,7 @@ panos_administrator -- Manage PAN-OS administrator user accounts
 
 Synopsis
 --------
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
 - Manages PAN-OS administrator user accounts.
 
 

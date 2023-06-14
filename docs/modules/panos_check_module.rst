@@ -17,6 +17,7 @@ panos_check -- check if PAN-OS device is ready for configuration
 
 Synopsis
 --------
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
 - Check if PAN-OS device is ready for being configured (no pending jobs).
 - The check could be done once or multiple times until the device is ready.
 

@@ -17,6 +17,7 @@ panos_redistribution -- Configures a Redistribution Profile on a virtual router
 
 Synopsis
 --------
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
 - Configures a Redistribution Profile on a virtual router
 
 
