@@ -20,6 +20,7 @@ DOCUMENTATION = '''
 module: panos_tunnel
 short_description: configure tunnel interfaces
 description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
     - Configure tunnel interfaces on PanOS
 author: "Joshua Colson (@freakinhippie)"
 version_added: "2.8"

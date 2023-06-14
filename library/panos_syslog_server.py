@@ -27,6 +27,7 @@ DOCUMENTATION = '''
 module: panos_syslog_server
 short_description: Manage syslog server profile syslog servers.
 description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
     - Manages syslog servers in an syslog server profile.
 author: "Garfield Lee Freeman (@shinmog)"
 version_added: "2.8"

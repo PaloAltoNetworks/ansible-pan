@@ -27,6 +27,7 @@ DOCUMENTATION = '''
 module: panos_api_key
 short_description: retrieve api_key for username/password combination
 description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
     - This module will allow retrieval of the api_key for a given username/password
 author:
     - Joshua Colson (@freakinhippie)

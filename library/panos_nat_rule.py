@@ -20,6 +20,7 @@ DOCUMENTATION = '''
 module: panos_nat_rule
 short_description: create a policy NAT rule
 description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
     - Create a policy nat rule. Keep in mind that we can either end up configuring source NAT, destination NAT, or both.
     - Instead of splitting it into two we will make a fair attempt to determine which one the user wants.
 author:

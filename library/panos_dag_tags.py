@@ -24,6 +24,7 @@ DOCUMENTATION = '''
 module: panos_dag_tags
 short_description: Create tags for DAG's on PAN-OS devices.
 description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
     - Create the ip address to tag associations. Tags will in turn be used to create DAG's
 author: "Vinay Venkataraghavan (@vinayvenkat)"
 version_added: "2.5"

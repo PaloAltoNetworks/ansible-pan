@@ -28,6 +28,7 @@ DOCUMENTATION = '''
 module: panos_virtual_router
 short_description: Configures a Virtual Router
 description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
     - Manage PANOS Virtual Router
 author:
     - Joshua Colson (@freakinhippie)

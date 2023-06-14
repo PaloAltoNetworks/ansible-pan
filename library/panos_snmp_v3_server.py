@@ -27,6 +27,7 @@ DOCUMENTATION = '''
 module: panos_snmp_v3_server
 short_description: Manage SNMP v3 servers.
 description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
     - Manages SNMP v3 servers.
 author: "Garfield Lee Freeman (@shinmog)"
 version_added: "2.8"

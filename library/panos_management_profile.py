@@ -27,6 +27,7 @@ DOCUMENTATION = '''
 module: panos_management_profile
 short_description: Manage interface management profiles.
 description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
     - This module will allow you to manage interface management profiles on PAN-OS.
 author: "Garfield Lee Freeman (@shinmog)"
 version_added: "2.6"

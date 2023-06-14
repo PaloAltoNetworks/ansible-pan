@@ -1,6 +1,10 @@
 Contributing to PANW Ansible modules
 ---
 
+**PLEASE NOTE: This role is deprecated, the modules are no longer being
+updated. Please transition to using the modules in the collection
+instead: U(https://paloaltonetworks.github.io/pan-os-ansible)**
+
 # Developing Palo Alto Networks Ansible Modules
 
 (draft)

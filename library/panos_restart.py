@@ -20,6 +20,7 @@ DOCUMENTATION = '''
 module: panos_restart
 short_description: Restart a device
 description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
     - Restart a PAN-OS device.
 author:
     - Luigi Mori (@jtschichold)

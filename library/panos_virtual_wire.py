@@ -28,6 +28,7 @@ DOCUMENTATION = '''
 module: panos_virtual_wire
 short_description: Configures Virtual Wires (vwire).
 description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
     - Manage PAN-OS Virtual Wires (vwire).
 author: "Patrick Avery"
 version_added: "2.8"

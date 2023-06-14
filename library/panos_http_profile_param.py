@@ -27,6 +27,7 @@ DOCUMENTATION = '''
 module: panos_http_profile_param
 short_description: Manage HTTP params for a HTTP profile.
 description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
     - Manages HTTP params for a HTTP profile.
 author: "Garfield Lee Freeman (@shinmog)"
 version_added: "2.8"

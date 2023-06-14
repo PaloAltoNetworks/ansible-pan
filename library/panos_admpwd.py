@@ -20,6 +20,7 @@ DOCUMENTATION = '''
 module: panos_admpwd
 short_description: change admin password of PAN-OS device using SSH with SSH key
 description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
     - Change the admin password of PAN-OS via SSH using a SSH key for authentication.
     - Useful for AWS instances where the first login should be done via SSH.
 author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"

@@ -20,6 +20,7 @@ DOCUMENTATION = '''
 module: panos_l3_subinterface
 short_description: configure layer3 subinterface
 description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
     - Configure a layer3 subinterface.
 author: "Garfield Lee Freeman (@shinmog)"
 version_added: "2.8"

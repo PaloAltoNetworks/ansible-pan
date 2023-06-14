@@ -20,6 +20,7 @@ DOCUMENTATION = '''
 module: panos_mgtconfig
 short_description: Module used to configure some of the device management.
 description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
     - Configure management settings of device. Not all configuration options are configurable at this time.
 author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer), Patrik Malinen (@pmalinen), Francesco Vigo (@fvigo)"
 version_added: "2.4"

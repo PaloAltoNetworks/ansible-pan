@@ -24,6 +24,7 @@ DOCUMENTATION = '''
 module: panos_software
 short_description: Manage PAN-OS software versions.
 description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
     - Install specific release of PAN-OS.
 author: "Michael Richardson (@mrichardson03)"
 version_added: "2.6"
