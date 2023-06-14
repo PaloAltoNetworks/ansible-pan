@@ -23,6 +23,7 @@ DOCUMENTATION = '''
 module: panos_zone_facts
 short_description: Retrieves zone information
 description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
     - Retrieves information on zones from a firewall or Panorama.
 author: "Garfield Lee Freeman (@shinmog)"
 version_added: "2.8"

@@ -23,6 +23,7 @@ DOCUMENTATION = '''
 module: panos_zone
 short_description: configure security zone
 description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
     - Configure security zones on PAN-OS firewall or in Panorama template.
 author:
     - Robert Hagen (@stealthllama)

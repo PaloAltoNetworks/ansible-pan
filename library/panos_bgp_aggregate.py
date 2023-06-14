@@ -28,6 +28,7 @@ DOCUMENTATION = '''
 module: panos_bgp_aggregate
 short_description: Configures a BGP Aggregation Prefix Policy
 description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
     - Use BGP to publish and consume routes from disparate networks.
 author:
     - Joshua Colson (@freakinhippie)

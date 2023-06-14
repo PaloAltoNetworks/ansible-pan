@@ -27,6 +27,7 @@ DOCUMENTATION = '''
 module: panos_email_server
 short_description: Manage email servers in an email profile.
 description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
     - Manages email servers in an email server profile.
 author: "Garfield Lee Freeman (@shinmog)"
 version_added: "2.8"

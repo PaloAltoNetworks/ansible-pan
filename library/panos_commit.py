@@ -27,6 +27,7 @@ DOCUMENTATION = '''
 module: panos_commit
 short_description: Commit a PAN-OS device's candidate configuration.
 description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
     - Module that will commit the candidate configuration of a PAN-OS device.
     - The new configuration will become active immediately.
 author:

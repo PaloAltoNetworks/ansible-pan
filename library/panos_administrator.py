@@ -27,6 +27,7 @@ DOCUMENTATION = '''
 module: panos_administrator
 short_description: Manage PAN-OS administrator user accounts.
 description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
     - Manages PAN-OS administrator user accounts.
 author: "Garfield Lee Freeman (@shinmog)"
 version_added: "2.8"

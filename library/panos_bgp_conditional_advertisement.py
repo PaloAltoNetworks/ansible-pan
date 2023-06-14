@@ -28,6 +28,7 @@ DOCUMENTATION = '''
 module: panos_bgp_conditional_advertisement
 short_description: Configures a BGP conditional advertisement.
 description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
     - Use BGP to publish and consume routes from disparate networks.
     - In the PAN-OS GUI, this resource cannot be created without also creating at least
       one non-exist filter and one advertise filter. The API behaves a little differently;

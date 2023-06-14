@@ -27,6 +27,8 @@ DOCUMENTATION = '''
 ---
 module: panos_ipsec_ipv4_proxyid
 short_description: Configures IPv4 Proxy Id on an IPSec Tunnel
+description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
 author: "Heiko Burghardt (@odysseus107)"
 version_added: "2.8"
 requirements:

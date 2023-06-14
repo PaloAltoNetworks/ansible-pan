@@ -20,6 +20,7 @@ DOCUMENTATION = '''
 module: panos_import
 short_description: import file on PAN-OS devices
 description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
     - Import file on PAN-OS device
 author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"
 version_added: "2.3"

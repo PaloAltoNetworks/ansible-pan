@@ -1,6 +1,10 @@
 # Examples
 
-**Note**: You can see complete examples [here](https://github.com/PaloAltoNetworks/ansible-pan/tree/master/examples)
+**PLEASE NOTE: This role is deprecated, the modules are no longer being
+updated. Please transition to using the modules in the collection
+instead: U(https://paloaltonetworks.github.io/pan-os-ansible)**
+
+Note: You can see complete examples [here](https://github.com/PaloAltoNetworks/ansible-pan/tree/master/examples)
 
 ## Add security policy to Firewall or Panorama
 

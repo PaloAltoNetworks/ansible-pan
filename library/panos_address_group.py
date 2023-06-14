@@ -27,6 +27,7 @@ DOCUMENTATION = '''
 module: panos_address_group
 short_description: Create address group objects on PAN-OS devices.
 description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
     - Create address group objects on PAN-OS devices.
 author:
     - Michael Richardson (@mrichardson03)

@@ -27,6 +27,7 @@ DOCUMENTATION = '''
 module: panos_op
 short_description: execute arbitrary OP commands on PANW devices (e.g. show interface all)
 description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
     - This module will allow user to pass and execute any supported OP command on the PANW device.
 author:
     - Ivan Bojer (@ivanbojer)

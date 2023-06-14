@@ -24,6 +24,7 @@ DOCUMENTATION = '''
 module: panos_admin
 short_description: Add or modify PAN-OS user accounts password.
 description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
     - PanOS module that allows changes to the user account passwords by doing
       API calls to the Firewall using pan-api as the protocol.
 author: "Luigi Mori (@jtschichold), Ivan Bojer (@ivanbojer)"

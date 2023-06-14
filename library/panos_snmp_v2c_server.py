@@ -27,6 +27,7 @@ DOCUMENTATION = '''
 module: panos_snmp_v2c_server
 short_description: Manage SNMP v2c servers.
 description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
     - Manages SNMP v2c servers.
 author: "Garfield Lee Freeman (@shinmog)"
 version_added: "2.8"

@@ -24,6 +24,7 @@ DOCUMENTATION = '''
 module: panos_object
 short_description: create/read/update/delete object in PAN-OS or Panorama
 description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
     - Policy objects form the match criteria for policy rules and many other functions in PAN-OS. These may include
     - address object, address groups, service objects, service groups, and tag.
 author: "Bob Hagen (@rnh556)"

@@ -23,6 +23,7 @@ DOCUMENTATION = '''
 module: panos_vlan_interface
 short_description: configure VLAN interfaces
 description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
     - Configure VLAN interfaces.
 author: "Garfield Lee Freeman (@shinmog)"
 version_added: "2.8"

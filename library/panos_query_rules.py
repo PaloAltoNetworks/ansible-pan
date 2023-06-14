@@ -24,6 +24,7 @@ DOCUMENTATION = '''
 module: panos_query_rules
 short_description: PANOS module that allows search for security rules in PANW NGFW devices.
 description:
+    - NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)
     - Security policies allow you to enforce rules and take action, and can be as general or specific as needed.
     - The policy rules are compared against the incoming traffic in sequence, and because the first rule that matches
     - the traffic is applied, the more specific rules must precede the more general ones.
