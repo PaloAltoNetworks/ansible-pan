@@ -17,7 +17,7 @@ panos_nat_rule_facts -- Get information about a NAT rule
 
 Synopsis
 --------
-- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection https://paloaltonetworks.github.io/pan-os-ansible**
 - Get information about one or more NAT rules.
 
 

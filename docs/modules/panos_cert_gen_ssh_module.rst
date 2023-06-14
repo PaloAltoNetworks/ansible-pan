@@ -17,7 +17,7 @@ panos_cert_gen_ssh -- generates a self-signed certificate using SSH protocol wit
 
 Synopsis
 --------
-- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection https://paloaltonetworks.github.io/pan-os-ansible**
 - This module generates a self-signed certificate that can be used by GlobalProtect client, SSL connector, or
 - otherwise. Root certificate must be preset on the system first. This module depends on paramiko for ssh.
 

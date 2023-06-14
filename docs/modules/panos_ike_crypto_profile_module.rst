@@ -17,7 +17,7 @@ panos_ike_crypto_profile -- Configures IKE Crypto profile on the firewall with s
 
 Synopsis
 --------
-- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection https://paloaltonetworks.github.io/pan-os-ansible**
 - Use the IKE Crypto Profiles page to specify protocols and algorithms for identification, authentication, and
 - encryption (IKEv1 or IKEv2, Phase 1).
 

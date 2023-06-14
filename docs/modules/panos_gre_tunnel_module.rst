@@ -17,7 +17,7 @@ panos_gre_tunnel -- Create GRE tunnels on PAN-OS devices
 
 Synopsis
 --------
-- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection https://paloaltonetworks.github.io/pan-os-ansible**
 - Create GRE tunnel objects on PAN-OS devices.
 
 

@@ -17,7 +17,7 @@ panos_log_forwarding_profile_match_list_action -- Manage log forwarding profile 
 
 Synopsis
 --------
-- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection https://paloaltonetworks.github.io/pan-os-ansible**
 - Manages log forwarding profile match list actions.
 
 

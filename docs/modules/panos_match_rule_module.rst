@@ -17,7 +17,7 @@ panos_match_rule -- Test for match against a security rule on PAN-OS devices or 
 
 Synopsis
 --------
-- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection https://paloaltonetworks.github.io/pan-os-ansible**
 - Security policies allow you to enforce rules and take action, and can be as general or specific as needed.
 
 

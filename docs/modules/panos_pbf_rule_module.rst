@@ -17,7 +17,7 @@ panos_pbf_rule -- Manage Policy Based Forwarding rules on PAN-OS
 
 Synopsis
 --------
-- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection https://paloaltonetworks.github.io/pan-os-ansible**
 - Manage Policy Based Forwarding rules on PAN-OS.
 
 
