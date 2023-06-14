@@ -17,7 +17,7 @@ panos_registered_ip -- Register IP addresses for use with dynamic address groups
 
 Synopsis
 --------
-- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection https://paloaltonetworks.github.io/pan-os-ansible**
 - Registers tags for IP addresses that can be used to build dynamic address groups.
 
 

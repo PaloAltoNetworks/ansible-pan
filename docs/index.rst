@@ -8,7 +8,7 @@ Palo Alto Networks Ansible Galaxy Role Documentation
 
 **PLEASE NOTE: This role is deprecated, the modules are no longer being
 updated. Please transition to using the modules in the collection
-instead: U(https://paloaltonetworks.github.io/pan-os-ansible)**
+instead: https://paloaltonetworks.github.io/pan-os-ansible**
 
 The Palo Alto Networks Ansible Galaxy role is a collection of modules that
 automate configuration and operational tasks on Palo Alto Networks Next

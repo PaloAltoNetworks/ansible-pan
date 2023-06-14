@@ -17,7 +17,7 @@ panos_object_facts -- Retrieve facts about objects on PAN-OS devices
 
 Synopsis
 --------
-- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection https://paloaltonetworks.github.io/pan-os-ansible**
 - Retrieves tag information objects on PAN-OS devices.
 
 

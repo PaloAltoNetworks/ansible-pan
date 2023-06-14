@@ -17,7 +17,7 @@ panos_bgp_conditional_advertisement -- Configures a BGP conditional advertisemen
 
 Synopsis
 --------
-- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection https://paloaltonetworks.github.io/pan-os-ansible**
 - Use BGP to publish and consume routes from disparate networks.
 - In the PAN-OS GUI, this resource cannot be created without also creating at least one non-exist filter and one advertise filter. The API behaves a little differently; you can create the conditional advertisement itself, but the API will start throwing errors if you try to update it and there is not at least one non-exist filter and one advertise filter.
 - In order for a conditional advertisement to be valid, you must specify at least one non-exist and one advertise filter.

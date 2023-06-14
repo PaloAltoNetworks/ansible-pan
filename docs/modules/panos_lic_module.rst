@@ -17,7 +17,7 @@ panos_lic -- apply authcode to a device/instance
 
 Synopsis
 --------
-- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection https://paloaltonetworks.github.io/pan-os-ansible**
 - Apply an authcode to a device.
 - The authcode should have been previously registered on the Palo Alto Networks support portal.
 - The device should have Internet access.

@@ -17,7 +17,7 @@ panos_ha -- Configures High Availability on PAN-OS
 
 Synopsis
 --------
-- **NOTE: The modules in this role are deprecated in favour of the modules in the collection U(https://paloaltonetworks.github.io/pan-os-ansible)**
+- **NOTE: The modules in this role are deprecated in favour of the modules in the collection https://paloaltonetworks.github.io/pan-os-ansible**
 - Configures High Availability on PAN-OS in A/S and A/A modes including all HA interface configuration.  Assumes physical interfaces are of type HA already using panos_interface.
 This module has the following limitations due to no support in pandevice - * No peer_backup_ip, this prevents full configuration of ha1_backup links * Speed and Duplex of ports was intentially skipped
 
